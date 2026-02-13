@@ -1,3 +1,4 @@
+package dto;
 
 public class SanPhamNCC_DTO {
     private String maSP;

@@ -1,3 +1,4 @@
+package dto;
 
 public class KhuVucLuuTru_DTO {
     private String maKVLT;
