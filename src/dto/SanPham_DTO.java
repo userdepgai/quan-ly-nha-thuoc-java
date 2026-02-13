@@ -15,7 +15,7 @@ public class SanPham_DTO {
     private QuyCach_DTO quyCach;
 
     // ORM: Liên kết 1-n (Một sản phẩm có danh sách các nhà cung cấp)
-    private ArrayList<NCC_SP_DTO> sp_dsNhaCungCap;
+    private ArrayList<SanPhamNCC_DTO> sp_dsNhaCungCap;
 
     public SanPham_DTO() {
         this.sp_dsNhaCungCap = new ArrayList<>(); // Khởi tạo danh sách tránh NullPointerException
@@ -46,8 +46,8 @@ public class SanPham_DTO {
     public QuyCach_DTO getQuyCach() { return quyCach; }
     public void setQuyCach(QuyCach_DTO quyCach) { this.quyCach = quyCach; }
 
-    public ArrayList<NCC_SP_DTO> getSp_dsNhaCungCap() { return sp_dsNhaCungCap; }
-    public void setSp_dsNhaCungCap(ArrayList<NCC_SP_DTO> sp_dsNhaCungCap) {
+    public ArrayList<SanPhamNCC_DTO> getSp_dsNhaCungCap() { return sp_dsNhaCungCap; }
+    public void setSp_dsNhaCungCap(ArrayList<SanPhamNCC_DTO> sp_dsNhaCungCap) {
         this.sp_dsNhaCungCap = sp_dsNhaCungCap;
     }
 }
