@@ -2,83 +2,43 @@ package dto;
 
 import java.time.LocalDate;
 
-public class NhanVien_DTO {
-    private String maNhanVien;
-    private String tenNhanVien;
-    private boolean gioiTinh;
-    private LocalDate namSinh;
-    private String sdt;
-    private String chucVu;
+public class NhanVien_DTO extends NGUOI_DTO {
+
+    private String maNV;
+    private int chucVu;
     private LocalDate ngayVaoLam;
     private double luongCoBan;
     private int trangThai;
+    private String maDC;
 
-    private DIACHI_DTO diaChi;
+    public NhanVien_DTO() {}
 
-    public NhanVien_DTO() {
-    }
+    public NhanVien_DTO(String maNV, String ten, boolean gioiTinh, LocalDate ngaySinh, String sdt,
+                        int chucVu, LocalDate ngayVaoLam,
+                        double luongCoBan, int trangThai, String maDC) {
 
-    public NhanVien_DTO(String maNhanVien, String tenNhanVien, boolean gioiTinh,
-                        LocalDate namSinh, String sdt, String chucVu,
-                        LocalDate ngayVaoLam, double luongCoBan,
-                        int trangThai, DIACHI_DTO diaChi) {
-        this.maNhanVien = maNhanVien;
-        this.tenNhanVien = tenNhanVien;
-        this.gioiTinh = gioiTinh;
-        this.namSinh = namSinh;
-        this.sdt = sdt;
+        super(ten, gioiTinh, ngaySinh, sdt);
+        this.maNV = maNV;
         this.chucVu = chucVu;
         this.ngayVaoLam = ngayVaoLam;
         this.luongCoBan = luongCoBan;
         this.trangThai = trangThai;
-        this.diaChi = diaChi;
+        this.maDC = maDC;
     }
 
-    public String getMaNhanVien() {
-        return maNhanVien;
+    public String getMaNV() {
+        return maNV;
     }
 
-    public void setMaNhanVien(String maNhanVien) {
-        this.maNhanVien = maNhanVien;
+    public void setMaNV(String maNV) {
+        this.maNV = maNV;
     }
 
-    public String getTenNhanVien() {
-        return tenNhanVien;
-    }
-
-    public void setTenNhanVien(String tenNhanVien) {
-        this.tenNhanVien = tenNhanVien;
-    }
-
-    public boolean isGioiTinh() {
-        return gioiTinh;
-    }
-
-    public void setGioiTinh(boolean gioiTinh) {
-        this.gioiTinh = gioiTinh;
-    }
-
-    public LocalDate getNamSinh() {
-        return namSinh;
-    }
-
-    public void setNamSinh(LocalDate namSinh) {
-        this.namSinh = namSinh;
-    }
-
-    public String getSdt() {
-        return sdt;
-    }
-
-    public void setSdt(String sdt) {
-        this.sdt = sdt;
-    }
-
-    public String getChucVu() {
+    public int getChucVu() {
         return chucVu;
     }
 
-    public void setChucVu(String chucVu) {
+    public void setChucVu(int chucVu) {
         this.chucVu = chucVu;
     }
 
@@ -106,12 +66,11 @@ public class NhanVien_DTO {
         this.trangThai = trangThai;
     }
 
-    public DIACHI_DTO getDiaChi() {
-        return diaChi;
+    public String getMaDC() {
+        return maDC;
     }
 
-    public void setDiaChi(DIACHI_DTO diaChi) {
-        this.diaChi = diaChi;
+    public void setMaDC(String maDC) {
+        this.maDC = maDC;
     }
 }
-

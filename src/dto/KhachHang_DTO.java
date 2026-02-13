@@ -1,81 +1,43 @@
 package dto;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.ArrayList;
 
-public class KhachHang_DTO {
-    private String maKhachHang;
-    private String tenKhachHang;
-    private boolean gioiTinh;
-    private LocalDate ngaySinh;
-    private String sdt;
+public class KhachHang_DTO extends NGUOI_DTO {
+
+    private String maKH;
     private double diemThuong;
     private double diemHang;
     private String hang;
-    private LocalDate ngayDangKy;
-    private int trangThai;
+    private LocalDate ngayDKThanhVien;
 
-    private List<DIACHI_DTO> danhSachDiaChi;
+    private ArrayList<KhachHang_DiaChi_DTO> dsDiaChi;
 
     public KhachHang_DTO() {
+        super();
+        dsDiaChi = new ArrayList<>();
     }
 
-    public KhachHang_DTO(String maKhachHang, String tenKhachHang, boolean gioiTinh,
-                         LocalDate ngaySinh, String sdt,
+    public KhachHang_DTO(String maKH, String ten, boolean gioiTinh, LocalDate ngaySinh, String sdt,
                          double diemThuong, double diemHang,
-                         String hang, LocalDate ngayDangKy,
-                         int trangThai, List<DIACHI_DTO> danhSachDiaChi) {
-        this.maKhachHang = maKhachHang;
-        this.tenKhachHang = tenKhachHang;
-        this.gioiTinh = gioiTinh;
-        this.ngaySinh = ngaySinh;
-        this.sdt = sdt;
+                         String hang, LocalDate ngayDKThanhVien,
+                         ArrayList<KhachHang_DiaChi_DTO> dsDiaChi) {
+
+        super(ten, gioiTinh, ngaySinh, sdt);
+        this.maKH = maKH;
         this.diemThuong = diemThuong;
         this.diemHang = diemHang;
         this.hang = hang;
-        this.ngayDangKy = ngayDangKy;
-        this.trangThai = trangThai;
-        this.danhSachDiaChi = danhSachDiaChi;
+        this.ngayDKThanhVien = ngayDKThanhVien;
+        this.dsDiaChi = dsDiaChi;
     }
 
-    public String getMaKhachHang() {
-        return maKhachHang;
+    public String getMaKH() {
+        return maKH;
     }
 
-    public void setMaKhachHang(String maKhachHang) {
-        this.maKhachHang = maKhachHang;
-    }
-
-    public String getTenKhachHang() {
-        return tenKhachHang;
-    }
-
-    public void setTenKhachHang(String tenKhachHang) {
-        this.tenKhachHang = tenKhachHang;
-    }
-
-    public boolean isGioiTinh() {
-        return gioiTinh;
-    }
-
-    public void setGioiTinh(boolean gioiTinh) {
-        this.gioiTinh = gioiTinh;
-    }
-
-    public LocalDate getNgaySinh() {
-        return ngaySinh;
-    }
-
-    public void setNgaySinh(LocalDate ngaySinh) {
-        this.ngaySinh = ngaySinh;
-    }
-
-    public String getSdt() {
-        return sdt;
-    }
-
-    public void setSdt(String sdt) {
-        this.sdt = sdt;
+    public void setMaKH(String maKH) {
+        this.maKH = maKH;
     }
 
     public double getDiemThuong() {
@@ -102,27 +64,19 @@ public class KhachHang_DTO {
         this.hang = hang;
     }
 
-    public LocalDate getNgayDangKy() {
-        return ngayDangKy;
+    public LocalDate getNgayDKThanhVien() {
+        return ngayDKThanhVien;
     }
 
-    public void setNgayDangKy(LocalDate ngayDangKy) {
-        this.ngayDangKy = ngayDangKy;
+    public void setNgayDKThanhVien(LocalDate ngayDKThanhVien) {
+        this.ngayDKThanhVien = ngayDKThanhVien;
     }
 
-    public int getTrangThai() {
-        return trangThai;
+    public ArrayList<KhachHang_DiaChi_DTO> getDsDiaChi() {
+        return dsDiaChi;
     }
 
-    public void setTrangThai(int trangThai) {
-        this.trangThai = trangThai;
-    }
-
-    public List<DIACHI_DTO> getDanhSachDiaChi() {
-        return danhSachDiaChi;
-    }
-
-    public void setDanhSachDiaChi(List<DIACHI_DTO> danhSachDiaChi) {
-        this.danhSachDiaChi = danhSachDiaChi;
+    public void setDsDiaChi(ArrayList<KhachHang_DiaChi_DTO> dsDiaChi) {
+        this.dsDiaChi = dsDiaChi;
     }
 }
