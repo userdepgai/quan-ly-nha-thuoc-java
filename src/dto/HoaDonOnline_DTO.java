@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class HoaDonOnline_DTO extends HoaDonBan_DTO {
 
-    private DiaChi_DTO diaChiGiaoHang;
+    private DIACHI_DTO diaChiGiaoHang;
     private double phiVanChuyen;
 
     public HoaDonOnline_DTO() {}
@@ -22,7 +22,7 @@ public class HoaDonOnline_DTO extends HoaDonBan_DTO {
             KhachHang_DTO khachHang,
             Voucher_DTO voucher,
             ArrayList<ChiTietHoaDonBan_DTO> ds,
-            DiaChi_DTO diaChi, double phiVC
+            DIACHI_DTO diaChi, double phiVC
     ) {
         super(ma, ngayLap, ngayHoanThanh, thanhTien, trangThai, nhanVien,
                 tinhTrangThanhToan, tongTienGoc, tongGiaTriKhuyenMai,
@@ -34,8 +34,8 @@ public class HoaDonOnline_DTO extends HoaDonBan_DTO {
         this.phiVanChuyen = phiVC;
     }
 
-    public DiaChi_DTO getDiaChiGiaoHang() { return diaChiGiaoHang; }
-    public void setDiaChiGiaoHang(DiaChi_DTO v) { diaChiGiaoHang = v; }
+    public DIACHI_DTO getDiaChiGiaoHang() { return diaChiGiaoHang; }
+    public void setDiaChiGiaoHang(DIACHI_DTO v) { diaChiGiaoHang = v; }
 
     public double getPhiVanChuyen() { return phiVanChuyen; }
     public void setPhiVanChuyen(double v) { phiVanChuyen = v; }

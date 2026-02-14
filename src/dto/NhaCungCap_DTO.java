@@ -7,14 +7,14 @@ public class NhaCungCap_DTO {
     private String sdt;
     private String maSoThue;
     private int trangThai;
-    private DIACHI diaChi;
+    private DIACHI_DTO diaChi;
 
 
     public NhaCungCap_DTO() {
     }
 
 
-    public NhaCungCap_DTO(String maNCC, String tenNCC, String nguoiLienHe, String sdt, String maSoThue, int trangThai, DIACHI diaChi) {
+    public NhaCungCap_DTO(String maNCC, String tenNCC, String nguoiLienHe, String sdt, String maSoThue, int trangThai, DIACHI_DTO diaChi) {
         this.maNCC = maNCC;
         this.tenNCC = tenNCC;
         this.nguoiLienHe = nguoiLienHe;
@@ -75,11 +75,11 @@ public class NhaCungCap_DTO {
     }
 
 
-    public DIACHI getDiaChi() {
+    public DIACHI_DTO getDiaChi() {
         return diaChi;
     }
 
-    public void setDiaChi(DIACHI diaChi) {
+    public void setDiaChi(DIACHI_DTO diaChi) {
         this.diaChi = diaChi;
     }
 }
