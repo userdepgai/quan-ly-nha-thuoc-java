@@ -18,8 +18,9 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     private String maToa;
     private String ngayKeToa;
 
-    private KhachHang_DTO khachHang;
-    private Voucher_DTO voucher;
+    private String maKhachHang;
+    private String maVoucher;
+
     private ArrayList<ChiTietHoaDonBan_DTO> ds_chiTietHDB;
 
     public HoaDonBan_DTO() {
@@ -27,19 +28,30 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     }
 
     public HoaDonBan_DTO(
-            String ma, LocalDateTime ngayLap, LocalDateTime ngayHoanThanh,
-            double thanhTien, int trangThai, NhanVien_DTO nhanVien,
-            int tinhTrangThanhToan, double tongTienGoc,
-            double tongGiaTriKhuyenMai, String ghiChu,
-            int diemThuongQuyDoi, double tienNhan,
-            double tienThoi, double thueVAT,
-            boolean keToa, String tenBacSi,
-            String maToa, String ngayKeToa,
-            KhachHang_DTO khachHang,
-            Voucher_DTO voucher,
+            String ma,
+            LocalDateTime ngayLap,
+            LocalDateTime ngayHoanThanh,
+            double thanhTien,
+            int trangThai,
+            String maNhanVien,
+
+            int tinhTrangThanhToan,
+            double tongTienGoc,
+            double tongGiaTriKhuyenMai,
+            String ghiChu,
+            int diemThuongQuyDoi,
+            double tienNhan,
+            double tienThoi,
+            double thueVAT,
+            boolean keToa,
+            String tenBacSi,
+            String maToa,
+            String ngayKeToa,
+            String maKhachHang,
+            String maVoucher,
             ArrayList<ChiTietHoaDonBan_DTO> ds
     ) {
-        super(ma, ngayLap, ngayHoanThanh, thanhTien, trangThai, nhanVien);
+        super(ma, ngayLap, ngayHoanThanh, thanhTien, trangThai, maNhanVien);
 
         this.tinhTrangThanhToan = tinhTrangThanhToan;
         this.tongTienGoc = tongTienGoc;
@@ -53,57 +65,128 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
         this.tenBacSi = tenBacSi;
         this.maToa = maToa;
         this.ngayKeToa = ngayKeToa;
-        this.khachHang = khachHang;
-        this.voucher = voucher;
+        this.maKhachHang = maKhachHang;
+        this.maVoucher = maVoucher;
         this.ds_chiTietHDB = ds != null ? ds : new ArrayList<>();
     }
 
-    public int getTinhTrangThanhToan() { return tinhTrangThanhToan; }
-    public void setTinhTrangThanhToan(int t) { tinhTrangThanhToan = t; }
+    public int getTinhTrangThanhToan() {
+        return tinhTrangThanhToan;
+    }
 
-    public double getTongTienGoc() { return tongTienGoc; }
-    public void setTongTienGoc(double v) { tongTienGoc = v; }
+    public void setTinhTrangThanhToan(int tinhTrangThanhToan) {
+        this.tinhTrangThanhToan = tinhTrangThanhToan;
+    }
 
-    public double getTongGiaTriKhuyenMai() { return tongGiaTriKhuyenMai; }
-    public void setTongGiaTriKhuyenMai(double v) { tongGiaTriKhuyenMai = v; }
+    public double getTongTienGoc() {
+        return tongTienGoc;
+    }
 
-    public String getGhiChu() { return ghiChu; }
-    public void setGhiChu(String v) { ghiChu = v; }
+    public void setTongTienGoc(double tongTienGoc) {
+        this.tongTienGoc = tongTienGoc;
+    }
 
-    public int getDiemThuongQuyDoi() { return diemThuongQuyDoi; }
-    public void setDiemThuongQuyDoi(int v) { diemThuongQuyDoi = v; }
+    public double getTongGiaTriKhuyenMai() {
+        return tongGiaTriKhuyenMai;
+    }
 
-    public double getTienNhan() { return tienNhan; }
-    public void setTienNhan(double v) { tienNhan = v; }
+    public void setTongGiaTriKhuyenMai(double tongGiaTriKhuyenMai) {
+        this.tongGiaTriKhuyenMai = tongGiaTriKhuyenMai;
+    }
 
-    public double getTienThoi() { return tienThoi; }
-    public void setTienThoi(double v) { tienThoi = v; }
+    public String getGhiChu() {
+        return ghiChu;
+    }
 
-    public double getThueVAT() { return thueVAT; }
-    public void setThueVAT(double v) { thueVAT = v; }
+    public void setGhiChu(String ghiChu) {
+        this.ghiChu = ghiChu;
+    }
 
-    public boolean isKeToa() { return keToa; }
-    public void setKeToa(boolean v) { keToa = v; }
+    public int getDiemThuongQuyDoi() {
+        return diemThuongQuyDoi;
+    }
 
-    public String getTenBacSi() { return tenBacSi; }
-    public void setTenBacSi(String v) { tenBacSi = v; }
+    public void setDiemThuongQuyDoi(int diemThuongQuyDoi) {
+        this.diemThuongQuyDoi = diemThuongQuyDoi;
+    }
 
-    public String getMaToa() { return maToa; }
-    public void setMaToa(String v) { maToa = v; }
+    public double getTienNhan() {
+        return tienNhan;
+    }
 
-    public String getNgayKeToa() { return ngayKeToa; }
-    public void setNgayKeToa(String v) { ngayKeToa = v; }
+    public void setTienNhan(double tienNhan) {
+        this.tienNhan = tienNhan;
+    }
 
-    public KhachHang_DTO getKhachHang() { return khachHang; }
-    public void setKhachHang(KhachHang_DTO v) { khachHang = v; }
+    public double getTienThoi() {
+        return tienThoi;
+    }
 
-    public Voucher_DTO getVoucher() { return voucher; }
-    public void setVoucher(Voucher_DTO v) { voucher = v; }
+    public void setTienThoi(double tienThoi) {
+        this.tienThoi = tienThoi;
+    }
+
+    public double getThueVAT() {
+        return thueVAT;
+    }
+
+    public void setThueVAT(double thueVAT) {
+        this.thueVAT = thueVAT;
+    }
+
+    public boolean isKeToa() {
+        return keToa;
+    }
+
+    public void setKeToa(boolean keToa) {
+        this.keToa = keToa;
+    }
+
+    public String getTenBacSi() {
+        return tenBacSi;
+    }
+
+    public void setTenBacSi(String tenBacSi) {
+        this.tenBacSi = tenBacSi;
+    }
+
+    public String getMaToa() {
+        return maToa;
+    }
+
+    public void setMaToa(String maToa) {
+        this.maToa = maToa;
+    }
+
+    public String getNgayKeToa() {
+        return ngayKeToa;
+    }
+
+    public void setNgayKeToa(String ngayKeToa) {
+        this.ngayKeToa = ngayKeToa;
+    }
+
+    public String getMaKhachHang() {
+        return maKhachHang;
+    }
+
+    public void setMaKhachHang(String maKhachHang) {
+        this.maKhachHang = maKhachHang;
+    }
+
+    public String getMaVoucher() {
+        return maVoucher;
+    }
+
+    public void setMaVoucher(String maVoucher) {
+        this.maVoucher = maVoucher;
+    }
 
     public ArrayList<ChiTietHoaDonBan_DTO> getDs_chiTietHDB() {
         return ds_chiTietHDB;
     }
-    public void setDs_chiTietHDB(ArrayList<ChiTietHoaDonBan_DTO> v) {
-        ds_chiTietHDB = v;
+
+    public void setDs_chiTietHDB(ArrayList<ChiTietHoaDonBan_DTO> ds_chiTietHDB) {
+        this.ds_chiTietHDB = ds_chiTietHDB;
     }
 }

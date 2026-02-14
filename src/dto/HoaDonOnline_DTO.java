@@ -5,38 +5,62 @@ import java.util.ArrayList;
 
 public class HoaDonOnline_DTO extends HoaDonBan_DTO {
 
-    private DIACHI_DTO diaChiGiaoHang;
+    private String maDiaChiGiaoHang;
     private double phiVanChuyen;
 
-    public HoaDonOnline_DTO() {}
+    public HoaDonOnline_DTO() {
+    }
 
     public HoaDonOnline_DTO(
-            String ma, LocalDateTime ngayLap, LocalDateTime ngayHoanThanh,
-            double thanhTien, int trangThai, NhanVien_DTO nhanVien,
-            int tinhTrangThanhToan, double tongTienGoc,
-            double tongGiaTriKhuyenMai, String ghiChu,
-            int diemThuongQuyDoi, double tienNhan,
-            double tienThoi, double thueVAT,
-            boolean keToa, String tenBacSi,
-            String maToa, String ngayKeToa,
-            KhachHang_DTO khachHang,
-            Voucher_DTO voucher,
+            String ma,
+            LocalDateTime ngayLap,
+            LocalDateTime ngayHoanThanh,
+            double thanhTien,
+            int trangThai,
+            String maNhanVien,
+
+            int tinhTrangThanhToan,
+            double tongTienGoc,
+            double tongGiaTriKhuyenMai,
+            String ghiChu,
+            int diemThuongQuyDoi,
+            double tienNhan,
+            double tienThoi,
+            double thueVAT,
+            boolean keToa,
+            String tenBacSi,
+            String maToa,
+            String ngayKeToa,
+            String maKhachHang,
+            String maVoucher,
             ArrayList<ChiTietHoaDonBan_DTO> ds,
-            DIACHI_DTO diaChi, double phiVC
+
+            String maDiaChiGiaoHang,
+            double phiVanChuyen
     ) {
-        super(ma, ngayLap, ngayHoanThanh, thanhTien, trangThai, nhanVien,
+        super(ma, ngayLap, ngayHoanThanh, thanhTien, trangThai, maNhanVien,
                 tinhTrangThanhToan, tongTienGoc, tongGiaTriKhuyenMai,
                 ghiChu, diemThuongQuyDoi, tienNhan, tienThoi,
                 thueVAT, keToa, tenBacSi, maToa, ngayKeToa,
-                khachHang, voucher, ds);
+                maKhachHang, maVoucher, ds);
 
-        this.diaChiGiaoHang = diaChi;
-        this.phiVanChuyen = phiVC;
+        this.maDiaChiGiaoHang = maDiaChiGiaoHang;
+        this.phiVanChuyen = phiVanChuyen;
     }
 
-    public DIACHI_DTO getDiaChiGiaoHang() { return diaChiGiaoHang; }
-    public void setDiaChiGiaoHang(DIACHI_DTO v) { diaChiGiaoHang = v; }
+    public String getMaDiaChiGiaoHang() {
+        return maDiaChiGiaoHang;
+    }
 
-    public double getPhiVanChuyen() { return phiVanChuyen; }
-    public void setPhiVanChuyen(double v) { phiVanChuyen = v; }
+    public void setMaDiaChiGiaoHang(String maDiaChiGiaoHang) {
+        this.maDiaChiGiaoHang = maDiaChiGiaoHang;
+    }
+
+    public double getPhiVanChuyen() {
+        return phiVanChuyen;
+    }
+
+    public void setPhiVanChuyen(double phiVanChuyen) {
+        this.phiVanChuyen = phiVanChuyen;
+    }
 }

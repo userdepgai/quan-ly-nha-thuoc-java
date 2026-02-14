@@ -2,42 +2,83 @@ package dto;
 
 public class ChiTietHoaDonBan_DTO {
 
+    private String maHDB;
+    private String maLo;
+    private String maKhuyenMai;
+
     private int soLuong;
     private double giaBan;
-    private double giaBanSauAp_KM;
+    private double giaBanSauApKM;
     private double thanhTien;
 
-    private LoHang_DTO loSanPham;
-    private KhuyenMai_DTO khuyenMai;
-
-    public ChiTietHoaDonBan_DTO() {}
-
-    public ChiTietHoaDonBan_DTO(int soLuong, double donGia,
-                                double tienGiam, double thanhTien,
-                                LoHang_DTO lo, KhuyenMai_DTO km) {
-        this.soLuong = soLuong;
-        this.giaBan = donGia;
-        this.giaBanSauAp_KM = tienGiam;
-        this.thanhTien = thanhTien;
-        this.loSanPham = lo;
-        this.khuyenMai = km;
+    public ChiTietHoaDonBan_DTO() {
     }
 
-    public int getSoLuong() { return soLuong; }
-    public void setSoLuong(int v) { soLuong = v; }
+    public ChiTietHoaDonBan_DTO(String maHDB, String maLo, String maKhuyenMai,
+                                int soLuong, double giaBan,
+                                double giaBanSauApKM, double thanhTien) {
+        this.maHDB = maHDB;
+        this.maLo = maLo;
+        this.maKhuyenMai = maKhuyenMai;
+        this.soLuong = soLuong;
+        this.giaBan = giaBan;
+        this.giaBanSauApKM = giaBanSauApKM;
+        this.thanhTien = thanhTien;
+    }
 
-    public double getGiaBan() { return giaBan; }
-    public void setGiaBan(double v) { giaBan = v; }
+    public String getMaHDB() {
+        return maHDB;
+    }
 
-    public double getGiaBanSauAp_KM() { return giaBanSauAp_KM; }
-    public void setGiaBanSauAp_KM(double v) { giaBanSauAp_KM = v; }
+    public void setMaHDB(String maHDB) {
+        this.maHDB = maHDB;
+    }
 
-    public double getThanhTien() { return thanhTien; }
-    public void setThanhTien(double v) { thanhTien = v; }
+    public String getMaLo() {
+        return maLo;
+    }
 
-    public LoHang_DTO getLoSanPham() { return loSanPham; }
-    public void setLoSanPham(LoHang_DTO v) { loSanPham = v; }
+    public void setMaLo(String maLo) {
+        this.maLo = maLo;
+    }
 
-    public KhuyenMai_DTO getKhuyenMai() { return khuyenMai; }
-    public void setKhuyenMai(KhuyenMai_DTO v) { khuyenMai = v; }
+    public String getMaKhuyenMai() {
+        return maKhuyenMai;
+    }
+
+    public void setMaKhuyenMai(String maKhuyenMai) {
+        this.maKhuyenMai = maKhuyenMai;
+    }
+
+    public int getSoLuong() {
+        return soLuong;
+    }
+
+    public void setSoLuong(int soLuong) {
+        this.soLuong = soLuong;
+    }
+
+    public double getGiaBan() {
+        return giaBan;
+    }
+
+    public void setGiaBan(double giaBan) {
+        this.giaBan = giaBan;
+    }
+
+    public double getGiaBanSauApKM() {
+        return giaBanSauApKM;
+    }
+
+    public void setGiaBanSauApKM(double giaBanSauApKM) {
+        this.giaBanSauApKM = giaBanSauApKM;
+    }
+
+    public double getThanhTien() {
+        return thanhTien;
+    }
+
+    public void setThanhTien(double thanhTien) {
+        this.thanhTien = thanhTien;
+    }
 }

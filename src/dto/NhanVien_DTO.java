@@ -8,8 +8,7 @@ public class NhanVien_DTO extends Nguoi_DTO {
     private LocalDate ngayVaoLam;
     private double luongCoBan;
     private int trangThai;
-
-    private DIACHI_DTO diaChi;
+    private String maDiaChi;
 
     public NhanVien_DTO() {
         super();
@@ -19,14 +18,14 @@ public class NhanVien_DTO extends Nguoi_DTO {
                         LocalDate ngaySinh, boolean gioiTinh,
                         String chucVu, LocalDate ngayVaoLam,
                         double luongCoBan, int trangThai,
-                        DIACHI_DTO diaChi) {
+                        String maDiaChi) {
 
         super(ma, ten, sdt, ngaySinh, gioiTinh);
         this.chucVu = chucVu;
         this.ngayVaoLam = ngayVaoLam;
         this.luongCoBan = luongCoBan;
         this.trangThai = trangThai;
-        this.diaChi = diaChi;
+        this.maDiaChi = maDiaChi;
     }
 
     public String getChucVu() {
@@ -61,11 +60,11 @@ public class NhanVien_DTO extends Nguoi_DTO {
         this.trangThai = trangThai;
     }
 
-    public DIACHI_DTO getDiaChi() {
-        return diaChi;
+    public String getMaDiaChi() {
+        return maDiaChi;
     }
 
-    public void setDiaChi(DIACHI_DTO diaChi) {
-        this.diaChi = diaChi;
+    public void setMaDiaChi(String maDiaChi) {
+        this.maDiaChi = maDiaChi;
     }
 }
