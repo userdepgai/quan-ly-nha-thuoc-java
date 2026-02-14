@@ -3,43 +3,37 @@ package dto;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class KhachHang_DTO extends NGUOI_DTO {
+public class KhachHang_DTO extends Nguoi_DTO {
 
-    private String maKH;
     private double diemThuong;
     private double diemHang;
     private String hang;
     private LocalDate ngayDKThanhVien;
 
+    // Quan hệ N–N qua lớp trung gian
     private ArrayList<KhachHang_DiaChi_DTO> dsDiaChi;
 
+    // Constructor rỗng
     public KhachHang_DTO() {
         super();
         dsDiaChi = new ArrayList<>();
     }
 
-    public KhachHang_DTO(String maKH, String ten, boolean gioiTinh, LocalDate ngaySinh, String sdt,
+    // Constructor đầy đủ
+    public KhachHang_DTO(String ma, String ten, String sdt,
+                         LocalDate ngaySinh, boolean gioiTinh,
                          double diemThuong, double diemHang,
-                         String hang, LocalDate ngayDKThanhVien,
-                         ArrayList<KhachHang_DiaChi_DTO> dsDiaChi) {
+                         String hang, LocalDate ngayDKThanhVien) {
 
-        super(ten, gioiTinh, ngaySinh, sdt);
-        this.maKH = maKH;
+        super(ma, ten, sdt, ngaySinh, gioiTinh);
         this.diemThuong = diemThuong;
         this.diemHang = diemHang;
         this.hang = hang;
         this.ngayDKThanhVien = ngayDKThanhVien;
-        this.dsDiaChi = dsDiaChi;
+        this.dsDiaChi = new ArrayList<>();
     }
 
-    public String getMaKH() {
-        return maKH;
-    }
-
-    public void setMaKH(String maKH) {
-        this.maKH = maKH;
-    }
-
+    // ===== Getter & Setter =====
     public double getDiemThuong() {
         return diemThuong;
     }
