@@ -1,7 +1,6 @@
 package dto;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 public class KhachHang_DTO extends Nguoi_DTO {
 
@@ -10,27 +9,28 @@ public class KhachHang_DTO extends Nguoi_DTO {
     private String hang;
     private LocalDate ngayDKThanhVien;
 
-    // Quan hệ N–N qua lớp trung gian
-    private ArrayList<KhachHang_DiaChi_DTO> dsDiaChi;
-
     // Constructor rỗng
     public KhachHang_DTO() {
         super();
-        dsDiaChi = new ArrayList<>();
     }
 
     // Constructor đầy đủ
-    public KhachHang_DTO(String ma, String ten, String sdt,
-                         LocalDate ngaySinh, boolean gioiTinh,
-                         double diemThuong, double diemHang,
-                         String hang, LocalDate ngayDKThanhVien) {
-
+    public KhachHang_DTO(
+            String ma,
+            String ten,
+            String sdt,
+            LocalDate ngaySinh,
+            boolean gioiTinh,
+            double diemThuong,
+            double diemHang,
+            String hang,
+            LocalDate ngayDKThanhVien
+    ) {
         super(ma, ten, sdt, ngaySinh, gioiTinh);
         this.diemThuong = diemThuong;
         this.diemHang = diemHang;
         this.hang = hang;
         this.ngayDKThanhVien = ngayDKThanhVien;
-        this.dsDiaChi = new ArrayList<>();
     }
 
     // ===== Getter & Setter =====
@@ -64,13 +64,5 @@ public class KhachHang_DTO extends Nguoi_DTO {
 
     public void setNgayDKThanhVien(LocalDate ngayDKThanhVien) {
         this.ngayDKThanhVien = ngayDKThanhVien;
-    }
-
-    public ArrayList<KhachHang_DiaChi_DTO> getDsDiaChi() {
-        return dsDiaChi;
-    }
-
-    public void setDsDiaChi(ArrayList<KhachHang_DiaChi_DTO> dsDiaChi) {
-        this.dsDiaChi = dsDiaChi;
     }
 }
