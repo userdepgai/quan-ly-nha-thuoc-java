@@ -1,0 +1,52 @@
+package gui.HOADON_GUI;
+
+import javax.swing.*;
+
+public class LapHoaDon_GUI {
+    private JPanel panel_LapHoaDon;
+    private JButton btnXuatExcel;
+    private JButton btnNhapExcel;
+    private JCheckBox cbToaBacSi;
+    private JCheckBox cbDiemThuong;
+    private JTextField txtTenKhachHang;
+    private JTextField txtSoDienThoai;
+    private JTextField txtNhanVienLap;
+    private JTextField txtNgayLap;
+    private JTextField txtTenBS;
+    private JTextField txtMaToa;
+    private JComboBox cbMaSP;
+    private JComboBox cbTenSP;
+    private JComboBox cbKM;
+    private JButton btnThem;
+    private JButton btnXoa;
+    private JButton btnSua;
+    private JTextField txtTongTien;
+    private JTextField txtGTDT;
+    private JTextField txtTongGTKM;
+    private JTextField txtThanhTien;
+    private JComboBox cbVoucher;
+    private JTextField txtTienNhan;
+    private JTextField txtTienThoi;
+    private JButton btnChuyenKhoan;
+    private JCheckBox cbDaChyenKhoan;
+    private JTable tableTTSP;
+    private JButton btnLuu;
+    private JLabel labelTenKH;
+    private JLabel labelSoDienThoai;
+    private JLabel labelMaToa;
+    private JLabel labelNhanVienLap;
+    private JLabel labelNgayLap;
+    private JLabel labelTenBS;
+    private JLabel labelNgayKeToa;
+    private JLabel labelMaSP;
+    private JLabel labelSoLuong;
+    private JLabel labelTenSP;
+    private JLabel labelKM;
+    private JLabel labelVoucher;
+    private JLabel labelTongTien;
+    private JLabel labelGTDT;
+    private JLabel labelTongGTKM;
+    private JPanel labelThanhTien;
+    private JLabel labelTienNhan;
+    private JLabel labelTienThoi;
+}
