@@ -1,8 +1,7 @@
 package dto;
 
-import java.util.ArrayList;
-
 public class SanPham_DTO {
+
     private String maSP;
     private String tenSP;
     private int donViTinh;
@@ -10,44 +9,86 @@ public class SanPham_DTO {
     private double loiNhuan;
     private int trangThai;
 
-    // ORM: Liên kết 1-1 với Danh mục và Quy cách
-    private DanhMucSanPham_DTO danhMuc;
-    private QuyCach_DTO quyCach;
-
-    // ORM: Liên kết 1-n (Một sản phẩm có danh sách các nhà cung cấp)
-    private ArrayList<SanPhamNCC_DTO> sp_dsNhaCungCap;
+    private String maDM;
+    private String maQC;
 
     public SanPham_DTO() {
-        this.sp_dsNhaCungCap = new ArrayList<>(); // Khởi tạo danh sách tránh NullPointerException
     }
 
-    // Getters and Setters
-    public String getMaSP() { return maSP; }
-    public void setMaSP(String maSP) { this.maSP = maSP; }
+    public SanPham_DTO(String maSP, String tenSP, int donViTinh,
+                       String hinhAnh, double loiNhuan,
+                       int trangThai, String maDM, String maQuyCach) {
+        this.maSP = maSP;
+        this.tenSP = tenSP;
+        this.donViTinh = donViTinh;
+        this.hinhAnh = hinhAnh;
+        this.loiNhuan = loiNhuan;
+        this.trangThai = trangThai;
+        this.maDM = maDM;
+        this.maQC = maQuyCach;
+    }
 
-    public String getTenSP() { return tenSP; }
-    public void setTenSP(String tenSP) { this.tenSP = tenSP; }
+    public String getMaSP() {
+        return maSP;
+    }
 
-    public int getDonViTinh() { return donViTinh; }
-    public void setDonViTinh(int donViTinh) { this.donViTinh = donViTinh; }
+    public void setMaSP(String maSP) {
+        this.maSP = maSP;
+    }
 
-    public String getHinhAnh() { return hinhAnh; }
-    public void setHinhAnh(String hinhAnh) { this.hinhAnh = hinhAnh; }
+    public String getTenSP() {
+        return tenSP;
+    }
 
-    public double getLoiNhuan() { return loiNhuan; }
-    public void setLoiNhuan(double loiNhuan) { this.loiNhuan = loiNhuan; }
+    public void setTenSP(String tenSP) {
+        this.tenSP = tenSP;
+    }
 
-    public int getTrangThai() { return trangThai; }
-    public void setTrangThai(int trangThai) { this.trangThai = trangThai; }
+    public int getDonViTinh() {
+        return donViTinh;
+    }
 
-    public DanhMucSanPham_DTO getDanhMuc() { return danhMuc; }
-    public void setDanhMuc(DanhMucSanPham_DTO danhMuc) { this.danhMuc = danhMuc; }
+    public void setDonViTinh(int donViTinh) {
+        this.donViTinh = donViTinh;
+    }
 
-    public QuyCach_DTO getQuyCach() { return quyCach; }
-    public void setQuyCach(QuyCach_DTO quyCach) { this.quyCach = quyCach; }
+    public String getHinhAnh() {
+        return hinhAnh;
+    }
 
-    public ArrayList<SanPhamNCC_DTO> getSp_dsNhaCungCap() { return sp_dsNhaCungCap; }
-    public void setSp_dsNhaCungCap(ArrayList<SanPhamNCC_DTO> sp_dsNhaCungCap) {
-        this.sp_dsNhaCungCap = sp_dsNhaCungCap;
+    public void setHinhAnh(String hinhAnh) {
+        this.hinhAnh = hinhAnh;
+    }
+
+    public double getLoiNhuan() {
+        return loiNhuan;
+    }
+
+    public void setLoiNhuan(double loiNhuan) {
+        this.loiNhuan = loiNhuan;
+    }
+
+    public int getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(int trangThai) {
+        this.trangThai = trangThai;
+    }
+
+    public String getMaDM() {
+        return maDM;
+    }
+
+    public void setMaDM(String maDM) {
+        this.maDM = maDM;
+    }
+
+    public String getMaQuyCach() {
+        return maQC;
+    }
+
+    public void setMaQuyCach(String maQuyCach) {
+        this.maQC = maQuyCach;
     }
 }

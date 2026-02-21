@@ -1,28 +1,36 @@
 package dto;
 
 public class SanPhamNCC_DTO {
-    private String maSP;
+
+    private String maSanPham;
     private String maNCC;
+
     private double giaNhap;
     private int trangThai;
 
-    public SanPhamNCC_DTO(String maSP, String maNCC, double giaNhap, int trangThai) {
-        this.maSP = maSP;
+    public SanPhamNCC_DTO() {
+    }
+
+    public SanPhamNCC_DTO(String maSanPham, String maNCC,
+                          double giaNhap, int trangThai) {
+        this.maSanPham = maSanPham;
         this.maNCC = maNCC;
         this.giaNhap = giaNhap;
         this.trangThai = trangThai;
     }
 
-    public String getMaSP() {
-        return maSP;
+    public String getMaSanPham() {
+        return maSanPham;
     }
-    public void setMaSP(String maSP) {
-        this.maSP = maSP;
+
+    public void setMaSanPham(String maSanPham) {
+        this.maSanPham = maSanPham;
     }
 
     public String getMaNCC() {
         return maNCC;
     }
+
     public void setMaNCC(String maNCC) {
         this.maNCC = maNCC;
     }
@@ -30,6 +38,7 @@ public class SanPhamNCC_DTO {
     public double getGiaNhap() {
         return giaNhap;
     }
+
     public void setGiaNhap(double giaNhap) {
         this.giaNhap = giaNhap;
     }
@@ -37,6 +46,7 @@ public class SanPhamNCC_DTO {
     public int getTrangThai() {
         return trangThai;
     }
+
     public void setTrangThai(int trangThai) {
         this.trangThai = trangThai;
     }
