@@ -1,7 +1,6 @@
 package dto;
 
 public class KhuyenMai_DTO {
-
     private String maKM;
     private String tenKM;
     private int trangThai;
@@ -9,99 +8,32 @@ public class KhuyenMai_DTO {
     private int loaiKhuyenMai;
     private double giaTriKhuyenMai;
 
-    private String maChuongTrinh;
-    private String maSanPham;
-    private String maDanhMuc;
+    // Kỹ thuật ORM: Tham chiếu đối tượng thay vì chỉ dùng ID
+    private ChuongTrinhKM_DTO chuongTrinh;
+    private SanPham_DTO sanPham;
+    private DanhMucSanPham_DTO danhMuc;
 
-    public KhuyenMai_DTO() {
-    }
+    public KhuyenMai_DTO() {}
 
-    public KhuyenMai_DTO(String maKM, String tenKM, int trangThai,
-                         int doiTuongApDung, int loaiKhuyenMai,
-                         double giaTriKhuyenMai,
-                         String maChuongTrinh,
-                         String maSanPham,
-                         String maDanhMuc) {
-        this.maKM = maKM;
-        this.tenKM = tenKM;
-        this.trangThai = trangThai;
-        this.doiTuongApDung = doiTuongApDung;
-        this.loaiKhuyenMai = loaiKhuyenMai;
-        this.giaTriKhuyenMai = giaTriKhuyenMai;
-        this.maChuongTrinh = maChuongTrinh;
-        this.maSanPham = maSanPham;
-        this.maDanhMuc = maDanhMuc;
-    }
+    public String getMaKMSP() { return maKM; }
+    public void setMaKMSP(String maKM) { this.maKM = maKM; }
 
-    public String getMaKM() {
-        return maKM;
-    }
+    public String getTenKMSP() { return tenKM; }
+    public void setTenKMSP(String tenKM) { this.tenKM = tenKM; }
 
-    public void setMaKM(String maKM) {
-        this.maKM = maKM;
-    }
+    public int getTrangThai() { return trangThai; }
+    public void setTrangThai(int trangThai) { this.trangThai = trangThai; }
 
-    public String getTenKM() {
-        return tenKM;
-    }
+    public int getDoiTuongApDung() { return doiTuongApDung; }
+    public void setDoiTuongApDung(int doiTuongApDung) { this.doiTuongApDung = doiTuongApDung; }
 
-    public void setTenKM(String tenKM) {
-        this.tenKM = tenKM;
-    }
+    public int getLoaiKhuyenMai() { return loaiKhuyenMai; }
+    public void setLoaiKhuyenMai(int loaiKhuyenMai) { this.loaiKhuyenMai = loaiKhuyenMai; }
 
-    public int getTrangThai() {
-        return trangThai;
-    }
+    public double getGiaTriKhuyenMai() { return giaTriKhuyenMai; }
+    public void setGiaTriKhuyenMai(double giaTriKhuyenMai) { this.giaTriKhuyenMai = giaTriKhuyenMai; }
 
-    public void setTrangThai(int trangThai) {
-        this.trangThai = trangThai;
-    }
-
-    public int getDoiTuongApDung() {
-        return doiTuongApDung;
-    }
-
-    public void setDoiTuongApDung(int doiTuongApDung) {
-        this.doiTuongApDung = doiTuongApDung;
-    }
-
-    public int getLoaiKhuyenMai() {
-        return loaiKhuyenMai;
-    }
-
-    public void setLoaiKhuyenMai(int loaiKhuyenMai) {
-        this.loaiKhuyenMai = loaiKhuyenMai;
-    }
-
-    public double getGiaTriKhuyenMai() {
-        return giaTriKhuyenMai;
-    }
-
-    public void setGiaTriKhuyenMai(double giaTriKhuyenMai) {
-        this.giaTriKhuyenMai = giaTriKhuyenMai;
-    }
-
-    public String getMaChuongTrinh() {
-        return maChuongTrinh;
-    }
-
-    public void setMaChuongTrinh(String maChuongTrinh) {
-        this.maChuongTrinh = maChuongTrinh;
-    }
-
-    public String getMaSanPham() {
-        return maSanPham;
-    }
-
-    public void setMaSanPham(String maSanPham) {
-        this.maSanPham = maSanPham;
-    }
-
-    public String getMaDanhMuc() {
-        return maDanhMuc;
-    }
-
-    public void setMaDanhMuc(String maDanhMuc) {
-        this.maDanhMuc = maDanhMuc;
-    }
+    // Getter/Setter cho đối tượng liên kết
+    public ChuongTrinhKM_DTO getChuongTrinh() { return chuongTrinh; }
+    public void setChuongTrinh(ChuongTrinhKM_DTO chuongTrinh) { this.chuongTrinh = chuongTrinh; }
 }

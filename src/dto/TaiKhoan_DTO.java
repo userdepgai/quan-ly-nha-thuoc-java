@@ -3,32 +3,35 @@ package dto;
 import java.time.LocalDate;
 
 public class TaiKhoan_DTO {
-
-    private String sdt;
+    private String SDT;
     private String matKhau;
-    private String maQuyen;
+    private PhanQuyen_DTO quyen;
     private LocalDate ngayKichHoat;
     private int trangThai;
 
-    public TaiKhoan_DTO() {
-    }
 
-    public TaiKhoan_DTO(String sdt, String matKhau,
-                        String maQuyen, LocalDate ngayKichHoat,
-                        int trangThai) {
-        this.sdt = sdt;
+    public TaiKhoan_DTO(String SDT, String matKhau, PhanQuyen_DTO quyen, LocalDate ngayKichHoat, int trangThai) {
+        this.SDT = SDT;
         this.matKhau = matKhau;
-        this.maQuyen = maQuyen;
+        this.quyen = quyen;
         this.ngayKichHoat = ngayKichHoat;
         this.trangThai = trangThai;
     }
 
-    public String getSdt() {
-        return sdt;
+    public LocalDate getNgayKichHoat() {
+        return ngayKichHoat;
     }
 
-    public void setSdt(String sdt) {
-        this.sdt = sdt;
+    public void setNgayKichHoat(LocalDate ngayKichHoat) {
+        this.ngayKichHoat = ngayKichHoat;
+    }
+
+    public String getSDT() {
+        return SDT;
+    }
+
+    public void setSDT(String SDT) {
+        this.SDT = SDT;
     }
 
     public String getMatKhau() {
@@ -39,20 +42,12 @@ public class TaiKhoan_DTO {
         this.matKhau = matKhau;
     }
 
-    public String getMaQuyen() {
-        return maQuyen;
+    public PhanQuyen_DTO getQuyen() {
+        return quyen;
     }
 
-    public void setMaQuyen(String maQuyen) {
-        this.maQuyen = maQuyen;
-    }
-
-    public LocalDate getNgayKichHoat() {
-        return ngayKichHoat;
-    }
-
-    public void setNgayKichHoat(LocalDate ngayKichHoat) {
-        this.ngayKichHoat = ngayKichHoat;
+    public void setQuyen(PhanQuyen_DTO quyen) {
+        this.quyen = quyen;
     }
 
     public int getTrangThai() {

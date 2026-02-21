@@ -98,7 +98,7 @@ public class Menu extends JFrame {
         contentPanel.add(createContent("Quản lý voucher"), "voucher");
 
         contentPanel.add(new TaiKhoan_GUI(), "taiKhoanDangNhap");
-        contentPanel.add(new PhanQuyen_GUI(), "phanQuyen");
+        contentPanel.add(createContent("Phân quyền"), "phanQuyen");
 
         menuList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {

@@ -2,35 +2,32 @@ package dto;
 
 public class KhachHang_DiaChi_DTO {
 
-    private String maKhachHang;
-    private String maDiaChi;
-    private int trangThai;
+    private String maKH;
+    private String maDC;
+    private int trangThai; // 1: mặc định, 0: không
 
-    public KhachHang_DiaChi_DTO() {
-    }
+    public KhachHang_DiaChi_DTO() {}
 
-    public KhachHang_DiaChi_DTO(String maKhachHang,
-                                String maDiaChi,
-                                int trangThai) {
-        this.maKhachHang = maKhachHang;
-        this.maDiaChi = maDiaChi;
+    public KhachHang_DiaChi_DTO(String maKH, String maDC, int trangThai) {
+        this.maKH = maKH;
+        this.maDC = maDC;
         this.trangThai = trangThai;
     }
 
-    public String getMaKhachHang() {
-        return maKhachHang;
+    public String getMaKH() {
+        return maKH;
     }
 
-    public void setMaKhachHang(String maKhachHang) {
-        this.maKhachHang = maKhachHang;
+    public void setMaKH(String maKH) {
+        this.maKH = maKH;
     }
 
-    public String getMaDiaChi() {
-        return maDiaChi;
+    public String getMaDC() {
+        return maDC;
     }
 
-    public void setMaDiaChi(String maDiaChi) {
-        this.maDiaChi = maDiaChi;
+    public void setMaDC(String maDC) {
+        this.maDC = maDC;
     }
 
     public int getTrangThai() {

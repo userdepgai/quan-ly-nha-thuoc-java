@@ -1,33 +1,25 @@
 package dto;
-import java.sql.Date;
 
 public class KhuVucLuuTru_DTO {
     private String maKVLT;
     private String tenKVLT;
-    private Date ngayLapKho;
+    private String ngayLapKho;
     private int sucChua;
     private int trangThai;
-    private DIACHI_DTO diaChi;
+    private String maDC;
 
-
-    public KhuVucLuuTru_DTO() {
-    }
-
-    public KhuVucLuuTru_DTO(String maKVLT, String tenKVLT, Date ngayLapKho, int sucChua, int trangThai, DIACHI_DTO diaChi) {
+    public KhuVucLuuTru_DTO(String maKVLT, String tenKVLT, String ngayLapKho, int sucChua, int trangThai, String maDC) {
         this.maKVLT = maKVLT;
         this.tenKVLT = tenKVLT;
         this.ngayLapKho = ngayLapKho;
         this.sucChua = sucChua;
         this.trangThai = trangThai;
-        this.diaChi = diaChi;
+        this.maDC = maDC;
     }
-
-
 
     public String getMaKVLT() {
         return maKVLT;
     }
-
     public void setMaKVLT(String maKVLT) {
         this.maKVLT = maKVLT;
     }
@@ -35,25 +27,19 @@ public class KhuVucLuuTru_DTO {
     public String getTenKVLT() {
         return tenKVLT;
     }
-
     public void setTenKVLT(String tenKVLT) {
         this.tenKVLT = tenKVLT;
     }
 
-
-    public Date getNgayLapKho() {
+    public String getNgayLapKho() {
         return ngayLapKho;
     }
-
-
-    public void setNgayLapKho(Date ngayLapKho) {
+    public void setNgayLapKho(String ngayLapKho) {
         this.ngayLapKho = ngayLapKho;
     }
 
     public int getSucChua() {
-        return sucChua;
-    }
-
+        return sucChua; }
     public void setSucChua(int sucChua) {
         this.sucChua = sucChua;
     }
@@ -61,16 +47,14 @@ public class KhuVucLuuTru_DTO {
     public int getTrangThai() {
         return trangThai;
     }
-
     public void setTrangThai(int trangThai) {
         this.trangThai = trangThai;
     }
 
-    public DIACHI_DTO getDiaChi() {
-        return diaChi;
+    public String getMaDC() {
+        return maDC;
     }
-
-    public void setDiaChi(DIACHI_DTO diaChi) {
-        this.diaChi = diaChi;
+    public void setMaDC(String maDC) {
+        this.maDC = maDC;
     }
 }
