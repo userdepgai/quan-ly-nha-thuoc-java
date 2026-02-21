@@ -2,43 +2,37 @@ package dto;
 
 import java.time.LocalDate;
 
-public class NhanVien_DTO extends NGUOI_DTO {
+public class NhanVien_DTO extends Nguoi_DTO {
 
-    private String maNV;
-    private int chucVu;
+    private String chucVu;
     private LocalDate ngayVaoLam;
     private double luongCoBan;
     private int trangThai;
-    private String maDC;
+    private String maDiaChi;
 
-    public NhanVien_DTO() {}
+    public NhanVien_DTO() {
+        super();
+    }
 
-    public NhanVien_DTO(String maNV, String ten, boolean gioiTinh, LocalDate ngaySinh, String sdt,
-                        int chucVu, LocalDate ngayVaoLam,
-                        double luongCoBan, int trangThai, String maDC) {
+    public NhanVien_DTO(String ma, String ten, String sdt,
+                        LocalDate ngaySinh, boolean gioiTinh,
+                        String chucVu, LocalDate ngayVaoLam,
+                        double luongCoBan, int trangThai,
+                        String maDiaChi) {
 
-        super(ten, gioiTinh, ngaySinh, sdt);
-        this.maNV = maNV;
+        super(ma, ten, sdt, ngaySinh, gioiTinh);
         this.chucVu = chucVu;
         this.ngayVaoLam = ngayVaoLam;
         this.luongCoBan = luongCoBan;
         this.trangThai = trangThai;
-        this.maDC = maDC;
+        this.maDiaChi = maDiaChi;
     }
 
-    public String getMaNV() {
-        return maNV;
-    }
-
-    public void setMaNV(String maNV) {
-        this.maNV = maNV;
-    }
-
-    public int getChucVu() {
+    public String getChucVu() {
         return chucVu;
     }
 
-    public void setChucVu(int chucVu) {
+    public void setChucVu(String chucVu) {
         this.chucVu = chucVu;
     }
 
@@ -66,11 +60,11 @@ public class NhanVien_DTO extends NGUOI_DTO {
         this.trangThai = trangThai;
     }
 
-    public String getMaDC() {
-        return maDC;
+    public String getMaDiaChi() {
+        return maDiaChi;
     }
 
-    public void setMaDC(String maDC) {
-        this.maDC = maDC;
+    public void setMaDiaChi(String maDiaChi) {
+        this.maDiaChi = maDiaChi;
     }
 }
