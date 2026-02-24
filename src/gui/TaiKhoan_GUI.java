@@ -62,8 +62,6 @@ public class TaiKhoan_GUI extends JPanel{
     }
 
     private void fromEdit() {
-        txt_ndTimKiem.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txt_ndTimKiem.setBorder(BorderFactory.createTitledBorder("Nhập SDT"));
 
         cmb_trangThai.setModel(new DefaultComboBoxModel<>(
                 new String[]{"-- Chọn trạng thái --", "Mở", "Đóng"}
