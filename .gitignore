@@ -28,5 +28,4 @@ out/
 hs_err_pid*
 replay_pid*
 
-# Database config
 src/db.properties
