@@ -85,8 +85,8 @@ public class Menu extends JFrame {
         contentPanel.add(createContent("Thuộc tính danh mục"), "thuocTinhDanhMuc");
         contentPanel.add(createContent("Quản lý sản phẩm"), "sanPham");
 
-        contentPanel.add(createContent("Khách hàng"), "khachhang");
-        contentPanel.add(createContent("Nhân viên"), "nhanvien");
+        contentPanel.add(new KhachHang_GUI(), "khachhang");
+        contentPanel.add(new NhanVien_GUI(), "nhanvien");
         contentPanel.add(createContent("Nhà cung cấp"), "nhacungcap");
 
         contentPanel.add(createContent("Khu vực lưu trữ"), "luutru");
