@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="gui.QuanLySanPham_GUI">
   <grid id="27dc6" binding="panelQuanLySanPham" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-    <margin top="0" left="0" bottom="0" right="0"/>
+    <margin top="10" left="5" bottom="10" right="5"/>
     <constraints>
       <xy x="20" y="20" width="1110" height="815"/>
     </constraints>
@@ -48,8 +48,8 @@
           </component>
         </children>
       </grid>
-      <grid id="cc117" binding="panelBoLoc" layout-manager="GridLayoutManager" row-count="4" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="10" left="10" bottom="10" right="10"/>
+      <grid id="cc117" binding="panelBoLoc" layout-manager="GridLayoutManager" row-count="3" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -73,70 +73,9 @@
             </constraints>
             <properties/>
           </component>
-          <component id="3711c" class="javax.swing.JLabel" binding="labelNhapThongTin">
-            <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <horizontalAlignment value="10"/>
-              <text value="Nhập thông tin tìm kiếm:"/>
-            </properties>
-          </component>
-          <component id="a4050" class="javax.swing.JTextField" binding="txtNhapThongTin">
-            <constraints>
-              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="996bb" class="javax.swing.JButton" binding="btnTimkiem">
-            <constraints>
-              <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Tìm kiếm"/>
-            </properties>
-          </component>
-          <component id="c65e5" class="javax.swing.JLabel" binding="labelLocPhanTramLoiNhuan">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Phần trăm lợi nhuận:"/>
-            </properties>
-          </component>
-          <component id="4d5ea" class="javax.swing.JButton" binding="btnThoat">
-            <constraints>
-              <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Thoát"/>
-            </properties>
-          </component>
-          <component id="3f081" class="javax.swing.JLabel" binding="labelLocTrangThai">
-            <constraints>
-              <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Trạng thái:"/>
-            </properties>
-          </component>
-          <component id="1988" class="javax.swing.JComboBox" binding="cmbLocTrangThai">
-            <constraints>
-              <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="4" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="cbf97" class="javax.swing.JComboBox" binding="cmbLocPhanTramLoiNhuan">
-            <constraints>
-              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="3" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
           <component id="7eaa7" class="javax.swing.JLabel" binding="labelSanPhamHienCo">
             <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="Sản phẩm hiện có:"/>
@@ -144,7 +83,7 @@
           </component>
           <component id="84964" class="javax.swing.JTextField" binding="txtSanPhamHienCo">
             <constraints>
-              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
             </constraints>
@@ -160,15 +99,73 @@
           </component>
           <component id="f46f8" class="javax.swing.JComboBox" binding="cmbLocDanhMuc">
             <constraints>
-              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="4" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
           </component>
-          <hspacer id="5ffcc">
+          <component id="44b6d" class="javax.swing.JLabel" binding="labelLocPhanTramLoiNhuan">
             <constraints>
-              <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
-          </hspacer>
+            <properties>
+              <text value="Phần trăm lợi nhuận:"/>
+            </properties>
+          </component>
+          <component id="43540" class="javax.swing.JComboBox" binding="cmbLocPhanTramLoiNhuan">
+            <constraints>
+              <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <model/>
+            </properties>
+          </component>
+          <component id="b4192" class="javax.swing.JLabel" binding="labelLocTrangThai">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Trạng thái:"/>
+            </properties>
+          </component>
+          <component id="a3d3" class="javax.swing.JComboBox" binding="cmbLocTrangThai">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="4" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="637ff" class="javax.swing.JLabel" binding="labelNhapThongTin">
+            <constraints>
+              <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <horizontalAlignment value="10"/>
+              <text value="Nhập thông tin tìm kiếm:"/>
+            </properties>
+          </component>
+          <component id="94ead" class="javax.swing.JTextField" binding="txtNhapThongTin">
+            <constraints>
+              <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="da4d" class="javax.swing.JButton" binding="btnTimkiem">
+            <constraints>
+              <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Tìm kiếm"/>
+            </properties>
+          </component>
+          <component id="2bb64" class="javax.swing.JButton" binding="btnThoat">
+            <constraints>
+              <grid row="1" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Thoát"/>
+            </properties>
+          </component>
         </children>
       </grid>
       <grid id="be9bf" binding="panelDanhSachSanPham" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -197,7 +194,7 @@
         </children>
       </grid>
       <grid id="15c0a" binding="panelThongTinChiTiet" layout-manager="GridLayoutManager" row-count="2" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="10" left="10" bottom="10" right="10"/>
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -418,7 +415,7 @@
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                <preferred-size width="250" height="250"/>
+                <preferred-size width="150" height="150"/>
               </grid>
             </constraints>
             <properties/>
@@ -465,12 +462,12 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
-          <component id="37435" class="javax.swing.JButton" binding="btnThemKhuyenMai">
+          <component id="37435" class="javax.swing.JButton" binding="btnThem">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Thêm Sản phẩm"/>
+              <text value="Thêm"/>
             </properties>
           </component>
         </children>

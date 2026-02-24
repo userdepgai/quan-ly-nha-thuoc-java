@@ -10,8 +10,8 @@ public class DBConnection {
             + "databaseName=QuanLyNhaThuoc;"
             + "encrypt=true;"
             + "trustServerCertificate=true";
-    private static final String USER = "javauser";
-    private static final String PASSWORD = "123456";
+    private static final String USER = "sa";
+    private static final String PASSWORD = "Uyendepgai";
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);

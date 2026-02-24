@@ -12,14 +12,6 @@ public class QuanLySanPham_GUI extends JPanel {
     private JPanel panelBoLoc;
     private JLabel labelTimKiem;
     private JComboBox cmbTimTheo;
-    private JLabel labelNhapThongTin;
-    private JTextField txtNhapThongTin;
-    private JButton btnTimkiem;
-    private JLabel labelLocPhanTramLoiNhuan;
-    private JButton btnThoat;
-    private JLabel labelLocTrangThai;
-    private JComboBox cmbLocTrangThai;
-    private JComboBox cmbLocPhanTramLoiNhuan;
     private JLabel labelSanPhamHienCo;
     private JTextField txtSanPhamHienCo;
     private JPanel panelDanhSachSanPham;
@@ -38,7 +30,7 @@ public class QuanLySanPham_GUI extends JPanel {
     private JLabel labelQuyCach;
     private JComboBox cmbDanhMuc;
     private JButton btnCapNhat;
-    private JButton btnThemKhuyenMai;
+    private JButton btnThem;
     private JPanel panelCapNhat;
     private JLabel labelLocDanhMuc;
     private JComboBox cmbLocDanhMuc;
@@ -58,6 +50,14 @@ public class QuanLySanPham_GUI extends JPanel {
     private JPanel panelQuyCach;
     private JLabel labelLinkHinhAnh;
     private JTextField txtLinkHinhAnh;
+    private JLabel labelLocPhanTramLoiNhuan;
+    private JComboBox cmbLocPhanTramLoiNhuan;
+    private JLabel labelLocTrangThai;
+    private JComboBox cmbLocTrangThai;
+    private JLabel labelNhapThongTin;
+    private JTextField txtNhapThongTin;
+    private JButton btnTimkiem;
+    private JButton btnThoat;
     private DefaultTableModel modelSanPham;
 
     public QuanLySanPham_GUI(){
