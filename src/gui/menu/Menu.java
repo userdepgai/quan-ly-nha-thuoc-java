@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import dto.MenuItem;
 import gui.*;
+import gui.HOADON_GUI.DuyetDonHang_GUI;
+import gui.HOADON_GUI.LapHoaDon_GUI;
+import gui.HOADON_GUI.QuanLyHoaDonBan_GUI;
 
 public class Menu extends JFrame {
     private JList<MenuItem> menuList;
@@ -99,6 +102,12 @@ public class Menu extends JFrame {
 
         contentPanel.add(new TaiKhoan_GUI(), "taiKhoanDangNhap");
         contentPanel.add(new PhanQuyen_GUI(), "phanQuyen");
+        contentPanel.add(new LapHoaDon_GUI(), "banhang");
+        contentPanel.add(new DuyetDonHang_GUI(), "duyethd");
+        contentPanel.add(new QuanLyHoaDonBan_GUI(), "hoadon");
+
+
+
 
         menuList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {

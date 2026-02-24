@@ -14,9 +14,7 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     private double tienThoi;
     private double thueVAT;
     private boolean keToa;
-    private String tenBacSi;
-    private String maToa;
-    private String ngayKeToa;
+
 
     private String maKhachHang;
     private String maVoucher;
@@ -44,9 +42,6 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
             double tienThoi,
             double thueVAT,
             boolean keToa,
-            String tenBacSi,
-            String maToa,
-            String ngayKeToa,
             String maKhachHang,
             String maVoucher,
             ArrayList<ChiTietHoaDonBan_DTO> ds
@@ -62,9 +57,6 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
         this.tienThoi = tienThoi;
         this.thueVAT = thueVAT;
         this.keToa = keToa;
-        this.tenBacSi = tenBacSi;
-        this.maToa = maToa;
-        this.ngayKeToa = ngayKeToa;
         this.maKhachHang = maKhachHang;
         this.maVoucher = maVoucher;
         this.ds_chiTietHDB = ds != null ? ds : new ArrayList<>();
@@ -140,30 +132,6 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
 
     public void setKeToa(boolean keToa) {
         this.keToa = keToa;
-    }
-
-    public String getTenBacSi() {
-        return tenBacSi;
-    }
-
-    public void setTenBacSi(String tenBacSi) {
-        this.tenBacSi = tenBacSi;
-    }
-
-    public String getMaToa() {
-        return maToa;
-    }
-
-    public void setMaToa(String maToa) {
-        this.maToa = maToa;
-    }
-
-    public String getNgayKeToa() {
-        return ngayKeToa;
-    }
-
-    public void setNgayKeToa(String ngayKeToa) {
-        this.ngayKeToa = ngayKeToa;
     }
 
     public String getMaKhachHang() {
