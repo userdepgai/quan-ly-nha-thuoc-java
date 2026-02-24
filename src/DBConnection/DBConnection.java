@@ -6,8 +6,8 @@ import java.sql.SQLException;
 
 public class DBConnection {
     private static final String URL =
-            "jdbc:sqlserver://DESKTOP-043ECCP:1433;"
-            + "databaseName=btJavaTuan9;"
+            "jdbc:sqlserver://localhost:1433;"
+            + "databaseName=QuanLyNhaThuoc;"
             + "encrypt=true;"
             + "trustServerCertificate=true";
     private static final String USER = "javauser";
