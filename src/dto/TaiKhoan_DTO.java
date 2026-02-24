@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public class TaiKhoan_DTO {
 
+    private String maTK;
     private String sdt;
     private String matKhau;
     private String maQuyen;
@@ -13,14 +14,21 @@ public class TaiKhoan_DTO {
     public TaiKhoan_DTO() {
     }
 
-    public TaiKhoan_DTO(String sdt, String matKhau,
-                        String maQuyen, LocalDate ngayKichHoat,
-                        int trangThai) {
+    public TaiKhoan_DTO(String maTK, String sdt, String matKhau, String maQuyen, LocalDate ngayKichHoat, int trangThai) {
+        this.maTK = maTK;
         this.sdt = sdt;
         this.matKhau = matKhau;
         this.maQuyen = maQuyen;
         this.ngayKichHoat = ngayKichHoat;
         this.trangThai = trangThai;
+    }
+
+    public String getMaTK() {
+        return maTK;
+    }
+
+    public void setMaTK(String maTK) {
+        this.maTK = maTK;
     }
 
     public String getSdt() {
