@@ -3,7 +3,7 @@
   <grid id="27dc6" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="903" height="623"/>
+      <xy x="20" y="20" width="903" height="658"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -39,21 +39,6 @@
                 </constraints>
                 <properties>
                   <text value="Thoát "/>
-                </properties>
-              </component>
-              <component id="7707e" class="javax.swing.JComboBox" binding="comboBoxTrangThai">
-                <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                    <preferred-size width="200" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <model>
-                    <item value="Trạng Thái"/>
-                    <item value="CON_TRONG"/>
-                    <item value=" ĐẦY"/>
-                    <item value=" BAO_TRI"/>
-                  </model>
                 </properties>
               </component>
               <hspacer id="21226">
@@ -95,6 +80,21 @@
                 </constraints>
                 <properties>
                   <text value="Xuất Excel"/>
+                </properties>
+              </component>
+              <component id="7707e" class="javax.swing.JComboBox" binding="comboBoxTrangThai">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                    <preferred-size width="200" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <model>
+                    <item value="Trạng Thái"/>
+                    <item value="CON_TRONG"/>
+                    <item value="ĐẦY"/>
+                    <item value="BAO_TRI"/>
+                  </model>
                 </properties>
               </component>
             </children>

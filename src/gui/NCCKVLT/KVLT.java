@@ -38,7 +38,6 @@ public class KVLT {
         tableChiTiet.setFillsViewportHeight(true);
         modelChiTiet.addRow(new Object[]{"1", "Giảm đau", "Paracetamol", "200", "Bình thường"});
     }
-
     public static void main(String[] args) {
         JFrame frame = new JFrame("Quản Lý Khu Vực Lưu Trữ");
         frame.setContentPane(new KVLT().panelMain);

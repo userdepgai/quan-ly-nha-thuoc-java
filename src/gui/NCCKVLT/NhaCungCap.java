@@ -4,7 +4,6 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-
 public class NhaCungCap {
     private JPanel panelMain;
     private JTable tableDanhSach;
