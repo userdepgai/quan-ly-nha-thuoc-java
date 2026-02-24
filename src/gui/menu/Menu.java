@@ -61,6 +61,8 @@ public class Menu extends JFrame {
         menuModel.addElement(new MenuItem("Quản lý tài khoản", "taiKhoanDangNhap", icon("taiKhoanDangNhap.png"),false));
         menuModel.addElement(new MenuItem("Phân quyền", "phanQuyen", icon("phanQuyen.png"),false));
 
+        menuModel.addElement(new MenuItem("Đăng xuất", "dangXuat", icon("logout.png"), false));
+
         menuList = new JList<>(menuModel);
         menuList.setCellRenderer(new SidebarRenderer());
         menuList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -107,7 +109,19 @@ public class Menu extends JFrame {
             if (!e.getValueIsAdjusting()) {
                 MenuItem item = menuList.getSelectedValue();
                 if (item != null && !item.isGroup) {
-//                    cardLayout.show(contentPanel, item.cardName);
+                    if ("dangXuat".equals(item.cardName)) {
+                        int confirm = JOptionPane.showConfirmDialog(
+                                this,
+                                "Bạn có chắc muốn đăng xuất?",
+                                "Xác nhận",
+                                JOptionPane.YES_NO_OPTION
+                        );
+                        if (confirm == JOptionPane.YES_OPTION) {
+                            dispose();
+                            new DangNhapGUI().setVisible(true);
+                        }
+                        return;
+                    }
                     if ("thongTinCaNhanFrame".equals(item.cardName)) {
                         new MenuThongTinCaNhan_GUI().setVisible(true);
                         dispose();
