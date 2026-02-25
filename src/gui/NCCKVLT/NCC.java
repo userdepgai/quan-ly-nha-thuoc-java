@@ -1,5 +1,8 @@
 package gui.NCCKVLT;
 
+import DAO.NhaCungCap_DAO;
+import dto.NhaCungCap_DTO;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.FontUIResource;
@@ -8,6 +11,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class NCC extends JPanel {
@@ -36,6 +40,8 @@ public class NCC extends JPanel {
     private JButton btnThemNCC;
     private JTextField textMaSP;
     private JPanel panelMain;
+    private DefaultTableModel modelNCC;
+    private DefaultTableModel modelSP;
 
     public NCC() {
         $$$setupUI$$$();
@@ -50,38 +56,54 @@ public class NCC extends JPanel {
 
 
         setupTableData();
+        loadDataToTable();
     }
 
     private void setupTableData() {
-
         String[] columns = {"STT", "Mã NCC", "Tên NCC", "Mã số thuế", "SĐT", "Người liên hệ", "Địa chỉ", "Trạng thái"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+        modelNCC = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-
-        if (tableDanhSach != null) {
-            tableDanhSach.setModel(model);
-            setupTableProperties(tableDanhSach);
-            model.addRow(new Object[]{"1", "NCC001", "Dược phẩm A", "0123456", "0901234567", "Nguyễn Văn A", "TP.HCM", "Đang giao dịch"});
-        }
-
+        tableDanhSach.setModel(modelNCC);
         String[] colChiTiet = {"STT", "Mã Sản Phẩm ", "Tên Sản Phẩm ", "Giá Bán", "Trạng Thái"};
-        DefaultTableModel model2 = new DefaultTableModel(colChiTiet, 0) {
+        modelSP = new DefaultTableModel(colChiTiet, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
+        tableChiTiet.setModel(modelSP);
 
-        if (tableChiTiet != null) {
-            tableChiTiet.setModel(model2);
-            setupTableProperties(tableChiTiet);
-            model2.addRow(new Object[]{"1", "TH001", "Paracetamol"});
+        setupTableProperties(tableDanhSach);
+        setupTableProperties(tableChiTiet);
+
+
+    }
+
+    public void loadDataToTable() {
+        modelNCC.setRowCount(0);
+        NhaCungCap_DAO dao = new NhaCungCap_DAO();
+        ArrayList<NhaCungCap_DTO> list = dao.getAll();
+        int stt = 1;
+        for (NhaCungCap_DTO ncc : list) {
+            modelNCC.addRow(new Object[]{
+                    stt++,
+                    ncc.getMaNCC(),
+                    ncc.getTenNCC(),
+                    ncc.getMaSoThue(),
+                    ncc.getSdt(),
+                    ncc.getNguoiLienHe(),
+                    "Địa chỉ",
+                    ncc.getTrangThai() == 1 ? "Đang giao dịch" : "Ngừng"
+            });
         }
     }
+
+
+
 
     private void setupTableProperties(JTable table) {
         table.getTableHeader().setReorderingAllowed(false);
@@ -151,6 +173,10 @@ public class NCC extends JPanel {
         label3.setText("Trạng Thái:");
         panel3.add(label3, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         comboBoxTrangThai = new JComboBox();
+        final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
+        defaultComboBoxModel1.addElement("ĐANG_GIAO_DỊCH");
+        defaultComboBoxModel1.addElement("NGỪNG_HỢP_TÁC");
+        comboBoxTrangThai.setModel(defaultComboBoxModel1);
         panel3.add(comboBoxTrangThai, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(200, -1), null, 0, false));
         btnTimKiem = new JButton();
         btnTimKiem.setText("Tìm Kiếm");
@@ -205,6 +231,10 @@ public class NCC extends JPanel {
         label10.setText("Trạng Thái");
         panel5.add(label10, new com.intellij.uiDesigner.core.GridConstraints(6, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         comboBoxTthai = new JComboBox();
+        final DefaultComboBoxModel defaultComboBoxModel2 = new DefaultComboBoxModel();
+        defaultComboBoxModel2.addElement("ĐANG_GIAO_DỊCH");
+        defaultComboBoxModel2.addElement("NGỪNG_HỢP_TÁC");
+        comboBoxTthai.setModel(defaultComboBoxModel2);
         panel5.add(comboBoxTthai, new com.intellij.uiDesigner.core.GridConstraints(6, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel6 = new JPanel();
         panel6.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
@@ -238,10 +268,10 @@ public class NCC extends JPanel {
         label14.setText("Trạng Thái");
         panel7.add(label14, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         comboBox1 = new JComboBox();
-        final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
-        defaultComboBoxModel1.addElement("CÒN_CUNG_CẤP");
-        defaultComboBoxModel1.addElement("NGỪNG_CUNG_CẤP");
-        comboBox1.setModel(defaultComboBoxModel1);
+        final DefaultComboBoxModel defaultComboBoxModel3 = new DefaultComboBoxModel();
+        defaultComboBoxModel3.addElement("CÒN_CUNG_CẤP");
+        defaultComboBoxModel3.addElement("NGỪNG_CUNG_CẤP");
+        comboBox1.setModel(defaultComboBoxModel3);
         panel7.add(comboBox1, new com.intellij.uiDesigner.core.GridConstraints(3, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnThem = new JButton();
         btnThem.setText("THÊM");

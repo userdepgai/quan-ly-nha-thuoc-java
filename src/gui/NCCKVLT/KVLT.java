@@ -1,5 +1,8 @@
 package gui.NCCKVLT;
 
+import DAO.KhuVucLuuTru_DAO;
+import dto.KhuVucLuuTru_DTO;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.FontUIResource;
@@ -8,6 +11,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class KVLT extends JPanel {
@@ -29,7 +33,7 @@ public class KVLT extends JPanel {
     private JButton btnCapNhat;
     private JButton btnThemKV;
     private JPanel panelMain;
-
+    private DefaultTableModel modelKVLT;
     public KVLT() {
         $$$setupUI$$$();
         this.setLayout(new BorderLayout());
@@ -37,11 +41,22 @@ public class KVLT extends JPanel {
             this.add(panelMain, BorderLayout.CENTER);
         }
         setupTableData();
+        loadDataToTableKVLT();
     }
 
     private void setupTableData() {
-        String[] columns = {"STT", "Mã KV", "Tên Khu Vực", "Sức Chứa", "Hiện Có", "Trạng Thái"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+        String[] columns = {
+                "STT",
+                "Mã KV",
+                "Tên Khu Vực",
+                "Sức Chứa",
+                "Hiện Có",
+                "Ngày Lập",
+                "Địa Chỉ",
+                "Trạng Thái"
+        };
+
+        modelKVLT = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -49,24 +64,44 @@ public class KVLT extends JPanel {
         };
 
         if (tableDanhSach != null) {
-            tableDanhSach.setModel(model);
+            tableDanhSach.setModel(modelKVLT);
             setupTableProperties(tableDanhSach);
-            // Dữ liệu mẫu KVLT
-            model.addRow(new Object[]{"1", "KV001", "Kho Lạnh A", "1000", "200", "HOẠT_ĐỘNG"});
         }
-
         String[] colChiTiet = {"STT", "Mã Sản Phẩm", "Tên Sản Phẩm", "Số Lượng", "Lô Hàng"};
-        DefaultTableModel model2 = new DefaultTableModel(colChiTiet, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-
+        DefaultTableModel model2 = new DefaultTableModel(colChiTiet, 0);
         if (tableChiTiet != null) {
             tableChiTiet.setModel(model2);
             setupTableProperties(tableChiTiet);
-            model2.addRow(new Object[]{"1", "TH001", "Paracetamol", "100", "L001"});
+        }
+    }
+
+    public void loadDataToTableKVLT() {
+        if (modelKVLT == null) return;
+
+        modelKVLT.setRowCount(0);
+        KhuVucLuuTru_DAO dao = new KhuVucLuuTru_DAO();
+        ArrayList<KhuVucLuuTru_DTO> list = dao.getAll();
+
+        int stt = 1;
+        for (KhuVucLuuTru_DTO kv : list) {
+
+            String trangThaiText = switch (kv.getTrangThai()) {
+                case 1 -> "Còn trống";
+                case 2 -> "Đã đầy";
+                case 0 -> "Ngừng hoạt động";
+                default -> "Không xác định";
+            };
+
+            modelKVLT.addRow(new Object[]{
+                    stt++,
+                    kv.getMaKVLT(),
+                    kv.getTenKVLT(),
+                    kv.getSucChua(),
+                    kv.getHienCo(),
+                    kv.getNgayLapKho(),
+                    kv.getDiaChi(),
+                    trangThaiText
+            });
         }
     }
 
