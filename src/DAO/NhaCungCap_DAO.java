@@ -20,9 +20,10 @@ public class NhaCungCap_DAO {
 
                 ncc.setMaNCC(rs.getString("Ma_NCC"));
                 ncc.setTenNCC(rs.getString("Ten_NCC"));
-                ncc.setNguoiLienHe(rs.getString("NguoiLienHe"));
-                ncc.setSdt(rs.getString("SDT"));
                 ncc.setMaSoThue(rs.getString("MaSoThue"));
+                ncc.setSdt(rs.getString("SDT"));
+                ncc.setNguoiLienHe(rs.getString("NguoiLienHe"));
+                //ncc.setDiaChi(rs.getString("DiaChi"));
                 ncc.setTrangThai(rs.getInt("TrangThai"));
 
                 list.add(ncc);
@@ -37,8 +38,7 @@ public class NhaCungCap_DAO {
 
     public boolean insert(NhaCungCap_DTO ncc) {
         boolean check = false;
-
-        String sql = "INSERT INTO NHACUNGCAP VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO NHACUNGCAP (Ma_NCC, Ten_NCC, MaSoThue, SDT, NguoiLienHe, DiaChi, TrangThai) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try {
             Connection conn = DBConnection.getConnection();
@@ -46,10 +46,11 @@ public class NhaCungCap_DAO {
 
             ps.setString(1, ncc.getMaNCC());
             ps.setString(2, ncc.getTenNCC());
-            ps.setString(3, ncc.getNguoiLienHe());
+            ps.setString(3, ncc.getMaSoThue());
             ps.setString(4, ncc.getSdt());
-            ps.setString(5, ncc.getMaSoThue());
-            ps.setInt(6, ncc.getTrangThai());
+            ps.setString(5, ncc.getNguoiLienHe());
+            //ps.setString(6, ncc.getDiaChi());
+            ps.setInt(7, ncc.getTrangThai());
 
             int result = ps.executeUpdate();
 
@@ -68,19 +69,20 @@ public class NhaCungCap_DAO {
 
     public boolean update(NhaCungCap_DTO ncc) {
         boolean check = false;
-
-        String sql = "UPDATE NHACUNGCAP SET Ten_NCC=?, NguoiLienHe=?, SDT=?, MaSoThue=?, TrangThai=? WHERE Ma_NCC=?";
+        // Thêm cột Địa chỉ vào lệnh Update
+        String sql = "UPDATE NHACUNGCAP SET Ten_NCC=?, MaSoThue=?, SDT=?, NguoiLienHe=?, DiaChi=?, TrangThai=? WHERE Ma_NCC=?";
 
         try {
             Connection conn = DBConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
 
             ps.setString(1, ncc.getTenNCC());
-            ps.setString(2, ncc.getNguoiLienHe());
+            ps.setString(2, ncc.getMaSoThue());
             ps.setString(3, ncc.getSdt());
-            ps.setString(4, ncc.getMaSoThue());
-            ps.setInt(5, ncc.getTrangThai());
-            ps.setString(6, ncc.getMaNCC());
+            ps.setString(4, ncc.getNguoiLienHe());
+            //ps.setString(5, ncc.getDiaChi());
+            ps.setInt(6, ncc.getTrangThai());
+            ps.setString(7, ncc.getMaNCC());
 
             int result = ps.executeUpdate();
 
@@ -97,5 +99,20 @@ public class NhaCungCap_DAO {
         return check;
     }
 
+    public boolean updateTrangThai(String maNCC, int trangThaiMoi) {
+        String sql = "UPDATE NHACUNGCAP SET TrangThai = ? WHERE Ma_NCC = ?";
 
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, trangThaiMoi);
+            ps.setString(2, maNCC);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            System.out.println("Lỗi cập nhật trạng thái NCC: " + e.getMessage());
+        }
+        return false;
+    }
 }

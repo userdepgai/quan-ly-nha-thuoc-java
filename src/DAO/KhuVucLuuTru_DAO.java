@@ -16,13 +16,14 @@ public class KhuVucLuuTru_DAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-
                 KhuVucLuuTru_DTO kv = new KhuVucLuuTru_DTO();
 
                 kv.setMaKVLT(rs.getString("MaKVLT"));
                 kv.setTenKVLT(rs.getString("TenKVLT"));
                 kv.setNgayLapKho(rs.getDate("NgayLapKho"));
                 kv.setSucChua(rs.getInt("SucChua"));
+                kv.setHienCo(rs.getInt("HienCo"));
+                //kv.setDiaChi(rs.getString("DiaChi"));
                 kv.setTrangThai(rs.getInt("TrangThai"));
 
                 list.add(kv);
@@ -33,11 +34,12 @@ public class KhuVucLuuTru_DAO {
         }
 
         return list;
-
     }
+
+    // Hàm thêm
     public boolean insert(KhuVucLuuTru_DTO kv) {
         boolean check = false;
-        String sql = "INSERT INTO KHUVUCLUUTRU VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO KHUVUCLUUTRU (MaKVLT, TenKVLT, SucChua, HienCo, NgayLapKho, DiaChi, TrangThai) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try {
             Connection conn = DBConnection.getConnection();
@@ -65,11 +67,11 @@ public class KhuVucLuuTru_DAO {
 
         return check;
     }
-    //ham cập nhật cho KVLT
+
+    // Hàm cập nhật
     public boolean update(KhuVucLuuTru_DTO kv) {
         boolean check = false;
-
-        String sql = "UPDATE KHUVUCLUUTRU SET Ten_KVLT=?, SucChua=?, HienCo=?, NgayLapKho=?, DiaChi=?, TrangThai=? WHERE Ma_KVLT=?";
+        String sql = "UPDATE KHUVUCLUUTRU SET TenKVLT=?, SucChua=?, HienCo=?, NgayLapKho=?, DiaChi=?, TrangThai=? WHERE MaKVLT=?";
 
         try {
             Connection conn = DBConnection.getConnection();
@@ -88,13 +90,32 @@ public class KhuVucLuuTru_DAO {
             if (result > 0) {
                 check = true;
             }
-
             conn.close();
 
         } catch (Exception e) {
-            System.out.println("Lỗi cập nhật khu vực: " + e.getMessage());
+            System.out.println("Lỗi cập nhật: " + e.getMessage());
+        }
+        return check;
+    }
+    // Update trạng thái
+    public boolean updateTrangThai(String maKVLT, int trangThaiMoi) {
+        if (trangThaiMoi < 1 || trangThaiMoi > 3) {
+            System.out.println("Trạng thái không hợp lệ!");
+            return false;
         }
 
-        return check;
+        String sql = "UPDATE KHUVUCLUUTRU SET TrangThai = ? WHERE MaKVLT = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, trangThaiMoi);
+            ps.setString(2, maKVLT);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
