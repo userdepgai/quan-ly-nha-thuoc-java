@@ -64,6 +64,18 @@ public class TaiKhoan_BUS {
             if ( matchKeyWord && matchQuyen && matchTrangThai)
                 result.add(tk);
         }
+        return null;
+    }
+
+    public ArrayList<TaiKhoan_DTO> dangNhap(String sdt, String matKhau) {
+        ArrayList<TaiKhoan_DTO> result = new ArrayList<>();
+        for (TaiKhoan_DTO tk : listCache) {
+            if (tk.getSdt().equals(sdt)
+                    && tk.getMatKhau().equals(matKhau)
+                    && tk.getTrangThai() == 1) {
+                result.add(tk);
+            }
+        }
         return result;
     }
 
