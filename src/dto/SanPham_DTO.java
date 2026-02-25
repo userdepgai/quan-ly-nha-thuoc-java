@@ -4,29 +4,35 @@ public class SanPham_DTO {
 
     private String maSP;
     private String tenSP;
-    private int donViTinh;
-    private String hinhAnh;
+    private String donViTinh;
     private double loiNhuan;
+    private String hinhAnh;
+    private int keDon;
     private int trangThai;
 
-    private String maDM;
-    private String maQC;
+    private String maDM;    // Khóa ngoại tham chiếu đến DanhMuc
+    private String maQC;    // Khóa ngoại tham chiếu đến QuyCach
 
+    // Constructor mặc định (Không tham số)
     public SanPham_DTO() {
     }
 
-    public SanPham_DTO(String maSP, String tenSP, int donViTinh,
-                       String hinhAnh, double loiNhuan,
-                       int trangThai, String maDM, String maQuyCach) {
+    // Constructor đầy đủ tham số (Cập nhật thêm keDon)
+    public SanPham_DTO(String maSP, String tenSP, String donViTinh,
+                       double loiNhuan, String hinhAnh, int keDon,
+                       int trangThai, String maDM, String maQC) {
         this.maSP = maSP;
         this.tenSP = tenSP;
         this.donViTinh = donViTinh;
-        this.hinhAnh = hinhAnh;
         this.loiNhuan = loiNhuan;
+        this.hinhAnh = hinhAnh;
+        this.keDon = keDon;
         this.trangThai = trangThai;
         this.maDM = maDM;
-        this.maQC = maQuyCach;
+        this.maQC = maQC;
     }
+
+    // --- GETTER & SETTER ---
 
     public String getMaSP() {
         return maSP;
@@ -44,12 +50,20 @@ public class SanPham_DTO {
         this.tenSP = tenSP;
     }
 
-    public int getDonViTinh() {
+    public String getDonViTinh() {
         return donViTinh;
     }
 
-    public void setDonViTinh(int donViTinh) {
+    public void setDonViTinh(String donViTinh) {
         this.donViTinh = donViTinh;
+    }
+
+    public double getLoiNhuan() {
+        return loiNhuan;
+    }
+
+    public void setLoiNhuan(double loiNhuan) {
+        this.loiNhuan = loiNhuan;
     }
 
     public String getHinhAnh() {
@@ -60,12 +74,14 @@ public class SanPham_DTO {
         this.hinhAnh = hinhAnh;
     }
 
-    public double getLoiNhuan() {
-        return loiNhuan;
+    // Getter cho thuộc tính mới
+    public int getKeDon() {
+        return keDon;
     }
 
-    public void setLoiNhuan(double loiNhuan) {
-        this.loiNhuan = loiNhuan;
+    // Setter cho thuộc tính mới
+    public void setKeDon(int keDon) {
+        this.keDon = keDon;
     }
 
     public int getTrangThai() {
@@ -84,11 +100,17 @@ public class SanPham_DTO {
         this.maDM = maDM;
     }
 
-    public String getMaQuyCach() {
+    public String getMaQC() {
         return maQC;
     }
 
-    public void setMaQuyCach(String maQuyCach) {
-        this.maQC = maQuyCach;
+    public void setMaQC(String maQC) {
+        this.maQC = maQC;
+    }
+
+    // Phương thức toString() hỗ trợ debug/hiển thị nhanh
+    @Override
+    public String toString() {
+        return this.tenSP;
     }
 }

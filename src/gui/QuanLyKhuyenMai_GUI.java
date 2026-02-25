@@ -6,7 +6,7 @@ import java.awt.*;
 
 public class QuanLyKhuyenMai_GUI extends JPanel {
     private JButton btnCapNhat;
-    private JButton btnThemKhuyenMai;
+    private JButton btnThem;
     private JLabel labelMaKhuyenMai;
     private JLabel labelTenKhuyenMai;
     private JTextField txtMaKhuyenMai;
@@ -31,11 +31,7 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
     private JLabel labelLocTrangThai;
     private JComboBox cmbLocLoaiKhuyenMai;
     private JLabel labelLocLoaiKhuyenMai;
-    private JLabel labelNhapThongTin;
-    private JTextField txtNhapThongTin;
-    private JButton btnTimkiem;
     private JLabel labelLocDoiTuongApDung;
-    private JButton btnThoat;
     private JPanel panelQuanLyKhuyenMai;
     private JComboBox cmbLocDoiTuongApDung;
     private JLabel labelChuongTrinhKhuyenMai;
@@ -48,9 +44,13 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
     private JLabel labelTrangThai;
     private JComboBox cmbTrangThai;
     private JComboBox cmbDoiTuongApDung;
+    private JPanel panelCapNhat;
+    private JButton btnThoat;
+    private JButton btnTimkiem;
+    private JTextField txtNhapThongTin;
+    private JLabel labelNhapThongTin;
     private JTextField txtKhuyenMaiHienCo;
     private JLabel labelKhuyenMaiHienCo;
-    private JPanel panelCapNhat;
     private DefaultTableModel modelKhuyenMai;
 
     public QuanLyKhuyenMai_GUI(){

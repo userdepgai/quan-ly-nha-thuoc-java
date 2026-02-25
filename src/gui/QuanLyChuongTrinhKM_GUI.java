@@ -23,16 +23,12 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
     private JTable tableKhuyenMai;
     private JPanel panelCapNhat;
     private JButton btnCapNhat;
-    private JButton btnThemThuocTinh;
+    private JButton btnThem;
     private JPanel panelBoLoc;
     private JLabel labelTimTheo;
     private JComboBox cmbTimTheo;
-    private JLabel labelNhapThongTin;
-    private JTextField txtNhapThongTin;
     private JLabel labelLocTrangThai;
     private JComboBox cmbLocTrangThai;
-    private JButton btnTimKiem;
-    private JButton btnThoat;
     private JPanel panelQuanLyChuongTrinhKhuyenMai;
     private JLabel labelLocNgayBatDau;
     private JTextField txtLocNgayBatDau;
@@ -42,6 +38,10 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
     private JTextField txtNgayBatDau;
     private JLabel labelNgayKetThuc;
     private JTextField txtNgayKetThuc;
+    private JButton btnThoat;
+    private JButton btnTimKiem;
+    private JTextField txtNhapThongTin;
+    private JLabel labelNhapThongTin;
     private JLabel labelChuongTrinhKhuyenMaiHienCo;
     private JTextField txtChuongTrinhKhuyenMaiHienCo;
     private DefaultTableModel modelChuongTrinhKhuyenMai;

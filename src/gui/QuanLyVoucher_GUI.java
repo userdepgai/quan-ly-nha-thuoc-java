@@ -7,10 +7,8 @@ import java.awt.*;
 public class QuanLyVoucher_GUI extends JPanel{
     private JLabel label_tieuDe;
     private JPanel panelBoLoc;
-    private JButton btnTimkiem;
-    private JButton btnThoat;
     private JButton btnCapNhat;
-    private JButton btnThemVoucher;
+    private JButton btnThem;
     private JTextField txtMaVoucher;
     private JTextField txtTenVoucher;
     private JPanel panelQuanLyVoucher;
@@ -34,8 +32,6 @@ public class QuanLyVoucher_GUI extends JPanel{
     private JLabel labelLoaiGiam;
     private JLabel labelTrangThai;
     private JComboBox cmbTrangThai;
-    private JLabel labelNhapThongTin;
-    private JTextField txtNhapThongTin;
     private JTextField txtLocNgayBatDau;
     private JTextField txtLocNgayKetThuc;
     private JLabel labelLocNgayBatDau;
@@ -44,8 +40,14 @@ public class QuanLyVoucher_GUI extends JPanel{
     private JPanel panelTieuDe;
     private JPanel panelCapNhat;
     private JPanel panelThongTinChiTiet;
-    private JLabel labelVoucherHienCo;
+    private JButton btnThoat;
+    private JButton btnTimkiem;
+    private JTextField txtNhapThongTin;
+    private JLabel labelNhapThongTin;
     private JTextField txtVoucherHienCo;
+    private JLabel labelVoucherHienCo;
+    private JTextField txtDonToiThieu;
+    private JLabel labelDonToiThieu;
     private DefaultTableModel modelVoucher;
 
     public QuanLyVoucher_GUI(){

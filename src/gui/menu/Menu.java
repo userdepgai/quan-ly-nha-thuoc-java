@@ -81,7 +81,7 @@ public class Menu extends JFrame {
         contentPanel.add(createContent("Duyệt hóa đơn online"), "duyethd");
         contentPanel.add(createContent("Hóa đơn"), "hoadon");
 
-        contentPanel.add(new DanhMucSanPham_GUI(), "danhMuc");
+        contentPanel.add(new DanhMuc_GUI(), "danhMuc");
         contentPanel.add(new ThuocTinhDanhMuc_GUI(), "thuocTinhDanhMuc");
         contentPanel.add(new QuanLySanPham_GUI(), "sanPham");
 
