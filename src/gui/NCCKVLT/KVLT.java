@@ -253,7 +253,7 @@ public class KVLT extends JPanel {
                 kv.setTrangThai(comboBoxTthai.getSelectedIndex() + 1);
 
                 DIACHI_DTO dc = new DIACHI_DTO();
-                dc.setSoNha(textDCHI.getText().trim()); // Gán tạm cả chuỗi vào Số nhà hoặc xử lý tách chuỗi
+                dc.setSoNha(textDCHI.getText().trim());
                 dc.setDuong("");
                 dc.setPhuong("");
                 dc.setTinh("");
