@@ -1,8 +1,9 @@
 package gui.HOADON_GUI;
 
 import javax.swing.*;
+import java.awt.*;
 
-public class LapHoaDon_GUI {
+public class LapHoaDon_GUI extends JPanel{
     private JPanel panel_LapHoaDon;
     private JButton btnXuatExcel;
     private JButton btnNhapExcel;
@@ -49,4 +50,8 @@ public class LapHoaDon_GUI {
     private JPanel labelThanhTien;
     private JLabel labelTienNhan;
     private JLabel labelTienThoi;
+    public LapHoaDon_GUI(){
+        this.setLayout(new BorderLayout());
+        this.add(panel_LapHoaDon, BorderLayout.CENTER);
+    }
 }
