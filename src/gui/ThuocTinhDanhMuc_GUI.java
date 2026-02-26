@@ -1,7 +1,9 @@
 package gui;
 
+import bus.DanhMuc_BUS;
 import bus.GiaTriThuocTinh_BUS;
 import bus.ThuocTinhDanhMuc_BUS;
+import dto.DanhMuc_DTO;
 import dto.GiaTriThuocTinh_DTO;
 import dto.ThuocTinhDanhMuc_DTO;
 
@@ -55,11 +57,16 @@ public class ThuocTinhDanhMuc_GUI extends JPanel{
     private JLabel labelThuocTinhHienCo;
     private JButton btnHuy;
     private JButton btnLuu;
+    private JLabel labelDanhMuc;
+    private JComboBox cmbDanhMuc;
     private JScrollPane tableDanhSachGiaTriThuocTinh;
+
     private DefaultTableModel modelThuocTinh;
     private DefaultTableModel modelGiaTriThuocTinh;
-    private ThuocTinhDanhMuc_BUS ttBUS = new ThuocTinhDanhMuc_BUS();
-    private GiaTriThuocTinh_BUS gtBUS = new GiaTriThuocTinh_BUS(); // Dùng BUS của bài trước
+
+    private final DanhMuc_BUS dmBUS = DanhMuc_BUS.getInstance();
+    private final ThuocTinhDanhMuc_BUS ttBUS = ThuocTinhDanhMuc_BUS.getInstance();
+    private GiaTriThuocTinh_BUS gtBUS = GiaTriThuocTinh_BUS.getInstance();
 
     public ThuocTinhDanhMuc_GUI() {
         this.setLayout(new BorderLayout());
@@ -97,6 +104,15 @@ public class ThuocTinhDanhMuc_GUI extends JPanel{
             cmbTrangThai.addItem("Đang hoạt động");
             cmbTrangThai.addItem("Ngưng hoạt động");
         }
+        // Đổ danh mục từ DB vào ComboBox lọc và ComboBox nhập liệu
+        cmbDanhMuc.removeAllItems();
+        cmbLocDanhMuc.removeAllItems();
+        cmbLocDanhMuc.addItem("Tất cả");
+
+        for (DanhMuc_DTO dm : dmBUS.getAll()) {
+            cmbDanhMuc.addItem(dm.getTenDM());
+            cmbLocDanhMuc.addItem(dm.getTenDM());
+        }
     }
 
     // ==============================================================
@@ -110,13 +126,15 @@ public class ThuocTinhDanhMuc_GUI extends JPanel{
         for (ThuocTinhDanhMuc_DTO tt : list) {
             String kieu = (tt.getKieuThuocTinh() == 0) ? "Combobox (Chọn)" : "Nhập giá trị";
             String trangThai = (tt.getTrangThai() == 1) ? "Đang hoạt động" : "Ngưng hoạt động";
-
+            // Dịch mã Danh mục thành Tên danh mục
+            DanhMuc_DTO dm = dmBUS.getById(tt.getMaDM());
+            String tenDM = (dm != null) ? dm.getTenDM() : tt.getMaDM();
             modelThuocTinh.addRow(new Object[]{
                     stt++,
                     tt.getMaThuocTinh(),
                     tt.getTenThuocTinh(),
                     kieu,
-                    tt.getMaDM(),
+                    tenDM,
                     trangThai
             });
         }
@@ -157,12 +175,16 @@ public class ThuocTinhDanhMuc_GUI extends JPanel{
                     // Lấy dữ liệu từ dòng được click
                     String maThuocTinh = modelThuocTinh.getValueAt(row, 1).toString();
                     String tenThuocTinh = modelThuocTinh.getValueAt(row, 2).toString();
+                    String kieuThuocTinh = modelThuocTinh.getValueAt(row, 3).toString(); // Lấy Kiểu Thuộc Tính
                     String trangThai = modelThuocTinh.getValueAt(row, 5).toString();
+                    String tenDM = modelThuocTinh.getValueAt(row, 4).toString();
+
 
                     // Đẩy dữ liệu lên các ô Textfield (Cập nhật thông tin chi tiết)
                     if(txtMaDanhMuc != null) txtMaDanhMuc.setText(maThuocTinh);
                     if(txtTenDanhMuc != null) txtTenDanhMuc.setText(tenThuocTinh);
                     if(cmbTrangThai != null) cmbTrangThai.setSelectedItem(trangThai);
+                    if (cmbDanhMuc != null) cmbDanhMuc.setSelectedItem(tenDM);
 
                     // Xóa trắng ô nhập của bảng con dưới
                     if(textField1 != null) textField1.setText("");
@@ -170,6 +192,25 @@ public class ThuocTinhDanhMuc_GUI extends JPanel{
 
                     // TỰ ĐỘNG LOAD DỮ LIỆU XUỐNG BẢNG CON
                     loadDataToTable_GiaTriThuocTinh(maThuocTinh);
+
+                    // =========================================================
+                    // RÀNG BUỘC: NẾU LÀ "NHẬP GIÁ TRỊ" THÌ CHỈ ĐƯỢC CÓ 1 DÒNG
+                    // =========================================================
+                    if (kieuThuocTinh.equals("Nhập giá trị")) {
+                        // Nếu bảng dưới đã có từ 1 dòng trở lên -> Khóa nút Thêm
+                        if (modelGiaTriThuocTinh.getRowCount() >= 1) {
+                            if(btnThemGiaTri != null) btnThemGiaTri.setEnabled(false);
+                        } else {
+                            // Nếu chưa có dòng nào thì cho phép thêm 1 dòng đầu tiên
+                            if(btnThemGiaTri != null) btnThemGiaTri.setEnabled(true);
+                        }
+                    } else {
+                        // Nếu là Combobox (Chọn) -> Cho phép thêm nhiều dòng thoải mái
+                        if(btnThemGiaTri != null) btnThemGiaTri.setEnabled(true);
+                    }
+
+                    // Luôn luôn mở khóa nút Sửa để có thể chỉnh sửa nội dung/trạng thái
+                    if(btnSuaGiaTri != null) btnSuaGiaTri.setEnabled(true);
                 }
             }
         });

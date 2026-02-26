@@ -1,6 +1,7 @@
 package gui;
 
 import bus.DanhMuc_BUS;
+import bus.ThuocTinhDanhMuc_BUS;
 import dto.DanhMuc_DTO;
 
 import javax.swing.*;
@@ -51,6 +52,7 @@ public class DanhMuc_GUI extends JPanel {
 
     // --- BIẾN LOGIC ---
     private DanhMuc_BUS dmBUS = DanhMuc_BUS.getInstance();
+    private final ThuocTinhDanhMuc_BUS ttBUS = ThuocTinhDanhMuc_BUS.getInstance();
     private String chucNangHienTai = ""; // "THEM" hoặc "SUA"
 
     public DanhMuc_GUI(){
@@ -130,6 +132,27 @@ public class DanhMuc_GUI extends JPanel {
             txtDanhMucHienCo.setText(String.valueOf(list.size()));
         }
     }
+    // --- LOAD DỮ LIỆU THUỘC TÍNH THEO DANH MỤC ---
+    private void loadDataToTable_ThuocTinh(String maDM) {
+        modelThuocTinh.setRowCount(0); // Xóa dữ liệu cũ trên bảng thuộc tính
+
+        // Lấy danh sách thuộc tính thuộc danh mục này từ BUS
+        ArrayList<dto.ThuocTinhDanhMuc_DTO> dsTT = dmBUS.getThuocTinhByMaDM(maDM);
+
+        int stt = 1;
+        for (dto.ThuocTinhDanhMuc_DTO tt : dsTT) {
+            // Chuyển đổi kiểu thuộc tính (0 -> Combobox, 1 -> Nhập giá trị)
+            String kieuStr = (tt.getKieuThuocTinh() == 0) ? "Combobox (Chọn)" : "Nhập giá trị";
+
+            modelThuocTinh.addRow(new Object[]{
+                    stt++,
+                    tt.getMaThuocTinh(),
+                    tt.getTenThuocTinh(),
+                    kieuStr,
+                    tt.getMaDM()
+            });
+        }
+    }
 
     // --- XỬ LÝ SỰ KIỆN ---
     private void addEvents() {
@@ -140,17 +163,15 @@ public class DanhMuc_GUI extends JPanel {
                 int row = tableDanhMuc.getSelectedRow();
                 if (row == -1) return;
 
-                // Lấy mã từ cột thứ 1 (index 1)
                 String maDM = tableDanhMuc.getValueAt(row, 1).toString();
 
-                // Lấy DTO từ BUS (để đảm bảo dữ liệu đầy đủ nhất)
                 DanhMuc_DTO dm = dmBUS.getById(maDM);
                 if (dm != null) {
                     fillForm(dm);
-                    lockForm(true); // Click xem thì khóa form lại
+                    lockForm(true);
 
-                    // TODO: Sau này gọi ThuocTinhBUS để load bảng thuộc tính bên phải
-                    // loadThuocTinh(maDM);
+                    // --- GỌI HÀM ĐỔ DỮ LIỆU LÊN BẢNG THUỘC TÍNH BÊN PHẢI ---
+                    loadDataToTable_ThuocTinh(maDM);
                 }
             }
         });
