@@ -2,6 +2,7 @@ package gui.NCCKVLT;
 
 import DAO.KhuVucLuuTru_DAO;
 import dto.KhuVucLuuTru_DTO;
+import BUS.KhuVucLuuTru_BUS;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -9,8 +10,12 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -34,32 +39,32 @@ public class KVLT extends JPanel {
     private JButton btnThemKV;
     private JPanel panelMain;
     private DefaultTableModel modelKVLT;
+
+    private KhuVucLuuTru_BUS bus = KhuVucLuuTru_BUS.getInstance();
+
     public KVLT() {
         $$$setupUI$$$();
         this.setLayout(new BorderLayout());
         if (panelMain != null) {
             this.add(panelMain, BorderLayout.CENTER);
         }
+
         setupTableData();
         loadDataToTableKVLT();
+        bus.refreshData();
+        setKhoaForm(true);
+        addEvents();
     }
 
     private void setupTableData() {
         String[] columns = {
-                "STT",
-                "Mã KV",
-                "Tên Khu Vực",
-                "Sức Chứa",
-                "Hiện Có",
-                "Ngày Lập",
-                "Địa Chỉ",
-                "Trạng Thái"
+                "STT", "Mã KV", "Tên Khu Vực", "Sức Chứa", "Hiện Có", "Ngày Lập", "Địa Chỉ", "Trạng Thái"
         };
 
         modelKVLT = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false;
+                return false; // Không cho sửa trực tiếp trên bảng
             }
         };
 
@@ -67,30 +72,37 @@ public class KVLT extends JPanel {
             tableDanhSach.setModel(modelKVLT);
             setupTableProperties(tableDanhSach);
         }
+
         String[] colChiTiet = {"STT", "Mã Sản Phẩm", "Tên Sản Phẩm", "Số Lượng", "Lô Hàng"};
         DefaultTableModel model2 = new DefaultTableModel(colChiTiet, 0);
         if (tableChiTiet != null) {
             tableChiTiet.setModel(model2);
-            setupTableProperties(tableChiTiet);
         }
     }
 
     public void loadDataToTableKVLT() {
         if (modelKVLT == null) return;
-
         modelKVLT.setRowCount(0);
-        KhuVucLuuTru_DAO dao = new KhuVucLuuTru_DAO();
-        ArrayList<KhuVucLuuTru_DTO> list = dao.getAll();
-
+        bus.refreshData();
+        ArrayList<KhuVucLuuTru_DTO> list = bus.getAll();
         int stt = 1;
-        for (KhuVucLuuTru_DTO kv : list) {
 
-            String trangThaiText = switch (kv.getTrangThai()) {
-                case 1 -> "Còn trống";
-                case 2 -> "Đã đầy";
-                case 0 -> "Ngừng hoạt động";
-                default -> "Không xác định";
-            };
+        for (KhuVucLuuTru_DTO kv : list) {
+            String trangThaiText = "";
+            switch (kv.getTrangThai()) {
+                case 1:
+                    trangThaiText = "Còn trống";
+                    break;
+                case 2:
+                    trangThaiText = "Đã đầy";
+                    break;
+                case 3:
+                    trangThaiText = "Bảo trì";
+                    break;
+                default:
+                    trangThaiText = "Không xác định";
+                    break;
+            }
 
             modelKVLT.addRow(new Object[]{
                     stt++,
@@ -117,6 +129,216 @@ public class KVLT extends JPanel {
             DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
             centerRenderer.setHorizontalAlignment(JLabel.CENTER);
             sttCol.setCellRenderer(centerRenderer);
+        }
+        comboBoxTthai.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Còn trống", "Đã đầy", "Bảo trì"
+        }));
+    }
+
+
+    private void addEvents() {
+        tableDanhSach.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                hienThiChiTiet();
+            }
+        });
+
+        btnThemKV.addActionListener(e -> themKhuVuc());
+        btnCapNhat.addActionListener(e -> capNhatKhuVuc());
+        btnTimKiem.addActionListener(e -> timKiemKhuVuc());
+        btnThoat.addActionListener(e -> thoatForm());
+
+    }
+
+
+    private void setKhoaForm(boolean isLocked) {
+        textMa.setEditable(!isLocked);
+        textTen.setEditable(!isLocked);
+        textSucChua.setEditable(!isLocked);
+        textHienCo.setEditable(!isLocked);
+        textDCHI.setEditable(!isLocked);
+        comboBoxTthai.setEnabled(!isLocked);
+    }
+
+    private String taoMaKhuVucMoi() {
+        ArrayList<KhuVucLuuTru_DTO> list = bus.getAll();
+        if (list == null || list.isEmpty()) return "KV001";
+
+        int maxId = 0;
+        for (KhuVucLuuTru_DTO kv : list) {
+            String ma = kv.getMaKVLT();
+            if (ma != null && ma.startsWith("KV") && ma.length() > 2) {
+                try {
+                    int so = Integer.parseInt(ma.substring(2));
+                    if (so > maxId) maxId = so;
+                } catch (Exception e) {
+                }
+            }
+        }
+        maxId++;
+        return String.format("KV%03d", maxId);
+    }
+
+    private void lamMoiForm() {
+        textMa.setText("");
+        textMa.setEditable(true);
+        textTen.setText("");
+        textSucChua.setText("");
+        textHienCo.setText("0");
+        textDCHI.setText("");
+        comboBoxTthai.setSelectedIndex(0);
+        tableDanhSach.clearSelection();
+    }
+
+    private void hienThiChiTiet() {
+        int selectedRow = tableDanhSach.getSelectedRow();
+        if (selectedRow >= 0) {
+            textMa.setText(modelKVLT.getValueAt(selectedRow, 1).toString());
+            textTen.setText(modelKVLT.getValueAt(selectedRow, 2).toString());
+            textSucChua.setText(modelKVLT.getValueAt(selectedRow, 3).toString());
+            textHienCo.setText(modelKVLT.getValueAt(selectedRow, 4).toString());
+
+            Object diaChiObj = modelKVLT.getValueAt(selectedRow, 6);
+            textDCHI.setText(diaChiObj != null ? diaChiObj.toString() : "");
+
+            String trangThai = modelKVLT.getValueAt(selectedRow, 7).toString();
+            if (trangThai.equals("Còn trống")) comboBoxTthai.setSelectedIndex(0);
+            else if (trangThai.equals("Đã đầy")) comboBoxTthai.setSelectedIndex(1);
+            else comboBoxTthai.setSelectedIndex(2);
+
+            // Khóa form lại để tránh ấn nhầm
+            setKhoaForm(true);
+            btnThemKV.setText("Thêm ");
+            btnThemKV.setEnabled(true);
+            btnCapNhat.setText("Cập Nhật ");
+            btnCapNhat.setEnabled(true);
+        }
+    }
+
+
+    private void themKhuVuc() {
+        if (btnThemKV.getText().trim().equals("Thêm")) {
+            setKhoaForm(false);
+            lamMoiForm();
+            textMa.setText(taoMaKhuVucMoi());
+            textMa.setEditable(false);
+
+            btnThemKV.setText("Xác nhận Thêm");
+            btnCapNhat.setEnabled(false);
+        } else {
+            try {
+                KhuVucLuuTru_DTO kv = new KhuVucLuuTru_DTO();
+                kv.setMaKVLT(textMa.getText().trim());
+                kv.setTenKVLT(textTen.getText().trim());
+
+
+                int sucChua = textSucChua.getText().trim().isEmpty() ? 0 : Integer.parseInt(textSucChua.getText().trim());
+                kv.setSucChua(sucChua);
+
+                kv.setHienCo(0);
+                //kv.setDiaChi(textDCHI.getText().trim());
+                kv.setNgayLapKho(new Date(System.currentTimeMillis()));
+
+                int trangThaiSo = comboBoxTthai.getSelectedIndex() + 1;
+                kv.setTrangThai(trangThaiSo);
+                if (bus.kiemTraHopLe(kv)) {
+                    if (bus.insert(kv)) {
+                        JOptionPane.showMessageDialog(this, "Thêm khu vực thành công!");
+                        loadDataToTableKVLT();
+                        lamMoiForm();
+
+                        setKhoaForm(true);
+                        btnThemKV.setText("Thêm ");
+                        btnCapNhat.setEnabled(true);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Thêm thất bại. Vui lòng kiểm tra lại!");
+                    }
+                }
+
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Sức chứa phải là con số hợp lệ!");
+            }
+        }
+    }
+
+    private void capNhatKhuVuc() {
+        int selectedRow = tableDanhSach.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn khu vực cần cập nhật trên bảng!");
+            return;
+        }
+
+        if (btnCapNhat.getText().trim().equals("Cập Nhật")) {
+            setKhoaForm(false);
+            textMa.setEditable(false); // Tuyệt đối không cho sửa mã
+            btnCapNhat.setText("Xác nhận Sửa");
+            btnThemKV.setEnabled(false);
+        } else {
+            try {
+                KhuVucLuuTru_DTO kv = new KhuVucLuuTru_DTO();
+                kv.setMaKVLT(textMa.getText().trim());
+                kv.setTenKVLT(textTen.getText().trim());
+                kv.setSucChua(Integer.parseInt(textSucChua.getText().trim()));
+                kv.setHienCo(Integer.parseInt(textHienCo.getText().trim()));
+                //kv.setDiaChi(textDCHI.getText().trim());
+
+                Object ngayLapObj = modelKVLT.getValueAt(selectedRow, 5);
+                if (ngayLapObj instanceof Date) {
+                    kv.setNgayLapKho((Date) ngayLapObj);
+                } else {
+                    kv.setNgayLapKho(new Date(System.currentTimeMillis()));
+                }
+
+                int trangThaiSo = comboBoxTthai.getSelectedIndex() + 1;
+                kv.setTrangThai(trangThaiSo);
+
+                if (bus.update(kv)) {
+                    JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+                    loadDataToTableKVLT();
+
+                    setKhoaForm(true);
+                    btnCapNhat.setText("Cập Nhật ");
+                    btnThemKV.setEnabled(true);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Sức chứa và Hiện có phải là số nguyên!");
+            }
+        }
+    }
+
+    private void timKiemKhuVuc() {
+        String tuKhoa = textLoc.getText().trim().toLowerCase();
+
+        String trangThaiLoc = "";
+        if (comboBoxTrangThai.getSelectedItem() != null) {
+            trangThaiLoc = comboBoxTrangThai.getSelectedItem().toString();
+        }
+
+        if (trangThaiLoc.equals("CON_TRONG")) trangThaiLoc = "Còn trống";
+        else if (trangThaiLoc.equals("DAY")) trangThaiLoc = "Đã đầy";
+        else if (trangThaiLoc.equals("BAO_TRI")) trangThaiLoc = "Bảo trì";
+
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(modelKVLT);
+        tableDanhSach.setRowSorter(sorter);
+
+        java.util.List<RowFilter<Object, Object>> filters = new ArrayList<>();
+
+        if (!tuKhoa.isEmpty()) {
+            filters.add(RowFilter.regexFilter("(?i)" + tuKhoa));
+        }
+
+        if (!trangThaiLoc.trim().isEmpty()) {
+            filters.add(RowFilter.regexFilter("^" + trangThaiLoc + "$", 7));
+        }
+
+        sorter.setRowFilter(RowFilter.andFilter(filters));
+    }
+
+    private void thoatForm() {
+        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn thoát?", "Xác nhận", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            System.exit(0);
         }
     }
 

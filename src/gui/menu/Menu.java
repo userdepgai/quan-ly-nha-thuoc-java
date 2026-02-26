@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import dto.MenuItem;
 import gui.*;
+import gui.NCCKVLT.KVLT;
+import gui.NCCKVLT.NCC;
 
 public class Menu extends JFrame {
     private JList<MenuItem> menuList;
@@ -87,9 +89,9 @@ public class Menu extends JFrame {
 
         contentPanel.add(createContent("Khách hàng"), "khachhang");
         contentPanel.add(createContent("Nhân viên"), "nhanvien");
-        contentPanel.add(createContent("Nhà cung cấp"), "nhacungcap");
+        contentPanel.add(new NCC(), "nhacungcap");
 
-        contentPanel.add(createContent("Khu vực lưu trữ"), "luutru");
+        contentPanel.add(new KVLT(), "luutru");
         contentPanel.add(createContent("Lô hàng"), "lohang");
         contentPanel.add(createContent("Phiếu nhập"), "phieunhap");
 

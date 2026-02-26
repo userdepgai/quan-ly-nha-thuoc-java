@@ -1,5 +1,7 @@
 package dto;
 
+import DAO.SANPHAM;
+
 public class SanPhamNCC_DTO {
 
     private SANPHAM sanPham;

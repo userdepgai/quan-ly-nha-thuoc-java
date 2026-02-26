@@ -23,7 +23,7 @@ public class KhuVucLuuTru_DAO {
                 kv.setNgayLapKho(rs.getDate("NgayLapKho"));
                 kv.setSucChua(rs.getInt("SucChua"));
                 kv.setHienCo(rs.getInt("HienCo"));
-                //kv.setDiaChi(rs.getString("DiaChi"));
+                kv.setDiaChi(rs.getString("DiaChi"));
                 kv.setTrangThai(rs.getInt("TrangThai"));
 
                 list.add(kv);

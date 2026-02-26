@@ -1,5 +1,5 @@
 package dto;
-import DAO.DIACHI;
+import dto.DIACHI;
 
 import java.sql.Date;
 
