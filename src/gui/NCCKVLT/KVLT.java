@@ -86,13 +86,10 @@ public class KVLT extends JPanel {
 
     public void loadDataToTableKVLT() {
         if (modelKVLT == null) return;
-        modelKVLT.setRowCount(0); // Xóa dữ liệu cũ
+        modelKVLT.setRowCount(0);
 
         bus.refreshData();
         ArrayList<KhuVucLuuTru_DTO> list = bus.getAll();
-
-        System.out.println("====== Số lượng dữ liệu lấy được từ SQL: " + (list == null ? "NULL" : list.size()) + " ======");
-
         if (list == null || list.isEmpty()) return;
 
         int stt = 1;
@@ -127,21 +124,29 @@ public class KVLT extends JPanel {
             });
         }
     }
-
+    private void fixColumnWidth(JTable table, int columnIndex, int width) {
+        TableColumn column = table.getColumnModel().getColumn(columnIndex);
+        column.setPreferredWidth(width);
+        column.setMinWidth(width);
+        column.setMaxWidth(width);
+    }
     private void setupTableProperties(JTable table) {
         table.getTableHeader().setReorderingAllowed(false);
-
         table.setFillsViewportHeight(true);
+
         if (table.getColumnCount() > 0) {
-            TableColumn sttCol = table.getColumnModel().getColumn(0);
-            sttCol.setPreferredWidth(35);
-            sttCol.setMaxWidth(50);
-            sttCol.setMinWidth(30);
-            sttCol.setResizable(false);
             DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
             centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-            sttCol.setCellRenderer(centerRenderer);
+            table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+            fixColumnWidth(table, 0, 40);
+            fixColumnWidth(table, 1, 80);
+            fixColumnWidth(table, 2, 150);
+            fixColumnWidth(table, 3, 80);
+            fixColumnWidth(table, 4, 80);
+            fixColumnWidth(table, 5, 100);
+            fixColumnWidth(table, 7, 120);
         }
+
         comboBoxTthai.setModel(new DefaultComboBoxModel<>(new String[]{
                 "Còn trống", "Đã đầy", "Bảo trì"
         }));

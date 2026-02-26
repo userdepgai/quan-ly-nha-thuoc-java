@@ -1,6 +1,8 @@
 package gui.NCCKVLT;
 
+import BUS.NhaCungCap_BUS;
 import DAO.NhaCungCap_DAO;
+import dto.DIACHI_DTO;
 import dto.NhaCungCap_DTO;
 
 import javax.swing.*;
@@ -46,6 +48,7 @@ public class NCC extends JPanel {
     private DefaultTableModel modelNCC;
     private DefaultTableModel modelSP;
     private NhaCungCap_DAO dao = new NhaCungCap_DAO();
+    private NhaCungCap_BUS bus = NhaCungCap_BUS.getInstance();
     private boolean isAdding = false;
     private boolean isUpdating = false;
 
@@ -78,7 +81,11 @@ public class NCC extends JPanel {
         };
         tableDanhSach.setModel(modelNCC);
 
-        String[] colChiTiet = {"STT", "Mã Sản Phẩm ", "Tên Sản Phẩm ", "Giá Bán", "Trạng Thái"};
+
+        setupTableProperties(tableDanhSach);
+
+
+        String[] colChiTiet = {"STT", "Mã Sản Phẩm", "Tên Sản Phẩm", "Giá Bán", "Trạng Thái"};
         modelSP = new DefaultTableModel(colChiTiet, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -87,19 +94,39 @@ public class NCC extends JPanel {
         };
         tableChiTiet.setModel(modelSP);
 
-        setupTableProperties(tableDanhSach);
-        setupTableProperties(tableChiTiet);
+        setupTableChiTietProperties(tableChiTiet);
+    }
+
+    private void setupTableChiTietProperties(JTable table) {
+        table.getTableHeader().setReorderingAllowed(false);
+        table.setFillsViewportHeight(true);
+
+        if (table.getColumnCount() > 0) {
+            DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+            centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+            table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+
+            fixColumnWidth(table, 0, 40);
+            fixColumnWidth(table, 1, 100);
+            fixColumnWidth(table, 3, 100);
+            fixColumnWidth(table, 4, 120);
+        }
     }
     public void loadDataToTable() {
         if (modelNCC == null) return;
         modelNCC.setRowCount(0);
-
+        bus.refreshData();
         ArrayList<NhaCungCap_DTO> list = dao.getAll();
-        if (list == null || list.isEmpty()) return;
+
+        if (list == null || list.isEmpty()) {
+            System.out.println("Dữ liệu list trả về bị rỗng!");
+            return;
+        }
 
         int stt = 1;
         for (NhaCungCap_DTO ncc : list) {
             String trangThaiText = (ncc.getTrangThai() == 1) ? "ĐANG_GIAO_DỊCH" : "NGỪNG_HỢP_TÁC";
+
 
             modelNCC.addRow(new Object[]{
                     stt++,
@@ -108,10 +135,17 @@ public class NCC extends JPanel {
                     ncc.getMaSoThue(),
                     ncc.getSdt(),
                     ncc.getNguoiLienHe(),
-                    //ncc.getDiaChi(),
+                    ncc.getDiaChi(),
                     trangThaiText
             });
         }
+    }
+
+    private void fixColumnWidth(JTable table, int columnIndex, int width) {
+        TableColumn column = table.getColumnModel().getColumn(columnIndex);
+        column.setPreferredWidth(width);
+        column.setMinWidth(width);
+        column.setMaxWidth(width);
     }
 
     private void setupTableProperties(JTable table) {
@@ -119,18 +153,19 @@ public class NCC extends JPanel {
         table.setFillsViewportHeight(true);
 
         if (table.getColumnCount() > 0) {
-            TableColumn sttCol = table.getColumnModel().getColumn(0);
-            sttCol.setPreferredWidth(35);
-            sttCol.setMaxWidth(50);
-            sttCol.setMinWidth(30);
-            sttCol.setResizable(false);
-
             DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
             centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-            sttCol.setCellRenderer(centerRenderer);
+            table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+
+            fixColumnWidth(table, 0, 40);
+            fixColumnWidth(table, 1, 80);
+            fixColumnWidth(table, 2, 150);
+            fixColumnWidth(table, 3, 100);
+            fixColumnWidth(table, 4, 100);
+            fixColumnWidth(table, 5, 120);
+            fixColumnWidth(table, 7, 130);
         }
     }
-
 
 
     private void addEvents() {
@@ -173,26 +208,28 @@ public class NCC extends JPanel {
     private void hienThiChiTiet() {
         int selectedRow = tableDanhSach.getSelectedRow();
         if (selectedRow >= 0) {
-            textMa.setText(modelNCC.getValueAt(selectedRow, 1).toString());
-            textTen.setText(modelNCC.getValueAt(selectedRow, 2).toString());
-            textMST.setText(modelNCC.getValueAt(selectedRow, 3).toString());
-            textSDT.setText(modelNCC.getValueAt(selectedRow, 4).toString());
-            textNLH.setText(modelNCC.getValueAt(selectedRow, 5).toString());
+            int modelRow = tableDanhSach.convertRowIndexToModel(selectedRow);
 
-            Object diaChiObj = modelNCC.getValueAt(selectedRow, 6);
-            textDCHI.setText(diaChiObj != null ? diaChiObj.toString() : "");
+            textMa.setText(modelNCC.getValueAt(modelRow, 1).toString());
+            textTen.setText(modelNCC.getValueAt(modelRow, 2).toString());
+            textMST.setText(modelNCC.getValueAt(modelRow, 3).toString());
+            textSDT.setText(modelNCC.getValueAt(modelRow, 4).toString());
+            textNLH.setText(modelNCC.getValueAt(modelRow, 5).toString());
 
-            String trangThai = modelNCC.getValueAt(selectedRow, 7).toString();
-            if (trangThai.equalsIgnoreCase("ĐANG_GIAO_DỊCH")) {
-                comboBoxTthai.setSelectedIndex(0);
+            Object obj = modelNCC.getValueAt(modelRow, 6);
+            if (obj instanceof DIACHI_DTO) {
+                textDCHI.setText(obj.toString());
             } else {
-                comboBoxTthai.setSelectedIndex(1);
+                textDCHI.setText("");
             }
+
+            String trangThai = modelNCC.getValueAt(modelRow, 7).toString();
+            comboBoxTthai.setSelectedIndex(trangThai.equals("ĐANG_GIAO_DỊCH") ? 0 : 1);
 
             setKhoaForm(true);
             btnThemNCC.setText("Thêm ");
-            btnThemNCC.setEnabled(true);
             btnCapNhat.setText("Cập Nhật ");
+            btnThemNCC.setEnabled(true);
             btnCapNhat.setEnabled(true);
         }
     }
@@ -219,7 +256,12 @@ public class NCC extends JPanel {
             ncc.setMaSoThue(textMST.getText().trim());
             ncc.setSdt(textSDT.getText().trim());
             ncc.setNguoiLienHe(textNLH.getText().trim());
-            //ncc.setDiaChi(textDCHI.getText().trim());
+            DIACHI_DTO dc = new DIACHI_DTO();
+            dc.setSoNha(textDCHI.getText().trim());
+            dc.setDuong("");
+            dc.setPhuong("");
+            dc.setTinh("");
+            ncc.setDiaChi(dc);
 
             int trangThaiSo = (comboBoxTthai.getSelectedIndex() == 0) ? 1 : 0;
             ncc.setTrangThai(trangThaiSo);
@@ -260,7 +302,7 @@ public class NCC extends JPanel {
             return;
         }
 
-        // Nếu đang sửa → lưu lại
+
         try {
             NhaCungCap_DTO ncc = new NhaCungCap_DTO();
             ncc.setMaNCC(textMa.getText().trim());
@@ -268,7 +310,9 @@ public class NCC extends JPanel {
             ncc.setMaSoThue(textMST.getText().trim());
             ncc.setSdt(textSDT.getText().trim());
             ncc.setNguoiLienHe(textNLH.getText().trim());
-            //ncc.setDiaChi(textDCHI.getText().trim());
+            if (ncc.getDiaChi() != null) {
+                ncc.getDiaChi().setSoNha(textDCHI.getText().trim());
+            }
 
             int trangThaiSo = (comboBoxTthai.getSelectedIndex() == 0) ? 1 : 0;
             ncc.setTrangThai(trangThaiSo);

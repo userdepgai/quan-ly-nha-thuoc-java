@@ -11,7 +11,6 @@ public class KhuVucLuuTru_DAO {
 
     public ArrayList<KhuVucLuuTru_DTO> getAll() {
         ArrayList<KhuVucLuuTru_DTO> list = new ArrayList<>();
-        // Giả định cột lưu mã địa chỉ trong bảng KHUVUCLUUTRU là Ma_DC
         String sql = "SELECT * FROM KHUVUCLUUTRU";
 
         try (Connection conn = DBConnection.getConnection();

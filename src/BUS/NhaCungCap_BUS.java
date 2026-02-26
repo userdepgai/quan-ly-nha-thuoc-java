@@ -2,6 +2,7 @@ package BUS;
 
 import DAO.NhaCungCap_DAO;
 import dto.NhaCungCap_DTO;
+import dto.DIACHI_DTO;
 
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
@@ -13,7 +14,7 @@ public class NhaCungCap_BUS {
     private ArrayList<NhaCungCap_DTO> listCache;
 
     private NhaCungCap_BUS() {
-        listCache = dao.getAll();
+        refreshData();
     }
 
     public static NhaCungCap_BUS getInstance() {
@@ -29,6 +30,13 @@ public class NhaCungCap_BUS {
 
     public void refreshData() {
         listCache = dao.getAll();
+        DiaChi_BUS diaChiBUS = DiaChi_BUS.getInstance();
+        for (NhaCungCap_DTO ncc : listCache) {
+            if (ncc.getDiaChi() != null && ncc.getDiaChi().getMaDiaChi() != null) {
+                DIACHI_DTO fullDC = diaChiBUS.getById(ncc.getDiaChi().getMaDiaChi());
+                ncc.setDiaChi(fullDC);
+            }
+        }
     }
 
 
@@ -49,6 +57,11 @@ public class NhaCungCap_BUS {
             return false;
         }
 
+        if (ncc.getDiaChi() == null) {
+            JOptionPane.showMessageDialog(null, "Vui lòng chọn/nhập địa chỉ");
+            return false;
+        }
+
         return true;
     }
 
@@ -61,10 +74,22 @@ public class NhaCungCap_BUS {
             return false;
         }
 
+        DiaChi_BUS diaChiBUS = DiaChi_BUS.getInstance();
+        DIACHI_DTO dc = ncc.getDiaChi();
+
+        if (dc.getMaDiaChi() == null || dc.getMaDiaChi().trim().isEmpty()) {
+            dc.setMaDiaChi(diaChiBUS.getNextId());
+            if (!diaChiBUS.them(dc)) {
+                JOptionPane.showMessageDialog(null, "Lỗi khi lưu địa chỉ mới");
+                return false;
+            }
+        }
+
         boolean result = dao.insert(ncc);
 
         if (result) {
             refreshData();
+            JOptionPane.showMessageDialog(null, "Thêm nhà cung cấp thành công!");
         }
 
         return result;
@@ -74,10 +99,14 @@ public class NhaCungCap_BUS {
 
         if (!kiemTraHopLe(ncc)) return false;
 
+        if (ncc.getDiaChi() != null) {
+            DiaChi_BUS.getInstance().capNhat(ncc.getDiaChi());
+        }
         boolean result = dao.update(ncc);
 
         if (result) {
             refreshData();
+            JOptionPane.showMessageDialog(null, "Cập nhật nhà cung cấp thành công!");
         }
 
         return result;
