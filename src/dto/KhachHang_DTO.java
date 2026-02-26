@@ -1,6 +1,7 @@
 package dto;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class KhachHang_DTO extends Nguoi_DTO {
 
@@ -10,7 +11,7 @@ public class KhachHang_DTO extends Nguoi_DTO {
     private LocalDate ngayDKThanhVien;
 
     // Constructor rỗng
-    public KhachHang_DTO() {
+    public KhachHang_DTO(String ma, String ten, String ngaySinh, String diaChi, String gioiTinh, String sdt, int diemHang, int diemThuong, String hang, String ngayDK) {
         super();
     }
 
@@ -65,4 +66,6 @@ public class KhachHang_DTO extends Nguoi_DTO {
     public void setNgayDKThanhVien(LocalDate ngayDKThanhVien) {
         this.ngayDKThanhVien = ngayDKThanhVien;
     }
+    private ArrayList<KhachHang_DiaChi_DTO> dsDiaChi;
+
 }

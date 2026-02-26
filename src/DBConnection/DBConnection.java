@@ -22,11 +22,14 @@ public class DBConnection {
                 }
                 props.load(input);
 
-                String url = props.getProperty("db.url");
+                String url = props.getProperty("db.url=");
                 String username = props.getProperty("db.username");
                 String password = props.getProperty("db.password");
 
+                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver"); // thêm dòng này
+
                 connection = DriverManager.getConnection(url, username, password);
+
             }
         } catch (Exception e) {
             e.printStackTrace();
