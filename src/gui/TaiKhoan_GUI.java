@@ -5,6 +5,8 @@ import dto.TaiKhoan_DTO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -66,6 +68,12 @@ public class TaiKhoan_GUI extends JPanel{
         cmb_trangThai.setModel(new DefaultComboBoxModel<>(
                 new String[]{"-- Chọn trạng thái --", "Mở", "Đóng"}
         ));
+        cmb_locTrangThai.setModel(new DefaultComboBoxModel<>(
+                new String[]{"-- Chọn trạng thái --", "Mở", "Đóng"}
+        ));
+        cmb_quyen.setModel(new DefaultComboBoxModel<>(
+                new String[]{"-- Chọn quyền --", "Admin", "Nhân viên bán hàng", "Nhân viên quản lí kho", "Khách hàng"}
+        ));
     }
     private void initTable() {
         String[] columns = {"STT", "Mã tài khoản", "Tên người dùng", "SDT", "Mật khẩu", "Ngày kích hoạt", "Quyền", "Trạng thái"};
@@ -117,7 +125,43 @@ public class TaiKhoan_GUI extends JPanel{
             if(!e.getValueIsAdjusting())
                 hienChiTiet();
         });
+
+        txt_ndTimKiem.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (!txt_ndTimKiem.getText().trim().isEmpty())
+                        hienThiGoiY(timKiem());
+                else popupGoiY.setVisible(false);
+            }
+        });
+
+        btnTimKiem.addActionListener(e -> {
+            loadTableFromList(timKiem());
+        });
+
+        btnThoat.addActionListener(e -> {
+            cmb_locTrangThai.setSelectedIndex(0);
+            cmb_quyen.setSelectedIndex(0);
+            txt_ndTimKiem.setText("");
+            loadTableFromList(bus.getAll());
+        });
     }
+    private ArrayList<TaiKhoan_DTO> timKiem() {
+        String keyword = txt_ndTimKiem.getText().trim();
+        Integer trangThai = null;
+        if(cmb_locTrangThai.getSelectedIndex() == 1) {
+            trangThai = 1;
+        } else if (cmb_locTrangThai.getSelectedIndex() == 2){
+            trangThai = 0;
+        }
+        Object selected = cmb_quyen.getSelectedItem();
+
+        String quyen = (selected != null && !selected.equals("-- Chọn quyền --"))
+                ? selected.toString()
+                : null;
+        return bus.timKiem(keyword, quyen, trangThai);
+    }
+
     private void hienChiTiet() {
         int row = table_dsTaiKhoan.getSelectedRow();
         if(row >= 0){

@@ -197,39 +197,14 @@ public class PhanQuyen_GUI extends JPanel{
         txt_ndTimKiem.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                String keyword = txt_ndTimKiem.getText().trim();
-
-                if(keyword.isEmpty()){
-                    popupGoiY.setVisible(false);
-                    loadTableFromList(pqBus.getAll());
-                    return;
-                }
-
-                Integer trangThai = null;
-                if (cmb_locTrangThai.getSelectedIndex() == 1) {
-                    trangThai = 1;
-                } else if (cmb_locTrangThai.getSelectedIndex() == 2) {
-                    trangThai = 0;
-                }
-                ArrayList<PhanQuyen_DTO> list =
-                        pqBus.timKiem(keyword, trangThai);
-
-                hienThiGoiY(list);
+                if(!txt_ndTimKiem.getText().trim().isEmpty())
+                    hienThiGoiY(timKiem());
+                else popupGoiY.setVisible(false);
             }
         });
 
         btn_timKiem.addActionListener(e -> {
-            String keyword = txt_ndTimKiem.getText().trim();
-
-            Integer trangThai = null;
-            if (cmb_locTrangThai.getSelectedIndex() == 1) {
-                trangThai = 1;
-            } else if (cmb_locTrangThai.getSelectedIndex() == 2) {
-                trangThai = 0;
-            }
-
-            ArrayList<PhanQuyen_DTO> list = pqBus.timKiem(keyword, trangThai);
-            loadTableFromList(list);
+            loadTableFromList(timKiem());
         });
 
         btn_thoat.addActionListener(e -> {
@@ -240,6 +215,16 @@ public class PhanQuyen_GUI extends JPanel{
         });
     }
 
+    private ArrayList<PhanQuyen_DTO> timKiem() {
+        String keyword = txt_ndTimKiem.getText().trim();
+        Integer trangThai = null;
+        if (cmb_locTrangThai.getSelectedIndex() == 1) {
+            trangThai = 1;
+        } else if (cmb_locTrangThai.getSelectedIndex() == 2) {
+            trangThai = 0;
+        }
+        return pqBus.timKiem(keyword, trangThai);
+    }
     private void hienChiTiet() {
         int row = table_dsQuyen.getSelectedRow();
 
