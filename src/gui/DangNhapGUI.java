@@ -1,7 +1,14 @@
 package gui;
+import bus.TaiKhoan_BUS;
+import dto.TaiKhoan_DTO;
+import gui.menu.Menu;
+import gui.menu.MenuKhachHang_GUI;
+import gui.menu.*;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class DangNhapGUI extends JFrame {
 
@@ -117,6 +124,75 @@ public class DangNhapGUI extends JFrame {
             new DangKyGUI().setVisible(true);
             dispose();
         });
+
+        btnDangNhap.addActionListener(e -> xuLyDangNhap());
+    }
+    private void xuLyDangNhap() {
+        String sdt  = txtSDT.getText().trim();
+        String matKhau = new String(txtMatKhau.getPassword()).trim();
+        if (sdt.isEmpty() || matKhau.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin");
+            return;
+        }
+        if (!kiemTraSoDienThoai(sdt)) {
+            JOptionPane.showMessageDialog(this,
+                    "Số điện thoại phải gồm 10 số và bắt đầu bằng 0");
+            return;
+        }
+        TaiKhoan_BUS bus = TaiKhoan_BUS.getInstance();
+        ArrayList<TaiKhoan_DTO> list = bus.dangNhap(sdt, matKhau);
+        if (list.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Sai số điện thoại hoặc mật khẩu");
+            return;
+        }
+        if (list.size() == 1) {
+            moGiaoDienTheoQuyen(list.get(0));
+        } else if (list.size() == 2) {
+
+            TaiKhoan_DTO tkKhach = null;
+            TaiKhoan_DTO tkNhanVien = null;
+
+            for (TaiKhoan_DTO tk : list) {
+                if (tk.getMaQuyen().equalsIgnoreCase("Q001")) {
+                    tkKhach = tk;
+                } else {
+                    tkNhanVien = tk;
+                }
+            }
+
+            String[] options = {"Đăng nhập Khách hàng", "Đăng nhập Nhân viên"};
+
+            int choice = JOptionPane.showOptionDialog(
+                    this,
+                    "Bạn muốn đăng nhập với quyền nào?",
+                    "Chọn quyền",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[0]
+            );
+
+            if (choice == 0 && tkKhach != null) {
+                moGiaoDienTheoQuyen(tkKhach);
+            }
+            else if (choice == 1 && tkNhanVien != null) {
+                moGiaoDienTheoQuyen(tkNhanVien);
+            }
+        }
+    }
+    private void moGiaoDienTheoQuyen(TaiKhoan_DTO tk) {
+
+        if (tk.getMaQuyen().equalsIgnoreCase("Q001")) {
+            new MenuKhachHang_GUI().setVisible(true);
+        } else {
+            new Menu().setVisible(true);
+        }
+
+        dispose();
+    }
+    public boolean kiemTraSoDienThoai(String sdt) {
+        return sdt != null && sdt.matches("^0\\d{9}$");
     }
 
     public static void main(String[] args) {

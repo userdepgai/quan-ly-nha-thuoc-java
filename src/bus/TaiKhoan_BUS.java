@@ -54,13 +54,18 @@ public class TaiKhoan_BUS {
         }
         return null;
     }
-//    public ArrayList<TaiKhoan_DTO> timKiem(String keyWord,Integer quyen, Integer trangThai) {
-//        ArrayList<TaiKhoan_DTO> result = new ArrayList<>();
-//        keyWord = keyWord.toLowerCase();
-//        for (TaiKhoan_DTO tk : listCache) {
-//            boolean
-//        }
-//    }
+
+    public ArrayList<TaiKhoan_DTO> dangNhap(String sdt, String matKhau) {
+        ArrayList<TaiKhoan_DTO> result = new ArrayList<>();
+        for (TaiKhoan_DTO tk : listCache) {
+            if (tk.getSdt().equals(sdt)
+                    && tk.getMatKhau().equals(matKhau)
+                    && tk.getTrangThai() == 1) {
+                result.add(tk);
+            }
+        }
+        return result;
+    }
 
     public boolean kiemTraHopLe(TaiKhoan_DTO tk) {
 
