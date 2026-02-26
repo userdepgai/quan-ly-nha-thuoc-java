@@ -1,30 +1,30 @@
 package dto;
 
 public class NhaCungCap_DTO {
+
     private String maNCC;
     private String tenNCC;
     private String nguoiLienHe;
     private String sdt;
     private String maSoThue;
     private int trangThai;
-    private DIACHI diaChi;
-
+    private String maDiaChi;
 
     public NhaCungCap_DTO() {
     }
 
-
-    public NhaCungCap_DTO(String maNCC, String tenNCC, String nguoiLienHe, String sdt, String maSoThue, int trangThai, DIACHI diaChi) {
+    public NhaCungCap_DTO(String maNCC, String tenNCC,
+                          String nguoiLienHe, String sdt,
+                          String maSoThue, int trangThai,
+                          String maDiaChi) {
         this.maNCC = maNCC;
         this.tenNCC = tenNCC;
         this.nguoiLienHe = nguoiLienHe;
         this.sdt = sdt;
         this.maSoThue = maSoThue;
         this.trangThai = trangThai;
-        this.diaChi = diaChi;
+        this.maDiaChi = maDiaChi;
     }
-
-
 
     public String getMaNCC() {
         return maNCC;
@@ -74,12 +74,11 @@ public class NhaCungCap_DTO {
         this.trangThai = trangThai;
     }
 
-
-    public DIACHI getDiaChi() {
-        return diaChi;
+    public String getMaDiaChi() {
+        return maDiaChi;
     }
 
-    public void setDiaChi(DIACHI diaChi) {
-        this.diaChi = diaChi;
+    public void setMaDiaChi(String maDiaChi) {
+        this.maDiaChi = maDiaChi;
     }
 }

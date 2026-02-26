@@ -1,19 +1,22 @@
 package dto;
 
 public class ThuocTinhDanhMuc_DTO {
+
     private String maThuocTinh;
-    private String tenTT;
-    private String kieuTT;
+    private String tenThuocTinh;
+    private int loaiThuocTinh;
     private int trangThai;
+
     private String maDM;
 
     public ThuocTinhDanhMuc_DTO() {
     }
 
-    public ThuocTinhDanhMuc_DTO(String maThuocTinh, String tenTT, String kieuTT, int trangThai, String maDM) {
+    public ThuocTinhDanhMuc_DTO(String maThuocTinh, String tenThuocTinh,
+                                int loaiThuocTinh, int trangThai, String maDM) {
         this.maThuocTinh = maThuocTinh;
-        this.tenTT = tenTT;
-        this.kieuTT = kieuTT;
+        this.tenThuocTinh = tenThuocTinh;
+        this.loaiThuocTinh = loaiThuocTinh;
         this.trangThai = trangThai;
         this.maDM = maDM;
     }
@@ -26,20 +29,20 @@ public class ThuocTinhDanhMuc_DTO {
         this.maThuocTinh = maThuocTinh;
     }
 
-    public String getTenTT() {
-        return tenTT;
+    public String getTenThuocTinh() {
+        return tenThuocTinh;
     }
 
-    public void setTenTT(String tenTT) {
-        this.tenTT = tenTT;
+    public void setTenThuocTinh(String tenThuocTinh) {
+        this.tenThuocTinh = tenThuocTinh;
     }
 
-    public String getKieuTT() {
-        return kieuTT;
+    public int getLoaiThuocTinh() {
+        return loaiThuocTinh;
     }
 
-    public void setKieuTT(String kieuTT) {
-        this.kieuTT = kieuTT;
+    public void setLoaiThuocTinh(int loaiThuocTinh) {
+        this.loaiThuocTinh = loaiThuocTinh;
     }
 
     public int getTrangThai() {

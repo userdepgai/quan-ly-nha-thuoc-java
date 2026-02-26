@@ -1,35 +1,38 @@
 package dto;
 
 public class GiaTriThuocTinh_DTO {
-    private String maGTTT;
-    private String noiDungGiaTri;
+
+    private String maGiaTri;
+    private String ndGiaTri;
     private int trangThai;
+
     private String maThuocTinh;
 
     public GiaTriThuocTinh_DTO() {
     }
 
-    public GiaTriThuocTinh_DTO(String maGTTT, String noiDungGiaTri, int trangThai, String maThuocTinh) {
-        this.maGTTT = maGTTT;
-        this.noiDungGiaTri = noiDungGiaTri;
+    public GiaTriThuocTinh_DTO(String maGiaTri, String ndGiaTri,
+                               int trangThai, String maThuocTinh) {
+        this.maGiaTri = maGiaTri;
+        this.ndGiaTri = ndGiaTri;
         this.trangThai = trangThai;
         this.maThuocTinh = maThuocTinh;
     }
 
-    public String getMaGTTT() {
-        return maGTTT;
+    public String getMaGiaTri() {
+        return maGiaTri;
     }
 
-    public void setMaGTTT(String maGTTT) {
-        this.maGTTT = maGTTT;
+    public void setMaGiaTri(String maGiaTri) {
+        this.maGiaTri = maGiaTri;
     }
 
-    public String getNoiDungGiaTri() {
-        return noiDungGiaTri;
+    public String getNdGiaTri() {
+        return ndGiaTri;
     }
 
-    public void setNoiDungGiaTri(String noiDungGiaTri) {
-        this.noiDungGiaTri = noiDungGiaTri;
+    public void setNdGiaTri(String ndGiaTri) {
+        this.ndGiaTri = ndGiaTri;
     }
 
     public int getTrangThai() {

@@ -4,8 +4,13 @@ import javax.swing.*;
 import java.awt.*;
 import dto.MenuItem;
 import gui.*;
+<<<<<<< HEAD
 import gui.NCCKVLT.KVLT;
 import gui.NCCKVLT.NCC;
+=======
+import gui.HOADON_GUI.LapHoaDon_GUI;
+import gui.HOADON_GUI.XuatHoaDon_GUI;
+>>>>>>> 2eab4c37ae93e651d09184b23142ba07a2ad0fc6
 
 public class Menu extends JFrame {
     private JList<MenuItem> menuList;
@@ -26,6 +31,7 @@ public class Menu extends JFrame {
 
         menuModel = new DefaultListModel<>();
 
+        menuModel.addElement(new MenuItem("Thông tin cá nhân", "thongTinCaNhanFrame", icon("account.png"), false));
         menuModel.addElement(new MenuItem("TỔNG QUAN & ĐIỀU HÀNH", null, null, true));
         menuModel.addElement(new MenuItem("Dashboard", "dashboard", icon("dashboard.png"), false));
         menuModel.addElement(new MenuItem("Thống kê", "thongke", icon("thongKe.png"), false));
@@ -60,6 +66,8 @@ public class Menu extends JFrame {
         menuModel.addElement(new MenuItem("Quản lý tài khoản", "taiKhoanDangNhap", icon("taiKhoanDangNhap.png"),false));
         menuModel.addElement(new MenuItem("Phân quyền", "phanQuyen", icon("phanQuyen.png"),false));
 
+        menuModel.addElement(new MenuItem("Đăng xuất", "dangXuat", icon("logout.png"), false));
+
         menuList = new JList<>(menuModel);
         menuList.setCellRenderer(new SidebarRenderer());
         menuList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -76,12 +84,12 @@ public class Menu extends JFrame {
         contentPanel = new JPanel(cardLayout);
 
         contentPanel.add(new DashBoard_GUI(), "dashboard");
-        contentPanel.add(createContent("Thống kê"), "thongke");
+        contentPanel.add(new ThongTinCaNhanNhanVien_GUI(), "thongke");
         contentPanel.add(createContent("Báo cáo"), "baocao");
 
-        contentPanel.add(createContent("Bán hàng"), "banhang");
+        contentPanel.add(new LapHoaDon_GUI(), "banhang");
         contentPanel.add(createContent("Duyệt hóa đơn online"), "duyethd");
-        contentPanel.add(createContent("Hóa đơn"), "hoadon");
+        contentPanel.add(new XuatHoaDon_GUI(), "hoadon");
 
         contentPanel.add(createContent("Danh mục sản phẩm"), "danhMuc");
         contentPanel.add(createContent("Thuộc tính danh mục"), "thuocTinhDanhMuc");
@@ -91,22 +99,46 @@ public class Menu extends JFrame {
         contentPanel.add(createContent("Nhân viên"), "nhanvien");
         contentPanel.add(new NCC(), "nhacungcap");
 
+<<<<<<< HEAD
         contentPanel.add(new KVLT(), "luutru");
         contentPanel.add(createContent("Lô hàng"), "lohang");
         contentPanel.add(createContent("Phiếu nhập"), "phieunhap");
+=======
+        contentPanel.add(createContent("Khu vực lưu trữ"), "luutru");
+        contentPanel.add(new LoHang_GUI(), "lohang");
+        contentPanel.add(new PhieuNhap_GUI(), "phieunhap");
+>>>>>>> 2eab4c37ae93e651d09184b23142ba07a2ad0fc6
 
         contentPanel.add(createContent("Quản lý chương trình"), "chuongTrinhKhuyenMai");
         contentPanel.add(createContent("Khuyến mãi sản phẩm"), "khuyenMai");
         contentPanel.add(createContent("Quản lý voucher"), "voucher");
 
         contentPanel.add(new TaiKhoan_GUI(), "taiKhoanDangNhap");
-        contentPanel.add(createContent("Phân quyền"), "phanQuyen");
+        contentPanel.add(new PhanQuyen_GUI(), "phanQuyen");
 
         menuList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 MenuItem item = menuList.getSelectedValue();
                 if (item != null && !item.isGroup) {
-                    cardLayout.show(contentPanel, item.cardName);
+                    if ("dangXuat".equals(item.cardName)) {
+                        int confirm = JOptionPane.showConfirmDialog(
+                                this,
+                                "Bạn có chắc muốn đăng xuất?",
+                                "Xác nhận",
+                                JOptionPane.YES_NO_OPTION
+                        );
+                        if (confirm == JOptionPane.YES_OPTION) {
+                            dispose();
+                            new DangNhapGUI().setVisible(true);
+                        }
+                        return;
+                    }
+                    if ("thongTinCaNhanFrame".equals(item.cardName)) {
+                        new MenuThongTinCaNhan_GUI().setVisible(true);
+                        dispose();
+                    } else {
+                        cardLayout.show(contentPanel, item.cardName);
+                    }
                 }
             }
         });
@@ -120,6 +152,7 @@ public class Menu extends JFrame {
         splitPane.setDividerSize(2);
 
         add(splitPane);
+        menuList.setSelectedIndex(2);
     }
 
     private JPanel createContent(String title) {

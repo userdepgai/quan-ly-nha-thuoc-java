@@ -1,27 +1,31 @@
 package dto;
 
 public class SanPham_DTO {
+
     private String maSP;
     private String tenSP;
-    private String donViTinh;
-    private double phanTramLoiNhuan;
+    private int donViTinh;
     private String hinhAnh;
+    private double loiNhuan;
     private int trangThai;
+
     private String maDM;
     private String maQC;
 
     public SanPham_DTO() {
     }
 
-    public SanPham_DTO(String maSP, String tenSP, String donViTinh, double phanTramLoiNhuan, String hinhAnh, int trangThai, String maDM, String maQC) {
+    public SanPham_DTO(String maSP, String tenSP, int donViTinh,
+                       String hinhAnh, double loiNhuan,
+                       int trangThai, String maDM, String maQuyCach) {
         this.maSP = maSP;
         this.tenSP = tenSP;
         this.donViTinh = donViTinh;
-        this.phanTramLoiNhuan = phanTramLoiNhuan;
         this.hinhAnh = hinhAnh;
+        this.loiNhuan = loiNhuan;
         this.trangThai = trangThai;
         this.maDM = maDM;
-        this.maQC = maQC;
+        this.maQC = maQuyCach;
     }
 
     public String getMaSP() {
@@ -40,20 +44,12 @@ public class SanPham_DTO {
         this.tenSP = tenSP;
     }
 
-    public String getDonViTinh() {
+    public int getDonViTinh() {
         return donViTinh;
     }
 
-    public void setDonViTinh(String donViTinh) {
+    public void setDonViTinh(int donViTinh) {
         this.donViTinh = donViTinh;
-    }
-
-    public double getPhanTramLoiNhuan() {
-        return phanTramLoiNhuan;
-    }
-
-    public void setPhanTramLoiNhuan(double phanTramLoiNhuan) {
-        this.phanTramLoiNhuan = phanTramLoiNhuan;
     }
 
     public String getHinhAnh() {
@@ -62,6 +58,14 @@ public class SanPham_DTO {
 
     public void setHinhAnh(String hinhAnh) {
         this.hinhAnh = hinhAnh;
+    }
+
+    public double getLoiNhuan() {
+        return loiNhuan;
+    }
+
+    public void setLoiNhuan(double loiNhuan) {
+        this.loiNhuan = loiNhuan;
     }
 
     public int getTrangThai() {
@@ -80,11 +84,11 @@ public class SanPham_DTO {
         this.maDM = maDM;
     }
 
-    public String getMaQC() {
+    public String getMaQuyCach() {
         return maQC;
     }
 
-    public void setMaQC(String maQC) {
-        this.maQC = maQC;
+    public void setMaQuyCach(String maQuyCach) {
+        this.maQC = maQuyCach;
     }
 }

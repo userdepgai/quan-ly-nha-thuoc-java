@@ -4,38 +4,37 @@ import dto.SANPHAM;
 
 public class SanPhamNCC_DTO {
 
-    private SANPHAM sanPham;
-    private NHACUNGCAP nhaCungCap;
+    private String maSanPham;
+    private String maNCC;
 
     private double giaNhap;
     private int trangThai;
 
-
     public SanPhamNCC_DTO() {
     }
 
-
-    public SanPhamNCC_DTO(SANPHAM sanPham, NHACUNGCAP nhaCungCap, double giaNhap, int trangThai) {
-        this.sanPham = sanPham;
-        this.nhaCungCap = nhaCungCap;
+    public SanPhamNCC_DTO(String maSanPham, String maNCC,
+                          double giaNhap, int trangThai) {
+        this.maSanPham = maSanPham;
+        this.maNCC = maNCC;
         this.giaNhap = giaNhap;
         this.trangThai = trangThai;
     }
 
-    public SANPHAM getSanPham() {
-        return sanPham;
+    public String getMaSanPham() {
+        return maSanPham;
     }
 
-    public void setSanPham(SANPHAM sanPham) {
-        this.sanPham = sanPham;
+    public void setMaSanPham(String maSanPham) {
+        this.maSanPham = maSanPham;
     }
 
-    public NHACUNGCAP getNhaCungCap() {
-        return nhaCungCap;
+    public String getMaNCC() {
+        return maNCC;
     }
 
-    public void setNhaCungCap(NHACUNGCAP nhaCungCap) {
-        this.nhaCungCap = nhaCungCap;
+    public void setMaNCC(String maNCC) {
+        this.maNCC = maNCC;
     }
 
     public double getGiaNhap() {

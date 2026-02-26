@@ -1,25 +1,18 @@
 package dto;
 
-public class GiaTriThuocTinhSP_DTO {
-    private String maGTTT;
+public class GiaTriThuocTinh_SP_DTO {
+
     private String maSP;
     private String maThuocTinh;
+    private String maGiaTri;
 
-    public GiaTriThuocTinhSP_DTO() {
+    public GiaTriThuocTinh_SP_DTO() {
     }
 
-    public GiaTriThuocTinhSP_DTO(String maGTTT, String maSP, String maThuocTinh) {
-        this.maGTTT = maGTTT;
+    public GiaTriThuocTinh_SP_DTO(String maSP, String maThuocTinh, String maGiaTri) {
         this.maSP = maSP;
         this.maThuocTinh = maThuocTinh;
-    }
-
-    public String getMaGTTT() {
-        return maGTTT;
-    }
-
-    public void setMaGTTT(String maGTTT) {
-        this.maGTTT = maGTTT;
+        this.maGiaTri = maGiaTri;
     }
 
     public String getMaSP() {
@@ -36,5 +29,13 @@ public class GiaTriThuocTinhSP_DTO {
 
     public void setMaThuocTinh(String maThuocTinh) {
         this.maThuocTinh = maThuocTinh;
+    }
+
+    public String getMaGiaTri() {
+        return maGiaTri;
+    }
+
+    public void setMaGiaTri(String maGiaTri) {
+        this.maGiaTri = maGiaTri;
     }
 }

@@ -27,5 +27,9 @@ out/
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+<<<<<<< HEAD
 # Database config
+=======
+
+>>>>>>> 2eab4c37ae93e651d09184b23142ba07a2ad0fc6
 src/db.properties

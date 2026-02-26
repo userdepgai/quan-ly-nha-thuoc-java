@@ -3,35 +3,40 @@ package dto;
 import java.time.LocalDate;
 
 public class TaiKhoan_DTO {
-    private String SDT;
+
+    private String maTK;
+    private String sdt;
     private String matKhau;
-    private PhanQuyen_DTO quyen;
+    private String maQuyen;
     private LocalDate ngayKichHoat;
     private int trangThai;
 
+    public TaiKhoan_DTO() {
+    }
 
-    public TaiKhoan_DTO(String SDT, String matKhau, PhanQuyen_DTO quyen, LocalDate ngayKichHoat, int trangThai) {
-        this.SDT = SDT;
+    public TaiKhoan_DTO(String maTK, String sdt, String matKhau, String maQuyen, LocalDate ngayKichHoat, int trangThai) {
+        this.maTK = maTK;
+        this.sdt = sdt;
         this.matKhau = matKhau;
-        this.quyen = quyen;
+        this.maQuyen = maQuyen;
         this.ngayKichHoat = ngayKichHoat;
         this.trangThai = trangThai;
     }
 
-    public LocalDate getNgayKichHoat() {
-        return ngayKichHoat;
+    public String getMaTK() {
+        return maTK;
     }
 
-    public void setNgayKichHoat(LocalDate ngayKichHoat) {
-        this.ngayKichHoat = ngayKichHoat;
+    public void setMaTK(String maTK) {
+        this.maTK = maTK;
     }
 
-    public String getSDT() {
-        return SDT;
+    public String getSdt() {
+        return sdt;
     }
 
-    public void setSDT(String SDT) {
-        this.SDT = SDT;
+    public void setSdt(String sdt) {
+        this.sdt = sdt;
     }
 
     public String getMatKhau() {
@@ -42,12 +47,20 @@ public class TaiKhoan_DTO {
         this.matKhau = matKhau;
     }
 
-    public PhanQuyen_DTO getQuyen() {
-        return quyen;
+    public String getMaQuyen() {
+        return maQuyen;
     }
 
-    public void setQuyen(PhanQuyen_DTO quyen) {
-        this.quyen = quyen;
+    public void setMaQuyen(String maQuyen) {
+        this.maQuyen = maQuyen;
+    }
+
+    public LocalDate getNgayKichHoat() {
+        return ngayKichHoat;
+    }
+
+    public void setNgayKichHoat(LocalDate ngayKichHoat) {
+        this.ngayKichHoat = ngayKichHoat;
     }
 
     public int getTrangThai() {

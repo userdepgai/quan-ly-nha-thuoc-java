@@ -1,29 +1,36 @@
 package dto;
 
 public class KhuyenMai_DTO {
+
     private String maKM;
     private String tenKM;
-    private String loaiKM;
-    private double giaTriKM;
     private int trangThai;
     private int doiTuongApDung;
-    private String maCTKM;
-    private String maSP;
-    private String maDM;
+    private int loaiKhuyenMai;
+    private double giaTriKhuyenMai;
+
+    private String maChuongTrinh;
+    private String maSanPham;
+    private String maDanhMuc;
 
     public KhuyenMai_DTO() {
     }
 
-    public KhuyenMai_DTO(String maKM, String tenKM, String loaiKM, double giaTriKM, int trangThai, int doiTuongApDung, String maCTKM, String maSP, String maDM) {
+    public KhuyenMai_DTO(String maKM, String tenKM, int trangThai,
+                         int doiTuongApDung, int loaiKhuyenMai,
+                         double giaTriKhuyenMai,
+                         String maChuongTrinh,
+                         String maSanPham,
+                         String maDanhMuc) {
         this.maKM = maKM;
         this.tenKM = tenKM;
-        this.loaiKM = loaiKM;
-        this.giaTriKM = giaTriKM;
         this.trangThai = trangThai;
         this.doiTuongApDung = doiTuongApDung;
-        this.maCTKM = maCTKM;
-        this.maSP = maSP;
-        this.maDM = maDM;
+        this.loaiKhuyenMai = loaiKhuyenMai;
+        this.giaTriKhuyenMai = giaTriKhuyenMai;
+        this.maChuongTrinh = maChuongTrinh;
+        this.maSanPham = maSanPham;
+        this.maDanhMuc = maDanhMuc;
     }
 
     public String getMaKM() {
@@ -42,22 +49,6 @@ public class KhuyenMai_DTO {
         this.tenKM = tenKM;
     }
 
-    public String getLoaiKM() {
-        return loaiKM;
-    }
-
-    public void setLoaiKM(String loaiKM) {
-        this.loaiKM = loaiKM;
-    }
-
-    public double getGiaTriKM() {
-        return giaTriKM;
-    }
-
-    public void setGiaTriKM(double giaTriKM) {
-        this.giaTriKM = giaTriKM;
-    }
-
     public int getTrangThai() {
         return trangThai;
     }
@@ -74,27 +65,43 @@ public class KhuyenMai_DTO {
         this.doiTuongApDung = doiTuongApDung;
     }
 
-    public String getMaCTKM() {
-        return maCTKM;
+    public int getLoaiKhuyenMai() {
+        return loaiKhuyenMai;
     }
 
-    public void setMaCTKM(String maCTKM) {
-        this.maCTKM = maCTKM;
+    public void setLoaiKhuyenMai(int loaiKhuyenMai) {
+        this.loaiKhuyenMai = loaiKhuyenMai;
     }
 
-    public String getMaSP() {
-        return maSP;
+    public double getGiaTriKhuyenMai() {
+        return giaTriKhuyenMai;
     }
 
-    public void setMaSP(String maSP) {
-        this.maSP = maSP;
+    public void setGiaTriKhuyenMai(double giaTriKhuyenMai) {
+        this.giaTriKhuyenMai = giaTriKhuyenMai;
     }
 
-    public String getMaDM() {
-        return maDM;
+    public String getMaChuongTrinh() {
+        return maChuongTrinh;
     }
 
-    public void setMaDM(String maDM) {
-        this.maDM = maDM;
+    public void setMaChuongTrinh(String maChuongTrinh) {
+        this.maChuongTrinh = maChuongTrinh;
+    }
+
+    public String getMaSanPham() {
+        return maSanPham;
+    }
+
+    public void setMaSanPham(String maSanPham) {
+        this.maSanPham = maSanPham;
+    }
+
+    public String getMaDanhMuc() {
+        return maDanhMuc;
+    }
+
+    public void setMaDanhMuc(String maDanhMuc) {
+        this.maDanhMuc = maDanhMuc;
     }
 }
