@@ -1,8 +1,10 @@
 package gui.NCCKVLT;
 
 import DAO.KhuVucLuuTru_DAO;
+import dto.DIACHI_DTO;
 import dto.KhuVucLuuTru_DTO;
 import BUS.KhuVucLuuTru_BUS;
+
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -64,7 +66,7 @@ public class KVLT extends JPanel {
         modelKVLT = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Không cho sửa trực tiếp trên bảng
+                return false;
             }
         };
 
@@ -119,6 +121,7 @@ public class KVLT extends JPanel {
 
     private void setupTableProperties(JTable table) {
         table.getTableHeader().setReorderingAllowed(false);
+
         table.setFillsViewportHeight(true);
         if (table.getColumnCount() > 0) {
             TableColumn sttCol = table.getColumnModel().getColumn(0);
@@ -206,7 +209,6 @@ public class KVLT extends JPanel {
             else if (trangThai.equals("Đã đầy")) comboBoxTthai.setSelectedIndex(1);
             else comboBoxTthai.setSelectedIndex(2);
 
-            // Khóa form lại để tránh ấn nhầm
             setKhoaForm(true);
             btnThemKV.setText("Thêm ");
             btnThemKV.setEnabled(true);

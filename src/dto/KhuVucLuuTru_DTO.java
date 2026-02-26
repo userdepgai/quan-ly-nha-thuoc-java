@@ -10,13 +10,13 @@ public class KhuVucLuuTru_DTO {
     private int sucChua;
     private int hienCo;
     private int trangThai;
-    private DIACHI diaChi;
+    private DIACHI_DTO diaChi;
 
 
     public KhuVucLuuTru_DTO() {
     }
 
-    public KhuVucLuuTru_DTO(String maKVLT, String tenKVLT,int hienCo, Date ngayLapKho, int sucChua, int trangThai, DIACHI diaChi) {
+    public KhuVucLuuTru_DTO(String maKVLT, String tenKVLT,int hienCo, Date ngayLapKho, int sucChua, int trangThai, DIACHI_DTO diaChi) {
         this.maKVLT = maKVLT;
         this.tenKVLT = tenKVLT;
         this.ngayLapKho = ngayLapKho;
@@ -75,11 +75,11 @@ public class KhuVucLuuTru_DTO {
         this.trangThai = trangThai;
     }
 
-    public DIACHI getDiaChi() {
+    public DIACHI_DTO getDiaChi() {
         return diaChi;
     }
 
-    public void setDiaChi(DIACHI diaChi) {
+    public void setDiaChi(DIACHI_DTO diaChi) {
         this.diaChi = diaChi;
     }
 }

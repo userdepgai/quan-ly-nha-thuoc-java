@@ -1,6 +1,7 @@
 package BUS;
 
 import DAO.KhuVucLuuTru_DAO;
+
 import dto.KhuVucLuuTru_DTO;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
@@ -46,13 +47,33 @@ public class KhuVucLuuTru_BUS {
     }
 
     public boolean insert(KhuVucLuuTru_DTO kv) {
+
+        if (!kiemTraHopLe(kv)) return false;
+
         kv.setHienCo(0);
+
+        //DIACHI_BUS diaChiBUS = DIACHI_BUS.getInstance();
+
+        //DIACHI_DTO dc = diaChiBUS.getByTenDiaChi(kv.getDiaChi());
+        ///if (dc == null) {
+            //dc = new DIACHI_DTO();
+            //dc.setTenDiaChi(kv.getDiaChi());
+            //diaChiBUS.insert(dc);
+
+            //dc = diaChiBUS.getByTenDiaChi(kv.getDiaChi());
+        //}
+
+        //kv.setMaDiaChi(dc.getMaDiaChi());
+
         boolean result = dao.insert(kv);
+
         if (result) {
             refreshData();
         }
+
         return result;
     }
+
 
     public boolean update(KhuVucLuuTru_DTO kv) {
         boolean result = dao.update(kv);
@@ -86,4 +107,5 @@ public class KhuVucLuuTru_BUS {
         }
         return null;
     }
+
 }
