@@ -4,13 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import dto.MenuItem;
 import gui.*;
-<<<<<<< HEAD
+// Đã gộp các import từ cả hai nhánh
 import gui.NCCKVLT.KVLT;
 import gui.NCCKVLT.NCC;
-=======
 import gui.HOADON_GUI.LapHoaDon_GUI;
 import gui.HOADON_GUI.XuatHoaDon_GUI;
->>>>>>> 2eab4c37ae93e651d09184b23142ba07a2ad0fc6
 
 public class Menu extends JFrame {
     private JList<MenuItem> menuList;
@@ -98,16 +96,9 @@ public class Menu extends JFrame {
         contentPanel.add(createContent("Khách hàng"), "khachhang");
         contentPanel.add(createContent("Nhân viên"), "nhanvien");
         contentPanel.add(new NCC(), "nhacungcap");
-
-<<<<<<< HEAD
         contentPanel.add(new KVLT(), "luutru");
-        contentPanel.add(createContent("Lô hàng"), "lohang");
-        contentPanel.add(createContent("Phiếu nhập"), "phieunhap");
-=======
-        contentPanel.add(createContent("Khu vực lưu trữ"), "luutru");
         contentPanel.add(new LoHang_GUI(), "lohang");
         contentPanel.add(new PhieuNhap_GUI(), "phieunhap");
->>>>>>> 2eab4c37ae93e651d09184b23142ba07a2ad0fc6
 
         contentPanel.add(createContent("Quản lý chương trình"), "chuongTrinhKhuyenMai");
         contentPanel.add(createContent("Khuyến mãi sản phẩm"), "khuyenMai");
@@ -167,4 +158,3 @@ public class Menu extends JFrame {
     }
 
 }
-

@@ -3,19 +3,19 @@ package gui;
 import bus.TaiKhoan_BUS;
 import dto.TaiKhoan_DTO;
 import javax.swing.*;
-<<<<<<< HEAD
+
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.util.Locale;
-=======
+
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
->>>>>>> 2eab4c37ae93e651d09184b23142ba07a2ad0fc6
+
 
 public class TaiKhoan_GUI extends JPanel {
     private JPanel panel_taiKhoan;

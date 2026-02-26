@@ -108,7 +108,7 @@ public class NCC extends JPanel {
                     ncc.getMaSoThue(),
                     ncc.getSdt(),
                     ncc.getNguoiLienHe(),
-                    ncc.getDiaChi(),
+                    //ncc.getDiaChi(),
                     trangThaiText
             });
         }
