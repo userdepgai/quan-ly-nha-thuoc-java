@@ -65,7 +65,7 @@ public class PhanQuyen_BUS {
         for (PhanQuyen_DTO pq : listCache) {
             boolean matchKeyword =
                     pq.getMaQuyen().toLowerCase().contains(keyword)
-                            || pq.getTenQuyen().toLowerCase().contains(keyword);
+                            || pq.getTenQuyen().toLowerCase().contains(keyword) || keyword == null;
             boolean matchTrangThai = (trangThai == null || pq.getTrangThai() == trangThai);
             if (matchKeyword && matchTrangThai) {
                 result.add(pq);
@@ -77,6 +77,13 @@ public class PhanQuyen_BUS {
     public PhanQuyen_DTO getById(String maQuyen) {
         for(PhanQuyen_DTO pq : listCache) {
             if(pq.getMaQuyen().equals(maQuyen))
+                return pq;
+        }
+        return null;
+    }
+    public PhanQuyen_DTO getByName(String name) {
+        for(PhanQuyen_DTO pq : listCache) {
+            if(pq.getTenQuyen().equals(name))
                 return pq;
         }
         return null;
