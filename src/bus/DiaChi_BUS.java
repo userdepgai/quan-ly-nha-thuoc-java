@@ -1,6 +1,6 @@
-package bus;
+package BUS;
 
-import dao.DiaChi_DAO;
+import DAO.DiaChi_DAO;
 import dto.DIACHI_DTO;
 
 import java.util.ArrayList;

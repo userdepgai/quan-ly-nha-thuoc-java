@@ -99,7 +99,7 @@ public class KVLT extends JPanel {
         for (KhuVucLuuTru_DTO kv : list) {
             String trangThaiText = "";
 
-            // Cập nhật lại cho khớp với số 0, 1, 2 trong SQL Server của bạn
+
             switch (kv.getTrangThai()) {
                 case 0:
                     trangThaiText = "Bảo trì/Ngừng";
@@ -205,15 +205,22 @@ public class KVLT extends JPanel {
     private void hienThiChiTiet() {
         int selectedRow = tableDanhSach.getSelectedRow();
         if (selectedRow >= 0) {
-            textMa.setText(modelKVLT.getValueAt(selectedRow, 1).toString());
-            textTen.setText(modelKVLT.getValueAt(selectedRow, 2).toString());
-            textSucChua.setText(modelKVLT.getValueAt(selectedRow, 3).toString());
-            textHienCo.setText(modelKVLT.getValueAt(selectedRow, 4).toString());
+            int modelRow = tableDanhSach.convertRowIndexToModel(selectedRow);
 
-            Object diaChiObj = modelKVLT.getValueAt(selectedRow, 6);
-            textDCHI.setText(diaChiObj != null ? diaChiObj.toString() : "");
+            textMa.setText(modelKVLT.getValueAt(modelRow, 1).toString());
+            textTen.setText(modelKVLT.getValueAt(modelRow, 2).toString());
+            textSucChua.setText(modelKVLT.getValueAt(modelRow, 3).toString());
+            textHienCo.setText(modelKVLT.getValueAt(modelRow, 4).toString());
 
-            String trangThai = modelKVLT.getValueAt(selectedRow, 7).toString();
+            Object obj = modelKVLT.getValueAt(modelRow, 6);
+            if (obj instanceof DIACHI_DTO) {
+                DIACHI_DTO dc = (DIACHI_DTO) obj;
+                textDCHI.setText(dc.toString());
+            } else {
+                textDCHI.setText("");
+            }
+
+            String trangThai = modelKVLT.getValueAt(modelRow, 7).toString();
             if (trangThai.equals("Còn trống")) comboBoxTthai.setSelectedIndex(0);
             else if (trangThai.equals("Đã đầy")) comboBoxTthai.setSelectedIndex(1);
             else comboBoxTthai.setSelectedIndex(2);
@@ -231,9 +238,8 @@ public class KVLT extends JPanel {
         if (btnThemKV.getText().trim().equals("Thêm")) {
             setKhoaForm(false);
             lamMoiForm();
-            textMa.setText(taoMaKhuVucMoi());
+            textMa.setText(bus.getNextId());
             textMa.setEditable(false);
-
             btnThemKV.setText("Xác nhận Thêm");
             btnCapNhat.setEnabled(false);
         } else {
@@ -241,33 +247,27 @@ public class KVLT extends JPanel {
                 KhuVucLuuTru_DTO kv = new KhuVucLuuTru_DTO();
                 kv.setMaKVLT(textMa.getText().trim());
                 kv.setTenKVLT(textTen.getText().trim());
-
-
-                int sucChua = textSucChua.getText().trim().isEmpty() ? 0 : Integer.parseInt(textSucChua.getText().trim());
-                kv.setSucChua(sucChua);
-
+                kv.setSucChua(Integer.parseInt(textSucChua.getText().trim()));
                 kv.setHienCo(0);
-                //kv.setDiaChi(textDCHI.getText().trim());
                 kv.setNgayLapKho(new Date(System.currentTimeMillis()));
+                kv.setTrangThai(comboBoxTthai.getSelectedIndex() + 1);
 
-                int trangThaiSo = comboBoxTthai.getSelectedIndex() + 1;
-                kv.setTrangThai(trangThaiSo);
-                if (bus.kiemTraHopLe(kv)) {
-                    if (bus.insert(kv)) {
-                        JOptionPane.showMessageDialog(this, "Thêm khu vực thành công!");
-                        loadDataToTableKVLT();
-                        lamMoiForm();
+                DIACHI_DTO dc = new DIACHI_DTO();
+                dc.setSoNha(textDCHI.getText().trim()); // Gán tạm cả chuỗi vào Số nhà hoặc xử lý tách chuỗi
+                dc.setDuong("");
+                dc.setPhuong("");
+                dc.setTinh("");
+                kv.setDiaChi(dc);
 
-                        setKhoaForm(true);
-                        btnThemKV.setText("Thêm ");
-                        btnCapNhat.setEnabled(true);
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Thêm thất bại. Vui lòng kiểm tra lại!");
-                    }
+                if (bus.insert(kv)) {
+                    loadDataToTableKVLT();
+                    lamMoiForm();
+                    setKhoaForm(true);
+                    btnThemKV.setText("Thêm ");
+                    btnCapNhat.setEnabled(true);
                 }
-
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Sức chứa phải là con số hợp lệ!");
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập số hợp lệ!");
             }
         }
     }
@@ -275,46 +275,35 @@ public class KVLT extends JPanel {
     private void capNhatKhuVuc() {
         int selectedRow = tableDanhSach.getSelectedRow();
         if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn khu vực cần cập nhật trên bảng!");
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn khu vực!");
             return;
         }
 
         if (btnCapNhat.getText().trim().equals("Cập Nhật")) {
             setKhoaForm(false);
-            textMa.setEditable(false); // Tuyệt đối không cho sửa mã
+            textMa.setEditable(false);
             btnCapNhat.setText("Xác nhận Sửa");
             btnThemKV.setEnabled(false);
         } else {
             try {
-                KhuVucLuuTru_DTO kv = new KhuVucLuuTru_DTO();
-                kv.setMaKVLT(textMa.getText().trim());
+                int modelRow = tableDanhSach.convertRowIndexToModel(selectedRow);
+                KhuVucLuuTru_DTO kv = bus.getById(textMa.getText().trim());
+
                 kv.setTenKVLT(textTen.getText().trim());
                 kv.setSucChua(Integer.parseInt(textSucChua.getText().trim()));
-                kv.setHienCo(Integer.parseInt(textHienCo.getText().trim()));
-                //kv.setDiaChi(textDCHI.getText().trim());
-
-                Object ngayLapObj = modelKVLT.getValueAt(selectedRow, 5);
-                if (ngayLapObj instanceof Date) {
-                    kv.setNgayLapKho((Date) ngayLapObj);
-                } else {
-                    kv.setNgayLapKho(new Date(System.currentTimeMillis()));
+                kv.setTrangThai(comboBoxTthai.getSelectedIndex() + 1);
+                if (kv.getDiaChi() != null) {
+                    kv.getDiaChi().setSoNha(textDCHI.getText().trim());
                 }
 
-                int trangThaiSo = comboBoxTthai.getSelectedIndex() + 1;
-                kv.setTrangThai(trangThaiSo);
-
                 if (bus.update(kv)) {
-                    JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
                     loadDataToTableKVLT();
-
                     setKhoaForm(true);
                     btnCapNhat.setText("Cập Nhật ");
                     btnThemKV.setEnabled(true);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
                 }
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Sức chứa và Hiện có phải là số nguyên!");
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Lỗi dữ liệu: " + e.getMessage());
             }
         }
     }

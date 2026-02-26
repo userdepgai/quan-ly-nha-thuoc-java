@@ -2,6 +2,7 @@ package DAO;
 
 import DBConnection.DBConnection;
 import dto.KhuVucLuuTru_DTO;
+import dto.DIACHI_DTO;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ public class KhuVucLuuTru_DAO {
 
     public ArrayList<KhuVucLuuTru_DTO> getAll() {
         ArrayList<KhuVucLuuTru_DTO> list = new ArrayList<>();
+        // Giả định cột lưu mã địa chỉ trong bảng KHUVUCLUUTRU là Ma_DC
         String sql = "SELECT * FROM KHUVUCLUUTRU";
 
         try (Connection conn = DBConnection.getConnection();
@@ -24,6 +26,10 @@ public class KhuVucLuuTru_DAO {
                 kv.setSucChua(rs.getInt("SucChua"));
                 kv.setHienCo(rs.getInt("HienCo"));
                 kv.setTrangThai(rs.getInt("TrangThai"));
+                DIACHI_DTO dc = new DIACHI_DTO();
+                dc.setMaDiaChi(rs.getString("Ma_DC"));
+                kv.setDiaChi(dc);
+
                 list.add(kv);
             }
         } catch (Exception e) {
@@ -33,7 +39,7 @@ public class KhuVucLuuTru_DAO {
     }
 
     public boolean insert(KhuVucLuuTru_DTO kv) {
-        String sql = "INSERT INTO KHUVUCLUUTRU (MaKVLT, TenKVLT, SucChua, HienCo, NgayLapKho, TrangThai) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO KHUVUCLUUTRU (MaKVLT, TenKVLT, SucChua, HienCo, NgayLapKho, TrangThai, Ma_DC) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -43,6 +49,7 @@ public class KhuVucLuuTru_DAO {
             ps.setInt(4, kv.getHienCo());
             ps.setDate(5, kv.getNgayLapKho());
             ps.setInt(6, kv.getTrangThai());
+            ps.setString(7, kv.getDiaChi() != null ? kv.getDiaChi().getMaDiaChi() : null);
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -52,7 +59,7 @@ public class KhuVucLuuTru_DAO {
     }
 
     public boolean update(KhuVucLuuTru_DTO kv) {
-        String sql = "UPDATE KHUVUCLUUTRU SET TenKVLT=?, SucChua=?, HienCo=?, NgayLapKho=?, TrangThai=? WHERE MaKVLT=?";
+        String sql = "UPDATE KHUVUCLUUTRU SET TenKVLT=?, SucChua=?, HienCo=?, NgayLapKho=?, TrangThai=?, Ma_DC=? WHERE MaKVLT=?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -62,7 +69,8 @@ public class KhuVucLuuTru_DAO {
             ps.setInt(3, kv.getHienCo());
             ps.setDate(4, kv.getNgayLapKho());
             ps.setInt(5, kv.getTrangThai());
-            ps.setString(6, kv.getMaKVLT());
+            ps.setString(6, kv.getDiaChi() != null ? kv.getDiaChi().getMaDiaChi() : null);
+            ps.setString(7, kv.getMaKVLT());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -82,5 +90,22 @@ public class KhuVucLuuTru_DAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public String getNextId() {
+        String sql = "SELECT MAX(CAST(SUBSTRING(MaKVLT, 3, 4) AS INT)) FROM KHUVUCLUUTRU";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                int number = rs.getInt(1);
+                if (rs.wasNull()) return "KV0001";
+                return String.format("KV%04d", ++number);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "KV0001";
     }
 }

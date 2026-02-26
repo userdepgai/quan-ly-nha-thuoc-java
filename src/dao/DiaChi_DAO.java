@@ -1,4 +1,4 @@
-package dao;
+package DAO;
 
 import DBConnection.DBConnection;
 import dto.DIACHI_DTO;
