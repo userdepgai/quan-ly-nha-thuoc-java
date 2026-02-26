@@ -57,7 +57,7 @@ public class Menu extends JFrame {
 
         menuModel.addElement(new MenuItem("KHUYẾN MÃI", null, null,true));
         menuModel.addElement(new MenuItem("Chương trình", "chuongTrinhKhuyenMai", icon("chuongTrinhKhuyenMai.png"),false));
-        menuModel.addElement(new MenuItem("Khuyến mãi sản phẩm", "khuyenMai", icon("khuyenMai.png"),false));
+        menuModel.addElement(new MenuItem("Khuyến mãi", "khuyenMai", icon("khuyenMai.png"),false));
         menuModel.addElement(new MenuItem("Voucher", "voucher", icon("voucher.png"),false));
 
         menuModel.addElement(new MenuItem("HỆ THỐNG", null, null,true));
@@ -89,9 +89,9 @@ public class Menu extends JFrame {
         contentPanel.add(createContent("Duyệt hóa đơn online"), "duyethd");
         contentPanel.add(new XuatHoaDon_GUI(), "hoadon");
 
-        contentPanel.add(createContent("Danh mục sản phẩm"), "danhMuc");
-        contentPanel.add(createContent("Thuộc tính danh mục"), "thuocTinhDanhMuc");
-        contentPanel.add(createContent("Quản lý sản phẩm"), "sanPham");
+        contentPanel.add(new DanhMuc_GUI(), "danhMuc");
+        contentPanel.add(new ThuocTinhDanhMuc_GUI(), "thuocTinhDanhMuc");
+        contentPanel.add(new QuanLySanPham_GUI(), "sanPham");
 
         contentPanel.add(createContent("Khách hàng"), "khachhang");
         contentPanel.add(createContent("Nhân viên"), "nhanvien");
@@ -100,9 +100,9 @@ public class Menu extends JFrame {
         contentPanel.add(new LoHang_GUI(), "lohang");
         contentPanel.add(new PhieuNhap_GUI(), "phieunhap");
 
-        contentPanel.add(createContent("Quản lý chương trình"), "chuongTrinhKhuyenMai");
-        contentPanel.add(createContent("Khuyến mãi sản phẩm"), "khuyenMai");
-        contentPanel.add(createContent("Quản lý voucher"), "voucher");
+        contentPanel.add(new QuanLyChuongTrinhKM_GUI(), "chuongTrinhKhuyenMai");
+        contentPanel.add(new QuanLyKhuyenMai_GUI(), "khuyenMai");
+        contentPanel.add(new QuanLyVoucher_GUI(), "voucher");
 
         contentPanel.add(new TaiKhoan_GUI(), "taiKhoanDangNhap");
         contentPanel.add(new PhanQuyen_GUI(), "phanQuyen");
