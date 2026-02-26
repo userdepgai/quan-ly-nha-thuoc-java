@@ -114,6 +114,7 @@ public class NCC extends JPanel {
     }
     public void loadDataToTable() {
         if (modelNCC == null) return;
+
         modelNCC.setRowCount(0);
         bus.refreshData();
         ArrayList<NhaCungCap_DTO> list = dao.getAll();
@@ -124,8 +125,12 @@ public class NCC extends JPanel {
         }
 
         int stt = 1;
+
         for (NhaCungCap_DTO ncc : list) {
-            String trangThaiText = (ncc.getTrangThai() == 1) ? "ĐANG_GIAO_DỊCH" : "NGỪNG_HỢP_TÁC";
+
+            String trangThaiText = (ncc.getTrangThai() == 1)
+                    ? "ĐANG_GIAO_DỊCH"
+                    : "NGỪNG_HỢP_TÁC";
 
 
             modelNCC.addRow(new Object[]{
