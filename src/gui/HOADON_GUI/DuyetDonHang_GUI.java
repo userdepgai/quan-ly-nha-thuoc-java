@@ -64,6 +64,8 @@ public class DuyetDonHang_GUI extends JPanel{
     private JLabel labelTTTTXem;
     private JLabel labelDuyetDonHang;
     private JPanel labelTimKimHoaDon;
+    private JDateChooser JDateChooser1;
+    private JDateChooser JDateChooser2;
 
     private DefaultTableModel modelHoaDon;
     private DefaultTableModel modelChiTiet;
@@ -167,5 +169,12 @@ public class DuyetDonHang_GUI extends JPanel{
                     "Đã cập nhật trạng thái: " + trangThai
             );
         });
+    }
+    private void createUIComponents() {
+        JDateChooser1 = new com.toedter.calendar.JDateChooser();
+        JDateChooser1.setDateFormatString("dd/MM/yyyy");
+
+        JDateChooser2 = new com.toedter.calendar.JDateChooser();
+        JDateChooser2.setDateFormatString("dd/MM/yyyy");
     }
 }

@@ -14,6 +14,7 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     private double tienThoi;
     private double thueVAT;
     private boolean keToa;
+    private int loaiHDB;
 
 
     private String maKhachHang;
@@ -42,6 +43,7 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
             double tienThoi,
             double thueVAT,
             boolean keToa,
+            int loaiHDB,
             String maKhachHang,
             String maVoucher,
             ArrayList<ChiTietHoaDonBan_DTO> ds
@@ -57,6 +59,7 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
         this.tienThoi = tienThoi;
         this.thueVAT = thueVAT;
         this.keToa = keToa;
+        this.loaiHDB = loaiHDB;
         this.maKhachHang = maKhachHang;
         this.maVoucher = maVoucher;
         this.ds_chiTietHDB = ds != null ? ds : new ArrayList<>();
@@ -133,6 +136,9 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     public void setKeToa(boolean keToa) {
         this.keToa = keToa;
     }
+    public int getLoaiHDB() {return loaiHDB;}
+
+    public void setLoaiHDB(int loaiHDB) {this.loaiHDB = loaiHDB;}
 
     public String getMaKhachHang() {
         return maKhachHang;

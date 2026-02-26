@@ -1,5 +1,7 @@
 package gui.HOADON_GUI;
 
+import com.toedter.calendar.JDateChooser;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -31,10 +33,8 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
     private JTable tableTTCTHD;
     private JLabel labelTimTheo;
     private JLabel labelNhapTT;
-    private JTextField textField19;
     private JComboBox cbTrangThai;
     private JComboBox cbTTTT;
-    private JPanel labelGia;
     private JLabel labelTrangThai;
     private JLabel labelLoaiHD;
     private JLabel labelTTTT;
@@ -55,6 +55,9 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
     private JLabel labelThanhTien;
     private JLabel labelDCGiaoHang;
     private JLabel labelThanhTienCT;
+    private JLabel labelGia;
+    private JDateChooser JDateChooser1;
+    private JDateChooser JDateChooser2;
 
     private DefaultTableModel modelHoaDon;
     private DefaultTableModel modelChiTiet;
@@ -132,5 +135,12 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
         txtSDT.setText("0909123456");
         txtNgayLap.setText("16/02/2026");
         txtTongTien.setText("350000");
+    }
+    private void createUIComponents() {
+        JDateChooser1 = new com.toedter.calendar.JDateChooser();
+        JDateChooser1.setDateFormatString("dd/MM/yyyy");
+
+        JDateChooser2 = new com.toedter.calendar.JDateChooser();
+        JDateChooser2.setDateFormatString("dd/MM/yyyy");
     }
 }
