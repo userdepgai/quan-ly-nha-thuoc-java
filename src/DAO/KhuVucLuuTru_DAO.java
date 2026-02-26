@@ -7,10 +7,10 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class KhuVucLuuTru_DAO {
+
+    // LẤY DANH SÁCH
     public ArrayList<KhuVucLuuTru_DTO> getAll() {
-
         ArrayList<KhuVucLuuTru_DTO> list = new ArrayList<>();
-
         String sql = "SELECT * FROM KHUVUCLUUTRU";
 
         try (Connection conn = DBConnection.getConnection();
@@ -18,7 +18,6 @@ public class KhuVucLuuTru_DAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-
                 KhuVucLuuTru_DTO kv = new KhuVucLuuTru_DTO();
 
                 kv.setMaKVLT(rs.getString("MaKVLT"));
@@ -28,30 +27,23 @@ public class KhuVucLuuTru_DAO {
                 kv.setHienCo(rs.getInt("HienCo"));
                 kv.setTrangThai(rs.getInt("TrangThai"));
 
-                //DIACHI_DTO dc = new DIACHI_DTO();
-                //dc.setMaDiaChi(rs.getString("MaDiaChi"));
-                //dc.setSoNha(rs.getString("SoNha"));
-                //dc.setDuong(rs.getString("Duong"));
-                //dc.setPhuong(rs.getString("Phuong"));
-                //dc.setTinh(rs.getString("ThanhPho"));
-                //kv.setDiaChi(dc);
+
+                //kv.setDiaChi(rs.getString("DiaChi"));
 
                 list.add(kv);
             }
-
         } catch (Exception e) {
+            System.out.println("Lỗi tại getAll() KhuVucLuuTru_DAO:");
             e.printStackTrace();
         }
-
         return list;
     }
 
-    // Thêm KVLT
+    // THÊM KVLT
     public boolean insert(KhuVucLuuTru_DTO kv) {
-
         String sql = """
             INSERT INTO KHUVUCLUUTRU
-            (MaKVLT, TenKVLT, SucChua, HienCo, NgayLapKho, MaDiaChi, TrangThai)
+            (MaKVLT, TenKVLT, SucChua, HienCo, NgayLapKho, DiaChi, TrangThai)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """;
 
@@ -63,25 +55,25 @@ public class KhuVucLuuTru_DAO {
             ps.setInt(3, kv.getSucChua());
             ps.setInt(4, kv.getHienCo());
             ps.setDate(5, kv.getNgayLapKho());
-            ps.setString(6, kv.getDiaChi().getMaDiaChi());
+            //ps.setString(6, kv.getDiaChi());
             ps.setInt(7, kv.getTrangThai());
 
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
+            System.out.println("Lỗi tại insert() KhuVucLuuTru_DAO:");
             e.printStackTrace();
         }
-
         return false;
     }
 
-    // Cập nhật
+    // CẬP NHẬT
     public boolean update(KhuVucLuuTru_DTO kv) {
-
+        // Đã sửa MaDiaChi thành DiaChi
         String sql = """
             UPDATE KHUVUCLUUTRU
             SET TenKVLT=?, SucChua=?, HienCo=?, NgayLapKho=?,
-                MaDiaChi=?, TrangThai=?
+                DiaChi=?, TrangThai=?
             WHERE MaKVLT=?
         """;
 
@@ -92,22 +84,21 @@ public class KhuVucLuuTru_DAO {
             ps.setInt(2, kv.getSucChua());
             ps.setInt(3, kv.getHienCo());
             ps.setDate(4, kv.getNgayLapKho());
-            ps.setString(5, kv.getDiaChi().getMaDiaChi());
+            //ps.setString(5, kv.getDiaChi());
             ps.setInt(6, kv.getTrangThai());
             ps.setString(7, kv.getMaKVLT());
 
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
+            System.out.println("Lỗi tại update() KhuVucLuuTru_DAO:");
             e.printStackTrace();
         }
-
         return false;
     }
 
-    // Cập nhật trạng thái
+    // CẬP NHẬT TRẠNG THÁI
     public boolean updateTrangThai(String maKVLT, int trangThaiMoi) {
-
         String sql = "UPDATE KHUVUCLUUTRU SET TrangThai=? WHERE MaKVLT=?";
 
         try (Connection conn = DBConnection.getConnection();
@@ -121,7 +112,6 @@ public class KhuVucLuuTru_DAO {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return false;
     }
 }

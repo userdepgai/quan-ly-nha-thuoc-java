@@ -56,6 +56,8 @@ public class KVLT extends JPanel {
         bus.refreshData();
         setKhoaForm(true);
         addEvents();
+        this.revalidate();
+        this.repaint();
     }
 
     private void setupTableData() {
@@ -84,25 +86,32 @@ public class KVLT extends JPanel {
 
     public void loadDataToTableKVLT() {
         if (modelKVLT == null) return;
-        modelKVLT.setRowCount(0);
+        modelKVLT.setRowCount(0); // Xóa dữ liệu cũ
+
         bus.refreshData();
         ArrayList<KhuVucLuuTru_DTO> list = bus.getAll();
-        int stt = 1;
 
+        System.out.println("====== Số lượng dữ liệu lấy được từ SQL: " + (list == null ? "NULL" : list.size()) + " ======");
+
+        if (list == null || list.isEmpty()) return;
+
+        int stt = 1;
         for (KhuVucLuuTru_DTO kv : list) {
             String trangThaiText = "";
+
+            // Cập nhật lại cho khớp với số 0, 1, 2 trong SQL Server của bạn
             switch (kv.getTrangThai()) {
+                case 0:
+                    trangThaiText = "Bảo trì/Ngừng";
+                    break;
                 case 1:
                     trangThaiText = "Còn trống";
                     break;
                 case 2:
                     trangThaiText = "Đã đầy";
                     break;
-                case 3:
-                    trangThaiText = "Bảo trì";
-                    break;
                 default:
-                    trangThaiText = "Không xác định";
+                    trangThaiText = "Lỗi TT: " + kv.getTrangThai();
                     break;
             }
 
