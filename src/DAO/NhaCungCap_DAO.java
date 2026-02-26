@@ -38,7 +38,8 @@ public class NhaCungCap_DAO {
 
     public boolean insert(NhaCungCap_DTO ncc) {
         boolean check = false;
-        String sql = "INSERT INTO NHACUNGCAP (Ma_NCC, Ten_NCC, MaSoThue, SDT, NguoiLienHe, DiaChi, TrangThai) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        // Đã xóa DiaChi và 1 dấu ?
+        String sql = "INSERT INTO NHACUNGCAP (Ma_NCC, Ten_NCC, MaSoThue, SDT, NguoiLienHe, TrangThai) VALUES (?, ?, ?, ?, ?, ?)";
 
         try {
             Connection conn = DBConnection.getConnection();
@@ -49,28 +50,23 @@ public class NhaCungCap_DAO {
             ps.setString(3, ncc.getMaSoThue());
             ps.setString(4, ncc.getSdt());
             ps.setString(5, ncc.getNguoiLienHe());
-            //ps.setString(6, ncc.getDiaChi());
-            ps.setInt(7, ncc.getTrangThai());
+
+            // Đã xóa ps.setString(6, "");
+
+            ps.setInt(6, ncc.getTrangThai()); // Đổi index từ 7 thành 6
 
             int result = ps.executeUpdate();
-
-            if (result > 0) {
-                check = true;
-            }
-
+            if (result > 0) check = true;
             conn.close();
-
         } catch (Exception e) {
-            System.out.println("Lỗi thêm NCC: " + e.getMessage());
+            javax.swing.JOptionPane.showMessageDialog(null, "Lỗi SQL Thêm:\n" + e.getMessage());
         }
-
         return check;
     }
 
     public boolean update(NhaCungCap_DTO ncc) {
         boolean check = false;
-        // Thêm cột Địa chỉ vào lệnh Update
-        String sql = "UPDATE NHACUNGCAP SET Ten_NCC=?, MaSoThue=?, SDT=?, NguoiLienHe=?, DiaChi=?, TrangThai=? WHERE Ma_NCC=?";
+        String sql = "UPDATE NHACUNGCAP SET Ten_NCC=?, MaSoThue=?, SDT=?, NguoiLienHe=?, TrangThai=? WHERE Ma_NCC=?";
 
         try {
             Connection conn = DBConnection.getConnection();
@@ -80,22 +76,17 @@ public class NhaCungCap_DAO {
             ps.setString(2, ncc.getMaSoThue());
             ps.setString(3, ncc.getSdt());
             ps.setString(4, ncc.getNguoiLienHe());
-            //ps.setString(5, ncc.getDiaChi());
-            ps.setInt(6, ncc.getTrangThai());
-            ps.setString(7, ncc.getMaNCC());
+
+
+            ps.setInt(5, ncc.getTrangThai());
+            ps.setString(6, ncc.getMaNCC());
 
             int result = ps.executeUpdate();
-
-            if (result > 0) {
-                check = true;
-            }
-
+            if (result > 0) check = true;
             conn.close();
-
         } catch (Exception e) {
-            System.out.println("Lỗi cập nhật NCC: " + e.getMessage());
+            javax.swing.JOptionPane.showMessageDialog(null, "Lỗi SQL Cập nhật:\n" + e.getMessage());
         }
-
         return check;
     }
 

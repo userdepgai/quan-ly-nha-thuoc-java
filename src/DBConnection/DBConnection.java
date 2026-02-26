@@ -10,11 +10,10 @@ public class DBConnection {
 
     public static Connection getConnection() {
         try {
-            // Chỉ tạo kết nối mới nếu chưa có hoặc kết nối cũ đã bị đóng
+
             if (connection == null || connection.isClosed()) {
 
                 Properties props = new Properties();
-                // Đọc file db.properties từ thư mục src
                 InputStream input = DBConnection.class
                         .getClassLoader()
                         .getResourceAsStream("db.properties");
@@ -23,15 +22,13 @@ public class DBConnection {
                     System.out.println("Lỗi: Không tìm thấy file db.properties!");
                     return null;
                 }
-
-                // Load các thông số vào đối tượng Properties
                 props.load(input);
 
                 String url = props.getProperty("db.url");
                 String username = props.getProperty("db.username");
                 String password = props.getProperty("db.password");
 
-                // Thực hiện kết nối
+
                 connection = DriverManager.getConnection(url, username, password);
                 System.out.println("Kết nối Database thành công!");
             }
