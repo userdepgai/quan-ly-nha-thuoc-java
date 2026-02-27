@@ -1,5 +1,6 @@
 package gui.NCCKVLT;
 
+import dao.DiaChi_DAO;
 import dto.DIACHI_DTO;
 import dto.KhuVucLuuTru_DTO;
 import bus.KhuVucLuuTru_BUS;
@@ -109,17 +110,50 @@ public class KVLT extends JPanel {
                     trangThaiText = "Lỗi TT: " + kv.getTrangThai();
                     break;
             }
+            DiaChi_DAO diaChiDAO = new DiaChi_DAO();
+            ArrayList<DIACHI_DTO> listTatCaDiaChi = diaChiDAO.getAll();
+            String diaChiHienThi = "";
 
-            modelKVLT.addRow(new Object[]{
-                    stt++,
-                    kv.getMaKVLT(),
-                    kv.getTenKVLT(),
-                    kv.getSucChua(),
-                    kv.getHienCo(),
-                    kv.getNgayLapKho(),
-                    kv.getDiaChi(),
-                    trangThaiText
-            });
+
+            if (kv.getDiaChi() != null && kv.getDiaChi().getMaDiaChi() != null) {
+                String maDCCanTim = kv.getDiaChi().getMaDiaChi();
+
+
+                for (DIACHI_DTO dcFull : listTatCaDiaChi) {
+                    if (dcFull.getMaDiaChi().equals(maDCCanTim)) {
+
+                        kv.setDiaChi(dcFull);
+
+
+                        StringBuilder sb = new StringBuilder();
+                        if (dcFull.getSoNha() != null && !dcFull.getSoNha().isEmpty())
+                            sb.append(dcFull.getSoNha()).append(", ");
+                        if (dcFull.getDuong() != null && !dcFull.getDuong().isEmpty())
+                            sb.append(dcFull.getDuong()).append(", ");
+                        if (dcFull.getPhuong() != null && !dcFull.getPhuong().isEmpty())
+                            sb.append(dcFull.getPhuong()).append(", ");
+                        if (dcFull.getTinh() != null && !dcFull.getTinh().isEmpty()) sb.append(dcFull.getTinh());
+
+                        diaChiHienThi = sb.toString();
+
+
+                        if (diaChiHienThi.endsWith(", ")) {
+                            diaChiHienThi = diaChiHienThi.substring(0, diaChiHienThi.length() - 2);
+                        }
+                        break;
+                    }
+                }
+                modelKVLT.addRow(new Object[]{
+                        stt++,
+                        kv.getMaKVLT(),
+                        kv.getTenKVLT(),
+                        kv.getSucChua(),
+                        kv.getHienCo(),
+                        kv.getNgayLapKho(),
+                        diaChiHienThi,
+                        trangThaiText
+                });
+            }
         }
     }
     private void fixColumnWidth(JTable table, int columnIndex, int width) {
@@ -216,13 +250,11 @@ public class KVLT extends JPanel {
             textHienCo.setText(modelKVLT.getValueAt(modelRow, 4).toString());
 
             Object obj = modelKVLT.getValueAt(modelRow, 6);
-            if (obj instanceof DIACHI_DTO) {
-                DIACHI_DTO dc = (DIACHI_DTO) obj;
-                textDCHI.setText(dc.toString());
+            if (obj != null) {
+                textDCHI.setText(obj.toString());
             } else {
                 textDCHI.setText("");
             }
-
             String trangThai = modelKVLT.getValueAt(modelRow, 7).toString();
             if (trangThai.equals("Còn trống")) comboBoxTthai.setSelectedIndex(0);
             else if (trangThai.equals("Đã đầy")) comboBoxTthai.setSelectedIndex(1);
@@ -301,6 +333,7 @@ public class KVLT extends JPanel {
 
                 if (bus.update(kv)) {
                     loadDataToTableKVLT();
+
                     setKhoaForm(true);
                     btnCapNhat.setText("Cập Nhật ");
                     btnThemKV.setEnabled(true);

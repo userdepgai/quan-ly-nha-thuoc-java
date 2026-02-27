@@ -279,7 +279,7 @@ public class NCC extends JPanel {
             textNLH.setText(modelNCC.getValueAt(modelRow, 5).toString());
 
             Object obj = modelNCC.getValueAt(modelRow, 6);
-            if (obj instanceof DIACHI_DTO) {
+            if (obj != null) {
                 textDCHI.setText(obj.toString());
             } else {
                 textDCHI.setText("");
