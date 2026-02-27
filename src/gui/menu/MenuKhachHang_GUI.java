@@ -56,7 +56,7 @@ public class MenuKhachHang_GUI extends JFrame{
         contentPanel.add(createContent("Cho giao hang"),"choGiaoHang");
         contentPanel.add(createContent("Lich su mua hang"),"lichSuMuaHang");
 
-        contentPanel.add(createContent("Thong tin ca nhan"),"thongTinCaNhan");
+        contentPanel.add(new ThongTinCaNhanKhachHang_GUI(),"thongTinCaNhan");
         contentPanel.add(createContent("Dia chi"),"diaChi");
         contentPanel.add(createContent("Doi mat khau"),"doiMatKhau");
 
