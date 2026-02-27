@@ -15,7 +15,6 @@ public class KhuVucLuuTru_BUS {
     private KhuVucLuuTru_BUS() {
         refreshData();
     }
-
     public static KhuVucLuuTru_BUS getInstance() {
         if (instance == null) {
             instance = new KhuVucLuuTru_BUS();

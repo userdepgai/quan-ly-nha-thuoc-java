@@ -28,7 +28,6 @@ public class SanPhamNCC_DAO {
         } catch (SQLException e) {
             System.err.println("Lỗi getAll SANPHAMNCC: " + e.getMessage());
         }
-
         return list;
     }
 }

@@ -39,7 +39,6 @@ public class NhaCungCap_BUS {
         }
     }
 
-
     public boolean kiemTraHopLe(NhaCungCap_DTO ncc) {
 
         if (ncc.getMaNCC() == null || ncc.getMaNCC().trim().isEmpty()) {

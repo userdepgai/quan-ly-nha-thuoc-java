@@ -7,7 +7,6 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class NhaCungCap_DAO {
-
     public ArrayList<NhaCungCap_DTO> getAll() {
         ArrayList<NhaCungCap_DTO> list = new ArrayList<>();
         String sql = "SELECT * FROM NHACUNGCAP";

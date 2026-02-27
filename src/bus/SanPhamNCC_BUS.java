@@ -21,7 +21,6 @@ public class SanPhamNCC_BUS {
         }
         return instance;
     }
-
     public ArrayList<SanPhamNCC_DTO> getAll() {
         return listCache;
     }

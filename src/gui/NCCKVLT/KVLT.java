@@ -95,7 +95,6 @@ public class KVLT extends JPanel {
         for (KhuVucLuuTru_DTO kv : list) {
             String trangThaiText = "";
 
-
             switch (kv.getTrangThai()) {
                 case 0:
                     trangThaiText = "Bảo trì/Ngừng";

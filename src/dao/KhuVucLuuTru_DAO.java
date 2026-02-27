@@ -56,7 +56,6 @@ public class KhuVucLuuTru_DAO {
         }
         return false;
     }
-
     public boolean update(KhuVucLuuTru_DTO kv) {
         String sql = "UPDATE KHUVUCLUUTRU SET TenKVLT=?, SucChua=?, HienCo=?, NgayLapKho=?, TrangThai=?, Ma_DC=? WHERE MaKVLT=?";
 
