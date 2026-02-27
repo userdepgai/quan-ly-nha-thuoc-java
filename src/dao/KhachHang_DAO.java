@@ -2,13 +2,16 @@ package dao;
 
 import DBConnection.DBConnection;
 import dto.KhachHang_DTO;
+
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class KhachHang_DAO {
 
+    // ================== GET ALL ==================
     public ArrayList<KhachHang_DTO> getAll() {
+
         ArrayList<KhachHang_DTO> list = new ArrayList<>();
         String sql = "SELECT * FROM KHACHHANG";
 
@@ -17,96 +20,119 @@ public class KhachHang_DAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                // Lấy dữ liệu và chuyển đổi java.sql.Date sang java.time.LocalDate
-                LocalDate ngaySinh = rs.getDate("NgaySinh") != null ? rs.getDate("NgaySinh").toLocalDate() : null;
-                LocalDate ngayDK = rs.getDate("NgayDKThanhVien") != null ? rs.getDate("NgayDKThanhVien").toLocalDate() : null;
 
-                // Sử dụng Constructor đầy đủ của bà
                 KhachHang_DTO kh = new KhachHang_DTO(
-                        rs.getString("MaKH"),
-                        rs.getString("TenKH"),
+                        rs.getString("Ma_KH"),
+                        rs.getString("Ten_KH"),
                         rs.getString("SDT"),
-                        ngaySinh,
+                        rs.getDate("NgaySinh").toLocalDate(),
                         rs.getBoolean("GioiTinh"),
                         rs.getDouble("DiemThuong"),
                         rs.getDouble("DiemHang"),
                         rs.getString("Hang"),
-                        ngayDK
+                        rs.getDate("NgayDKThanhVien").toLocalDate()
                 );
-
-                // Vì DTO của bà kế thừa Nguoi_DTO, bà nhớ set thêm địa chỉ nếu Nguoi_DTO có hàm setDiaChi
-                //kh.setDiaChi(rs.getString("DiaChi")); //
 
                 list.add(kh);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return list;
     }
 
+    // ================== TỰ SINH MÃ ==================
+    public String getNextId() {
+
+        String sql = "SELECT MAX(CAST(SUBSTRING(Ma_KH,3,6) AS INT)) FROM KHACHHANG";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+
+                int number = rs.getInt(1);
+
+                if (rs.wasNull()) {
+                    return "KH000001";
+                }
+
+                number++;
+                return String.format("KH%06d", number);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "KH000001";
+    }
+
+    // ================== THÊM ==================
     public boolean them(KhachHang_DTO kh) {
-        // Bỏ hoàn toàn phần dsDiaChi bị đỏ ở hình image_c26a7f.png
-        String sql = "INSERT INTO KHACHHANG (MaKH, TenKH, NgaySinh, DiaChi, GioiTinh, SDT, DiemHang, DiemThuong, Hang, NgayDKThanhVien) VALUES(?,?,?,?,?,?,?,?,?,?)";
+
+        String sql = "INSERT INTO KHACHHANG VALUES (?,?,?,?,?,?,?,?,?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, kh.getMa());
             ps.setString(2, kh.getTen());
-            ps.setDate(3, kh.getNgaySinh() != null ? Date.valueOf(kh.getNgaySinh()) : null);
-            //ps.setString(4, kh.getDiaChi());
+            ps.setString(3, kh.getSdt());
+            ps.setDate(4, Date.valueOf(kh.getNgaySinh()));
             ps.setBoolean(5, kh.isGioiTinh());
-            ps.setString(6, kh.getSdt());
+            ps.setDouble(6, kh.getDiemThuong());
             ps.setDouble(7, kh.getDiemHang());
-            ps.setDouble(8, kh.getDiemThuong());
-            ps.setString(9, kh.getHang());
-            ps.setDate(10, kh.getNgayDKThanhVien() != null ? Date.valueOf(kh.getNgayDKThanhVien()) : null);
+            ps.setString(8, kh.getHang());
+            ps.setDate(9, Date.valueOf(kh.getNgayDKThanhVien()));
 
             return ps.executeUpdate() > 0;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return false;
     }
 
+    // ================== CẬP NHẬT ==================
     public boolean capNhat(KhachHang_DTO kh) {
-        String sql = "UPDATE KHACHHANG SET TenKH=?, NgaySinh=?, DiaChi=?, GioiTinh=?, SDT=?, " +
-                "DiemHang=?, DiemThuong=?, Hang=?, NgayDKThanhVien=? WHERE MaKH=?";
+
+        String sql = """
+                UPDATE KHACHHANG 
+                SET Ten_KH=?, 
+                    SDT=?, 
+                    NgaySinh=?, 
+                    GioiTinh=?, 
+                    DiemThuong=?, 
+                    DiemHang=?, 
+                    Hang=?, 
+                    NgayDKThanhVien=? 
+                WHERE Ma_KH=?
+                """;
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, kh.getTen());
-            ps.setDate(2, kh.getNgaySinh() != null ? Date.valueOf(kh.getNgaySinh()) : null);
-          //  ps.setString(3, kh.getDiaChi());
+            ps.setString(2, kh.getSdt());
+            ps.setDate(3, Date.valueOf(kh.getNgaySinh()));
             ps.setBoolean(4, kh.isGioiTinh());
-            ps.setString(5, kh.getSdt());
+            ps.setDouble(5, kh.getDiemThuong());
             ps.setDouble(6, kh.getDiemHang());
-            ps.setDouble(7, kh.getDiemThuong());
-            ps.setString(8, kh.getHang());
-            ps.setDate(9, kh.getNgayDKThanhVien() != null ? Date.valueOf(kh.getNgayDKThanhVien()) : null);
-            ps.setString(10, kh.getMa());
+            ps.setString(7, kh.getHang());
+            ps.setDate(8, Date.valueOf(kh.getNgayDKThanhVien()));
+            ps.setString(9, kh.getMa());
 
             return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
 
-    public String getNextId() {
-        String sql = "SELECT MAX(CAST(SUBSTRING(MaKH,3,3) AS INT)) FROM KHACHHANG";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                int number = rs.getInt(1);
-                if (rs.wasNull()) return "KH001";
-                return String.format("KH%03d", number + 1);
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "KH001";
+
+        return false;
     }
 }

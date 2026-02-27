@@ -8,14 +8,11 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.time.LocalDate;
 import bus.KhachHang_BUS;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+
+import java.awt.event.*;
+
+import com.toedter.calendar.JDateChooser;
+
 public class KhachHang_GUI extends JPanel {
     private boolean isAdding = false;
     private boolean isUpdating = false;
@@ -29,16 +26,13 @@ public class KhachHang_GUI extends JPanel {
     private JPanel panelThongTin;
     private JTextField txt_maKH;
     private JTextField txt_tenKH;
-    private JTextField txt_ngaySinh;
     private JTextField txt_diaChi;
     private JTextField txt_sdt;
     private JRadioButton rd_nu;
     private JRadioButton rd_nam;
-    private JTextField textField4;
     private JTextField txt_diemThuong;
     private JTextField txt_hang;
     private JButton btn_hang;
-    private JTextField txt_ngayDKThanhVien;
     private JTable table_dsKhachHang;
     private JScrollPane src_dsKhachHang;
     private JTextField txt_diemHang;
@@ -46,284 +40,365 @@ public class KhachHang_GUI extends JPanel {
     private JButton btn_luu;
     private JLabel txt_gioiTinh;
     private JTextField txt_timKiem;
+    private JDateChooser JDate_ngaySinh;
+    private JDateChooser JDate_ngayDKThanhVien;
+    private JComboBox cmb_hang;
+    private JComboBox cmb_timKiem;
     private DefaultTableModel model_dsKhachHang;
     private KhachHang_BUS khBus = KhachHang_BUS.getInstance();
-
+    private DefaultTableModel model;
+    private ButtonGroup groupGioiTinh;
     public KhachHang_GUI() {
+
         this.setLayout(new BorderLayout());
         this.add(panel_khachHang, BorderLayout.CENTER);
-        textField4.setBorder(null);
-        initTable();
-        loadTableFromList(khBus.getAll());
 
+        initTable();
+        groupGioiTinh = new ButtonGroup();
+        groupGioiTinh.add(rd_nam);
+        groupGioiTinh.add(rd_nu);
+        cmb_timKiem.setEditable(true);
+        loadSuggestData("Tất cả");
+        khBus.refreshData();
+        loadTable(khBus.getAll());
         xuLySuKien();
     }
 
-    private void initTable() {
-        String[] columns = {
-                "STT",
-                "Mã khách hàng",
-                "Tên khách hàng",
-                "Ngày sinh",
-                "Địa chỉ",
-                "Giới tính",
-                "Số điện thoại",
-                "Điểm hạng",
-                "Điểm thưởng",
-                "Hạng",
-                "Ngày ĐK thành viên"
-        };
-        model_dsKhachHang = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
+
+    // ================= INIT TABLE =================
+        private void initTable() {
+            cmb_hang.setModel(new DefaultComboBoxModel<>(
+                    new String[]{
+                            "Đồng",
+                            "Bạc",
+                            "Vàng",
+                            "Kim cương"
+                    }
+            ));
+            cmb_locTrangThai.setModel(new DefaultComboBoxModel<>(
+                    new String[]{
+                            "Tất cả",
+                            "Mã KH",
+                            "Tên KH",
+                            "SĐT"
+                    }
+            ));
+            String[] cols = {
+                    "Mã KH", "Tên KH", "SĐT",
+                    "Ngày sinh", "Giới tính",
+                    "Điểm thưởng", "Điểm hạng",
+                    "Hạng", "Ngày ĐK"
+            };
+
+            model = new DefaultTableModel(cols, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            table_dsKhachHang.setModel(model);
+        }
+
+        // ================= LOAD TABLE =================
+        private void loadTable(ArrayList<KhachHang_DTO> list) {
+
+            model.setRowCount(0);
+
+            for (KhachHang_DTO kh : list) {
+
+                model.addRow(new Object[]{
+                        kh.getMa(),
+                        kh.getTen(),
+                        kh.getSdt(),
+                        kh.getNgaySinh(),
+                        kh.isGioiTinh() ? "Nam" : "Nữ",
+                        kh.getDiemThuong(),
+                        kh.getDiemHang(),
+                        kh.getHang(),
+                        kh.getNgayDKThanhVien()
+                });
             }
-        };
-        table_dsKhachHang.setModel(model_dsKhachHang);
+        }
 
-        table_dsKhachHang.getTableHeader().setResizingAllowed(false);
-        table_dsKhachHang.getTableHeader().setReorderingAllowed(false);
-
-        table_dsKhachHang.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-        table_dsKhachHang.getColumnModel().getColumn(0).setPreferredWidth(90);
-        table_dsKhachHang.getColumnModel().getColumn(1).setPreferredWidth(180);
-        table_dsKhachHang.getColumnModel().getColumn(2).setPreferredWidth(300);
-        table_dsKhachHang.getColumnModel().getColumn(3).setPreferredWidth(400);
-        table_dsKhachHang.getColumnModel().getColumn(4).setPreferredWidth(188);
-
-        table_dsKhachHang.setRowHeight(25);
-        table_dsKhachHang.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        src_dsKhachHang.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        src_dsKhachHang.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
-    }
-
-    private void xuLySuKien() {
-        table_dsKhachHang.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting())
-                hienChiTiet();
-        });
-
-        btn_them.addActionListener((ActionEvent e) -> {
-
-            btn_them.setEnabled(false);
-
-            isAdding = true;
-            isUpdating = false;
-
+        // ================= AUTO MÃ =================
+        private void autoMaKH() {
             txt_maKH.setText(khBus.getNextId());
             txt_maKH.setEditable(false);
+        }
 
-            txt_tenKH.setText("");
-            txt_tenKH.setEditable(true);
+        // ================= LẤY DỮ LIỆU FORM =================
+        private KhachHang_DTO getFormData() {
 
-            txt_ngaySinh.setText("");
-            txt_ngaySinh.setEditable(true);
+            try {
+                String ma = txt_maKH.getText();
+                String ten = txt_tenKH.getText();
+                String sdt = txt_sdt.getText();
 
-            txt_diaChi.setText("");
-            txt_diaChi.setEditable(true);
+                LocalDate ngaySinh = JDate_ngaySinh.getDate()
+                        .toInstant()
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toLocalDate();
+                boolean gioiTinh = rd_nam.isSelected();
 
-            rd_nam.setSelected(true);
-            rd_nu.setSelected(false);
+                double diemThuong = Double.parseDouble(txt_diemThuong.getText());
+                double diemHang = Double.parseDouble(txt_diemHang.getText());
 
-            txt_sdt.setText("");
-            txt_sdt.setEditable(true);
+                String hang = cmb_hang.getSelectedItem().toString();
+                LocalDate ngayDKThanhVien = JDate_ngayDKThanhVien.getDate()
+                        .toInstant()
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toLocalDate();
 
-            txt_diemHang.setText("0");
-            txt_diemHang.setEditable(false);
+                return new KhachHang_DTO(
+                        ma, ten, sdt,
+                        ngaySinh, gioiTinh,
+                        diemThuong, diemHang,
+                        hang, ngayDKThanhVien
+                );
 
-            txt_diemThuong.setText("0");
-            txt_diemThuong.setEditable(false);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Dữ liệu không hợp lệ");
+                return null;
+            }
+        }
 
-            txt_hang.setText("");
-            txt_hang.setEditable(false);
+        // ================= CLEAR FORM =================
+        private void clearForm() {
 
-            txt_ngayDKThanhVien.setText(LocalDate.now().toString());
-            txt_ngayDKThanhVien.setEditable(false);
+        txt_tenKH.setText("");
+        txt_sdt.setText("");
 
-            btn_luu.setVisible(true);
-            btn_huy.setVisible(true);
+        JDate_ngaySinh.setDate(null);
+        JDate_ngayDKThanhVien.setDate(null);
 
-        });
+        txt_diemThuong.setText("0");
+        txt_diemHang.setText("0");
 
-        btn_luu.addActionListener(e ->
+        cmb_hang.setSelectedItem("Đồng");
 
-        {
+        rd_nu.setSelected(true);
+    }
 
-            String ma = txt_maKH.getText();
-            String ten = txt_tenKH.getText();
-            String ngaySinh = txt_ngaySinh.getText();
-            String diaChi = txt_diaChi.getText();
-            String gioiTinh = rd_nam.isSelected() ? "Nam" : "Nữ";
-            String sdt = txt_sdt.getText();
-            int diemHang = Integer.parseInt(txt_diemHang.getText());
-            int diemThuong = Integer.parseInt(txt_diemThuong.getText());
-            String hang = txt_hang.getText();
-            String ngayDKThanhVien = txt_ngayDKThanhVien.getText();
+        // ================= XỬ LÝ SỰ KIỆN =================
+        private void xuLySuKien() {
+            // ===== AUTO SUGGEST KHI GÕ =====
+            JTextField editor = (JTextField) cmb_timKiem.getEditor().getEditorComponent();
 
-            KhachHang_DTO kh = new KhachHang_DTO(
-                    ma, ten, ngaySinh, diaChi,
-                    gioiTinh, sdt,
-                    diemHang, diemThuong,
-                    hang, ngayDKThanhVien
-            );
+            editor.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyReleased(KeyEvent e) {
 
-            boolean result = false;
+                    String text = editor.getText();
+                    String loai = cmb_locTrangThai.getSelectedItem().toString();
 
-            if (kiemTraHopLe(kh)) {
-                if (isAdding)
+                    DefaultComboBoxModel<String> newModel = new DefaultComboBoxModel<>();
+
+                    for (KhachHang_DTO kh : khBus.getAll()) {
+
+                        switch (loai) {
+
+                            case "Mã KH":
+                                if (kh.getMa().toLowerCase().contains(text.toLowerCase()))
+                                    newModel.addElement(kh.getMa());
+                                break;
+
+                            case "Tên KH":
+                                if (kh.getTen().toLowerCase().contains(text.toLowerCase()))
+                                    newModel.addElement(kh.getTen());
+                                break;
+
+                            case "SĐT":
+                                if (kh.getSdt().contains(text))
+                                    newModel.addElement(kh.getSdt());
+                                break;
+
+                            default:
+                                if (kh.getMa().contains(text) ||
+                                        kh.getTen().toLowerCase().contains(text.toLowerCase()) ||
+                                        kh.getSdt().contains(text)) {
+
+                                    newModel.addElement(kh.getMa());
+                                }
+                        }
+                    }
+
+                    cmb_timKiem.setModel(newModel);
+                    editor.setText(text);
+                    cmb_timKiem.showPopup();
+                }
+            });
+
+                cmb_locTrangThai.addActionListener(e -> {
+                String loai = cmb_locTrangThai.getSelectedItem().toString();
+                loadSuggestData(loai);
+            });
+            // ===== THÊM =====
+            btn_them.addActionListener(e -> {
+
+                isAdding = true;
+                isUpdating = false;
+
+                clearForm();
+                autoMaKH();
+
+                // 🔥 set mặc định khi bấm thêm
+                txt_diemThuong.setText("0");
+                txt_diemHang.setText("0");
+                cmb_hang.setSelectedItem("Đồng");
+
+                txt_maKH.setEditable(false);
+
+                btn_luu.setVisible(true);
+                btn_huy.setVisible(true);
+                btn_them.setEnabled(false);
+            });
+            // ===== LƯU =====
+            btn_luu.addActionListener(e -> {
+
+                KhachHang_DTO kh = getFormData();
+                if (kh == null) return;
+
+                boolean result = false;
+
+                if (isAdding) {
                     result = khBus.them(kh);
+                }
 
                 if (result) {
-                    JOptionPane.showMessageDialog(this, "Lưu thành công");
-                    loadTableFromList(khBus.getAll());
+                    JOptionPane.showMessageDialog(this, "Thêm thành công");
+
+                    khBus.refreshData();
+                    loadTable(khBus.getAll());
+
                     resetState();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Lưu thất bại");
-                }
-            }
+                    JOptionPane.showMessageDialog(this, "Thêm thất bại");
 
-            btn_them.setEnabled(true);
-        });
-
-
-        btn_huy.addActionListener(e ->
-        {
-
-            btn_them.setEnabled(true);
-
-            resetState();
-        });
-
-
-        txt_timKiem.addKeyListener(new
-
-                                           KeyAdapter() {
-                                               @Override
-                                               public void keyReleased(KeyEvent e) {
-
-                                                   String keyword = txt_timKiem.getText().trim();
-
-                                                   if (keyword.isEmpty()) {
-                                                       loadTableFromList(khBus.getAll());
-                                                       return;
-                                                   }
-
-                                                   ArrayList<KhachHang_DTO> list =
-                                                           khBus.timKiem(keyword);
-
-                                                   loadTableFromList(list);
-                                               }
-                                           });
-
-
-        btn_timKiem.addActionListener(e ->
-
-        {
-
-            String keyword = txt_timKiem.getText().trim();
-
-            ArrayList<KhachHang_DTO> list =
-                    khBus.timKiem(keyword);
-
-            loadTableFromList(list);
-        });
-
-
-        btn_thoat.addActionListener(e ->
-
-        {
-
-            txt_timKiem.setText("");
-
-            loadTableFromList(khBus.getAll());
-        });
-
-    }
-
-    private void hienChiTiet() {
-
-        int row = table_dsKhachHang.getSelectedRow();
-
-        if (row >= 0) {
-
-            txt_maKH.setText(table_dsKhachHang.getValueAt(row, 1).toString());
-            txt_tenKH.setText(table_dsKhachHang.getValueAt(row, 2).toString());
-            txt_ngaySinh.setText(table_dsKhachHang.getValueAt(row, 3).toString());
-            txt_diaChi.setText(table_dsKhachHang.getValueAt(row, 4).toString());
-            String gioiTinh = table_dsKhachHang.getValueAt(row, 5).toString();
-
-            if (gioiTinh.equalsIgnoreCase("Nam")) {
-                rd_nam.setSelected(true);
-            } else {
-                rd_nu.setSelected(true);
-            }
-            txt_sdt.setText(table_dsKhachHang.getValueAt(row, 6).toString());
-            txt_diemHang.setText(table_dsKhachHang.getValueAt(row, 7).toString());
-            txt_diemThuong.setText(table_dsKhachHang.getValueAt(row, 8).toString());
-            txt_hang.setText(table_dsKhachHang.getValueAt(row, 9).toString());
-            txt_ngayDKThanhVien.setText(table_dsKhachHang.getValueAt(row, 10).toString());
-        }
-    }
-
-
-    private void loadTableFromList(ArrayList<KhachHang_DTO> list) {
-        model_dsKhachHang.setRowCount(0); // Chỉ để 1 dòng này ở đầu hàm
-        int stt = 1;
-
-        for (KhachHang_DTO kh : list) { // Chỉ dùng 1 vòng lặp duy nhất
-
-            model_dsKhachHang.addRow(new Object[]{
-                    stt++,
-                    kh.getMa(),
-                    kh.getTen(),
-                    kh.getNgaySinh(),
-                    kh.isGioiTinh(),
-                    kh.getSdt(),
-                    kh.getDiemHang(),
-                    kh.getDiemThuong(),
-                    kh.getHang(),
-                    kh.getNgayDKThanhVien()
+                };
             });
+
+            // ===== CLICK TABLE =====
+            table_dsKhachHang.addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e) {
+
+                    int row = table_dsKhachHang.getSelectedRow();
+                    if (row < 0) return;
+
+                    txt_maKH.setText(model.getValueAt(row, 0).toString());
+                    txt_tenKH.setText(model.getValueAt(row, 1).toString());
+                    txt_sdt.setText(model.getValueAt(row, 2).toString());
+
+                    // ===== NGÀY SINH =====
+                    try {
+                        Object ngaySinhObj = model.getValueAt(row, 3);
+                        if (ngaySinhObj != null) {
+                            java.sql.Date sqlDate = java.sql.Date.valueOf(ngaySinhObj.toString());
+                            JDate_ngaySinh.setDate(sqlDate);
+                        } else {
+                            JDate_ngaySinh.setDate(null);
+                        }
+                    } catch (Exception ex) {
+                        JDate_ngaySinh.setDate(null);
+                    }
+
+                    // ===== GIỚI TÍNH =====
+                    if (model.getValueAt(row, 4).toString().equals("Nam"))
+                        rd_nam.setSelected(true);
+                    else
+                        rd_nu.setSelected(true);
+
+                    // ===== ĐIỂM =====
+                    txt_diemThuong.setText(String.valueOf(model.getValueAt(row, 5)));
+                    txt_diemHang.setText(String.valueOf(model.getValueAt(row, 6)));
+
+                    // ===== HẠNG =====
+                    cmb_hang.setSelectedItem(model.getValueAt(row, 7).toString());
+
+                    // ===== NGÀY ĐĂNG KÝ =====
+                    try {
+                        Object ngayDKObj = model.getValueAt(row, 8);
+                        if (ngayDKObj != null) {
+                            java.sql.Date sqlDateDK = java.sql.Date.valueOf(ngayDKObj.toString());
+                            JDate_ngayDKThanhVien.setDate(sqlDateDK);
+                        } else {
+                            JDate_ngayDKThanhVien.setDate(null);
+                        }
+                    } catch (Exception ex) {
+                        JDate_ngayDKThanhVien.setDate(null);
+                    }
+                }
+            });
+
+            // ===== TÌM KIẾM =====
+            btn_timKiem.addActionListener(e -> {
+
+                String keyword = cmb_timKiem.getEditor().getItem().toString();
+                String loai = cmb_locTrangThai.getSelectedItem().toString();
+
+                loadTable(khBus.timKiem(keyword, loai));
+            });
+
+            // ===== HỦY =====
+            btn_huy.addActionListener(e -> {
+                resetState();
+            });
+            btn_thoat.addActionListener(e -> {
+                ((JTextField) cmb_timKiem.getEditor().getEditorComponent()).setText("");
+                khBus.refreshData();
+                loadTable(khBus.getAll());
+                clearForm();
+            });
+
         }
+    private void resetState() {
+
+        clearForm();
+
+        btn_luu.setVisible(false);
+        btn_huy.setVisible(false);
+
+        btn_them.setEnabled(true);
+
+        isAdding = false;
+        isUpdating = false;
     }
-     private   void resetState () {
+    private void createUIComponents() {
+        JDate_ngaySinh = new JDateChooser();
+        JDate_ngaySinh.setDateFormatString("yyyy-MM-dd");
 
-            clearForm();
+        JDate_ngayDKThanhVien = new JDateChooser();
+        JDate_ngayDKThanhVien.setDateFormatString("yyyy-MM-dd");
 
-            txt_tenKH.setEditable(false);
-            txt_ngaySinh.setEditable(false);
-            txt_diaChi.setEditable(false);
-            txt_gioiTinh.setEnabled(false);
-            txt_sdt.setEditable(false);
+    }
+    private void loadSuggestData(String loai) {
 
-            btn_luu.setVisible(false);
-            btn_huy.setVisible(false);
+        DefaultComboBoxModel<String> modelSuggest = new DefaultComboBoxModel<>();
 
-            isAdding = false;
+        for (KhachHang_DTO kh : khBus.getAll()) {
+
+            switch (loai) {
+                case "Mã KH":
+                    modelSuggest.addElement(kh.getMa());
+                    break;
+
+                case "Tên KH":
+                    modelSuggest.addElement(kh.getTen());
+                    break;
+
+                case "SĐT":
+                    modelSuggest.addElement(kh.getSdt());
+                    break;
+
+                default:
+                    modelSuggest.addElement(kh.getMa());
+                    modelSuggest.addElement(kh.getTen());
+                    modelSuggest.addElement(kh.getSdt());
+            }
         }
 
-
-    private void clearForm() {
-
-        txt_maKH.setText("");
-        txt_tenKH.setText("");
-        txt_ngaySinh.setText("");
-        txt_diaChi.setText("");
-        txt_sdt.setText("");
-        txt_diemHang.setText("");
-        txt_diemThuong.setText("");
-        txt_hang.setText("");
-        txt_ngayDKThanhVien.setText("");
-
-        txt_gioiTinh.setPreferredSize(new Dimension(0, 0));
+        cmb_timKiem.setModel(modelSuggest);
+        cmb_timKiem.setSelectedItem(null);
+        ((JTextField) cmb_timKiem.getEditor().getEditorComponent()).setText("");
     }
-    private boolean kiemTraHopLe(KhachHang_DTO kh) {
-        if (kh.getTen().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tên khách hàng không được để trống!");
-            return false;
-        }
-        return true;
     }
-}

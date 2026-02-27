@@ -1,26 +1,26 @@
 package bus;
 
 import dao.NhanVien_DAO;
+import dto.KhachHang_DTO;
 import dto.NhanVien_DTO;
-import dto.PhanQuyen_DTO;
 
 import javax.swing.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class NhanVien_BUS {
-
-    private static NhanVien_BUS instance;
     private NhanVien_DAO nvDao = new NhanVien_DAO();
+    private static NhanVien_BUS instance;
+    private NhanVien_DAO dao = new NhanVien_DAO();
     private ArrayList<NhanVien_DTO> listCache;
 
     private NhanVien_BUS() {
-        listCache = nvDao.getAll();
+        listCache = dao.getAll();
     }
 
     public static NhanVien_BUS getInstance() {
-        if (instance == null) {
+        if (instance == null)
             instance = new NhanVien_BUS();
-        }
         return instance;
     }
 
@@ -28,123 +28,123 @@ public class NhanVien_BUS {
         return listCache;
     }
 
-    public void refreshData() {
-        listCache = nvDao.getAll();
-    }
-
     public String getNextId() {
-        return nvDao.getNextId();
+        return dao.getNextId();
     }
 
     public boolean them(NhanVien_DTO nv) {
-        if (!kiemTraHopLe(nv)) return false;
+
+        if (!kiemTraHopLe(nv, false)) return false;
 
         boolean result = nvDao.them(nv);
         if (result) refreshData();
-
         return result;
     }
 
     public boolean capNhat(NhanVien_DTO nv) {
-        if (!kiemTraHopLe(nv)) return false;
+
+        if (!kiemTraHopLe(nv, true)) return false;
 
         boolean result = nvDao.capNhat(nv);
         if (result) refreshData();
-
         return result;
     }
 
-    // ================== VALIDATE ==================
-
-    public boolean kiemTraHopLe(NhanVien_DTO nv) {
+    public void refreshData() {
+        listCache = dao.getAll();
+    }
+    public boolean isPhoneExists(String sdt) {
+        for (NhanVien_DTO nv : listCache) {
+            if (nv.getSdt().equals(sdt)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean kiemTraHopLe(NhanVien_DTO nv, boolean isUpdate) {
 
         if (nv.getTen().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Tên nhân viên không được để trống");
+            JOptionPane.showMessageDialog(null, "Tên không được để trống");
             return false;
         }
 
-        if (nv.getNgaySinh() == null) {
-            JOptionPane.showMessageDialog(null, "Vui lòng chọn ngày sinh");
+        if (!nv.getSdt().matches("\\d{10}")) {
+            JOptionPane.showMessageDialog(null, "SĐT phải 10 số");
             return false;
         }
 
-        if (nv.getMaDiaChi() == null || nv.getMaDiaChi().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Vui lòng chọn địa chỉ");
-            return false;
+        // ===== KIỂM TRA TRÙNG SĐT =====
+        for (NhanVien_DTO item : listCache) {
+
+            if (item.getSdt().equals(nv.getSdt())) {
+
+                // Nếu là cập nhật và là chính nó thì bỏ qua
+                if (isUpdate && item.getMa().equals(nv.getMa())) {
+                    continue;
+                }
+
+                JOptionPane.showMessageDialog(null, "SĐT đã tồn tại");
+                return false;
+            }
         }
 
-        if (nv.getNgaySinh() == null) {
-            JOptionPane.showMessageDialog(null, "Vui lòng chọn ngày sinh");
-            return false;
-        }
-
-        if (nv.getSdt().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Số điện thoại không được để trống");
-            return false;
-        }
-
-        if (nv.getChucVu().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Chức vụ không được để trống");
-            return false;
-        }
-
-        if (nv.getLuongCoBan() <= 0) {
-            JOptionPane.showMessageDialog(null, "Lương cơ bản phải lớn hơn 0");
-            return false;
-        }
-
-        if (nv.getNgayVaoLam() == null) {
-            JOptionPane.showMessageDialog(null, "Vui lòng chọn ngày vào làm");
-            return false;
-        }
-
-        if (nv.getTrangThai() == -1) {
-            JOptionPane.showMessageDialog(null, "Vui lòng chọn trạng thái");
+        if (nv.getLuongCoBan() < 0) {
+            JOptionPane.showMessageDialog(null, "Lương không hợp lệ");
             return false;
         }
 
         return true;
     }
-
-    // ================== TÌM KIẾM ==================
-
-    public ArrayList<NhanVien_DTO> timKiem(String keyword, Integer trangThai) {
+    public ArrayList<NhanVien_DTO> timKiemNangCao(String keyword,
+                                                  String chucVu,
+                                                  String trangThai) {
 
         ArrayList<NhanVien_DTO> result = new ArrayList<>();
-        keyword = keyword.toLowerCase();
 
         for (NhanVien_DTO nv : listCache) {
 
-            boolean matchKeyword =
-                    nv.getMa().toLowerCase().contains(keyword)
-                            || nv.getTen().toLowerCase().contains(keyword)
-                            || nv.getSdt().toLowerCase().contains(keyword)
-                            || nv.getChucVu().toLowerCase().contains(keyword);
+            boolean matchKeyword = true;
+            boolean matchChucVu = true;
+            boolean matchTrangThai = true;
 
-            boolean matchTrangThai =
-                    (trangThai == null || nv.getTrangThai() == trangThai);
+            // ===== LỌC KEYWORD (mã, tên, sdt) =====
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String kw = keyword.toLowerCase();
+                matchKeyword =
+                        nv.getMa().toLowerCase().contains(kw) ||
+                                nv.getTen().toLowerCase().contains(kw) ||
+                                nv.getSdt().contains(kw);
+            }
+            if (chucVu != null && !chucVu.equals("--chọn chức vụ--")) {
+                matchChucVu = nv.getChucVu().trim().equalsIgnoreCase(chucVu.trim());
+            }
 
-            if (matchKeyword && matchTrangThai) {
-                result.add(nv);
+
+            // ===== LỌC TRẠNG THÁI =====
+            if (trangThai != null && !trangThai.equals("--chọn trạng thái--")) {
+
+                int tt = trangThai.equals("Đang làm") ? 0 : 1;
+
+                matchTrangThai = nv.getTrangThai() == tt;
             }
         }
 
         return result;
     }
-
     public NhanVien_DTO getById(String maNV) {
 
         for (NhanVien_DTO nv : listCache) {
             if (nv.getMa().equals(maNV))
                 return nv;
         }
-
         return null;
     }
-    public NhanVien_DTO getBySdt(String maNV) {
-        for(NhanVien_DTO pq : listCache) {
-            if(pq.getMa().equals(maNV))
-                return pq;
+    // ================= GET BY SDT =================
+    public NhanVien_DTO getBysdt(String sdt) {
+
+        for (NhanVien_DTO nv : listCache) {
+            if (nv.getMa().equals(sdt))
+                return nv;
         }
         return null;
     }

@@ -66,6 +66,5 @@ public class KhachHang_DTO extends Nguoi_DTO {
     public void setNgayDKThanhVien(LocalDate ngayDKThanhVien) {
         this.ngayDKThanhVien = ngayDKThanhVien;
     }
-    private ArrayList<KhachHang_DiaChi_DTO> dsDiaChi;
 
 }
