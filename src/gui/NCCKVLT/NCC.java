@@ -183,21 +183,28 @@ public class NCC extends JPanel {
     }
 
     private void loadSanPhamTheoNCC(String maNCC) {
+
         modelSP.setRowCount(0);
 
         SanPhamNCC_BUS spNccBus = SanPhamNCC_BUS.getInstance();
-
         spNccBus.refreshData();
         ArrayList<SanPhamNCC_DTO> list = spNccBus.getByMaNCC(maNCC);
+
+        SanPham_BUS spBus = SanPham_BUS.getInstance();
+        spBus.refreshData();
 
         int stt = 1;
 
         for (SanPhamNCC_DTO spNcc : list) {
 
+            SanPham_DTO sp = spBus.getById(spNcc.getMaSanPham());
+
+            String tenSP = (sp != null) ? sp.getTenSP() : "KHÔNG_TÌM_THẤY";
+
             modelSP.addRow(new Object[]{
                     stt++,
                     spNcc.getMaSanPham(),
-                    "Chưa add SP",
+                    tenSP,
                     spNcc.getGiaNhap(),
                     spNcc.getTrangThai() == 1 ? "CÒN_CUNG_CẤP" : "NGỪNG_CUNG_CẤP"
             });
