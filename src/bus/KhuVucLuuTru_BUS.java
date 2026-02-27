@@ -1,6 +1,6 @@
-package BUS;
+package bus;
 
-import DAO.KhuVucLuuTru_DAO;
+import dao.KhuVucLuuTru_DAO;
 import dto.KhuVucLuuTru_DTO;
 import dto.DIACHI_DTO;
 import java.util.ArrayList;

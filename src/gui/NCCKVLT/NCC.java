@@ -1,9 +1,14 @@
 package gui.NCCKVLT;
 
-import BUS.NhaCungCap_BUS;
-import DAO.NhaCungCap_DAO;
+import bus.NhaCungCap_BUS;
+import dao.DiaChi_DAO;
+import dao.NhaCungCap_DAO;
 import dto.DIACHI_DTO;
 import dto.NhaCungCap_DTO;
+import bus.SanPhamNCC_BUS;
+import bus.SanPham_BUS;
+import dto.SanPhamNCC_DTO;
+import dto.SanPham_DTO;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -112,26 +117,58 @@ public class NCC extends JPanel {
             fixColumnWidth(table, 4, 120);
         }
     }
+
     public void loadDataToTable() {
         if (modelNCC == null) return;
 
         modelNCC.setRowCount(0);
         bus.refreshData();
-        ArrayList<NhaCungCap_DTO> list = dao.getAll();
+        ArrayList<NhaCungCap_DTO> listNCC = dao.getAll();
 
-        if (list == null || list.isEmpty()) {
+        if (listNCC == null || listNCC.isEmpty()) {
             System.out.println("Dữ liệu list trả về bị rỗng!");
             return;
         }
+        DiaChi_DAO diaChiDAO = new DiaChi_DAO();
+        ArrayList<DIACHI_DTO> listTatCaDiaChi = diaChiDAO.getAll();
 
         int stt = 1;
 
-        for (NhaCungCap_DTO ncc : list) {
+        for (NhaCungCap_DTO ncc : listNCC) {
+            String trangThaiText = (ncc.getTrangThai() == 1) ? "ĐANG_GIAO_DỊCH" : "NGỪNG_HỢP_TÁC";
 
-            String trangThaiText = (ncc.getTrangThai() == 1)
-                    ? "ĐANG_GIAO_DỊCH"
-                    : "NGỪNG_HỢP_TÁC";
+            String diaChiHienThi = "";
 
+
+            if (ncc.getDiaChi() != null && ncc.getDiaChi().getMaDiaChi() != null) {
+                String maDCCanTim = ncc.getDiaChi().getMaDiaChi();
+
+
+                for (DIACHI_DTO dcFull : listTatCaDiaChi) {
+                    if (dcFull.getMaDiaChi().equals(maDCCanTim)) {
+
+                        ncc.setDiaChi(dcFull);
+
+
+                        StringBuilder sb = new StringBuilder();
+                        if (dcFull.getSoNha() != null && !dcFull.getSoNha().isEmpty())
+                            sb.append(dcFull.getSoNha()).append(", ");
+                        if (dcFull.getDuong() != null && !dcFull.getDuong().isEmpty())
+                            sb.append(dcFull.getDuong()).append(", ");
+                        if (dcFull.getPhuong() != null && !dcFull.getPhuong().isEmpty())
+                            sb.append(dcFull.getPhuong()).append(", ");
+                        if (dcFull.getTinh() != null && !dcFull.getTinh().isEmpty()) sb.append(dcFull.getTinh());
+
+                        diaChiHienThi = sb.toString();
+
+
+                        if (diaChiHienThi.endsWith(", ")) {
+                            diaChiHienThi = diaChiHienThi.substring(0, diaChiHienThi.length() - 2);
+                        }
+                        break;
+                    }
+                }
+            }
 
             modelNCC.addRow(new Object[]{
                     stt++,
@@ -140,8 +177,30 @@ public class NCC extends JPanel {
                     ncc.getMaSoThue(),
                     ncc.getSdt(),
                     ncc.getNguoiLienHe(),
-                    ncc.getDiaChi(),
+                    diaChiHienThi,
                     trangThaiText
+            });
+        }
+    }
+
+    private void loadSanPhamTheoNCC(String maNCC) {
+        modelSP.setRowCount(0);
+
+        SanPhamNCC_BUS spNccBus = SanPhamNCC_BUS.getInstance();
+
+        spNccBus.refreshData();
+        ArrayList<SanPhamNCC_DTO> list = spNccBus.getByMaNCC(maNCC);
+
+        int stt = 1;
+
+        for (SanPhamNCC_DTO spNcc : list) {
+
+            modelSP.addRow(new Object[]{
+                    stt++,
+                    spNcc.getMaSanPham(),
+                    "Chưa add SP",
+                    spNcc.getGiaNhap(),
+                    spNcc.getTrangThai() == 1 ? "CÒN_CUNG_CẤP" : "NGỪNG_CUNG_CẤP"
             });
         }
     }
@@ -209,7 +268,6 @@ public class NCC extends JPanel {
     }
 
 
-
     private void hienThiChiTiet() {
         int selectedRow = tableDanhSach.getSelectedRow();
         if (selectedRow >= 0) {
@@ -230,6 +288,7 @@ public class NCC extends JPanel {
 
             String trangThai = modelNCC.getValueAt(modelRow, 7).toString();
             comboBoxTthai.setSelectedIndex(trangThai.equals("ĐANG_GIAO_DỊCH") ? 0 : 1);
+            loadSanPhamTheoNCC(textMa.getText().trim());
 
             setKhoaForm(true);
             btnThemNCC.setText("Thêm ");
@@ -288,6 +347,7 @@ public class NCC extends JPanel {
             JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
         }
     }
+
     private void capNhatNCC() {
 
         int selectedRow = tableDanhSach.getSelectedRow();

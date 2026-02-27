@@ -1,9 +1,8 @@
 package gui.NCCKVLT;
 
-import DAO.KhuVucLuuTru_DAO;
 import dto.DIACHI_DTO;
 import dto.KhuVucLuuTru_DTO;
-import BUS.KhuVucLuuTru_BUS;
+import bus.KhuVucLuuTru_BUS;
 
 
 import javax.swing.*;

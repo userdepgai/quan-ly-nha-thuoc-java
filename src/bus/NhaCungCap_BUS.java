@@ -1,6 +1,6 @@
-package BUS;
+package bus;
 
-import DAO.NhaCungCap_DAO;
+import dao.NhaCungCap_DAO;
 import dto.NhaCungCap_DTO;
 import dto.DIACHI_DTO;
 

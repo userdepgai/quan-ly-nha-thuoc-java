@@ -1,4 +1,4 @@
-package DAO;
+package dao;
 
 import DBConnection.DBConnection;
 import dto.NhaCungCap_DTO;
@@ -25,10 +25,11 @@ public class NhaCungCap_DAO {
                 ncc.setNguoiLienHe(rs.getString("NguoiLienHe"));
                 ncc.setTrangThai(rs.getInt("TrangThai"));
 
+                String maDC = rs.getString("Ma_DC");
+                System.out.println("DEBUG: Ma_NCC=" + rs.getString("Ma_NCC") + " Ma_DC=" + maDC);
                 DIACHI_DTO dc = new DIACHI_DTO();
-                dc.setMaDiaChi(rs.getString("Ma_DC"));
+                dc.setMaDiaChi(maDC);
                 ncc.setDiaChi(dc);
-
                 list.add(ncc);
             }
         } catch (SQLException e) {
@@ -85,4 +86,5 @@ public class NhaCungCap_DAO {
         }
         return false;
     }
+
 }
