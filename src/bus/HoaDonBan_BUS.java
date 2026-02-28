@@ -1,4 +1,4 @@
-/*package bus;
+package bus;
 
 import dao.*;
 import dto.*;
@@ -8,11 +8,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-
- * =====================================================
- * HOA DON BAN BUS (OFFLINE)
- * CORE BUSINESS LOGIC
- * =====================================================
 
 public class HoaDonBan_BUS {
 
@@ -24,9 +19,9 @@ public class HoaDonBan_BUS {
     private HoaDonBan_DTO hoaDon;
     private ArrayList<ChiTietHoaDonBan_DTO> dsCT = new ArrayList<>();
 
-     =====================================================
+    /* =====================================================
        KHỞI TẠO HÓA ĐƠN
-     =====================================================
+     ===================================================== */
     public void taoHoaDonMoi(String maNV) {
 
         hoaDon = new HoaDonBan_DTO();
@@ -38,23 +33,23 @@ public class HoaDonBan_BUS {
         dsCT.clear();
     }
 
-     =====================================================
+    /* =====================================================
        SINH MÃ HD
-     =====================================================
+     ===================================================== */
     private String sinhMaHD() {
         return "HDB" + System.currentTimeMillis();
     }
 
-     =====================================================
+    /* =====================================================
        LOAD KHÁCH HÀNG THEO SĐT
-     =====================================================
+     ===================================================== */
     public KhachHang_DTO timKhachTheoSDT(String sdt) {
         return khDAO.findByPhone(sdt);
     }
 
-     =====================================================
+    /* =====================================================
        THÊM SẢN PHẨM (FIFO LÔ)
-     =====================================================
+     ===================================================== */
     public boolean themSanPham(String maSP, int soLuong) {
 
         if (soLuong <= 0)
@@ -94,9 +89,9 @@ public class HoaDonBan_BUS {
         return dsCT.stream().anyMatch(x -> x.getMaSP().equals(maSP));
     }
 
-    =====================================================
+    /* =====================================================
        TÍNH GIÁ THEO LÔ (RULE QUAN TRỌNG)
-     =====================================================
+     ===================================================== */
     private double timGiaLonNhat(List<LoHang_DTO> dsLo, int soLuong) {
 
         int canLay = soLuong;
@@ -116,37 +111,36 @@ public class HoaDonBan_BUS {
         return giaMax;
     }
 
-     =====================================================
+    /* =====================================================
        CÔNG THỨC GIÁ
-     =====================================================
+     ===================================================== */
     private double tinhGiaBan(LoHang_DTO lo) {
 
         double giaNhapDonVi =
-                lo.getThanhTienLo()
-                        / lo.getSoLuongNhap()
+                lo.getGiaNhap()
                         / (lo.getSlHopTrongThung() * lo.getSlSpTrongHop());
 
         return giaNhapDonVi * (1 + lo.getLoiNhuan());
     }
 
-     =====================================================
+    /* =====================================================
        TÍNH TỔNG TIỀN
-     =====================================================
+     ===================================================== */
     private void tinhTongTien() {
 
         double tong = dsCT.stream()
                 .mapToDouble(ChiTietHoaDonBan_DTO::getThanhTien)
                 .sum();
 
-        hoaDon.setTong(tong);
+        hoaDon.setTongTien(tong);
     }
 
-    =====================================================
+    /* =====================================================
        ÁP VOUCHER
-     =====================================================
+     ===================================================== */
     public void apVoucher(double giaTriVoucher) {
 
-        double tong = hoaDon.getTongTien();
+        double tong = hoaDon.getTongTienGoc();
 
         if (tong - giaTriVoucher <= tong * 0.7)
             throw new RuntimeException("Không đủ điều kiện dùng voucher");
@@ -155,42 +149,42 @@ public class HoaDonBan_BUS {
         tinhThanhTienSauCung();
     }
 
-     =====================================================
+    /* =====================================================
        ÁP ĐIỂM
-     =====================================================
+     ===================================================== */
     public void suDungDiem(int diem) {
 
         double tienGiam = diem * 10000;
 
-        hoaDon.setGiamDiem(tienGiam);
+        hoaDon.setDiemThuongQuyDoi(tienGiam);
         tinhThanhTienSauCung();
     }
 
-     =====================================================
+    /* =====================================================
        VAT + FINAL
-     =====================================================
+     ===================================================== */
     private void tinhThanhTienSauCung() {
 
         double tien =
-                hoaDon.getTongTien()
+                hoaDon.getTongTienGoc()
                         - hoaDon.getGiamVoucher()
                         - hoaDon.getGiamDiem();
 
         double vat = tien * 0.05;
 
-        hoaDon.setVat(vat);
+        hoaDon.setThueVAT(vat);
         hoaDon.setThanhTien(tien + vat);
     }
 
-     =====================================================
+    /* =====================================================
        LƯU HÓA ĐƠN
-     =====================================================
+     ===================================================== */
     public void luuHoaDon() {
 
         hoaDonDAO.insert(hoaDon);
 
-        for (ChiTietHoaDon_DTO ct : dsCT) {
-            ct.setMaHD(hoaDon.getMaHD());
+        for (ChiTietHoaDonBan_DTO ct : dsCT) {
+            ct.setMaHDB(hoaDon.getMa());
             ctDAO.insert(ct);
 
             loDAO.truKhoFIFO(ct.getMaSP(), ct.getSoLuong());
@@ -199,23 +193,21 @@ public class HoaDonBan_BUS {
         congDiemKhachHang();
     }
 
-     =====================================================
+    /* =====================================================
        CỘNG ĐIỂM
-     =====================================================
+     ===================================================== */
     private void congDiemKhachHang() {
 
         int diem = (int) (hoaDon.getThanhTien() / 10000);
 
-        khDAO.congDiem(hoaDon.getMaKH(), diem);
+        khDAO.congDiem(hoaDon.getMaKhachHang(), diem);
     }
 
     public HoaDon_DTO getHoaDon() {
         return hoaDon;
     }
 
-    public ArrayList<ChiTietHoaDon_DTO> getDsCT() {
+    public ArrayList<ChiTietHoaDonBan_DTO> getDsCT() {
         return dsCT;
     }
 }
-
-*/

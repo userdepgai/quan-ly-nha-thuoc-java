@@ -1,4 +1,4 @@
-/*package bus;
+package bus;
 
 import dao.*;
 import dto.*;
@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 
-  ======================================================
-  HOA DON ONLINE BUS
-  ======================================================
+
+  //HOA DON ONLINE BUS
+
 
 public class HoaDonOnline_BUS {
 
@@ -18,9 +18,8 @@ public class HoaDonOnline_BUS {
     private LoHang_DAO loDAO = new LoHang_DAO();
     private KhachHang_DAO khDAO = new KhachHang_DAO();
 
-     ======================================================
-       KHÁCH ĐẶT ONLINE → AUTO TẠO HÓA ĐƠN
-     ======================================================
+
+       //KHÁCH ĐẶT ONLINE → AUTO TẠO HÓA ĐƠN
     public String taoDonOnline(
             String maKH,
             ArrayList<ChiTietHoaDonBan_DTO> dsCT
@@ -56,9 +55,9 @@ public class HoaDonOnline_BUS {
         return maHD;
     }
 
-     ======================================================
-       NHÂN VIÊN DUYỆT ĐƠN
-     ======================================================
+
+       //NHÂN VIÊN DUYỆT ĐƠN
+
     public void duyetDon(String maHD) {
 
         HoaDonBan_DTO hd = hoaDonDAO.getById(maHD);
@@ -91,17 +90,17 @@ public class HoaDonOnline_BUS {
         hoaDonDAO.capNhatTrangThai(maHD, 1); // ĐÃ DUYỆT
     }
 
-     ======================================================
-       TỪ CHỐI ĐƠN
-     ======================================================
+
+      // TỪ CHỐI ĐƠN
+
     public void tuChoiDon(String maHD) {
 
         hoaDonDAO.capNhatTrangThai(maHD, -1);
     }
 
-     ======================================================
-       GIAO HÀNG
-     ======================================================
+
+      // GIAO HÀNG
+
     public void giaoHang(String maHD) {
 
         HoaDonBan_DTO hd = hoaDonDAO.getById(maHD);
@@ -112,9 +111,9 @@ public class HoaDonOnline_BUS {
         hoaDonDAO.capNhatTrangThai(maHD, 2); // ĐANG GIAO
     }
 
-     ======================================================
-       HOÀN THÀNH (AUTO CHUYỂN)
-     ======================================================
+
+       //HOÀN THÀNH (AUTO CHUYỂN)
+
     public void hoanThanh(String maHD) {
 
         HoaDonBan_DTO hd = hoaDonDAO.getById(maHD);
@@ -127,9 +126,9 @@ public class HoaDonOnline_BUS {
         congDiem(hd);
     }
 
-     ======================================================
-       HOÀN HÀNG (<=7 NGÀY)
-     ======================================================
+
+      // HOÀN HÀNG (<=7 NGÀY)
+
     public void hoanHang(String maHD) {
 
         HoaDonBan_DTO hd = hoaDonDAO.getById(maHD);
@@ -157,9 +156,8 @@ public class HoaDonOnline_BUS {
         hoaDonDAO.capNhatTrangThai(maHD, -2); // HOÀN
     }
 
-     ======================================================
-       AUTO HỦY SAU 3 NGÀY
-     ======================================================
+
+       //AUTO HỦY SAU 3 NGÀY
     public void autoHuyDonTre() {
 
         ArrayList<HoaDonBan_DTO> ds = hoaDonDAO.getAll();
@@ -177,9 +175,9 @@ public class HoaDonOnline_BUS {
         }
     }
 
-     ======================================================
-       CỘNG ĐIỂM SAU KHI HOÀN THÀNH
-     ======================================================
+
+      // CỘNG ĐIỂM SAU KHI HOÀN THÀNH
+
     private void congDiem(HoaDonBan_DTO hd) {
 
         int diem = (int)(hd.getThanhTien() / 10000);
@@ -187,4 +185,3 @@ public class HoaDonOnline_BUS {
         khDAO.congDiem(hd.getMaKhachHang(), diem);
     }
 }
-*/
