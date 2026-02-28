@@ -15,6 +15,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Date;
@@ -43,6 +45,7 @@ public class KVLT extends JPanel {
     private DefaultTableModel modelKVLT;
 
     private KhuVucLuuTru_BUS bus = KhuVucLuuTru_BUS.getInstance();
+    private JPopupMenu popupGoiY = new JPopupMenu();
 
     public KVLT() {
         $$$setupUI$$$();
@@ -112,9 +115,12 @@ public class KVLT extends JPanel {
                     if (dcFull.getMaDiaChi().equals(maDCCanTim)) {
                         kv.setDiaChi(dcFull);
                         StringBuilder sb = new StringBuilder();
-                        if (dcFull.getSoNha() != null && !dcFull.getSoNha().isEmpty()) sb.append(dcFull.getSoNha()).append(", ");
-                        if (dcFull.getDuong() != null && !dcFull.getDuong().isEmpty()) sb.append(dcFull.getDuong()).append(", ");
-                        if (dcFull.getPhuong() != null && !dcFull.getPhuong().isEmpty()) sb.append(dcFull.getPhuong()).append(", ");
+                        if (dcFull.getSoNha() != null && !dcFull.getSoNha().isEmpty())
+                            sb.append(dcFull.getSoNha()).append(", ");
+                        if (dcFull.getDuong() != null && !dcFull.getDuong().isEmpty())
+                            sb.append(dcFull.getDuong()).append(", ");
+                        if (dcFull.getPhuong() != null && !dcFull.getPhuong().isEmpty())
+                            sb.append(dcFull.getPhuong()).append(", ");
                         if (dcFull.getTinh() != null && !dcFull.getTinh().isEmpty()) sb.append(dcFull.getTinh());
 
                         diaChiHienThi = sb.toString();
@@ -181,7 +187,39 @@ public class KVLT extends JPanel {
         btnCapNhat.addActionListener(e -> capNhatKhuVuc());
         btnTimKiem.addActionListener(e -> timKiemKhuVuc());
         btnThoat.addActionListener(e -> thoatForm());
+        textLoc.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String keyword = textLoc.getText().trim().toLowerCase();
 
+                if (!keyword.isEmpty()) {
+                    ArrayList<KhuVucLuuTru_DTO> listGoiY = new ArrayList<>();
+
+                    for (KhuVucLuuTru_DTO kv : bus.getAll()) {
+                        String trangThaiStr = "";
+                        if (kv.getTrangThai() == 1) trangThaiStr = "còn trống";
+                        else if (kv.getTrangThai() == 2) trangThaiStr = "đã đầy";
+                        else trangThaiStr = "bảo trì ngừng";
+
+                        String thongTinTongHop = String.format("%s %s %d %d %s %s",
+                                kv.getMaKVLT() != null ? kv.getMaKVLT() : "",
+                                kv.getTenKVLT() != null ? kv.getTenKVLT() : "",
+                                kv.getSucChua(),
+                                kv.getHienCo(),
+                                kv.getNgayLapKho() != null ? kv.getNgayLapKho().toString() : "",
+                                trangThaiStr
+                        ).toLowerCase();
+                        if (thongTinTongHop.contains(keyword)) {
+                            listGoiY.add(kv);
+                        }
+                    }
+
+                    hienThiGoiYKVLT(listGoiY);
+                } else {
+                    popupGoiY.setVisible(false);
+                }
+            }
+        });
     }
 
 
@@ -406,6 +444,68 @@ public class KVLT extends JPanel {
         }
 
         sorter.setRowFilter(RowFilter.andFilter(filters));
+    }
+
+    private void hienThiGoiYKVLT(ArrayList<KhuVucLuuTru_DTO> list) {
+        popupGoiY.setVisible(false);
+        popupGoiY.removeAll();
+
+        if (list == null || list.isEmpty()) return;
+
+        JPanel panelNoiDung = new JPanel();
+        panelNoiDung.setLayout(new BoxLayout(panelNoiDung, BoxLayout.Y_AXIS));
+        panelNoiDung.setBackground(Color.WHITE);
+
+        for (KhuVucLuuTru_DTO kv : list) {
+            JButton btnItem = new JButton(kv.getMaKVLT() + " - " + kv.getTenKVLT());
+            btnItem.setAlignmentX(Component.LEFT_ALIGNMENT);
+            btnItem.setHorizontalAlignment(SwingConstants.LEFT);
+            btnItem.setMargin(new Insets(2, 10, 2, 10));
+            btnItem.setBorderPainted(false);
+            btnItem.setContentAreaFilled(false);
+            btnItem.setFocusPainted(false);
+            btnItem.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            btnItem.setPreferredSize(new Dimension(textLoc.getWidth(), 30));
+            btnItem.setMaximumSize(new Dimension(textLoc.getWidth(), 30));
+
+            btnItem.addActionListener(e -> {
+                textLoc.setText(kv.getMaKVLT());
+                popupGoiY.setVisible(false);
+                timKiemKhuVuc();
+            });
+
+            btnItem.addMouseListener(new MouseAdapter() {
+                public void mouseEntered(MouseEvent evt) {
+                    btnItem.setContentAreaFilled(true);
+                    btnItem.setBackground(new Color(240, 240, 240));
+                }
+
+                public void sweep(MouseEvent evt) {
+
+                }
+
+                public void mouseExited(MouseEvent evt) {
+                    btnItem.setContentAreaFilled(false);
+                }
+            });
+
+            panelNoiDung.add(btnItem);
+        }
+
+        JScrollPane scrollPane = new JScrollPane(panelNoiDung);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
+        scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
+
+        int height = Math.min(list.size() * 30, 150);
+        scrollPane.setPreferredSize(new Dimension(textLoc.getWidth(), height));
+
+        popupGoiY.setFocusable(false);
+        popupGoiY.add(scrollPane);
+        popupGoiY.show(textLoc, 0, textLoc.getHeight());
+
+        scrollPane.setFocusable(false);
     }
 
     private void thoatForm() {

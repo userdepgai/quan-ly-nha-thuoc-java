@@ -19,6 +19,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -56,6 +58,9 @@ public class NCC extends JPanel {
     private NhaCungCap_BUS bus = NhaCungCap_BUS.getInstance();
     private boolean isAdding = false;
     private boolean isUpdating = false;
+    private boolean isAddingSP = false;
+    private boolean isUpdatingSP = false;
+    private JPopupMenu popupGoiY = new JPopupMenu();
 
     public NCC() {
         $$$setupUI$$$();
@@ -250,15 +255,51 @@ public class NCC extends JPanel {
         btnCapNhat.addActionListener(e -> capNhatNCC());
         btnTimKiem.addActionListener(e -> timKiemNCC());
         btnThoat.addActionListener(e -> thoatForm());
+
+        btnThem.addActionListener(e -> themSanPhamChoNCC());
+        btnSua.addActionListener(e -> suaSanPhamChoNCC());
+        btnHuy.addActionListener(e -> xoaSanPhamChoNCC());
+
         tableChiTiet.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int row = tableChiTiet.getSelectedRow();
-                textMaSP.setText(tableChiTiet.getValueAt(row, 1).toString());
-                textTenSP.setText(tableChiTiet.getValueAt(row, 2).toString());
-                textGiaBan.setText(tableChiTiet.getValueAt(row, 3).toString());
-                String tt = tableChiTiet.getValueAt(row, 4).toString();
-                comboBox1.setSelectedIndex(tt.equals("CÒN_CUNG_CẤP") ? 0 : 1);
-                textMaSP.setEditable(false);
+                if (row >= 0) {
+                    textMaSP.setText(tableChiTiet.getValueAt(row, 1).toString());
+                    textTenSP.setText(tableChiTiet.getValueAt(row, 2).toString());
+                    textGiaBan.setText(tableChiTiet.getValueAt(row, 3).toString());
+                    String tt = tableChiTiet.getValueAt(row, 4).toString();
+                    comboBox1.setSelectedIndex(tt.equals("CÒN_CUNG_CẤP") ? 0 : 1);
+
+                    setKhoaFormSP(true);
+                    isAddingSP = false;
+                    isUpdatingSP = false;
+                    btnThem.setText("THÊM");
+                    btnSua.setText("SỬA");
+                    btnThem.setEnabled(true);
+                    btnSua.setEnabled(true);
+                    btnHuy.setEnabled(true);
+                }
+            }
+        });
+        textLoc.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String keyword = textLoc.getText().trim().toLowerCase();
+
+                if (!keyword.isEmpty()) {
+                    ArrayList<NhaCungCap_DTO> listGoiY = new ArrayList<>();
+
+                    for (NhaCungCap_DTO ncc : bus.getAll()) {
+                        if (ncc.getTenNCC().toLowerCase().contains(keyword) ||
+                                ncc.getMaNCC().toLowerCase().contains(keyword)) {
+                            listGoiY.add(ncc);
+                        }
+                    }
+
+                    hienThiGoiYNCC(listGoiY);
+                } else {
+                    popupGoiY.setVisible(false);
+                }
             }
         });
     }
@@ -285,13 +326,21 @@ public class NCC extends JPanel {
         tableDanhSach.clearSelection();
     }
 
+    private void setKhoaFormSP(boolean isLocked) {
+        textMaSP.setEditable(!isLocked);
+        textTenSP.setEditable(!isLocked);
+        textGiaBan.setEditable(!isLocked);
+        comboBox1.setEnabled(!isLocked);
+    }
+
     private void lamMoiFormSanPham() {
         textMaSP.setText("");
         textTenSP.setText("");
         textGiaBan.setText("");
-        textMaSP.setEditable(true);
         comboBox1.setSelectedIndex(0);
+        tableChiTiet.clearSelection();
     }
+
     private void hienThiChiTiet() {
         int selectedRow = tableDanhSach.getSelectedRow();
         if (selectedRow >= 0) {
@@ -321,6 +370,28 @@ public class NCC extends JPanel {
             isAdding = false;
             isUpdating = false;
         }
+        textLoc.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String keyword = textLoc.getText().trim().toLowerCase();
+
+                if (!keyword.isEmpty()) {
+                    ArrayList<NhaCungCap_DTO> listGoiY = new ArrayList<>();
+
+                    for (NhaCungCap_DTO ncc : bus.getAll()) {
+                        if (ncc.getTenNCC().toLowerCase().contains(keyword) ||
+                                ncc.getMaNCC().toLowerCase().contains(keyword)) {
+                            listGoiY.add(ncc);
+                        }
+                    }
+
+
+                    hienThiGoiYNCC(listGoiY);
+                } else {
+                    popupGoiY.setVisible(false);
+                }
+            }
+        });
     }
 
     private void themNCC() {
@@ -484,6 +555,20 @@ public class NCC extends JPanel {
     }
 
     private void themSanPhamChoNCC() {
+
+        if (!isAddingSP) {
+            isAddingSP = true;
+            isUpdatingSP = false;
+
+            lamMoiFormSanPham();
+            setKhoaFormSP(false);
+
+            btnThem.setText("Lưu");
+            btnSua.setEnabled(false);
+            btnHuy.setEnabled(false);
+            return;
+        }
+
         String maNCC = textMa.getText().trim();
         String maSP = textMaSP.getText().trim();
         String giaNhapStr = textGiaBan.getText().trim();
@@ -506,6 +591,13 @@ public class NCC extends JPanel {
                 JOptionPane.showMessageDialog(this, "Thêm sản phẩm thành công!");
                 loadSanPhamTheoNCC(maNCC);
                 lamMoiFormSanPham();
+
+
+                isAddingSP = false;
+                setKhoaFormSP(true);
+                btnThem.setText("THÊM");
+                btnSua.setEnabled(true);
+                btnHuy.setEnabled(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Sản phẩm này đã tồn tại trong danh sách của NCC!");
             }
@@ -521,37 +613,76 @@ public class NCC extends JPanel {
             return;
         }
 
-        String maNCC = textMa.getText().trim();
-        String maSP = textMaSP.getText().trim();
-        double giaMoi = Double.parseDouble(textGiaBan.getText().trim());
-        int trangThai = comboBox1.getSelectedIndex() == 0 ? 1 : 0;
+        if (!isUpdatingSP) {
+            isUpdatingSP = true;
+            isAddingSP = false;
 
-        SanPhamNCC_DTO spNcc = new SanPhamNCC_DTO(maNCC, maSP, giaMoi, trangThai);
-        SanPhamNCC_BUS spNccBus = SanPhamNCC_BUS.getInstance();
+            setKhoaFormSP(false);
+            textMaSP.setEditable(false);
+            textTenSP.setEditable(false);
 
-        if (spNccBus.update(spNcc)) {
-            JOptionPane.showMessageDialog(this, "Cập nhật sản phẩm thành công!");
-            loadSanPhamTheoNCC(maNCC);
+            btnSua.setText("Lưu");
+            btnThem.setEnabled(false);
+            btnHuy.setEnabled(false);
+            return;
+        }
+
+
+        try {
+            String maNCC = textMa.getText().trim();
+            String maSP = textMaSP.getText().trim();
+            double giaMoi = Double.parseDouble(textGiaBan.getText().trim());
+            int trangThai = comboBox1.getSelectedIndex() == 0 ? 1 : 0;
+
+            // Đã đổi sang dùng hàm set... để không bao giờ bị ngược dữ liệu
+            SanPhamNCC_DTO spNcc = new SanPhamNCC_DTO();
+            spNcc.setMaNCC(maNCC);
+            spNcc.setMaSanPham(maSP);
+            spNcc.setGiaNhap(giaMoi);
+            spNcc.setTrangThai(trangThai);
+
+            SanPhamNCC_BUS spNccBus = SanPhamNCC_BUS.getInstance();
+
+            if (spNccBus.update(spNcc)) {
+                JOptionPane.showMessageDialog(this, "Cập nhật sản phẩm thành công!");
+                loadSanPhamTheoNCC(maNCC);
+
+
+                isUpdatingSP = false;
+                setKhoaFormSP(true);
+                btnSua.setText("SỬA");
+                btnThem.setEnabled(true);
+                btnHuy.setEnabled(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Cập nhật thất bại! Không tìm thấy sản phẩm này của NCC trong Database.");
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Giá bán không hợp lệ! Vui lòng chỉ nhập số.");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi hệ thống: " + ex.getMessage());
         }
     }
 
     private void xoaSanPhamChoNCC() {
         int row = tableChiTiet.getSelectedRow();
         if (row < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm cần hủy!");
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm cần xóa!");
             return;
         }
 
-        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn ngừng nhập sản phẩm này từ NCC?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa sản phẩm này khỏi NCC?", "Xác nhận", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             String maNCC = textMa.getText().trim();
             String maSP = tableChiTiet.getValueAt(row, 1).toString();
 
             SanPhamNCC_BUS spNccBus = SanPhamNCC_BUS.getInstance();
             if (spNccBus.delete(maNCC, maSP)) {
-                JOptionPane.showMessageDialog(this, "Đã hủy sản phẩm!");
+                JOptionPane.showMessageDialog(this, "Đã xóa sản phẩm thành công!");
                 loadSanPhamTheoNCC(maNCC);
                 lamMoiFormSanPham();
+            } else {
+                JOptionPane.showMessageDialog(this, "Lỗi: Không thể xóa sản phẩm!");
             }
         }
     }
@@ -562,6 +693,63 @@ public class NCC extends JPanel {
         }
     }
 
+    private void hienThiGoiYNCC(ArrayList<NhaCungCap_DTO> list) {
+        popupGoiY.setVisible(false);
+        popupGoiY.removeAll();
+
+        if (list == null || list.isEmpty()) return;
+
+        JPanel panelNoiDung = new JPanel();
+        panelNoiDung.setLayout(new BoxLayout(panelNoiDung, BoxLayout.Y_AXIS));
+        panelNoiDung.setBackground(Color.WHITE);
+
+        for (NhaCungCap_DTO ncc : list) {
+            JButton btnItem = new JButton(ncc.getMaNCC() + " - " + ncc.getTenNCC());
+            btnItem.setAlignmentX(Component.LEFT_ALIGNMENT);
+            btnItem.setHorizontalAlignment(SwingConstants.LEFT);
+            btnItem.setMargin(new Insets(2, 10, 2, 10));
+            btnItem.setBorderPainted(false);
+            btnItem.setContentAreaFilled(false);
+            btnItem.setFocusPainted(false);
+            btnItem.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+
+            btnItem.setPreferredSize(new Dimension(textLoc.getWidth(), 30));
+            btnItem.setMaximumSize(new Dimension(textLoc.getWidth(), 30));
+
+            btnItem.addActionListener(e -> {
+                textLoc.setText(ncc.getMaNCC());
+                popupGoiY.setVisible(false);
+                timKiemNCC();
+            });
+            btnItem.addMouseListener(new MouseAdapter() {
+                public void mouseEntered(MouseEvent evt) {
+                    btnItem.setContentAreaFilled(true);
+                    btnItem.setBackground(new Color(240, 240, 240));
+                }
+
+                public void mouseExited(MouseEvent evt) {
+                    btnItem.setContentAreaFilled(false);
+                }
+            });
+
+            panelNoiDung.add(btnItem);
+        }
+
+        JScrollPane scrollPane = new JScrollPane(panelNoiDung);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
+        scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
+
+
+        int height = Math.min(list.size() * 30, 150);
+        scrollPane.setPreferredSize(new Dimension(textLoc.getWidth(), height));
+        popupGoiY.setFocusable(false);
+        popupGoiY.add(scrollPane);
+        popupGoiY.show(textLoc, 0, textLoc.getHeight());
+
+        scrollPane.setFocusable(false);
+    }
 
     /**
      * Method generated by IntelliJ IDEA GUI Designer
