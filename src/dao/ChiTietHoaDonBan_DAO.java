@@ -1,0 +1,83 @@
+package dao;
+
+import dto.ChiTietHoaDonBan_DTO;
+import DBConnection.DBConnection;
+
+import java.sql.*;
+import java.util.ArrayList;
+
+public class ChiTietHoaDonBan_DAO {
+
+    // ================= GET BY HÓA ĐƠN =================
+    public ArrayList<ChiTietHoaDonBan_DTO> getByMaHD(String maHD) {
+
+        ArrayList<ChiTietHoaDonBan_DTO> list = new ArrayList<>();
+
+        String sql = "SELECT * FROM CHITIETHOADON WHERE Ma_HDB=?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maHD);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                ChiTietHoaDonBan_DTO ct = new ChiTietHoaDonBan_DTO();
+
+                ct.setMaSP(rs.getString("MaSP"));
+                ct.setMaHDB(rs.getString("Ma_HDB"));
+                ct.setMaLo(rs.getString("MaLo"));
+                ct.setMaKhuyenMai(rs.getString("Ma_KM"));
+                ct.setSoLuong(rs.getInt("SoLuong"));
+                ct.setGiaBan(rs.getDouble("GiaBan"));
+                ct.setGiaBanSauApKM(rs.getDouble("GiaBanSauKM"));
+                ct.setThanhTien(rs.getDouble("ThanhTien"));
+
+                list.add(ct);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    // ================= INSERT (NORMAL) =================
+    public boolean insert(ChiTietHoaDonBan_DTO ct) {
+
+        try (Connection conn = DBConnection.getConnection()) {
+            return insert(conn, ct);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    // ================= INSERT (TRANSACTION) =================
+    public boolean insert(Connection conn, ChiTietHoaDonBan_DTO ct)
+            throws SQLException {
+
+        String sql = """
+        INSERT INTO CHITIETHOADONBAN
+        (MaSP, Ma_HDB, MaLo, Ma_KM,
+         SoLuong, GiaBan, GiaBanSauKM, ThanhTien)
+        VALUES (?,?,?,?,?,?,?,?)
+        """;
+
+        PreparedStatement ps = conn.prepareStatement(sql);
+
+        ps.setString(1, ct.getMaSP());
+        ps.setString(2, ct.getMaHDB());
+        ps.setString(3, ct.getMaLo());
+        ps.setString(4, ct.getMaKhuyenMai());
+        ps.setInt(5, ct.getSoLuong());
+        ps.setDouble(6, ct.getGiaBan());
+        ps.setDouble(7, ct.getGiaBanSauApKM());
+        ps.setDouble(8, ct.getThanhTien());
+
+        return ps.executeUpdate() > 0;
+    }
+}

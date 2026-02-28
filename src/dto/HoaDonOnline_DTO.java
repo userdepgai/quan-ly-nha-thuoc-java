@@ -28,6 +28,7 @@ public class HoaDonOnline_DTO extends HoaDonBan_DTO {
             double tienThoi,
             double thueVAT,
             boolean keToa,
+            int loaiHDB,
             String maKhachHang,
             String maVoucher,
             ArrayList<ChiTietHoaDonBan_DTO> ds,
@@ -38,7 +39,7 @@ public class HoaDonOnline_DTO extends HoaDonBan_DTO {
         super(ma, ngayLap, ngayHoanThanh, thanhTien, trangThai, maNhanVien,
                 tinhTrangThanhToan, tongTienGoc, tongGiaTriKhuyenMai,
                 ghiChu, diemThuongQuyDoi, tienNhan, tienThoi,
-                thueVAT, keToa, maKhachHang, maVoucher, ds);
+                thueVAT, keToa,loaiHDB, maKhachHang, maVoucher, ds);
 
         this.maDiaChiGiaoHang = maDiaChiGiaoHang;
         this.phiVanChuyen = phiVanChuyen;

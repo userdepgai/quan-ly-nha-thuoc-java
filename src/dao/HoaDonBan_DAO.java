@@ -1,21 +1,21 @@
 package dao;
 
+import dto.*;
 import DBConnection.DBConnection;
-import dto.HoaDonBan_DTO;
 
 import java.sql.*;
 import java.util.ArrayList;
 
 public class HoaDonBan_DAO {
 
-    // =============================
-    // Lấy toàn bộ hóa đơn
-    // =============================
+    private ChiTietHoaDonBan_DAO ctDAO = new ChiTietHoaDonBan_DAO();
+
+    // ================= GET ALL =================
     public ArrayList<HoaDonBan_DTO> getAll() {
 
         ArrayList<HoaDonBan_DTO> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM HOADONBAN ORDER BY Ma_HDB DESC";
+        String sql = "SELECT * FROM HOADONBAN ORDER BY NgayLap DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -23,13 +23,12 @@ public class HoaDonBan_DAO {
 
             while (rs.next()) {
 
-                HoaDonBan_DTO hd = new HoaDonBan_DTO();
+                HoaDonBan_DTO hd = mapHoaDon(rs);
 
-                hd.setMa(rs.getString("Ma_HDB"));
-                hd.setTrangThai(rs.getInt("TrangThai"));
-                hd.setTinhTrangThanhToan(rs.getInt("TinhTrangThanhToan"));
-                hd.setThanhTien(rs.getDouble("ThanhTien"));
-                hd.setMaNhanVien(rs.getString("Ma_NV"));
+                // load chi tiết
+                hd.setDs_chiTietHDB(
+                        ctDAO.getByMaHD(hd.getMa())
+                );
 
                 list.add(hd);
             }
@@ -40,48 +39,147 @@ public class HoaDonBan_DAO {
 
         return list;
     }
+    public String getNextID() {
 
-    // =============================
-    // Thêm hóa đơn (tạo khung hóa đơn)
-    // =============================
-    public boolean insert(HoaDonBan_DTO hd) {
-
-        String sql =
-                "INSERT INTO HOADONBAN " +
-                        "(Ma_HDB, TrangThai, TinhTrangThanhToan, ThanhTien, Ma_NV) " +
-                        "VALUES (?,?,?,?,?)";
+        String sql = "SELECT MAX(Ma_HDB) FROM HOADONBAN";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
-            ps.setString(1, hd.getMa());
-            ps.setInt(2, hd.getTrangThai());
-            ps.setInt(3, hd.getTinhTrangThanhToan());
-            ps.setDouble(4, hd.getThanhTien());
-            ps.setString(5, hd.getMaNhanVien());
+            if (rs.next()) {
+                String lastID = rs.getString(1);
 
-            return ps.executeUpdate() > 0;
+                if (lastID == null) return "HDB00000001";
+
+                int num = Integer.parseInt(lastID.substring(3));
+                return String.format("HDB%08d", num + 1);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        return "HDB000001";
+    }
+    // ================= GET BY ID =================
+    public HoaDonBan_DTO getById(String maHD) {
+
+        String sql = "SELECT * FROM HOADONBAN WHERE Ma_HDB=?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maHD);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                HoaDonBan_DTO hd = mapHoaDon(rs);
+
+                hd.setDs_chiTietHDB(
+                        ctDAO.getByMaHD(maHD)
+                );
+
+                return hd;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    // ================= INSERT =================
+    public boolean them(HoaDonBan_DTO hd) {
+
+        String sql = """
+            INSERT INTO HOADONBAN(
+                Ma_HDB,
+                NgayLap,
+                TinhTrangThanhToan,
+                KeToa,
+                TongTienGoc,
+                TongGiaTri_KM,
+                DiemThuongQuyDoi,
+                ThanhTien,
+                TienNhan,
+                TienThoi,
+                GhiChu,
+                ThueVAT,
+                TrangThai,
+                Ma_NV,
+                Ma_KH,
+                MaVoucher,
+                LoaiHDB
+            )
+            VALUES ( ?,GETDATE(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )
+            """;
+
+        Connection conn = null;
+
+        try {
+
+            conn = DBConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, hd.getMa());
+            ps.setInt(2, hd.getTinhTrangThanhToan());
+            ps.setBoolean(3, hd.isKeToa());
+            ps.setDouble(4, hd.getTongTienGoc());
+            ps.setDouble(5, hd.getTongGiaTriKhuyenMai());
+            ps.setInt(6, hd.getDiemThuongQuyDoi());
+            ps.setDouble(7, hd.getThanhTien());
+            ps.setDouble(8, hd.getTienNhan());
+            ps.setDouble(9, hd.getTienThoi());
+            ps.setString(10, hd.getGhiChu());
+            ps.setDouble(11, hd.getThueVAT());
+            ps.setInt(12, hd.getTrangThai());
+            ps.setString(13, hd.getMaNhanVien());
+            ps.setString(14, hd.getMaKhachHang());
+            ps.setString(15, hd.getMaVoucher());
+            ps.setInt(16, hd.getLoaiHDB());
+
+            ps.executeUpdate();
+
+            // ===== insert chi tiết =====
+            for (ChiTietHoaDonBan_DTO ct : hd.getDs_chiTietHDB()) {
+                ct.setMaHDB(hd.getMa());
+                ctDAO.insert(conn, ct);
+            }
+
+            conn.commit();
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            try { if (conn != null) conn.rollback(); } catch (Exception ignored) {}
+        }
+
         return false;
     }
 
-    // =============================
-    // Update trạng thái hóa đơn
-    // =============================
-    public boolean updateTrangThai(String maHD, int trangThai) {
+    // ================= UPDATE TRẠNG THÁI =================
+    public boolean capNhatTrangThai(String maHD, int trangThai) {
 
-        String sql =
-                "UPDATE HOADONBAN SET TrangThai=? WHERE Ma_HDB=?";
+        String sql = """
+                UPDATE HOADONBAN
+                SET TrangThai=?,
+                    NgayHoanThanh=
+                        CASE WHEN ?=1 THEN GETDATE()
+                             ELSE NgayHoanThanh END
+                WHERE Ma_HDB=?
+                """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, trangThai);
-            ps.setString(2, maHD);
+            ps.setInt(2, trangThai);
+            ps.setString(3, maHD);
 
             return ps.executeUpdate() > 0;
 
@@ -92,26 +190,36 @@ public class HoaDonBan_DAO {
         return false;
     }
 
-    // =============================
-    // Update tình trạng thanh toán
-    // =============================
-    public boolean updateThanhToan(String maHD, int tinhTrang) {
+    // ================= MAP RESULTSET =================
+    private HoaDonBan_DTO mapHoaDon(ResultSet rs) throws SQLException {
 
-        String sql =
-                "UPDATE HOADONBAN SET TinhTrangThanhToan=? WHERE Ma_HDB=?";
+        HoaDonBan_DTO hd = new HoaDonBan_DTO();
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        hd.setMa(rs.getString("Ma_HDB"));
 
-            ps.setInt(1, tinhTrang);
-            ps.setString(2, maHD);
+        Timestamp lap = rs.getTimestamp("NgayLap");
+        if (lap != null)
+            hd.setNgayLap(lap.toLocalDateTime());
 
-            return ps.executeUpdate() > 0;
+        Timestamp ht = rs.getTimestamp("NgayHoanThanh");
+        if (ht != null)
+            hd.setNgayHoanThanh(ht.toLocalDateTime());
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        hd.setTrangThai(rs.getInt("TrangThai"));
+        hd.setTinhTrangThanhToan(rs.getInt("TinhTrangThanhToan"));
+        hd.setTongTienGoc(rs.getDouble("TongTienGoc"));
+        hd.setTongGiaTriKhuyenMai(rs.getDouble("TongGiaTri_KM"));
+        hd.setThanhTien(rs.getDouble("ThanhTien"));
+        hd.setTienNhan(rs.getDouble("TienNhan"));
+        hd.setTienThoi(rs.getDouble("TienThoi"));
+        hd.setThueVAT(rs.getDouble("ThueVAT"));
+        hd.setGhiChu(rs.getString("GhiChu"));
+        hd.setLoaiHDB(rs.getInt("LoaiHDB"));
+        hd.setMaNhanVien(rs.getString("Ma_NV"));
+        hd.setMaKhachHang(rs.getString("Ma_KH"));
+        hd.setMaVoucher(rs.getString("MaVoucher"));
+        hd.setKeToa(rs.getBoolean("KeToa"));
 
-        return false;
+        return hd;
     }
 }

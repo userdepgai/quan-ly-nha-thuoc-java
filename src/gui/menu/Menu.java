@@ -4,7 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import dto.MenuItem;
 import gui.*;
+import gui.HOADON_GUI.DuyetDonHang_GUI;
 import gui.HOADON_GUI.LapHoaDon_GUI;
+import gui.HOADON_GUI.QuanLyHoaDonBan_GUI;
 import gui.HOADON_GUI.XuatHoaDon_GUI;
 
 public class Menu extends JFrame {
@@ -83,8 +85,8 @@ public class Menu extends JFrame {
         contentPanel.add(createContent("Báo cáo"), "baocao");
 
         contentPanel.add(new LapHoaDon_GUI(), "banhang");
-        contentPanel.add(createContent("Duyệt hóa đơn online"), "duyethd");
-        contentPanel.add(new XuatHoaDon_GUI(), "hoadon");
+        contentPanel.add(new DuyetDonHang_GUI() , "duyethd");
+        contentPanel.add(new QuanLyHoaDonBan_GUI(), "hoadon");
 
         contentPanel.add(createContent("Danh mục sản phẩm"), "danhMuc");
         contentPanel.add(createContent("Thuộc tính danh mục"), "thuocTinhDanhMuc");
@@ -151,9 +153,21 @@ public class Menu extends JFrame {
         panel.add(label, BorderLayout.CENTER);
         return panel;
     }
+    /*
     private Icon icon(String name) {
         return new ImageIcon(getClass().getResource("/icons/" + name));
     }
+    */
+    private Icon icon(String name) {
+        java.net.URL url =
+                getClass().getClassLoader().getResource("icons/" + name);
 
+        if (url == null) {
+            System.out.println("Khong tim thay icon: " + name);
+            return null;
+        }
+
+        return new ImageIcon(url);
+    }
 }
 
