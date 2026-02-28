@@ -1,13 +1,13 @@
 package dto;
 
-public class DanhMucSanPham_DTO {
+public class DanhMuc_DTO {
     private String maDM;
     private String tenDM;
     private int trangThai;
 
-    public DanhMucSanPham_DTO() {}
+    public DanhMuc_DTO() {}
 
-    public DanhMucSanPham_DTO(String maDM, String tenDM, int trangThai) {
+    public DanhMuc_DTO(String maDM, String tenDM, int trangThai) {
         this.maDM = maDM;
         this.tenDM = tenDM;
         this.trangThai = trangThai;
