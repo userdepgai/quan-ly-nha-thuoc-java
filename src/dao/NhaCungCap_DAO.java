@@ -85,5 +85,31 @@ public class NhaCungCap_DAO {
         }
         return false;
     }
+    public String getNextId() {
 
+        String sql = "SELECT Ma_NCC FROM NHACUNGCAP";
+        int max = 0;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while(rs.next()) {
+                String ma = rs.getString(1);
+                if (ma != null) {
+                    // Dùng Regex xóa hết chữ, chỉ giữ lại số (Ví dụ: "NCC001" hay "NCC_001" đều thành "001")
+                    String numStr = ma.replaceAll("[^\\d]", "");
+                    if (!numStr.isEmpty()) {
+                        int num = Integer.parseInt(numStr);
+                        if (num > max) {
+                            max = num;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return String.format("NCC%03d", max + 1);
+    }
 }

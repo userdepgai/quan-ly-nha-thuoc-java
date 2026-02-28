@@ -92,76 +92,61 @@ public class KVLT extends JPanel {
         ArrayList<KhuVucLuuTru_DTO> list = bus.getAll();
         if (list == null || list.isEmpty()) return;
 
+        DiaChi_DAO diaChiDAO = new DiaChi_DAO();
+        ArrayList<DIACHI_DTO> listTatCaDiaChi = diaChiDAO.getAll();
+
         int stt = 1;
         for (KhuVucLuuTru_DTO kv : list) {
-            String trangThaiText = "";
+            String trangThaiText = switch (kv.getTrangThai()) {
+                case 0 -> "Bảo trì/Ngừng";
+                case 1 -> "Còn trống";
+                case 2 -> "Đã đầy";
+                default -> "Lỗi TT: " + kv.getTrangThai();
+            };
 
-            switch (kv.getTrangThai()) {
-                case 0:
-                    trangThaiText = "Bảo trì/Ngừng";
-                    break;
-                case 1:
-                    trangThaiText = "Còn trống";
-                    break;
-                case 2:
-                    trangThaiText = "Đã đầy";
-                    break;
-                default:
-                    trangThaiText = "Lỗi TT: " + kv.getTrangThai();
-                    break;
-            }
-            DiaChi_DAO diaChiDAO = new DiaChi_DAO();
-            ArrayList<DIACHI_DTO> listTatCaDiaChi = diaChiDAO.getAll();
             String diaChiHienThi = "";
-
-
             if (kv.getDiaChi() != null && kv.getDiaChi().getMaDiaChi() != null) {
                 String maDCCanTim = kv.getDiaChi().getMaDiaChi();
 
-
                 for (DIACHI_DTO dcFull : listTatCaDiaChi) {
                     if (dcFull.getMaDiaChi().equals(maDCCanTim)) {
-
                         kv.setDiaChi(dcFull);
-
-
                         StringBuilder sb = new StringBuilder();
-                        if (dcFull.getSoNha() != null && !dcFull.getSoNha().isEmpty())
-                            sb.append(dcFull.getSoNha()).append(", ");
-                        if (dcFull.getDuong() != null && !dcFull.getDuong().isEmpty())
-                            sb.append(dcFull.getDuong()).append(", ");
-                        if (dcFull.getPhuong() != null && !dcFull.getPhuong().isEmpty())
-                            sb.append(dcFull.getPhuong()).append(", ");
+                        if (dcFull.getSoNha() != null && !dcFull.getSoNha().isEmpty()) sb.append(dcFull.getSoNha()).append(", ");
+                        if (dcFull.getDuong() != null && !dcFull.getDuong().isEmpty()) sb.append(dcFull.getDuong()).append(", ");
+                        if (dcFull.getPhuong() != null && !dcFull.getPhuong().isEmpty()) sb.append(dcFull.getPhuong()).append(", ");
                         if (dcFull.getTinh() != null && !dcFull.getTinh().isEmpty()) sb.append(dcFull.getTinh());
 
                         diaChiHienThi = sb.toString();
-
-
                         if (diaChiHienThi.endsWith(", ")) {
                             diaChiHienThi = diaChiHienThi.substring(0, diaChiHienThi.length() - 2);
                         }
                         break;
                     }
                 }
-                modelKVLT.addRow(new Object[]{
-                        stt++,
-                        kv.getMaKVLT(),
-                        kv.getTenKVLT(),
-                        kv.getSucChua(),
-                        kv.getHienCo(),
-                        kv.getNgayLapKho(),
-                        diaChiHienThi,
-                        trangThaiText
-                });
             }
+
+
+            modelKVLT.addRow(new Object[]{
+                    stt++,
+                    kv.getMaKVLT(),
+                    kv.getTenKVLT(),
+                    kv.getSucChua(),
+                    kv.getHienCo(),
+                    kv.getNgayLapKho(),
+                    diaChiHienThi,
+                    trangThaiText
+            });
         }
     }
+
     private void fixColumnWidth(JTable table, int columnIndex, int width) {
         TableColumn column = table.getColumnModel().getColumn(columnIndex);
         column.setPreferredWidth(width);
         column.setMinWidth(width);
         column.setMaxWidth(width);
     }
+
     private void setupTableProperties(JTable table) {
         table.getTableHeader().setReorderingAllowed(false);
         table.setFillsViewportHeight(true);
@@ -287,22 +272,41 @@ public class KVLT extends JPanel {
                 kv.setNgayLapKho(new Date(System.currentTimeMillis()));
                 kv.setTrangThai(comboBoxTthai.getSelectedIndex() + 1);
 
-                DIACHI_DTO dc = new DIACHI_DTO();
-                dc.setSoNha(textDCHI.getText().trim());
-                dc.setDuong("");
-                dc.setPhuong("");
-                dc.setTinh("");
-                kv.setDiaChi(dc);
+                String diaChiNhapVao = textDCHI.getText().trim();
+                if (!diaChiNhapVao.isEmpty()) {
+                    DiaChi_DAO dcDao = new DiaChi_DAO();
+                    DIACHI_DTO dcMoi = new DIACHI_DTO();
+
+
+                    dcMoi.setMaDiaChi(dcDao.getNextId());
+                    dcMoi.setSoNha(diaChiNhapVao);
+                    dcMoi.setDuong("");
+                    dcMoi.setPhuong("");
+                    dcMoi.setTinh("");
+
+                    if (dcDao.them(dcMoi)) {
+                        kv.setDiaChi(dcMoi);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Lỗi: Không thể tạo mới Địa Chỉ trong CSDL!");
+                        return;
+                    }
+                }
 
                 if (bus.insert(kv)) {
+                    JOptionPane.showMessageDialog(this, "Thêm khu vực thành công!");
                     loadDataToTableKVLT();
                     lamMoiForm();
                     setKhoaForm(true);
-                    btnThemKV.setText("Thêm ");
+                    btnThemKV.setText("Thêm");
                     btnCapNhat.setEnabled(true);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Thêm khu vực thất bại!");
                 }
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập số hợp lệ!");
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập số hợp lệ vào ô Sức Chứa!");
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Lỗi dữ liệu: " + e.getMessage());
             }
         }
     }
@@ -313,32 +317,64 @@ public class KVLT extends JPanel {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn khu vực!");
             return;
         }
-
         if (btnCapNhat.getText().trim().equals("Cập Nhật")) {
             setKhoaForm(false);
-            textMa.setEditable(false);
+            textMa.setEditable(false); // Khóa mã không cho sửa
             btnCapNhat.setText("Xác nhận Sửa");
             btnThemKV.setEnabled(false);
         } else {
             try {
-                int modelRow = tableDanhSach.convertRowIndexToModel(selectedRow);
                 KhuVucLuuTru_DTO kv = bus.getById(textMa.getText().trim());
 
+                if (kv == null) {
+                    JOptionPane.showMessageDialog(this, "Không tìm thấy khu vực lưu trữ này trong CSDL!");
+                    return;
+                }
                 kv.setTenKVLT(textTen.getText().trim());
                 kv.setSucChua(Integer.parseInt(textSucChua.getText().trim()));
                 kv.setTrangThai(comboBoxTthai.getSelectedIndex() + 1);
-                if (kv.getDiaChi() != null) {
-                    kv.getDiaChi().setSoNha(textDCHI.getText().trim());
+
+
+                String diaChiNhapVao = textDCHI.getText().trim();
+                DiaChi_DAO dcDao = new DiaChi_DAO();
+
+                if (kv.getDiaChi() != null && kv.getDiaChi().getMaDiaChi() != null) {
+                    kv.getDiaChi().setSoNha(diaChiNhapVao);
+                    kv.getDiaChi().setDuong("");
+                    kv.getDiaChi().setPhuong("");
+                    kv.getDiaChi().setTinh("");
+
+                    dcDao.capNhat(kv.getDiaChi());
+                } else {
+                    if (!diaChiNhapVao.isEmpty()) {
+                        DIACHI_DTO dcMoi = new DIACHI_DTO();
+                        dcMoi.setMaDiaChi(dcDao.getNextId());
+                        dcMoi.setSoNha(diaChiNhapVao);
+                        dcMoi.setDuong("");
+                        dcMoi.setPhuong("");
+                        dcMoi.setTinh("");
+
+                        if (dcDao.them(dcMoi)) {
+                            kv.setDiaChi(dcMoi);
+                        }
+                    }
                 }
 
                 if (bus.update(kv)) {
+                    JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
                     loadDataToTableKVLT();
 
                     setKhoaForm(true);
-                    btnCapNhat.setText("Cập Nhật ");
+                    btnCapNhat.setText("Cập Nhật");
                     btnThemKV.setEnabled(true);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
                 }
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Sức chứa phải là một số nguyên hợp lệ!");
             } catch (Exception e) {
+                e.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Lỗi dữ liệu: " + e.getMessage());
             }
         }

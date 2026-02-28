@@ -42,5 +42,34 @@ public class SanPhamNCC_BUS {
 
         return result;
     }
+    public boolean insert(SanPhamNCC_DTO spNcc) {
+        for (SanPhamNCC_DTO item : listCache) {
+            if (item.getMaNCC().equalsIgnoreCase(spNcc.getMaNCC())
+                    && item.getMaSanPham().equalsIgnoreCase(spNcc.getMaSanPham())) {
+                return false;
+            }
+        }
 
+        if (dao.insert(spNcc)) {
+            refreshData();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean update(SanPhamNCC_DTO spNcc) {
+        if (dao.update(spNcc)) {
+            refreshData();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean delete(String maNCC, String maSP) {
+        if (dao.delete(maNCC, maSP)) {
+            refreshData();
+            return true;
+        }
+        return false;
+    }
 }

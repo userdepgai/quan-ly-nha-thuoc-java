@@ -19,8 +19,8 @@ public class KhuVucLuuTru_DAO {
 
             while (rs.next()) {
                 KhuVucLuuTru_DTO kv = new KhuVucLuuTru_DTO();
-                kv.setMaKVLT(rs.getString("MaKVLT"));
-                kv.setTenKVLT(rs.getString("TenKVLT"));
+                kv.setMaKVLT(rs.getString("Ma_KVLT"));
+                kv.setTenKVLT(rs.getString("Ten_KVLT"));
                 kv.setNgayLapKho(rs.getDate("NgayLapKho"));
                 kv.setSucChua(rs.getInt("SucChua"));
                 kv.setHienCo(rs.getInt("HienCo"));
@@ -38,7 +38,7 @@ public class KhuVucLuuTru_DAO {
     }
 
     public boolean insert(KhuVucLuuTru_DTO kv) {
-        String sql = "INSERT INTO KHUVUCLUUTRU (MaKVLT, TenKVLT, SucChua, HienCo, NgayLapKho, TrangThai, Ma_DC) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO KHUVUCLUUTRU (Ma_KVLT, Ten_KVLT, SucChua, HienCo, NgayLapKho, TrangThai, Ma_DC) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -57,7 +57,7 @@ public class KhuVucLuuTru_DAO {
         return false;
     }
     public boolean update(KhuVucLuuTru_DTO kv) {
-        String sql = "UPDATE KHUVUCLUUTRU SET TenKVLT=?, SucChua=?, HienCo=?, NgayLapKho=?, TrangThai=?, Ma_DC=? WHERE MaKVLT=?";
+        String sql = "UPDATE KHUVUCLUUTRU SET Ten_KVLT=?, SucChua=?, HienCo=?, NgayLapKho=?, TrangThai=?, Ma_DC=? WHERE Ma_KVLT=?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -78,7 +78,7 @@ public class KhuVucLuuTru_DAO {
     }
 
     public boolean updateTrangThai(String maKVLT, int trangThaiMoi) {
-        String sql = "UPDATE KHUVUCLUUTRU SET TrangThai=? WHERE MaKVLT=?";
+        String sql = "UPDATE KHUVUCLUUTRU SET TrangThai=? WHERE Ma_KVLT=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, trangThaiMoi);
@@ -91,7 +91,7 @@ public class KhuVucLuuTru_DAO {
     }
 
     public String getNextId() {
-        String sql = "SELECT MAX(CAST(SUBSTRING(MaKVLT, 3, 4) AS INT)) FROM KHUVUCLUUTRU";
+        String sql = "SELECT MAX(CAST(SUBSTRING(Ma_KVLT, 3, 4) AS INT)) FROM KHUVUCLUUTRU";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
