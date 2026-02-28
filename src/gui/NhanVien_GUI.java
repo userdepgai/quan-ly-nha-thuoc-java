@@ -45,6 +45,8 @@ public class NhanVien_GUI extends JPanel {
     private ButtonGroup groupGioiTinh;
     private JComboBox<String> cmb_chonChucVu;
     private JComboBox<String> cmb_chonTrangThai;
+    private JTextField txt_namSinh;
+
     public NhanVien_GUI() {
 
         this.setLayout(new BorderLayout());
@@ -86,6 +88,15 @@ public class NhanVien_GUI extends JPanel {
                         "Nghỉ"
                 }
         ));
+        txt_namSinh.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!Character.isDigit(c) && c != '-' && c != '\b') {
+                    e.consume();
+                }
+            }
+        });
     }
 
     private void initTable() {
@@ -138,13 +149,18 @@ public class NhanVien_GUI extends JPanel {
     private NhanVien_DTO getFormData(String ma) {
 
         try {
-            String ten = txt_tenNV.getText();
-            String sdt = txt_sdt.getText();
+            String ten = txt_tenNV.getText().trim();
+            String sdt = txt_sdt.getText().trim();
 
-            LocalDate ngaySinh = JDate_ngaySinh.getDate()
-                    .toInstant()
-                    .atZone(java.time.ZoneId.systemDefault())
-                    .toLocalDate();
+            // ====== VALIDATE NGÀY SINH yyyy-MM-dd ======
+            String ngaySinhText = txt_namSinh.getText().trim();
+            if (!ngaySinhText.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                JOptionPane.showMessageDialog(this,
+                        "Ngày sinh phải đúng định dạng yyyy-MM-dd");
+                return null;
+            }
+
+            LocalDate ngaySinh = LocalDate.parse(ngaySinhText);
 
             boolean gioiTinh = rd_nam.isSelected();
 
@@ -155,7 +171,9 @@ public class NhanVien_GUI extends JPanel {
                     .atZone(java.time.ZoneId.systemDefault())
                     .toLocalDate();
 
-            double luong = Double.parseDouble(txt_luongCoBan.getText());
+            double luong = Double.parseDouble(
+                    txt_luongCoBan.getText().replace(",", "")
+            );
 
             int trangThai = cmb_trangThai.getSelectedIndex();
 
@@ -168,7 +186,8 @@ public class NhanVien_GUI extends JPanel {
             );
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Dữ liệu không hợp lệ");
+            JOptionPane.showMessageDialog(this,
+                    "Dữ liệu không hợp lệ hoặc ngày không tồn tại!");
             return null;
         }
     }
@@ -180,8 +199,7 @@ public class NhanVien_GUI extends JPanel {
         txt_tenNV.setText("");
         txt_sdt.setText("");
         txt_luongCoBan.setText("");
-
-        JDate_ngaySinh.setDate(null);
+        txt_namSinh.setText("");
         JDate_ngayVaoLam.setDate(null);
 
         rd_nu.setSelected(true);
@@ -231,17 +249,21 @@ public class NhanVien_GUI extends JPanel {
                                 newModel.addElement(nv.getSdt());
                             break;
 
-                        default:
-                            if (nv.getMa().toLowerCase().contains(text)
-                                    || nv.getTen().toLowerCase().contains(text)
-                                    || nv.getSdt().contains(text)) {
+                        case "Tất cả":
+                            if (nv.getMa().toLowerCase().contains(text))
                                 newModel.addElement(nv.getMa());
-                            }
+
+                            if (nv.getTen().toLowerCase().contains(text))
+                                newModel.addElement(nv.getTen());
+
+                            if (nv.getSdt().contains(text))
+                                newModel.addElement(nv.getSdt());
+                            break;
                     }
                 }
 
                 cmb_timKiem.setModel(newModel);
-                editor.setText(text);
+                cmb_timKiem.setSelectedItem(text);
                 cmb_timKiem.showPopup();
             }
         });
@@ -258,9 +280,7 @@ public class NhanVien_GUI extends JPanel {
                 txt_sdt.setText(model.getValueAt(row, 2).toString());
 
                 try {
-                    java.sql.Date ns =
-                            java.sql.Date.valueOf(model.getValueAt(row, 3).toString());
-                    JDate_ngaySinh.setDate(ns);
+                    txt_namSinh.setText(model.getValueAt(row, 3).toString());
 
                     java.sql.Date nvl =
                             java.sql.Date.valueOf(model.getValueAt(row, 7).toString());
@@ -279,6 +299,16 @@ public class NhanVien_GUI extends JPanel {
                 cmb_chucVu.setSelectedItem(model.getValueAt(row, 5).toString());
                 txt_luongCoBan.setText(model.getValueAt(row, 6).toString());
                 cmb_trangThai.setSelectedItem(model.getValueAt(row, 8).toString());
+
+                if (row < 0) return;
+
+                NhanVien_DTO nv = NhanVien_BUS.getInstance().getAll().get(row);
+
+                String maDC = nv.getMaDiaChi();
+
+                String diaChi = NhanVien_BUS.getInstance().getDiaChiByMaDC(maDC);
+
+                txt_diaChi.setText(diaChi);
             }
         });
         // đổi loại tìm kiếm
@@ -363,6 +393,7 @@ public class NhanVien_GUI extends JPanel {
         for (NhanVien_DTO nv : NhanVien_BUS.getInstance().getAll()) {
 
             switch (loai) {
+
                 case "Mã NV":
                     modelSuggest.addElement(nv.getMa());
                     break;
@@ -375,15 +406,19 @@ public class NhanVien_GUI extends JPanel {
                     modelSuggest.addElement(nv.getSdt());
                     break;
 
-                default:
+                case "Tất cả":
                     modelSuggest.addElement(nv.getMa());
                     modelSuggest.addElement(nv.getTen());
                     modelSuggest.addElement(nv.getSdt());
+                    break;
             }
+            cmb_timKiem.setModel(modelSuggest);
+            cmb_timKiem.setSelectedItem(null);
+            ((JTextField) cmb_timKiem.getEditor().getEditorComponent()).setText("");
         }
 
         cmb_timKiem.setModel(modelSuggest);
-        cmb_timKiem.setSelectedItem(null);
-        ((JTextField) cmb_timKiem.getEditor().getEditorComponent()).setText("");
     }
+
+
 }

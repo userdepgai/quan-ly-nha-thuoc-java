@@ -17,8 +17,8 @@ public class KhachHang_GUI extends JPanel {
     private boolean isAdding = false;
     private boolean isUpdating = false;
     private JPanel panel_khachHang;
-    private JButton btnXuatExcel;
-    private JButton btnNhapExcel;
+    private JButton btn_XuatExcel;
+    private JButton btn_NhapExcel;
     private JButton btn_timKiem;
     private JButton btn_thoat;
     private JComboBox cmb_locTrangThai;
@@ -31,8 +31,6 @@ public class KhachHang_GUI extends JPanel {
     private JRadioButton rd_nu;
     private JRadioButton rd_nam;
     private JTextField txt_diemThuong;
-    private JTextField txt_hang;
-    private JButton btn_hang;
     private JTable table_dsKhachHang;
     private JScrollPane src_dsKhachHang;
     private JTextField txt_diemHang;
@@ -44,6 +42,8 @@ public class KhachHang_GUI extends JPanel {
     private JDateChooser JDate_ngayDKThanhVien;
     private JComboBox cmb_hang;
     private JComboBox cmb_timKiem;
+    private JComboBox cmb_chonHang;
+    private JTextField txt_ngaySin;
     private DefaultTableModel model_dsKhachHang;
     private KhachHang_BUS khBus = KhachHang_BUS.getInstance();
     private DefaultTableModel model;
@@ -75,6 +75,16 @@ public class KhachHang_GUI extends JPanel {
                             "Kim cương"
                     }
             ));
+            cmb_chonHang.setModel(new DefaultComboBoxModel<>(
+                    new String[]{
+                            "--chọn hạng--",
+                            "Đồng",
+                            "Bạc",
+                            "Vàng",
+                            "Kim cương"
+                    }
+            ));
+
             cmb_locTrangThai.setModel(new DefaultComboBoxModel<>(
                     new String[]{
                             "Tất cả",

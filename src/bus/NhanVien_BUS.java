@@ -25,6 +25,7 @@ public class NhanVien_BUS {
     }
 
     public ArrayList<NhanVien_DTO> getAll() {
+        listCache = dao.getAll();
         return listCache;
     }
 
@@ -107,7 +108,6 @@ public class NhanVien_BUS {
             boolean matchChucVu = true;
             boolean matchTrangThai = true;
 
-            // ===== LỌC KEYWORD (mã, tên, sdt) =====
             if (keyword != null && !keyword.trim().isEmpty()) {
                 String kw = keyword.toLowerCase();
                 matchKeyword =
@@ -115,17 +115,19 @@ public class NhanVien_BUS {
                                 nv.getTen().toLowerCase().contains(kw) ||
                                 nv.getSdt().contains(kw);
             }
+
             if (chucVu != null && !chucVu.equals("--chọn chức vụ--")) {
-                matchChucVu = nv.getChucVu().trim().equalsIgnoreCase(chucVu.trim());
+                matchChucVu = nv.getChucVu().trim()
+                        .equalsIgnoreCase(chucVu.trim());
             }
 
-
-            // ===== LỌC TRẠNG THÁI =====
             if (trangThai != null && !trangThai.equals("--chọn trạng thái--")) {
-
                 int tt = trangThai.equals("Đang làm") ? 0 : 1;
-
                 matchTrangThai = nv.getTrangThai() == tt;
+            }
+
+            if (matchKeyword && matchChucVu && matchTrangThai) {
+                result.add(nv);
             }
         }
 
@@ -147,5 +149,8 @@ public class NhanVien_BUS {
                 return nv;
         }
         return null;
+    }
+    public String getDiaChiByMaDC(String maDC) {
+        return NhanVien_DAO.getInstance().getDiaChiByMaDC(maDC);
     }
 }
