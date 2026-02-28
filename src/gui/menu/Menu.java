@@ -153,21 +153,11 @@ public class Menu extends JFrame {
         panel.add(label, BorderLayout.CENTER);
         return panel;
     }
-    /*
+
     private Icon icon(String name) {
         return new ImageIcon(getClass().getResource("/icons/" + name));
     }
-    */
-    private Icon icon(String name) {
-        java.net.URL url =
-                getClass().getClassLoader().getResource("icons/" + name);
 
-        if (url == null) {
-            System.out.println("Khong tim thay icon: " + name);
-            return null;
-        }
 
-        return new ImageIcon(url);
-    }
 }
 

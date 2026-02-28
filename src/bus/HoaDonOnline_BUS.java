@@ -1,113 +1,190 @@
-package bus;
+/*package bus;
 
-import dto.HoaDonOnline_DTO;
+import dao.*;
+import dto.*;
 
 import java.time.LocalDateTime;
-
-public class HoaDonOnline_BUS extends HoaDonBan_BUS {
-
-    private static HoaDonOnline_BUS instance;
-
-    public static HoaDonOnline_BUS getInstance() {
-        if (instance == null)
-            instance = new HoaDonOnline_BUS();
-        return instance;
-    }
-
-    /* =========================================================
-                    TẠO ĐƠN ONLINE
-    ========================================================= */
-    public HoaDonOnline_DTO taoDonOnline(String maKH) {
-
-        HoaDonOnline_DTO hd = new HoaDonOnline_DTO();
+import java.util.ArrayList;
 
 
-        hd.setMa(hoaDonDAO.getNextID());
+  ======================================================
+  HOA DON ONLINE BUS
+  ======================================================
 
-        hd.setNgayLap(LocalDateTime.now());
+public class HoaDonOnline_BUS {
 
+    private HoaDonBan_DAO hoaDonDAO = new HoaDonBan_DAO();
+    private ChiTietHoaDonBan_DAO ctDAO = new ChiTietHoaDonBan_DAO();
+    private LoHang_DAO loDAO = new LoHang_DAO();
+    private KhachHang_DAO khDAO = new KhachHang_DAO();
+
+     ======================================================
+       KHÁCH ĐẶT ONLINE → AUTO TẠO HÓA ĐƠN
+     ======================================================
+    public String taoDonOnline(
+            String maKH,
+            ArrayList<ChiTietHoaDonBan_DTO> dsCT
+    ) {
+
+        HoaDonBan_DTO hd = new HoaDonBan_DTO();
+
+        String maHD = hoaDonDAO.getNextID();
+
+        hd.setMa(maHD);
         hd.setMaKhachHang(maKH);
-
+        hd.setLoaiHDB(1); // ONLINE
         hd.setTrangThai(0); // CHỜ DUYỆT
         hd.setTinhTrangThanhToan(0);
-        hd.setLoaiHDB(1); // ONLINE
+        hd.setNgayLap(LocalDateTime.now());
 
-        dsChiTietTam.clear();
+        double tong = 0;
 
-        return hd;
-    }
-
-    /* =========================================================
-                    DUYỆT HÓA ĐƠN
-                    ⭐ TRỪ LÔ TẠI ĐÂY
-    ========================================================= */
-    public boolean duyetHoaDon(HoaDonOnline_DTO hd, String maNVDuyet) {
-
-        hd.setTrangThai(1);
-        hd.setMaNhanVien(maNVDuyet);
-
-        for (var ct : dsChiTietTam) {
-
-            // TODO khi có Lo_BUS
-            // Lo_BUS.getInstance()
-            //      .truSoLuong(ct.getMaLo(), ct.getSoLuong());
+        for (ChiTietHoaDonBan_DTO ct : dsCT) {
+            tong += ct.getThanhTien();
         }
 
-        // update DB
-        hoaDonDAO.capNhatTrangThai(hd.getMa(), 1);
+        hd.setTongTienGoc(tong);
+        hd.setThanhTien(tong);
 
-        return true;
+        hoaDonDAO.insert(hd);
+
+        for (ChiTietHoaDonBan_DTO ct : dsCT) {
+            ct.setMaHDB(maHD);
+            ctDAO.insert(ct);
+        }
+
+        return maHD;
     }
 
-    /* =========================================================
-                    GIAO HÀNG
-    ========================================================= */
-    public void giaoHang(HoaDonOnline_DTO hd) {
+     ======================================================
+       NHÂN VIÊN DUYỆT ĐƠN
+     ======================================================
+    public void duyetDon(String maHD) {
 
-        hd.setTrangThai(2);
-        hoaDonDAO.capNhatTrangThai(hd.getMa(), 2);
+        HoaDonBan_DTO hd = hoaDonDAO.getById(maHD);
+
+        if (hd == null)
+            throw new RuntimeException("Không tìm thấy hóa đơn");
+
+        if (hd.getTrangThai() != 0)
+            throw new RuntimeException("Đơn không hợp lệ");
+
+        ArrayList<ChiTietHoaDonBan_DTO> ds =
+                ctDAO.getByMaHD(maHD);
+
+        // kiểm tra tồn kho
+        for (ChiTietHoaDonBan_DTO ct : ds) {
+
+            boolean duHang =
+                    loDAO.kiemTraTonKho(ct.getMaSP(), ct.getSoLuong());
+
+            if (!duHang)
+                throw new RuntimeException(
+                        "Không đủ hàng: " + ct.getMaSP());
+        }
+
+        // trừ kho FIFO
+        for (ChiTietHoaDonBan_DTO ct : ds) {
+            loDAO.truKhoFIFO(ct.getMaSP(), ct.getSoLuong());
+        }
+
+        hoaDonDAO.capNhatTrangThai(maHD, 1); // ĐÃ DUYỆT
     }
 
-    /* =========================================================
-                    HOÀN THÀNH
-    ========================================================= */
-    public void hoanThanh(HoaDonOnline_DTO hd) {
+     ======================================================
+       TỪ CHỐI ĐƠN
+     ======================================================
+    public void tuChoiDon(String maHD) {
 
-        hd.setTrangThai(3);
-        hd.setNgayHoanThanh(LocalDateTime.now());
-
-        hoaDonDAO.capNhatTrangThai(hd.getMa(), 3);
+        hoaDonDAO.capNhatTrangThai(maHD, -1);
     }
 
-    /* =========================================================
-                    YÊU CẦU HOÀN HÀNG
-    ========================================================= */
-    public void yeuCauHoanHang(HoaDonOnline_DTO hd) {
+     ======================================================
+       GIAO HÀNG
+     ======================================================
+    public void giaoHang(String maHD) {
 
-        if (hd.getNgayHoanThanh() == null) return;
+        HoaDonBan_DTO hd = hoaDonDAO.getById(maHD);
 
-        long soNgay =
-                java.time.Duration.between(
-                        hd.getNgayHoanThanh(),
-                        LocalDateTime.now()
-                ).toDays();
+        if (hd.getTrangThai() != 1)
+            throw new RuntimeException("Chưa duyệt");
 
-        if (soNgay <= 7) {
-            hd.setTrangThai(5);
-            hoaDonDAO.capNhatTrangThai(hd.getMa(), 5);
+        hoaDonDAO.capNhatTrangThai(maHD, 2); // ĐANG GIAO
+    }
+
+     ======================================================
+       HOÀN THÀNH (AUTO CHUYỂN)
+     ======================================================
+    public void hoanThanh(String maHD) {
+
+        HoaDonBan_DTO hd = hoaDonDAO.getById(maHD);
+
+        if (hd.getTrangThai() != 2)
+            throw new RuntimeException("Chưa giao");
+
+        hoaDonDAO.capNhatTrangThai(maHD, 3);
+
+        congDiem(hd);
+    }
+
+     ======================================================
+       HOÀN HÀNG (<=7 NGÀY)
+     ======================================================
+    public void hoanHang(String maHD) {
+
+        HoaDonBan_DTO hd = hoaDonDAO.getById(maHD);
+
+        if (hd.getTrangThai() != 3)
+            throw new RuntimeException("Chưa hoàn thành");
+
+        if (hd.getNgayHoanThanh()
+                .plusDays(7)
+                .isBefore(LocalDateTime.now()))
+            throw new RuntimeException("Quá hạn hoàn");
+
+        ArrayList<ChiTietHoaDonBan_DTO> ds =
+                ctDAO.getByMaHD(maHD);
+
+        // trả kho
+        for (ChiTietHoaDonBan_DTO ct : ds) {
+            loDAO.congKho(ct.getMaSP(), ct.getSoLuong());
+        }
+
+        // trừ điểm KH
+        int diem = (int)(hd.getThanhTien() / 10000);
+        khDAO.truDiem(hd.getMaKhachHang(), diem);
+
+        hoaDonDAO.capNhatTrangThai(maHD, -2); // HOÀN
+    }
+
+     ======================================================
+       AUTO HỦY SAU 3 NGÀY
+     ======================================================
+    public void autoHuyDonTre() {
+
+        ArrayList<HoaDonBan_DTO> ds = hoaDonDAO.getAll();
+
+        for (HoaDonBan_DTO hd : ds) {
+
+            if (hd.getLoaiHDB() == 1 &&
+                    hd.getTrangThai() == 0 &&
+                    hd.getNgayLap()
+                            .plusDays(3)
+                            .isBefore(LocalDateTime.now())) {
+
+                hoaDonDAO.capNhatTrangThai(hd.getMa(), -3);
+            }
         }
     }
 
-    /* =========================================================
-                    DUYỆT HOÀN HÀNG
-    ========================================================= */
-    public void duyetHoanHang(HoaDonOnline_DTO hd) {
+     ======================================================
+       CỘNG ĐIỂM SAU KHI HOÀN THÀNH
+     ======================================================
+    private void congDiem(HoaDonBan_DTO hd) {
 
-        // TODO:
-        // Lo_BUS.getInstance().congSoLuong()
+        int diem = (int)(hd.getThanhTien() / 10000);
 
-        hd.setTinhTrangThanhToan(2); // đã hoàn tiền
-
-        hoaDonDAO.capNhatTrangThai(hd.getMa(), 6);
+        khDAO.congDiem(hd.getMaKhachHang(), diem);
     }
 }
+*/
