@@ -313,14 +313,14 @@
         <properties/>
         <border type="etched" title="Danh sách lô"/>
         <children>
-          <scrollpane id="eafc2">
+          <scrollpane id="eafc2" binding="src_dsLo">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
             <border type="none"/>
             <children>
-              <component id="8b273" class="javax.swing.JTable" binding="table1" default-binding="true">
+              <component id="8b273" class="javax.swing.JTable" binding="table_dsLo">
                 <constraints/>
                 <properties/>
               </component>
