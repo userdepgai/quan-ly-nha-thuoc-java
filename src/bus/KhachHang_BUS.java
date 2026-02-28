@@ -144,7 +144,7 @@ public class KhachHang_BUS {
     public KhachHang_DTO getBysdt(String sdt) {
 
         for (KhachHang_DTO kh : listCache) {
-            if (kh.getMa().equals(sdt))
+            if (kh.getSdt().equals(sdt))
                 return kh;
         }
         return null;

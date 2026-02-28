@@ -143,7 +143,7 @@ public class NhanVien_BUS {
     public NhanVien_DTO getBysdt(String sdt) {
 
         for (NhanVien_DTO nv : listCache) {
-            if (nv.getMa().equals(sdt))
+            if (nv.getSdt().equals(sdt))
                 return nv;
         }
         return null;

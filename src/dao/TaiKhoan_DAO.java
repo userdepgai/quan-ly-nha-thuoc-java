@@ -74,7 +74,7 @@ public class TaiKhoan_DAO {
     }
 
     public boolean capNhat(TaiKhoan_DTO tk) {
-        String sql = "UPDATE TAIKHOAN SET SDT = ?, MatKhau = ?, TrangThai = ?, NgayKichHoat = ?, MaQuyen = ?, WHERE Ma_TK = ?";
+        String sql = "UPDATE TAIKHOAN SET SDT = ?, MatKhau = ?, TrangThai = ?, NgayKichHoat = ?, MaQuyen = ? WHERE Ma_TK = ?";
 
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {

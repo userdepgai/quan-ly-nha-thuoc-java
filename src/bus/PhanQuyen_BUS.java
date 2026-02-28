@@ -89,6 +89,28 @@ public class PhanQuyen_BUS {
         return null;
     }
 
+    public ArrayList<PhanQuyen_DTO> getQuyenHoatDong() {
+        ArrayList<PhanQuyen_DTO> result = new ArrayList<>();
+        for (PhanQuyen_DTO pq : listCache) {
+            if (pq.getTrangThai() == 1) {
+                result.add(pq);
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<PhanQuyen_DTO> getQuyenNgungHoatDong() {
+        ArrayList<PhanQuyen_DTO> result = new ArrayList<>();
+
+        for (PhanQuyen_DTO pq : listCache) {
+            if (pq.getTrangThai() == 0) {
+                result.add(pq);
+            }
+        }
+
+        return result;
+    }
+
     public void refreshData() {
         listCache = pqDao.getAll();
     }
