@@ -9,7 +9,9 @@ public class GiaTriThuocTinh_SP_BUS {
     private final GiaTriThuocTinh_SP_DAO dao = new GiaTriThuocTinh_SP_DAO();
     private ArrayList<GiaTriThuocTinh_SP_DTO> listCache;
 
-    private GiaTriThuocTinh_SP_BUS() { listCache = dao.getAll(); }
+    private GiaTriThuocTinh_SP_BUS() {
+        listCache = dao.getAll();
+    }
 
     public static GiaTriThuocTinh_SP_BUS getInstance() {
         if (instance == null) instance = new GiaTriThuocTinh_SP_BUS();
@@ -24,5 +26,19 @@ public class GiaTriThuocTinh_SP_BUS {
         return result;
     }
 
-    public void refreshData() { listCache = dao.getAll(); }
+    public ArrayList<GiaTriThuocTinh_SP_DTO> getByMaGTTT(String maGiaTri) {
+        ArrayList<GiaTriThuocTinh_SP_DTO> result = new ArrayList<>();
+        if (listCache == null) return result;
+        for (GiaTriThuocTinh_SP_DTO item : listCache) {
+            // Đã đổi thành getMaGiaTri() cho khớp với DTO
+            if (item.getMaGiaTri().equals(maGiaTri)) {
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
+    public void refreshData() {
+        listCache = dao.getAll();
+    }
 }

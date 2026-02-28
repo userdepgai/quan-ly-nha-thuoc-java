@@ -20,12 +20,12 @@ public class SanPham_DAO {
                 sp.setMaSP(rs.getString("Ma_SP"));
                 sp.setTenSP(rs.getString("Ten_SP"));
                 sp.setDonViTinh(rs.getString("DonViTinh"));
-                sp.setLoiNhuan(rs.getDouble("LoiNhuan")); // Hoặc PhanTramLoiNhuan tùy DB
+                sp.setLoiNhuan(rs.getDouble("LoiNhuan"));
                 sp.setHinhAnh(rs.getString("HinhAnh"));
                 sp.setKeDon(rs.getInt("KeDon"));
                 sp.setTrangThai(rs.getInt("TrangThai"));
                 sp.setMaDM(rs.getString("Ma_DM"));
-                sp.setMaQC(rs.getString("Ma_QC")); // Quan trọng
+                sp.setMaQC(rs.getString("Ma_QC"));
 
                 list.add(sp);
             }

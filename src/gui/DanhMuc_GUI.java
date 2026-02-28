@@ -92,7 +92,7 @@ public class DanhMuc_GUI extends JPanel {
     }
 
     private void initTable_ThuocTinh() {
-        String[] headers = {"STT", "Mã Thuộc Tính", "Tên Thuộc Tính", "Kiểu Thuộc Tính", "Danh Mục"};
+        String[] headers = {"STT", "Mã Thuộc Tính", "Tên Thuộc Tính", "Danh Mục"};
         modelThuocTinh = new DefaultTableModel(headers, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -142,13 +142,11 @@ public class DanhMuc_GUI extends JPanel {
         int stt = 1;
         for (dto.ThuocTinhDanhMuc_DTO tt : dsTT) {
             // Chuyển đổi kiểu thuộc tính (0 -> Combobox, 1 -> Nhập giá trị)
-            String kieuStr = (tt.getKieuThuocTinh() == 0) ? "Combobox (Chọn)" : "Nhập giá trị";
 
             modelThuocTinh.addRow(new Object[]{
                     stt++,
                     tt.getMaThuocTinh(),
                     tt.getTenThuocTinh(),
-                    kieuStr,
                     tt.getMaDM()
             });
         }
