@@ -1,0 +1,389 @@
+package gui;
+
+import javax.swing.*;
+import java.awt.*;
+import bus.NhanVien_BUS;
+import com.toedter.calendar.JDateChooser;
+import dto.NhanVien_DTO;
+import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.time.LocalDate;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+public class NhanVien_GUI extends JPanel {
+    private JPanel panel_nhanVien;
+    private JButton btnXuatExcel;
+    private JButton btnNhapExcel;
+    private JButton btnTimKiem;
+    private JButton btn_thoat;
+    private JComboBox cmb_locTrangThai;
+    private JTable table1;
+    private JPanel panelThongTin;
+    private JTextField txt_maNV;
+    private JTextField txt_tenNV;
+    private JButton btn_capNhat;
+    private JButton btn_them;
+    private JTextField txt_diaChi;
+    private JTextField txt_sdt;
+    private JRadioButton rd_nu;
+    private JRadioButton rd_nam;
+    private JTextField textField4;
+    private JTextField txt_luongCoBan;
+    private JButton btn_luu;
+    private JButton btn_huy;
+    private JDateChooser JDate_ngayVaoLam;
+    private JDateChooser JDate_ngaySinh;
+    private JComboBox cmb_timKiem;
+    private JComboBox cmb_chucVu;
+    private JComboBox cmb_trangThai;
+    private boolean isAdding = false;
+    private boolean isUpdating = false;
+    private DefaultTableModel model;
+    private ButtonGroup groupGioiTinh;
+    private JComboBox<String> cmb_chonChucVu;
+    private JComboBox<String> cmb_chonTrangThai;
+    public NhanVien_GUI() {
+
+        this.setLayout(new BorderLayout());
+        this.add(panel_nhanVien, BorderLayout.CENTER);
+        cmb_timKiem.setEditable(true);
+        initTable();
+        initComponent();
+        loadTable(NhanVien_BUS.getInstance().getAll());
+        xuLySuKien();
+    }
+
+    // ================= INIT =================
+    private void initComponent() {
+
+        groupGioiTinh = new ButtonGroup();
+        groupGioiTinh.add(rd_nam);
+        groupGioiTinh.add(rd_nu);
+
+        cmb_trangThai.setModel(new DefaultComboBoxModel<>(
+                new String[]{"Đang làm", "Nghỉ"}
+        ));
+
+        cmb_chucVu.setModel(new DefaultComboBoxModel<>(
+                new String[]{"Quản lý hệ thống", "Nhân viên bán hàng", "Nhân viên quản lý kho"}
+        ));
+        cmb_chonChucVu.setModel(new DefaultComboBoxModel<>(
+                new String[]{
+                        "--chọn chức vụ--",
+                        "Quản lý hệ thống",
+                        "Nhân viên bán hàng",
+                        "Nhân viên quản lý kho"
+                }
+        ));
+
+        cmb_chonTrangThai.setModel(new DefaultComboBoxModel<>(
+                new String[]{
+                        "--chọn trạng thái--",
+                        "Đang làm",
+                        "Nghỉ"
+                }
+        ));
+    }
+
+    private void initTable() {
+        cmb_locTrangThai.setModel(new DefaultComboBoxModel<>(
+                new String[]{
+                        "Tất cả",
+                        "Mã NV",
+                        "Tên NV",
+                        "SĐT"
+                }
+        ));
+        String[] cols = {
+                "Mã NV", "Tên NV", "SĐT",
+                "Ngày sinh", "Giới tính",
+                "Chức vụ", "Lương",
+                "Ngày vào làm", "Trạng thái"
+        };
+
+        model = new DefaultTableModel(cols, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        table1.setModel(model);
+    }
+
+    // ================= LOAD TABLE =================
+    private void loadTable(ArrayList<NhanVien_DTO> list) {
+
+        model.setRowCount(0);
+
+        for (NhanVien_DTO nv : list) {
+            model.addRow(new Object[]{
+                    nv.getMa(),
+                    nv.getTen(),
+                    nv.getSdt(),
+                    nv.getNgaySinh(),
+                    nv.isGioiTinh() ? "Nam" : "Nữ",
+                    nv.getChucVu(),
+                    String.format("%,.0f", nv.getLuongCoBan()),
+                    nv.getNgayVaoLam(),
+                    nv.getTrangThai() == 0 ? "Đang làm" : "Nghỉ"
+            });
+        }
+    }
+
+    // ================= GET FORM DATA =================
+    private NhanVien_DTO getFormData(String ma) {
+
+        try {
+            String ten = txt_tenNV.getText();
+            String sdt = txt_sdt.getText();
+
+            LocalDate ngaySinh = JDate_ngaySinh.getDate()
+                    .toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDate();
+
+            boolean gioiTinh = rd_nam.isSelected();
+
+            String chucVu = cmb_chucVu.getSelectedItem().toString();
+
+            LocalDate ngayVaoLam = JDate_ngayVaoLam.getDate()
+                    .toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDate();
+
+            double luong = Double.parseDouble(txt_luongCoBan.getText());
+
+            int trangThai = cmb_trangThai.getSelectedIndex();
+
+            return new NhanVien_DTO(
+                    ma, ten, sdt,
+                    ngaySinh, gioiTinh,
+                    chucVu, ngayVaoLam,
+                    luong, trangThai,
+                    null
+            );
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Dữ liệu không hợp lệ");
+            return null;
+        }
+    }
+
+    // ================= CLEAR =================
+    private void clearForm() {
+
+        txt_maNV.setText("");
+        txt_tenNV.setText("");
+        txt_sdt.setText("");
+        txt_luongCoBan.setText("");
+
+        JDate_ngaySinh.setDate(null);
+        JDate_ngayVaoLam.setDate(null);
+
+        rd_nu.setSelected(true);
+        cmb_chucVu.setSelectedIndex(0);
+        cmb_trangThai.setSelectedIndex(0);
+        }
+    private void resetState() {
+
+        clearForm();
+
+        btn_luu.setVisible(false);
+        btn_huy.setVisible(false);
+        txt_maNV.setEditable(true);
+        isAdding = false;
+        isUpdating = false;
+    }
+
+    // ================= EVENTS =================
+    private void xuLySuKien() {
+        JTextField editor = (JTextField) cmb_timKiem.getEditor().getEditorComponent();
+
+        editor.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+                String text = editor.getText().toLowerCase();
+                String loai = cmb_locTrangThai.getSelectedItem().toString();
+
+                DefaultComboBoxModel<String> newModel = new DefaultComboBoxModel<>();
+
+                for (NhanVien_DTO nv : NhanVien_BUS.getInstance().getAll()) {
+
+                    switch (loai) {
+
+                        case "Mã NV":
+                            if (nv.getMa().toLowerCase().contains(text))
+                                newModel.addElement(nv.getMa());
+                            break;
+
+                        case "Tên NV":
+                            if (nv.getTen().toLowerCase().contains(text))
+                                newModel.addElement(nv.getTen());
+                            break;
+
+                        case "SĐT":
+                            if (nv.getSdt().contains(text))
+                                newModel.addElement(nv.getSdt());
+                            break;
+
+                        default:
+                            if (nv.getMa().toLowerCase().contains(text)
+                                    || nv.getTen().toLowerCase().contains(text)
+                                    || nv.getSdt().contains(text)) {
+                                newModel.addElement(nv.getMa());
+                            }
+                    }
+                }
+
+                cmb_timKiem.setModel(newModel);
+                editor.setText(text);
+                cmb_timKiem.showPopup();
+            }
+        });
+        // CLICK TABLE
+        table1.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                int row = table1.getSelectedRow();
+                if (row < 0) return;
+
+                txt_maNV.setText(model.getValueAt(row, 0).toString());
+                txt_tenNV.setText(model.getValueAt(row, 1).toString());
+                txt_sdt.setText(model.getValueAt(row, 2).toString());
+
+                try {
+                    java.sql.Date ns =
+                            java.sql.Date.valueOf(model.getValueAt(row, 3).toString());
+                    JDate_ngaySinh.setDate(ns);
+
+                    java.sql.Date nvl =
+                            java.sql.Date.valueOf(model.getValueAt(row, 7).toString());
+                    JDate_ngayVaoLam.setDate(nvl);
+
+                } catch (Exception ex) {
+                    JDate_ngaySinh.setDate(null);
+                    JDate_ngayVaoLam.setDate(null);
+                }
+
+                if (model.getValueAt(row, 4).toString().equals("Nam"))
+                    rd_nam.setSelected(true);
+                else
+                    rd_nu.setSelected(true);
+
+                cmb_chucVu.setSelectedItem(model.getValueAt(row, 5).toString());
+                txt_luongCoBan.setText(model.getValueAt(row, 6).toString());
+                cmb_trangThai.setSelectedItem(model.getValueAt(row, 8).toString());
+            }
+        });
+        // đổi loại tìm kiếm
+        cmb_locTrangThai.addActionListener(e -> {
+            String loai = cmb_locTrangThai.getSelectedItem().toString();
+            loadSuggestData(loai);
+        });
+
+        // THÊM
+        btn_them.addActionListener(e -> {
+
+            isAdding = true;
+            isUpdating = false;
+
+            String ma = NhanVien_BUS.getInstance().getNextId();
+            txt_maNV.setText(ma);
+            txt_maNV.setEditable(false);
+            btn_luu.setVisible(true);
+            btn_huy.setVisible(true);
+        });
+
+        // CẬP NHẬT
+        btn_capNhat.addActionListener(e -> {
+
+            if (txt_maNV.getText().isEmpty()) return;
+
+            isAdding = false;
+            isUpdating = true;
+
+            btn_luu.setVisible(true);
+            btn_huy.setVisible(true);
+        });
+        // ===== LƯU =====
+        btn_luu.addActionListener(e -> {
+
+            String ma = txt_maNV.getText();
+            if (ma.isEmpty()) return;
+
+            NhanVien_DTO nv = getFormData(ma);
+            if (nv == null) return;
+
+            boolean result = false;
+
+            if (isAdding) {
+                result = NhanVien_BUS.getInstance().them(nv);
+            }
+
+            if (isUpdating) {
+                result = NhanVien_BUS.getInstance().capNhat(nv);
+            }
+
+            if (result) {
+                JOptionPane.showMessageDialog(this, "Thành công");
+                loadTable(NhanVien_BUS.getInstance().getAll());
+                resetState();
+            }
+        });
+
+// ===== HỦY =====
+        btn_huy.addActionListener(e -> {
+            resetState();
+        });
+        // THOÁT
+        btn_thoat.addActionListener(e -> {
+            clearForm();
+            loadTable(NhanVien_BUS.getInstance().getAll());
+        });
+    }
+
+    private void createUIComponents() {
+
+        JDate_ngaySinh = new com.toedter.calendar.JDateChooser();
+        JDate_ngaySinh.setDateFormatString("yyyy-MM-dd");
+
+        JDate_ngayVaoLam = new com.toedter.calendar.JDateChooser();
+        JDate_ngayVaoLam.setDateFormatString("yyyy-MM-dd");
+    }
+    private void loadSuggestData(String loai) {
+
+        DefaultComboBoxModel<String> modelSuggest = new DefaultComboBoxModel<>();
+
+        for (NhanVien_DTO nv : NhanVien_BUS.getInstance().getAll()) {
+
+            switch (loai) {
+                case "Mã NV":
+                    modelSuggest.addElement(nv.getMa());
+                    break;
+
+                case "Tên NV":
+                    modelSuggest.addElement(nv.getTen());
+                    break;
+
+                case "SĐT":
+                    modelSuggest.addElement(nv.getSdt());
+                    break;
+
+                default:
+                    modelSuggest.addElement(nv.getMa());
+                    modelSuggest.addElement(nv.getTen());
+                    modelSuggest.addElement(nv.getSdt());
+            }
+        }
+
+        cmb_timKiem.setModel(modelSuggest);
+        cmb_timKiem.setSelectedItem(null);
+        ((JTextField) cmb_timKiem.getEditor().getEditorComponent()).setText("");
+    }
+}

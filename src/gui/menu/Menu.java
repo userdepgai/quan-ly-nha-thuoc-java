@@ -90,8 +90,8 @@ public class Menu extends JFrame {
         contentPanel.add(createContent("Thuộc tính danh mục"), "thuocTinhDanhMuc");
         contentPanel.add(createContent("Quản lý sản phẩm"), "sanPham");
 
-        contentPanel.add(createContent("Khách hàng"), "khachhang");
-        contentPanel.add(createContent("Nhân viên"), "nhanvien");
+        contentPanel.add(new KhachHang_GUI(), "khachhang");
+        contentPanel.add(new NhanVien_GUI(), "nhanvien");
         contentPanel.add(createContent("Nhà cung cấp"), "nhacungcap");
 
         contentPanel.add(createContent("Khu vực lưu trữ"), "luutru");
@@ -152,7 +152,16 @@ public class Menu extends JFrame {
         return panel;
     }
     private Icon icon(String name) {
-        return new ImageIcon(getClass().getResource("/icons/" + name));
+        // Tìm file trong thư mục resources/icons
+        java.net.URL imgURL = getClass().getResource("/icons/" + name);
+
+        if (imgURL != null) {
+            return new ImageIcon(imgURL);
+        } else {
+            // Nếu không tìm thấy, in ra lỗi để bạn biết chính xác file nào thiếu
+            System.err.println("Lỗi: Không tìm thấy ảnh tại /icons/" + name);
+            return null;
+        }
     }
 
 }

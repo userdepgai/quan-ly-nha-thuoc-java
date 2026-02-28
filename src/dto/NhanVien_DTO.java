@@ -1,5 +1,6 @@
 package dto;
 
+import java.sql.Date;
 import java.time.LocalDate;
 
 public class NhanVien_DTO extends Nguoi_DTO {
@@ -10,7 +11,7 @@ public class NhanVien_DTO extends Nguoi_DTO {
     private int trangThai;
     private String maDiaChi;
 
-    public NhanVien_DTO() {
+    public NhanVien_DTO(String maNV, String tenNV, Date ngaySinh, String diaChi, String gioiTinh, String soDienThoai, String chucVu, int trangThai, double luongCoBan, Date ngayVaoLam) {
         super();
     }
 

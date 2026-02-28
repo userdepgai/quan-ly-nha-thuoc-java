@@ -12,6 +12,8 @@ public class TaiKhoan_BUS {
     private ArrayList<TaiKhoan_DTO> listCache;
 
     private PhanQuyen_BUS phanQuyenBus = PhanQuyen_BUS.getInstance();
+    private NhanVien_BUS nhanVienBus = NhanVien_BUS.getInstance();
+    private KhachHang_BUS khachHangBus = KhachHang_BUS.getInstance();
 
     private TaiKhoan_BUS() {
         listCache = dao.getAll();
@@ -47,12 +49,40 @@ public class TaiKhoan_BUS {
         PhanQuyen_DTO quyen = phanQuyenBus.getById(maQuyen);
         return quyen != null ? quyen.getTenQuyen() : "Không xác định";
     }
+    public  String getMaQuyen(String tenQuyen) {
+        PhanQuyen_DTO quyen = phanQuyenBus.getByName(tenQuyen);
+        return quyen != null ? quyen.getMaQuyen() : "Không xác định";
+    }
     public TaiKhoan_DTO getBySDT(String sdt) {
         for(TaiKhoan_DTO tk : listCache) {
             if(tk.getSdt().equals(sdt))
                 return tk;
         }
         return null;
+    }
+    public String getNameKhachHang(String sdt){
+        KhachHang_DTO kh = khachHangBus.getBysdt(sdt);
+        return kh != null ? kh.getTen() : "Không tìm thấy";
+    }
+    public String getNameNhanVien(String sdt){
+        NhanVien_DTO nv = nhanVienBus.getBysdt(sdt);
+        return nv != null ? nv.getTen() : "Không tìm thấy";
+    }
+
+    public ArrayList<String> getTenQuyenHoatDong() {
+        ArrayList<String> result = new ArrayList<>();
+
+        for (PhanQuyen_DTO pq : phanQuyenBus.getQuyenHoatDong()) {
+            result.add(pq.getTenQuyen());
+        }
+        return result;
+    }
+    public ArrayList<String> getTenQuyenNgungHoatDong() {
+        ArrayList<String> result = new ArrayList<>();
+        for (PhanQuyen_DTO pq : phanQuyenBus.getQuyenNgungHoatDong()) {
+            result.add(pq.getTenQuyen());
+        }
+        return result;
     }
     public ArrayList<TaiKhoan_DTO> timKiem(String keyWord,String quyen, Integer trangThai) {
         ArrayList<TaiKhoan_DTO> result = new ArrayList<>();
@@ -64,7 +94,7 @@ public class TaiKhoan_BUS {
             if ( matchKeyWord && matchQuyen && matchTrangThai)
                 result.add(tk);
         }
-        return null;
+        return result;
     }
 
     public ArrayList<TaiKhoan_DTO> dangNhap(String sdt, String matKhau) {
@@ -77,40 +107,6 @@ public class TaiKhoan_BUS {
             }
         }
         return result;
-    }
-
-    public boolean kiemTraHopLe(TaiKhoan_DTO tk) {
-
-        if (tk.getSdt() == null || tk.getSdt().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Số điện thoại không được để trống");
-            return false;
-        }
-        if (!tk.getSdt().matches("^0\\d{9}$")) {
-            JOptionPane.showMessageDialog(null, "Số điện thoại phải gồm 10 số và bắt đầu bằng 0");
-            return false;
-        }
-        if (tk.getMatKhau() == null || tk.getMatKhau().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Mật khẩu không được để trống");
-            return false;
-        }
-        if (tk.getMatKhau().length() < 6) {
-            JOptionPane.showMessageDialog(null, "Mật khẩu phải có ít nhất 6 ký tự");
-            return false;
-        }
-        if (tk.getTrangThai() == -1) {
-            JOptionPane.showMessageDialog(null, "Vui lòng chọn trạng thái");
-            return false;
-        }
-        if (tk.getMaQuyen() == null || tk.getMaQuyen().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Vui lòng chọn quyền");
-            return false;
-        }
-        if (tk.getNgayKichHoat() == null) {
-            JOptionPane.showMessageDialog(null, "Ngày kích hoạt không được để trống");
-            return false;
-        }
-
-        return true;
     }
     public void refreshData() {
         listCache = dao.getAll();
