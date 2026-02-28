@@ -94,6 +94,7 @@ public class KhachHang_GUI extends JPanel {
                     }
             ));
             String[] cols = {
+                    "STT",
                     "Mã KH", "Tên KH", "SĐT",
                     "Ngày sinh", "Giới tính",
                     "Điểm thưởng", "Điểm hạng",
@@ -108,6 +109,20 @@ public class KhachHang_GUI extends JPanel {
             };
 
             table_dsKhachHang.setModel(model);
+            // ===== TẮT GIÃN ĐỀU =====
+            table_dsKhachHang.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+
+            // ===== SET ĐỘ RỘNG CỘT =====
+            table_dsKhachHang.getColumnModel().getColumn(0).setPreferredWidth(50);   // STT
+            table_dsKhachHang.getColumnModel().getColumn(1).setPreferredWidth(90);   // Mã KH
+            table_dsKhachHang.getColumnModel().getColumn(2).setPreferredWidth(160);  // Tên KH
+            table_dsKhachHang.getColumnModel().getColumn(3).setPreferredWidth(110);  // SĐT
+            table_dsKhachHang.getColumnModel().getColumn(4).setPreferredWidth(110);  // Ngày sinh
+            table_dsKhachHang.getColumnModel().getColumn(5).setPreferredWidth(80);   // Giới tính
+            table_dsKhachHang.getColumnModel().getColumn(6).setPreferredWidth(100);  // Điểm thưởng
+            table_dsKhachHang.getColumnModel().getColumn(7).setPreferredWidth(100);  // Điểm hạng
+            table_dsKhachHang.getColumnModel().getColumn(8).setPreferredWidth(100);  // Hạng
+            table_dsKhachHang.getColumnModel().getColumn(9).setPreferredWidth(110);  // Ngày ĐK
         }
 
         // ================= LOAD TABLE =================
@@ -115,9 +130,12 @@ public class KhachHang_GUI extends JPanel {
 
             model.setRowCount(0);
 
+            int stt = 1;
+
             for (KhachHang_DTO kh : list) {
 
                 model.addRow(new Object[]{
+                        stt++,
                         kh.getMa(),
                         kh.getTen(),
                         kh.getSdt(),
@@ -130,7 +148,6 @@ public class KhachHang_GUI extends JPanel {
                 });
             }
         }
-
         // ================= AUTO MÃ =================
         private void autoMaKH() {
             txt_maKH.setText(khBus.getNextId());
@@ -145,6 +162,12 @@ public class KhachHang_GUI extends JPanel {
                 String ten = txt_tenKH.getText();
                 String sdt = txt_sdt.getText();
 
+                if (JDate_ngaySinh.getDate() == null) {
+                    JOptionPane.showMessageDialog(this,
+                            "Vui lòng chọn ngày sinh (định dạng yyyy-MM-dd)");
+                    return null;
+                }
+
                 LocalDate ngaySinh = JDate_ngaySinh.getDate()
                         .toInstant()
                         .atZone(java.time.ZoneId.systemDefault())
@@ -155,6 +178,11 @@ public class KhachHang_GUI extends JPanel {
                 double diemHang = Double.parseDouble(txt_diemHang.getText());
 
                 String hang = cmb_hang.getSelectedItem().toString();
+                if (JDate_ngayDKThanhVien.getDate() == null) {
+                    JOptionPane.showMessageDialog(this,
+                            "Vui lòng chọn ngày đăng ký thành viên");
+                    return null;
+                }
                 LocalDate ngayDKThanhVien = JDate_ngayDKThanhVien.getDate()
                         .toInstant()
                         .atZone(java.time.ZoneId.systemDefault())
@@ -295,9 +323,9 @@ public class KhachHang_GUI extends JPanel {
                     int row = table_dsKhachHang.getSelectedRow();
                     if (row < 0) return;
 
-                    txt_maKH.setText(model.getValueAt(row, 0).toString());
-                    txt_tenKH.setText(model.getValueAt(row, 1).toString());
-                    txt_sdt.setText(model.getValueAt(row, 2).toString());
+                    txt_maKH.setText(model.getValueAt(row, 1).toString());
+                    txt_tenKH.setText(model.getValueAt(row, 2).toString());
+                    txt_sdt.setText(model.getValueAt(row, 3).toString());
 
                     // ===== NGÀY SINH =====
                     try {
@@ -376,7 +404,6 @@ public class KhachHang_GUI extends JPanel {
     private void createUIComponents() {
         JDate_ngaySinh = new JDateChooser();
         JDate_ngaySinh.setDateFormatString("yyyy-MM-dd");
-
         JDate_ngayDKThanhVien = new JDateChooser();
         JDate_ngayDKThanhVien.setDateFormatString("yyyy-MM-dd");
 

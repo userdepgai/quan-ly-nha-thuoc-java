@@ -109,6 +109,7 @@ public class NhanVien_GUI extends JPanel {
                 }
         ));
         String[] cols = {
+                "STT",
                 "Mã NV", "Tên NV", "SĐT",
                 "Ngày sinh", "Giới tính",
                 "Chức vụ", "Lương",
@@ -123,15 +124,31 @@ public class NhanVien_GUI extends JPanel {
         };
 
         table1.setModel(model);
-    }
+        // ===== TẮT GIÃN ĐỀU =====
+        table1.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 
+        // ===== SET ĐỘ RỘNG CỘT =====
+        table1.getColumnModel().getColumn(0).setPreferredWidth(50);   // STT
+        table1.getColumnModel().getColumn(1).setPreferredWidth(90);   // Mã NV
+        table1.getColumnModel().getColumn(2).setPreferredWidth(160);  // Tên NV
+        table1.getColumnModel().getColumn(3).setPreferredWidth(110);  // SĐT
+        table1.getColumnModel().getColumn(4).setPreferredWidth(110);  // Ngày sinh
+        table1.getColumnModel().getColumn(5).setPreferredWidth(80);   // Giới tính
+        table1.getColumnModel().getColumn(6).setPreferredWidth(160);  // Chức vụ
+        table1.getColumnModel().getColumn(7).setPreferredWidth(120);  // Lương
+        table1.getColumnModel().getColumn(8).setPreferredWidth(110);  // Ngày vào làm
+        table1.getColumnModel().getColumn(9).setPreferredWidth(90);   // Trạng thái
+    }
     // ================= LOAD TABLE =================
     private void loadTable(ArrayList<NhanVien_DTO> list) {
 
         model.setRowCount(0);
 
+        int stt = 1;
+
         for (NhanVien_DTO nv : list) {
             model.addRow(new Object[]{
+                    stt++,
                     nv.getMa(),
                     nv.getTen(),
                     nv.getSdt(),
@@ -275,9 +292,9 @@ public class NhanVien_GUI extends JPanel {
                 int row = table1.getSelectedRow();
                 if (row < 0) return;
 
-                txt_maNV.setText(model.getValueAt(row, 0).toString());
-                txt_tenNV.setText(model.getValueAt(row, 1).toString());
-                txt_sdt.setText(model.getValueAt(row, 2).toString());
+                txt_maNV.setText(model.getValueAt(row, 1).toString());
+                txt_tenNV.setText(model.getValueAt(row, 2).toString());
+                txt_sdt.setText(model.getValueAt(row, 3).toString());
 
                 try {
                     txt_namSinh.setText(model.getValueAt(row, 3).toString());
