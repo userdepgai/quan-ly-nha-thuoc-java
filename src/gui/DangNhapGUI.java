@@ -4,6 +4,7 @@ import dto.TaiKhoan_DTO;
 import gui.menu.Menu;
 import gui.menu.MenuKhachHang_GUI;
 import gui.menu.*;
+import utils.Session;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -127,59 +128,79 @@ public class DangNhapGUI extends JFrame {
 
         btnDangNhap.addActionListener(e -> xuLyDangNhap());
     }
+
     private void xuLyDangNhap() {
-        String sdt  = txtSDT.getText().trim();
+        String sdt = txtSDT.getText().trim();
         String matKhau = new String(txtMatKhau.getPassword()).trim();
+
+        if (!kiemTraDuLieuNhap(sdt, matKhau)) return;
+
+        TaiKhoan_BUS bus = TaiKhoan_BUS.getInstance();
+        ArrayList<TaiKhoan_DTO> list = bus.dangNhap(sdt, matKhau);
+        if (!kiemTraKetQuaDangNhap(list)) return;
+
+        TaiKhoan_DTO taiKhoanDuocChon = chonTaiKhoanNeuCoNhieuQuyen(list);
+
+        if (taiKhoanDuocChon != null) {
+            Session.setCurrentUser(taiKhoanDuocChon);
+            moGiaoDienTheoQuyen(taiKhoanDuocChon);
+        }
+    }
+
+    private boolean kiemTraDuLieuNhap(String sdt, String matKhau) {
         if (sdt.isEmpty() || matKhau.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin");
-            return;
+            return false;
         }
         if (!kiemTraSoDienThoai(sdt)) {
             JOptionPane.showMessageDialog(this,
                     "Số điện thoại phải gồm 10 số và bắt đầu bằng 0");
-            return;
+            return false;
         }
-        TaiKhoan_BUS bus = TaiKhoan_BUS.getInstance();
-        ArrayList<TaiKhoan_DTO> list = bus.dangNhap(sdt, matKhau);
-        if (list.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Sai số điện thoại hoặc mật khẩu");
-            return;
+
+        return true;
+    }
+    private boolean kiemTraKetQuaDangNhap(ArrayList<TaiKhoan_DTO> list) {
+        if (list == null || list.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Sai số điện thoại hoặc mật khẩu");
+            return false;
         }
+        return true;
+    }
+
+    private TaiKhoan_DTO chonTaiKhoanNeuCoNhieuQuyen(ArrayList<TaiKhoan_DTO> list) {
         if (list.size() == 1) {
-            moGiaoDienTheoQuyen(list.get(0));
-        } else if (list.size() == 2) {
+            return list.get(0);
+        }
 
-            TaiKhoan_DTO tkKhach = null;
-            TaiKhoan_DTO tkNhanVien = null;
+        TaiKhoan_DTO tkKhach = null;
+        TaiKhoan_DTO tkNhanVien = null;
 
-            for (TaiKhoan_DTO tk : list) {
-                if (tk.getMaQuyen().equalsIgnoreCase("Q001")) {
-                    tkKhach = tk;
-                } else {
-                    tkNhanVien = tk;
-                }
-            }
-
-            String[] options = {"Đăng nhập Khách hàng", "Đăng nhập Nhân viên"};
-
-            int choice = JOptionPane.showOptionDialog(
-                    this,
-                    "Bạn muốn đăng nhập với quyền nào?",
-                    "Chọn quyền",
-                    JOptionPane.DEFAULT_OPTION,
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    options,
-                    options[0]
-            );
-
-            if (choice == 0 && tkKhach != null) {
-                moGiaoDienTheoQuyen(tkKhach);
-            }
-            else if (choice == 1 && tkNhanVien != null) {
-                moGiaoDienTheoQuyen(tkNhanVien);
+        for (TaiKhoan_DTO tk : list) {
+            if (tk.getMaQuyen().equalsIgnoreCase("Q001")) {
+                tkKhach = tk;
+            } else {
+                tkNhanVien = tk;
             }
         }
+
+        String[] options = {"Đăng nhập Khách hàng", "Đăng nhập Nhân viên"};
+
+        int choice = JOptionPane.showOptionDialog(
+                this,
+                "Bạn muốn đăng nhập với quyền nào?",
+                "Chọn quyền",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+        if (choice == 0) return tkKhach;
+        if (choice == 1) return tkNhanVien;
+
+        return null;
     }
     private void moGiaoDienTheoQuyen(TaiKhoan_DTO tk) {
 
