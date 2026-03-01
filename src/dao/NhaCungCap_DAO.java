@@ -93,7 +93,6 @@ public class NhaCungCap_DAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
             while(rs.next()) {
                 String ma = rs.getString(1);
                 if (ma != null) {

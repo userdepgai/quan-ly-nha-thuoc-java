@@ -11,7 +11,6 @@ public class KhuVucLuuTru_BUS {
     private static KhuVucLuuTru_BUS instance;
     private KhuVucLuuTru_DAO dao = new KhuVucLuuTru_DAO();
     private ArrayList<KhuVucLuuTru_DTO> listCache;
-
     private KhuVucLuuTru_BUS() {
         refreshData();
     }

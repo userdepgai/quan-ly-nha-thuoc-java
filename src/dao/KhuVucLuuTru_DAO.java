@@ -89,7 +89,6 @@ public class KhuVucLuuTru_DAO {
         }
         return false;
     }
-
     public String getNextId() {
         String sql = "SELECT MAX(CAST(SUBSTRING(Ma_KVLT, 3, 4) AS INT)) FROM KHUVUCLUUTRU";
         try (Connection conn = DBConnection.getConnection();

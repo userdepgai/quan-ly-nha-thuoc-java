@@ -261,7 +261,6 @@ public class KVLT extends JPanel {
         comboBoxTthai.setSelectedIndex(0);
         tableDanhSach.clearSelection();
     }
-
     private void hienThiChiTiet() {
         int selectedRow = tableDanhSach.getSelectedRow();
         if (selectedRow >= 0) {

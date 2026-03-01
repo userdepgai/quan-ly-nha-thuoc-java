@@ -313,7 +313,6 @@ public class NCC extends JPanel {
         textDCHI.setEditable(!isLocked);
         comboBoxTthai.setEnabled(!isLocked);
     }
-
     private void lamMoiForm() {
         textMa.setText("");
         textMa.setEditable(true);
