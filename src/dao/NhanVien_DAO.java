@@ -8,7 +8,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class NhanVien_DAO {
+    private static NhanVien_DAO instance;
 
+    public static NhanVien_DAO getInstance() {
+        if (instance == null) {
+            instance = new NhanVien_DAO();
+        }
+        return instance;
+    }
     public ArrayList<NhanVien_DTO> getAll() {
 
         ArrayList<NhanVien_DTO> list = new ArrayList<>();
@@ -24,7 +31,7 @@ public class NhanVien_DAO {
                         rs.getString("Ma_NV"),
                         rs.getString("Ten_NV"),
                         rs.getString("SDT"),
-                        rs.getDate("NamSinh").toLocalDate(),
+                        rs.getDate("NgaySinh").toLocalDate(),
                         rs.getBoolean("GioiTinh"),
                         rs.getString("ChucVu"),
                         rs.getDate("NgayVaoLam").toLocalDate(),
@@ -74,7 +81,7 @@ public class NhanVien_DAO {
 
         String sql = """
     INSERT INTO NHANVIEN
-    (Ma_NV, Ten_NV, SDT, NamSinh, GioiTinh,
+    (Ma_NV, Ten_NV, SDT, NgaySinh, GioiTinh,
      ChucVu, NgayVaoLam, LuongCoBan, TrangThai, Ma_DC)
     VALUES (?,?,?,?,?,?,?,?,?,?)
 """;
@@ -108,7 +115,7 @@ public class NhanVien_DAO {
         UPDATE NHANVIEN
         SET Ten_NV=?, 
             SDT=?, 
-            NamSinh=?, 
+            NgaySinh=?, 
             GioiTinh=?,
             ChucVu=?, 
             NgayVaoLam=?, 
@@ -129,8 +136,8 @@ public class NhanVien_DAO {
             ps.setDate(6, Date.valueOf(nv.getNgayVaoLam()));
             ps.setDouble(7, nv.getLuongCoBan());
             ps.setInt(8, nv.getTrangThai());
-            ps.setString(9, nv.getMaDiaChi());   // ✅ đúng vị trí Ma_DC
-            ps.setString(10, nv.getMa());        // ✅ đúng vị trí WHERE
+            ps.setString(9, nv.getMaDiaChi());
+            ps.setString(10, nv.getMa());
 
             return ps.executeUpdate() > 0;
 
@@ -139,5 +146,29 @@ public class NhanVien_DAO {
         }
 
         return false;
+    }
+    public String getDiaChiByMaDC(String maDC) {
+
+        String sql = """
+        SELECT SoNha + ', ' + Duong + ', ' + Phuong + ', ' + Tinh AS DiaChi
+        FROM DIACHI
+        WHERE Ma_DC = ?
+    """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, maDC);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("DiaChi");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "";
     }
 }
