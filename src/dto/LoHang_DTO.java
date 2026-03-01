@@ -12,6 +12,7 @@ public class LoHang_DTO {
     private double thanhTien;
     private int trangThai;
 
+    private String maPnk;
     private String maNcc;
     private String maKvlt;
     private String maSp;
@@ -22,6 +23,7 @@ public class LoHang_DTO {
     public LoHang_DTO(String maLo, double giaNhap, LocalDate hsd,
                       int soLuong, int soLuongConLai,
                       double thanhTien, int trangThai,
+                      String maPnk,
                       String maNcc, String maKvlt, String maSp) {
 
         this.maLo = maLo;
@@ -31,10 +33,14 @@ public class LoHang_DTO {
         this.soLuongConLai = soLuongConLai;
         this.thanhTien = thanhTien;
         this.trangThai = trangThai;
+        this.maPnk = maPnk;
         this.maNcc = maNcc;
         this.maKvlt = maKvlt;
         this.maSp = maSp;
     }
+
+    public String getMaPnk() { return maPnk; }
+    public void setMaPnk(String maPnk) { this.maPnk = maPnk; }
 
     public String getMaLo() {
         return maLo;

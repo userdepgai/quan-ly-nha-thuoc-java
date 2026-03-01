@@ -25,6 +25,7 @@ public class LoHang_DAO {
                         rs.getInt("SoLuongConLai"),
                         rs.getDouble("ThanhTien"),
                         rs.getInt("TrangThai"),
+                        rs.getString("Ma_PNK"),
                         rs.getString("Ma_NCC"),
                         rs.getString("Ma_KVLT"),
                         rs.getString("Ma_SP")
@@ -63,7 +64,12 @@ public class LoHang_DAO {
     }
 
     public boolean them(LoHang_DTO lo) {
-        String sql = "INSERT INTO LOHANG VALUES(?,?,?,?,?,?,?,?,?,?)";
+        String sql = """
+        INSERT INTO LOHANG
+        (Ma_Lo, GiaNhap, HSD, SoLuong, SoLuongConLai,
+         ThanhTien, TrangThai, Ma_PNK, Ma_NCC, Ma_KVLT, Ma_SP)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)
+        """;
 
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -75,9 +81,10 @@ public class LoHang_DAO {
             ps.setInt(5, lo.getSoLuongConLai());
             ps.setDouble(6, lo.getThanhTien());
             ps.setInt(7, lo.getTrangThai());
-            ps.setString(8, lo.getMaNcc());
-            ps.setString(9, lo.getMaKvlt());
-            ps.setString(10, lo.getMaSp());
+            ps.setString(8, lo.getMaPnk());
+            ps.setString(9, lo.getMaNcc());
+            ps.setString(10, lo.getMaKvlt());
+            ps.setString(11, lo.getMaSp());
 
             return ps.executeUpdate() > 0;
 
@@ -89,11 +96,11 @@ public class LoHang_DAO {
     }
     public boolean capNhat(LoHang_DTO lo) {
         String sql = """
-                UPDATE LOHANG
-                SET GiaNhap = ?, HSD = ?, SoLuong = ?, SoLuongConLai = ?, 
-                    ThanhTien = ?, TrangThai = ?, 
-                    Ma_NCC = ?, Ma_KVLT = ?, Ma_SP = ?
-                WHERE Ma_Lo = ?
+                    UPDATE LOHANG
+                    SET GiaNhap = ?, HSD = ?, SoLuong = ?, SoLuongConLai = ?,
+                    ThanhTien = ?, TrangThai = ?,
+                    Ma_PNK = ?, Ma_NCC = ?, Ma_KVLT = ?, Ma_SP = ?
+                    WHERE Ma_Lo = ?
                 """;
 
         try(Connection conn = DBConnection.getConnection();
@@ -105,10 +112,11 @@ public class LoHang_DAO {
             ps.setInt(4, lo.getSoLuongConLai());
             ps.setDouble(5, lo.getThanhTien());
             ps.setInt(6, lo.getTrangThai());
-            ps.setString(7, lo.getMaNcc());
-            ps.setString(8, lo.getMaKvlt());
-            ps.setString(9, lo.getMaSp());
-            ps.setString(10, lo.getMaLo());
+            ps.setString(7, lo.getMaPnk());
+            ps.setString(8, lo.getMaNcc());
+            ps.setString(9, lo.getMaKvlt());
+            ps.setString(10, lo.getMaSp());
+            ps.setString(11, lo.getMaLo());
 
             return ps.executeUpdate() > 0;
 
