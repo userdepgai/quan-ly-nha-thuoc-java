@@ -8,6 +8,8 @@ import dto.MenuItem;
 import gui.*;
 import gui.HOADON_GUI.LapHoaDon_GUI;
 import gui.HOADON_GUI.XuatHoaDon_GUI;
+import gui.NCCKVLT.KVLT;
+import gui.NCCKVLT.NCC;
 import utils.Session;
 
 public class Menu extends JFrame {
@@ -101,9 +103,9 @@ public class Menu extends JFrame {
 
         contentPanel.add(new KhachHang_GUI(), "khachhang");
         contentPanel.add(new NhanVien_GUI(), "nhanvien");
-        contentPanel.add(createContent("Nhà cung cấp"), "nhacungcap");
+        contentPanel.add(new NCC(), "nhacungcap");
 
-        contentPanel.add(createContent("Khu vực lưu trữ"), "luutru");
+        contentPanel.add(new KVLT(), "luutru");
         contentPanel.add(new LoHang_GUI(), "lohang");
         contentPanel.add(new PhieuNhap_GUI(), "phieunhap");
 
