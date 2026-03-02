@@ -25,7 +25,6 @@ public class NhaCungCap_DAO {
                 ncc.setTrangThai(rs.getInt("TrangThai"));
 
                 String maDC = rs.getString("Ma_DC");
-                System.out.println("DEBUG: Ma_NCC=" + rs.getString("Ma_NCC") + " Ma_DC=" + maDC);
                 DIACHI_DTO dc = new DIACHI_DTO();
                 dc.setMaDiaChi(maDC);
                 ncc.setDiaChi(dc);

@@ -28,10 +28,8 @@ public class DBConnection {
                 String password = props.getProperty("db.password");
 
                 connection = DriverManager.getConnection(url, username, password);
-                System.out.println("Kết nối Database thành công!");
             }
         } catch (Exception e) {
-            System.out.println("Lỗi kết nối Database:");
             e.printStackTrace();
         }
         return connection;
