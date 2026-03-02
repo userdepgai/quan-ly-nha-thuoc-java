@@ -147,7 +147,7 @@ public class LoHang_GUI extends JPanel{
                     lo.getMaPnk(),
                     lo.getMaSp(),
                     lo.getGiaNhap(),
-                    lo.getSoLuong(),
+                    lo.getSoLuongNhap(),
                     lo.getSoLuongConLai(),
                     lo.getHsd(),
                     lo.getThanhTien(),

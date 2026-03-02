@@ -75,7 +75,7 @@ public class LoHang_BUS {
             return false;
         }
 
-        if (lo.getSoLuong() <= 0) {
+        if (lo.getSoLuongNhap() <= 0) {
             JOptionPane.showMessageDialog(null, "Số lượng phải lớn hơn 0");
             return false;
         }

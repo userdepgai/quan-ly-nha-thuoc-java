@@ -12,24 +12,30 @@ public class LoHang_DAO {
         ArrayList<LoHang_DTO> list = new ArrayList<>();
         String sql = "SELECT * FROM LOHANG";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery()) {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
+
                 LoHang_DTO lo = new LoHang_DTO(
                         rs.getString("Ma_Lo"),
                         rs.getDouble("GiaNhap"),
                         rs.getDate("HSD").toLocalDate(),
-                        rs.getInt("SoLuong"),
+                        rs.getDate("NgaySanXuat") != null
+                                ? rs.getDate("NgaySanXuat").toLocalDate()
+                                : null,
+                        rs.getInt("SoLuongNhap"),
                         rs.getInt("SoLuongConLai"),
-                        rs.getDouble("ThanhTien"),
+                        rs.getDouble("ThanhTien"), // ✅ thêm dòng này
                         rs.getInt("TrangThai"),
+                        rs.getInt("TrangThaiTonKho"),
                         rs.getString("Ma_PNK"),
                         rs.getString("Ma_NCC"),
                         rs.getString("Ma_KVLT"),
                         rs.getString("Ma_SP")
                 );
+
                 list.add(lo);
             }
 
@@ -39,6 +45,7 @@ public class LoHang_DAO {
 
         return list;
     }
+
 
     public String getNextID() {
         String sql = "SELECT MAX(CAST(SUBSTRING(Ma_Lo,3,6) AS INT)) FROM LOHANG";
@@ -64,27 +71,37 @@ public class LoHang_DAO {
     }
 
     public boolean them(LoHang_DTO lo) {
-        String sql = """
-        INSERT INTO LOHANG
-        (Ma_Lo, GiaNhap, HSD, SoLuong, SoLuongConLai,
-         ThanhTien, TrangThai, Ma_PNK, Ma_NCC, Ma_KVLT, Ma_SP)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)
-        """;
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql = "INSERT INTO LOHANG "
+                + "(Ma_Lo, GiaNhap, HSD, NgaySanXuat, "
+                + "SoLuongNhap, SoLuongConLai, ThanhTien, "
+                + "TrangThai, TrangThaiTonKho, "
+                + "Ma_PNK, Ma_NCC, Ma_KVLT, Ma_SP) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, lo.getMaLo());
             ps.setDouble(2, lo.getGiaNhap());
             ps.setDate(3, Date.valueOf(lo.getHsd()));
-            ps.setInt(4, lo.getSoLuong());
-            ps.setInt(5, lo.getSoLuongConLai());
-            ps.setDouble(6, lo.getThanhTien());
-            ps.setInt(7, lo.getTrangThai());
-            ps.setString(8, lo.getMaPnk());
-            ps.setString(9, lo.getMaNcc());
-            ps.setString(10, lo.getMaKvlt());
-            ps.setString(11, lo.getMaSp());
+
+            if (lo.getNgaySanXuat() != null)
+                ps.setDate(4, Date.valueOf(lo.getNgaySanXuat()));
+            else
+                ps.setNull(4, Types.DATE);
+
+            ps.setInt(5, lo.getSoLuongNhap());
+            ps.setInt(6, lo.getSoLuongConLai());
+
+            ps.setDouble(7, lo.getGiaNhap() * lo.getSoLuongNhap());
+
+            ps.setInt(8, lo.getTrangThai());
+            ps.setInt(9, lo.getTrangThaiTonKho());
+            ps.setString(10, lo.getMaPnk());
+            ps.setString(11, lo.getMaNcc());
+            ps.setString(12, lo.getMaKvlt());
+            ps.setString(13, lo.getMaSp());
 
             return ps.executeUpdate() > 0;
 
@@ -95,28 +112,37 @@ public class LoHang_DAO {
         return false;
     }
     public boolean capNhat(LoHang_DTO lo) {
-        String sql = """
-                    UPDATE LOHANG
-                    SET GiaNhap = ?, HSD = ?, SoLuong = ?, SoLuongConLai = ?,
-                    ThanhTien = ?, TrangThai = ?,
-                    Ma_PNK = ?, Ma_NCC = ?, Ma_KVLT = ?, Ma_SP = ?
-                    WHERE Ma_Lo = ?
-                """;
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql = "UPDATE LOHANG SET "
+                + "GiaNhap=?, HSD=?, NgaySanXuat=?, "
+                + "SoLuongNhap=?, SoLuongConLai=?, ThanhTien=?, "
+                + "TrangThai=?, TrangThaiTonKho=?, "
+                + "Ma_PNK=?, Ma_NCC=?, Ma_KVLT=?, Ma_SP=? "
+                + "WHERE Ma_Lo=?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setDouble(1, lo.getGiaNhap());
             ps.setDate(2, Date.valueOf(lo.getHsd()));
-            ps.setInt(3, lo.getSoLuong());
-            ps.setInt(4, lo.getSoLuongConLai());
-            ps.setDouble(5, lo.getThanhTien());
-            ps.setInt(6, lo.getTrangThai());
-            ps.setString(7, lo.getMaPnk());
-            ps.setString(8, lo.getMaNcc());
-            ps.setString(9, lo.getMaKvlt());
-            ps.setString(10, lo.getMaSp());
-            ps.setString(11, lo.getMaLo());
+
+            if (lo.getNgaySanXuat() != null)
+                ps.setDate(3, Date.valueOf(lo.getNgaySanXuat()));
+            else
+                ps.setNull(3, Types.DATE);
+
+            ps.setInt(4, lo.getSoLuongNhap());
+            ps.setInt(5, lo.getSoLuongConLai());
+
+            ps.setDouble(6, lo.getGiaNhap() * lo.getSoLuongNhap());
+
+            ps.setInt(7, lo.getTrangThai());
+            ps.setInt(8, lo.getTrangThaiTonKho());
+            ps.setString(9, lo.getMaPnk());
+            ps.setString(10, lo.getMaNcc());
+            ps.setString(11, lo.getMaKvlt());
+            ps.setString(12, lo.getMaSp());
+            ps.setString(13, lo.getMaLo());
 
             return ps.executeUpdate() > 0;
 
