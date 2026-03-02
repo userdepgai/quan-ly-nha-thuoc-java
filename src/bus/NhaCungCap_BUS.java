@@ -44,7 +44,6 @@ public class NhaCungCap_BUS {
             JOptionPane.showMessageDialog(null, "Mã nhà cung cấp không được để trống");
             return false;
         }
-
         if (ncc.getTenNCC() == null || ncc.getTenNCC().trim().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Tên nhà cung cấp không được để trống");
             return false;

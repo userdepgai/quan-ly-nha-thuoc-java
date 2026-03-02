@@ -250,7 +250,6 @@ public class KVLT extends JPanel {
         maxId++;
         return String.format("KV%03d", maxId);
     }
-
     private void lamMoiForm() {
         textMa.setText("");
         textMa.setEditable(true);

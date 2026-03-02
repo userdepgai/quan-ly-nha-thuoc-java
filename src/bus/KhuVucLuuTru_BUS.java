@@ -20,7 +20,6 @@ public class KhuVucLuuTru_BUS {
         }
         return instance;
     }
-
     public ArrayList<KhuVucLuuTru_DTO> getAll() {
         return listCache;
     }

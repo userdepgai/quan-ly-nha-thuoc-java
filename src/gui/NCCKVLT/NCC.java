@@ -626,7 +626,6 @@ public class NCC extends JPanel {
             return;
         }
 
-
         try {
             String maNCC = textMa.getText().trim();
             String maSP = textMaSP.getText().trim();

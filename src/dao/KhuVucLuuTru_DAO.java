@@ -76,7 +76,6 @@ public class KhuVucLuuTru_DAO {
         }
         return false;
     }
-
     public boolean updateTrangThai(String maKVLT, int trangThaiMoi) {
         String sql = "UPDATE KHUVUCLUUTRU SET TrangThai=? WHERE Ma_KVLT=?";
         try (Connection conn = DBConnection.getConnection();

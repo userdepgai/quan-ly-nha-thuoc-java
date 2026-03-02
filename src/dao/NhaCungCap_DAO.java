@@ -89,7 +89,6 @@ public class NhaCungCap_DAO {
 
         String sql = "SELECT Ma_NCC FROM NHACUNGCAP";
         int max = 0;
-
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
