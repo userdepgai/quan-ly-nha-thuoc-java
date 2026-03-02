@@ -2,16 +2,20 @@ package gui.menu;
 
 import javax.swing.*;
 import java.awt.*;
+
+import bus.TaiKhoan_BUS;
 import dto.MenuItem;
 import gui.*;
 import gui.HOADON_GUI.LapHoaDon_GUI;
 import gui.HOADON_GUI.XuatHoaDon_GUI;
+import utils.Session;
 
 public class Menu extends JFrame {
     private JList<MenuItem> menuList;
     private DefaultListModel<MenuItem> menuModel;
     private JPanel contentPanel;
     private CardLayout cardLayout;
+    private TaiKhoan_BUS taiKhoanBus = TaiKhoan_BUS.getInstance();
 
     public Menu() {
         setTitle("Admin Dashboard");
@@ -26,7 +30,12 @@ public class Menu extends JFrame {
 
         menuModel = new DefaultListModel<>();
 
-        menuModel.addElement(new MenuItem("Thông tin cá nhân", "thongTinCaNhanFrame", icon("account.png"), false));
+        if(Session.isLoggedIn()) {
+            menuModel.addElement(new MenuItem(getNameUser(Session.getCurrentUser().getSdt()), null, icon("account.png"), false));
+        } else {
+            menuModel.addElement(new MenuItem("Nguyễn Gia Thịnh", null, icon("account.png"), false));
+        }
+
         menuModel.addElement(new MenuItem("TỔNG QUAN & ĐIỀU HÀNH", null, null, true));
         menuModel.addElement(new MenuItem("Dashboard", "dashboard", icon("dashboard.png"), false));
         menuModel.addElement(new MenuItem("Thống kê", "thongke", icon("thongKe.png"), false));
@@ -151,14 +160,15 @@ public class Menu extends JFrame {
         panel.add(label, BorderLayout.CENTER);
         return panel;
     }
-    private Icon icon(String name) {
-        // Tìm file trong thư mục resources/icons
-        java.net.URL imgURL = getClass().getResource("/icons/" + name);
 
+    private String getNameUser(String sdt) {
+        return taiKhoanBus.getNameNhanVien(sdt);
+    }
+    private Icon icon(String name) {
+        java.net.URL imgURL = getClass().getResource("/icons/" + name);
         if (imgURL != null) {
             return new ImageIcon(imgURL);
         } else {
-            // Nếu không tìm thấy, in ra lỗi để bạn biết chính xác file nào thiếu
             System.err.println("Lỗi: Không tìm thấy ảnh tại /icons/" + name);
             return null;
         }
