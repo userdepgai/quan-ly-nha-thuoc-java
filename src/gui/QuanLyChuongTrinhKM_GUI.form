@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="panelQuanLyChuongTrinhKhuyenMai" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="10" left="5" bottom="10" right="5"/>
     <constraints>
-      <xy x="20" y="20" width="923" height="691"/>
+      <xy x="20" y="20" width="923" height="871"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -95,14 +95,6 @@
               <text value="Ngày bắt đầu:"/>
             </properties>
           </component>
-          <component id="81462" class="javax.swing.JTextField" binding="txtLocNgayBatDau">
-            <constraints>
-              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties/>
-          </component>
           <component id="24a19" class="javax.swing.JLabel" binding="labelLocNgayKetThuc">
             <constraints>
               <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -110,14 +102,6 @@
             <properties>
               <text value="Ngày kết thúc:"/>
             </properties>
-          </component>
-          <component id="9237d" class="javax.swing.JTextField" binding="txtLocNgayKetThuc">
-            <constraints>
-              <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties/>
           </component>
           <component id="df7cb" class="javax.swing.JButton" binding="btnThoat">
             <constraints>
@@ -163,6 +147,22 @@
           <component id="d99d5" class="javax.swing.JTextField" binding="txtChuongTrinhKhuyenMaiHienCo">
             <constraints>
               <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="e240" class="javax.swing.JTextField" binding="txtLocNgayKetThuc">
+            <constraints>
+              <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="157ba" class="javax.swing.JTextField" binding="txtLocNgayBatDau">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
             </constraints>
@@ -220,7 +220,7 @@
             </properties>
             <border type="none" title="Thông tin chi tiết"/>
             <children>
-              <grid id="621a4" layout-manager="GridLayoutManager" row-count="5" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="621a4" layout-manager="GridLayoutManager" row-count="6" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -246,7 +246,7 @@
                   </component>
                   <component id="afb3f" class="javax.swing.JLabel" binding="labelTrangThai">
                     <constraints>
-                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <text value="Trạng thái"/>
@@ -270,7 +270,7 @@
                   </component>
                   <component id="f8bd6" class="javax.swing.JComboBox" binding="cmbTrangThai">
                     <constraints>
-                      <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                      <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties/>
                   </component>
@@ -282,14 +282,6 @@
                       <text value="Ngày bắt đầu"/>
                     </properties>
                   </component>
-                  <component id="3b016" class="javax.swing.JTextField" binding="txtNgayBatDau">
-                    <constraints>
-                      <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                        <preferred-size width="150" height="-1"/>
-                      </grid>
-                    </constraints>
-                    <properties/>
-                  </component>
                   <component id="702c5" class="javax.swing.JLabel" binding="labelNgayKetThuc">
                     <constraints>
                       <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -298,9 +290,33 @@
                       <text value="Ngày kết thúc"/>
                     </properties>
                   </component>
-                  <component id="d02f4" class="javax.swing.JTextField" binding="txtNgayKetThuc">
+                  <component id="1034" class="javax.swing.JTextField" binding="txtNgayBatDau">
+                    <constraints>
+                      <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                        <preferred-size width="150" height="-1"/>
+                      </grid>
+                    </constraints>
+                    <properties/>
+                  </component>
+                  <component id="ca7ef" class="javax.swing.JTextField" binding="txtNgayKetThuc">
                     <constraints>
                       <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                        <preferred-size width="150" height="-1"/>
+                      </grid>
+                    </constraints>
+                    <properties/>
+                  </component>
+                  <component id="c9985" class="javax.swing.JLabel" binding="labelMoTa">
+                    <constraints>
+                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Mô tả"/>
+                    </properties>
+                  </component>
+                  <component id="1c42a" class="javax.swing.JTextField" binding="txtMoTa">
+                    <constraints>
+                      <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="150" height="-1"/>
                       </grid>
                     </constraints>
