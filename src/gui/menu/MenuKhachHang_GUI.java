@@ -86,6 +86,7 @@ public class MenuKhachHang_GUI extends JFrame{
                             dispose();
                             new DangNhapGUI().setVisible(true);
                         }
+                        Session.clear();
                         return;
                     }
                     cardLayout.show(contentPanel, item.cardName);

@@ -121,4 +121,16 @@ public class LoHang_DTO {
     public void setMaSp(String maSp) {
         this.maSp = maSp;
     }
+
+//    public void congSoLuong(int soLuongThem) {
+//        if (soLuongThem <= 0) return;
+//
+//        this.soLuong += soLuongThem;
+//        this.soLuongConLai += soLuongThem;
+//        capNhatTrangThai();
+//    }
+    public void CongSoLuongConLai(int num) {
+        this.setSoLuongConLai(soLuongConLai + num);
+    }
+
 }

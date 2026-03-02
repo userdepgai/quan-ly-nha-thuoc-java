@@ -129,6 +129,7 @@ public class Menu extends JFrame {
                             dispose();
                             new DangNhapGUI().setVisible(true);
                         }
+                        Session.clear();
                         return;
                     }
                     if ("thongTinCaNhanFrame".equals(item.cardName)) {
