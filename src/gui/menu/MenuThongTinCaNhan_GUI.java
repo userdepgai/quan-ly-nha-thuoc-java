@@ -2,9 +2,12 @@ package gui.menu;
 
 import javax.swing.*;
 import java.awt.*;
+
+import bus.TaiKhoan_BUS;
 import dto.MenuItem;
 import gui.ThongTinCaNhanNhanVien_GUI;
 import gui.*;
+import utils.Session;
 
 public class MenuThongTinCaNhan_GUI extends JFrame {
 
@@ -12,6 +15,7 @@ public class MenuThongTinCaNhan_GUI extends JFrame {
     private DefaultListModel<MenuItem> menuModel;
     private JPanel contentPanel;
     private CardLayout cardLayout;
+    private TaiKhoan_BUS taiKhoanBus = TaiKhoan_BUS.getInstance();
 
     public MenuThongTinCaNhan_GUI() {
         setTitle("Tài khoản cá nhân");
@@ -26,7 +30,12 @@ public class MenuThongTinCaNhan_GUI extends JFrame {
 
         menuModel = new DefaultListModel<>();
 
-        menuModel.addElement(new MenuItem("TÀI KHOẢN", null, null, true));
+        if(Session.isLoggedIn()) {
+            menuModel.addElement(new MenuItem(getNameUser(Session.getCurrentUser().getSdt()), null, icon("account.png"), false));
+        } else {
+            menuModel.addElement(new MenuItem("Nguyễn Gia Thịnh", null, icon("account.png"), false));
+        }
+
         menuModel.addElement(new MenuItem("Hồ sơ cá nhân", "hoso", null, false));
         menuModel.addElement(new MenuItem("Đổi mật khẩu", "doimatkhau", null, false));
 
@@ -90,7 +99,9 @@ public class MenuThongTinCaNhan_GUI extends JFrame {
         panel.add(label, BorderLayout.CENTER);
         return panel;
     }
-
+    private String getNameUser(String sdt) {
+        return taiKhoanBus.getNameNhanVien(sdt);
+    }
     private Icon icon(String name) {
         return new ImageIcon(getClass().getResource("/icons/" + name));
     }

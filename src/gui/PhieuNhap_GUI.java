@@ -3,9 +3,13 @@ package gui;
 import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.plaf.FontUIResource;
+import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.util.Locale;
 
-public class PhieuNhap_GUI extends JPanel{
+public class PhieuNhap_GUI extends JPanel {
     private JButton button1;
     private JButton button2;
     private JTextField textField1;
@@ -46,17 +50,19 @@ public class PhieuNhap_GUI extends JPanel{
         this.add(panel_phieuNhap, BorderLayout.CENTER);
 
     }
+
     private void createUIComponents() {
-        JDateChooser1 = new com.toedter.calendar.JDateChooser();
+        JDateChooser1 = new JDateChooser();
         JDateChooser1.setDateFormatString("dd/MM/yyyy");
 
-        JDateChooser2 = new com.toedter.calendar.JDateChooser();
+        JDateChooser2 = new JDateChooser();
         JDateChooser2.setDateFormatString("dd/MM/yyyy");
 
-        JDateChooser3 = new com.toedter.calendar.JDateChooser();
+        JDateChooser3 = new JDateChooser();
         JDateChooser3.setDateFormatString("dd/MM/yyyy");
 
-        JDateChooser4 = new com.toedter.calendar.JDateChooser();
+        JDateChooser4 = new JDateChooser();
         JDateChooser4.setDateFormatString("dd/MM/yyyy");
     }
+
 }

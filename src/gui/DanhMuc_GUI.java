@@ -3,13 +3,18 @@ package gui;
 import bus.DanhMuc_BUS;
 import bus.ThuocTinhDanhMuc_BUS;
 import dto.DanhMuc_DTO;
+import dto.ThuocTinhDanhMuc_DTO;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class DanhMuc_GUI extends JPanel {
     // --- KHAI BÁO BIẾN GIAO DIỆN ---
@@ -55,7 +60,7 @@ public class DanhMuc_GUI extends JPanel {
     private final ThuocTinhDanhMuc_BUS ttBUS = ThuocTinhDanhMuc_BUS.getInstance();
     private String chucNangHienTai = ""; // "THEM" hoặc "SUA"
 
-    public DanhMuc_GUI(){
+    public DanhMuc_GUI() {
         this.setLayout(new BorderLayout());
         if (panelDanhMucSanPham != null) {
             this.add(panelDanhMucSanPham, BorderLayout.CENTER);
@@ -128,19 +133,20 @@ public class DanhMuc_GUI extends JPanel {
             });
         }
         // Cập nhật số lượng hiển thị
-        if(txtDanhMucHienCo != null) {
+        if (txtDanhMucHienCo != null) {
             txtDanhMucHienCo.setText(String.valueOf(list.size()));
         }
     }
+
     // --- LOAD DỮ LIỆU THUỘC TÍNH THEO DANH MỤC ---
     private void loadDataToTable_ThuocTinh(String maDM) {
         modelThuocTinh.setRowCount(0); // Xóa dữ liệu cũ trên bảng thuộc tính
 
         // Lấy danh sách thuộc tính thuộc danh mục này từ BUS
-        ArrayList<dto.ThuocTinhDanhMuc_DTO> dsTT = dmBUS.getThuocTinhByMaDM(maDM);
+        ArrayList<ThuocTinhDanhMuc_DTO> dsTT = dmBUS.getThuocTinhByMaDM(maDM);
 
         int stt = 1;
-        for (dto.ThuocTinhDanhMuc_DTO tt : dsTT) {
+        for (ThuocTinhDanhMuc_DTO tt : dsTT) {
             // Chuyển đổi kiểu thuộc tính (0 -> Combobox, 1 -> Nhập giá trị)
 
             modelThuocTinh.addRow(new Object[]{
@@ -283,4 +289,5 @@ public class DanhMuc_GUI extends JPanel {
         // Khóa bảng khi đang sửa để tránh click lung tung
         tableDanhMuc.setEnabled(lock);
     }
+
 }

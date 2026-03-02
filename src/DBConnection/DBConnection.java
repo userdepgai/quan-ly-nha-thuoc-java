@@ -20,7 +20,8 @@ public class DBConnection {
                         .getResourceAsStream("db.properties");
 
                 if (input == null) {
-                    throw new RuntimeException("Cannot find db.properties file");
+                    // Ưu tiên ném Exception để dừng chương trình nếu không có cấu hình DB
+                    throw new RuntimeException("Lỗi: Không tìm thấy file db.properties!");
                 }
                 props.load(input);
 
@@ -34,5 +35,9 @@ public class DBConnection {
             e.printStackTrace();
         }
         return connection;
+    }
+
+    public static void main(String[] args) {
+        getConnection();
     }
 }

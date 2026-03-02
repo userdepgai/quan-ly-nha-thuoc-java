@@ -13,7 +13,7 @@ public class SanPham_BUS {
     private ArrayList<SanPham_DTO> listCache;
 
     // Gọi QuyCach_BUS để xử lý quy cách
-    private QuyCach_BUS qcBus = QuyCach_BUS.getInstance();
+    private bus.QuyCach_BUS qcBus = bus.QuyCach_BUS.getInstance();
 
     private SanPham_BUS() {
         listCache = spDao.getAll();

@@ -1,14 +1,19 @@
 package gui;
 
+import bus.SanPham_BUS;
 import bus.*;
 import dto.*;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class QuanLySanPham_GUI extends JPanel {
     private JPanel panelTieuDe;
@@ -96,7 +101,9 @@ public class QuanLySanPham_GUI extends JPanel {
         String[] headers = {"STT", "Mã SP", "Tên Sản Phẩm", "ĐVT", "Lợi Nhuận", "Kê đơn", "Danh Mục", "Hình Ảnh", "Trạng Thái"};
         modelSanPham = new DefaultTableModel(headers, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
         tableSanPham.setModel(modelSanPham);
     }
@@ -185,7 +192,10 @@ public class QuanLySanPham_GUI extends JPanel {
         });
 
         btnLuu.addActionListener(e -> saveSanPham());
-        btnHuy.addActionListener(e -> { lockForm(true); clearForm(); });
+        btnHuy.addActionListener(e -> {
+            lockForm(true);
+            clearForm();
+        });
 
         btnTimKiem.addActionListener(e -> thucHienLoc());
     }
@@ -234,13 +244,13 @@ public class QuanLySanPham_GUI extends JPanel {
         String maDM = null;
 
         // Tìm mã DM từ tên DM đã chọn
-        for(DanhMuc_DTO dm : dmBUS.getAll()) {
-            if(dm.getTenDM().equals(tenDM)) maDM = dm.getMaDM();
+        for (DanhMuc_DTO dm : dmBUS.getAll()) {
+            if (dm.getTenDM().equals(tenDM)) maDM = dm.getMaDM();
         }
 
         Integer trangThai = null;
-        if(cmbLocTrangThai.getSelectedIndex() == 1) trangThai = 1;
-        if(cmbLocTrangThai.getSelectedIndex() == 2) trangThai = 0;
+        if (cmbLocTrangThai.getSelectedIndex() == 1) trangThai = 1;
+        if (cmbLocTrangThai.getSelectedIndex() == 2) trangThai = 0;
 
         ArrayList<SanPham_DTO> dsLoc = spBUS.timKiem(keyword, maDM, trangThai);
         loadDataToTable(dsLoc);
@@ -251,8 +261,8 @@ public class QuanLySanPham_GUI extends JPanel {
         // Lưu ý khi lấy mã DM từ ComboBox tên DM:
         String tenDMChon = cmbDanhMuc.getSelectedItem().toString();
         String maDM = "";
-        for(DanhMuc_DTO d : dmBUS.getAll()) {
-            if(d.getTenDM().equals(tenDMChon)) maDM = d.getMaDM();
+        for (DanhMuc_DTO d : dmBUS.getAll()) {
+            if (d.getTenDM().equals(tenDMChon)) maDM = d.getMaDM();
         }
 
         // Tiến hành build DTO và gọi BUS.them/capNhat
@@ -287,4 +297,5 @@ public class QuanLySanPham_GUI extends JPanel {
         txtAreaThuocTinhRieng.setText("");
         txtLinkHinhAnh.setText("");
     }
+
 }

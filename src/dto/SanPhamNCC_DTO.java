@@ -1,5 +1,7 @@
 package dto;
 
+import dto.SANPHAM;
+
 public class SanPhamNCC_DTO {
 
     private String maSanPham;
@@ -10,7 +12,6 @@ public class SanPhamNCC_DTO {
 
     public SanPhamNCC_DTO() {
     }
-
     public SanPhamNCC_DTO(String maSanPham, String maNCC,
                           double giaNhap, int trangThai) {
         this.maSanPham = maSanPham;

@@ -1,4 +1,5 @@
 package dto;
+
 import java.sql.Date;
 
 public class KhuVucLuuTru_DTO {
@@ -6,23 +7,22 @@ public class KhuVucLuuTru_DTO {
     private String tenKVLT;
     private Date ngayLapKho;
     private int sucChua;
+    private int hienCo;
     private int trangThai;
     private DIACHI_DTO diaChi;
-
 
     public KhuVucLuuTru_DTO() {
     }
 
-    public KhuVucLuuTru_DTO(String maKVLT, String tenKVLT, Date ngayLapKho, int sucChua, int trangThai, DIACHI_DTO diaChi) {
+    public KhuVucLuuTru_DTO(String maKVLT, String tenKVLT, int hienCo, Date ngayLapKho, int sucChua, int trangThai, DIACHI_DTO diaChi) {
         this.maKVLT = maKVLT;
         this.tenKVLT = tenKVLT;
         this.ngayLapKho = ngayLapKho;
+        this.hienCo = hienCo;
         this.sucChua = sucChua;
         this.trangThai = trangThai;
         this.diaChi = diaChi;
     }
-
-
 
     public String getMaKVLT() {
         return maKVLT;
@@ -40,14 +40,20 @@ public class KhuVucLuuTru_DTO {
         this.tenKVLT = tenKVLT;
     }
 
-
     public Date getNgayLapKho() {
         return ngayLapKho;
     }
 
-
     public void setNgayLapKho(Date ngayLapKho) {
         this.ngayLapKho = ngayLapKho;
+    }
+
+    public int getHienCo(){
+        return hienCo;
+    }
+
+    public void setHienCo(int hienCo){
+        this.hienCo = hienCo;
     }
 
     public int getSucChua() {
