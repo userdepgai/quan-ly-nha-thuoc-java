@@ -95,7 +95,6 @@ public class NhaCungCap_DAO {
             while(rs.next()) {
                 String ma = rs.getString(1);
                 if (ma != null) {
-                    // Dùng Regex xóa hết chữ, chỉ giữ lại số (Ví dụ: "NCC001" hay "NCC_001" đều thành "001")
                     String numStr = ma.replaceAll("[^\\d]", "");
                     if (!numStr.isEmpty()) {
                         int num = Integer.parseInt(numStr);
@@ -110,4 +109,5 @@ public class NhaCungCap_DAO {
         }
         return String.format("NCC%03d", max + 1);
     }
+
 }

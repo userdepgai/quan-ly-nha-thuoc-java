@@ -139,4 +139,7 @@ public class NhaCungCap_BUS {
         }
         return null;
     }
+    public String getNextId() {
+        return dao.getNextId();
+    }
 }

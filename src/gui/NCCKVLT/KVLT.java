@@ -5,7 +5,6 @@ import dto.DIACHI_DTO;
 import dto.KhuVucLuuTru_DTO;
 import bus.KhuVucLuuTru_BUS;
 
-
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.FontUIResource;
@@ -131,7 +130,6 @@ public class KVLT extends JPanel {
                 }
             }
 
-
             modelKVLT.addRow(new Object[]{
                     stt++,
                     kv.getMaKVLT(),
@@ -173,7 +171,6 @@ public class KVLT extends JPanel {
                 "Còn trống", "Đã đầy", "Bảo trì"
         }));
     }
-
 
     private void addEvents() {
         tableDanhSach.addMouseListener(new MouseAdapter() {
@@ -221,7 +218,6 @@ public class KVLT extends JPanel {
         });
     }
 
-
     private void setKhoaForm(boolean isLocked) {
         textMa.setEditable(!isLocked);
         textTen.setEditable(!isLocked);
@@ -231,24 +227,6 @@ public class KVLT extends JPanel {
         comboBoxTthai.setEnabled(!isLocked);
     }
 
-    private String taoMaKhuVucMoi() {
-        ArrayList<KhuVucLuuTru_DTO> list = bus.getAll();
-        if (list == null || list.isEmpty()) return "KV001";
-
-        int maxId = 0;
-        for (KhuVucLuuTru_DTO kv : list) {
-            String ma = kv.getMaKVLT();
-            if (ma != null && ma.startsWith("KV") && ma.length() > 2) {
-                try {
-                    int so = Integer.parseInt(ma.substring(2));
-                    if (so > maxId) maxId = so;
-                } catch (Exception e) {
-                }
-            }
-        }
-        maxId++;
-        return String.format("KV%03d", maxId);
-    }
     private void lamMoiForm() {
         textMa.setText("");
         textMa.setEditable(true);
@@ -259,6 +237,7 @@ public class KVLT extends JPanel {
         comboBoxTthai.setSelectedIndex(0);
         tableDanhSach.clearSelection();
     }
+
     private void hienThiChiTiet() {
         int selectedRow = tableDanhSach.getSelectedRow();
         if (selectedRow >= 0) {
@@ -281,13 +260,12 @@ public class KVLT extends JPanel {
             else comboBoxTthai.setSelectedIndex(2);
 
             setKhoaForm(true);
-            btnThemKV.setText("Thêm ");
+            btnThemKV.setText("Thêm");
             btnThemKV.setEnabled(true);
-            btnCapNhat.setText("Cập Nhật ");
+            btnCapNhat.setText("Cập Nhật");
             btnCapNhat.setEnabled(true);
         }
     }
-
 
     private void themKhuVuc() {
         if (btnThemKV.getText().trim().equals("Thêm")) {
@@ -353,7 +331,7 @@ public class KVLT extends JPanel {
         }
         if (btnCapNhat.getText().trim().equals("Cập Nhật")) {
             setKhoaForm(false);
-            textMa.setEditable(false); // Khóa mã không cho sửa
+            textMa.setEditable(false);
             btnCapNhat.setText("Xác nhận Sửa");
             btnThemKV.setEnabled(false);
         } else {
@@ -367,7 +345,6 @@ public class KVLT extends JPanel {
                 kv.setTenKVLT(textTen.getText().trim());
                 kv.setSucChua(Integer.parseInt(textSucChua.getText().trim()));
                 kv.setTrangThai(comboBoxTthai.getSelectedIndex() + 1);
-
 
                 String diaChiNhapVao = textDCHI.getText().trim();
                 DiaChi_DAO dcDao = new DiaChi_DAO();
@@ -472,15 +449,13 @@ public class KVLT extends JPanel {
             });
 
             btnItem.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mouseEntered(MouseEvent evt) {
                     btnItem.setContentAreaFilled(true);
                     btnItem.setBackground(new Color(240, 240, 240));
                 }
 
-                public void sweep(MouseEvent evt) {
-
-                }
-
+                @Override
                 public void mouseExited(MouseEvent evt) {
                     btnItem.setContentAreaFilled(false);
                 }
@@ -503,16 +478,19 @@ public class KVLT extends JPanel {
 
         scrollPane.setFocusable(false);
     }
+
     private void thoatForm() {
-        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn thoát?", "Xác nhận", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-            System.exit(0);
+        if (JOptionPane.showConfirmDialog(this, "Bạn có muốn hủy bỏ các thao tác hiện tại không?", "Xác nhận", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            lamMoiForm();
+            setKhoaForm(true);
+            btnThemKV.setText("Thêm");
+            btnThemKV.setEnabled(true);
+            btnCapNhat.setText("Cập Nhật");
+            btnCapNhat.setEnabled(true);
         }
     }
-
 
     public JPanel getPanelMain() {
         return panelMain;
     }
-
-
 }

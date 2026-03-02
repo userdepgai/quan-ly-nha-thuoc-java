@@ -2,7 +2,6 @@ package gui.NCCKVLT;
 
 import bus.NhaCungCap_BUS;
 import dao.DiaChi_DAO;
-import dao.NhaCungCap_DAO;
 import dto.DIACHI_DTO;
 import dto.NhaCungCap_DTO;
 import bus.SanPhamNCC_BUS;
@@ -52,10 +51,12 @@ public class NCC extends JPanel {
     private JButton btnThemNCC;
     private JTextField textMaSP;
     private JPanel panelMain;
+
     private DefaultTableModel modelNCC;
     private DefaultTableModel modelSP;
-    private NhaCungCap_DAO dao = new NhaCungCap_DAO();
+
     private NhaCungCap_BUS bus = NhaCungCap_BUS.getInstance();
+
     private boolean isAdding = false;
     private boolean isUpdating = false;
     private boolean isAddingSP = false;
@@ -87,10 +88,7 @@ public class NCC extends JPanel {
             }
         };
         tableDanhSach.setModel(modelNCC);
-
-
         setupTableProperties(tableDanhSach);
-
 
         String[] colChiTiet = {"STT", "Mã Sản Phẩm", "Tên Sản Phẩm", "Giá Bán", "Trạng Thái"};
         modelSP = new DefaultTableModel(colChiTiet, 0) {
@@ -100,7 +98,6 @@ public class NCC extends JPanel {
             }
         };
         tableChiTiet.setModel(modelSP);
-
         setupTableChiTietProperties(tableChiTiet);
     }
 
@@ -125,32 +122,28 @@ public class NCC extends JPanel {
 
         modelNCC.setRowCount(0);
         bus.refreshData();
-        ArrayList<NhaCungCap_DTO> listNCC = dao.getAll();
+
+        ArrayList<NhaCungCap_DTO> listNCC = bus.getAll();
 
         if (listNCC == null || listNCC.isEmpty()) {
             System.out.println("Dữ liệu list trả về bị rỗng!");
             return;
         }
-        DiaChi_DAO diaChiDAO = new DiaChi_DAO();
+        DiaChi_DAO diaChiDAO = new DiaChi_DAO(); // Riêng Address có thể bỏ qua tùy cấu trúc của bạn
         ArrayList<DIACHI_DTO> listTatCaDiaChi = diaChiDAO.getAll();
 
         int stt = 1;
 
         for (NhaCungCap_DTO ncc : listNCC) {
             String trangThaiText = (ncc.getTrangThai() == 1) ? "ĐANG_GIAO_DỊCH" : "NGỪNG_HỢP_TÁC";
-
             String diaChiHienThi = "";
-
 
             if (ncc.getDiaChi() != null && ncc.getDiaChi().getMaDiaChi() != null) {
                 String maDCCanTim = ncc.getDiaChi().getMaDiaChi();
 
-
                 for (DIACHI_DTO dcFull : listTatCaDiaChi) {
                     if (dcFull.getMaDiaChi().equals(maDCCanTim)) {
-
                         ncc.setDiaChi(dcFull);
-
 
                         StringBuilder sb = new StringBuilder();
                         if (dcFull.getSoNha() != null && !dcFull.getSoNha().isEmpty())
@@ -162,7 +155,6 @@ public class NCC extends JPanel {
                         if (dcFull.getTinh() != null && !dcFull.getTinh().isEmpty()) sb.append(dcFull.getTinh());
 
                         diaChiHienThi = sb.toString();
-
 
                         if (diaChiHienThi.endsWith(", ")) {
                             diaChiHienThi = diaChiHienThi.substring(0, diaChiHienThi.length() - 2);
@@ -186,7 +178,6 @@ public class NCC extends JPanel {
     }
 
     private void loadSanPhamTheoNCC(String maNCC) {
-
         modelSP.setRowCount(0);
 
         SanPhamNCC_BUS spNccBus = SanPhamNCC_BUS.getInstance();
@@ -199,9 +190,7 @@ public class NCC extends JPanel {
         int stt = 1;
 
         for (SanPhamNCC_DTO spNcc : list) {
-
             SanPham_DTO sp = spBus.getById(spNcc.getMaSanPham());
-
             String tenSP = (sp != null) ? sp.getTenSP() : "KHÔNG_TÌM_THẤY";
 
             modelSP.addRow(new Object[]{
@@ -240,7 +229,6 @@ public class NCC extends JPanel {
         }
     }
 
-
     private void addEvents() {
         tableDanhSach.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
@@ -278,21 +266,19 @@ public class NCC extends JPanel {
                 }
             }
         });
+
         textLoc.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 String keyword = textLoc.getText().trim().toLowerCase();
-
                 if (!keyword.isEmpty()) {
                     ArrayList<NhaCungCap_DTO> listGoiY = new ArrayList<>();
-
                     for (NhaCungCap_DTO ncc : bus.getAll()) {
                         if (ncc.getTenNCC().toLowerCase().contains(keyword) ||
                                 ncc.getMaNCC().toLowerCase().contains(keyword)) {
                             listGoiY.add(ncc);
                         }
                     }
-
                     hienThiGoiYNCC(listGoiY);
                 } else {
                     popupGoiY.setVisible(false);
@@ -310,6 +296,7 @@ public class NCC extends JPanel {
         textDCHI.setEditable(!isLocked);
         comboBoxTthai.setEnabled(!isLocked);
     }
+
     private void lamMoiForm() {
         textMa.setText("");
         textMa.setEditable(true);
@@ -354,53 +341,27 @@ public class NCC extends JPanel {
             String trangThai = modelNCC.getValueAt(modelRow, 7).toString();
             comboBoxTthai.setSelectedIndex(trangThai.equals("ĐANG_GIAO_DỊCH") ? 0 : 1);
 
-
             loadSanPhamTheoNCC(textMa.getText().trim());
 
             setKhoaForm(true);
-            btnThemNCC.setText("Thêm ");
-            btnCapNhat.setText("Cập Nhật ");
+            btnThemNCC.setText("Thêm");
+            btnCapNhat.setText("Cập Nhật");
             btnThemNCC.setEnabled(true);
             btnCapNhat.setEnabled(true);
 
             isAdding = false;
             isUpdating = false;
         }
-        textLoc.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                String keyword = textLoc.getText().trim().toLowerCase();
-
-                if (!keyword.isEmpty()) {
-                    ArrayList<NhaCungCap_DTO> listGoiY = new ArrayList<>();
-
-                    for (NhaCungCap_DTO ncc : bus.getAll()) {
-                        if (ncc.getTenNCC().toLowerCase().contains(keyword) ||
-                                ncc.getMaNCC().toLowerCase().contains(keyword)) {
-                            listGoiY.add(ncc);
-                        }
-                    }
-
-
-                    hienThiGoiYNCC(listGoiY);
-                } else {
-                    popupGoiY.setVisible(false);
-                }
-            }
-        });
     }
 
     private void themNCC() {
-
         if (!isAdding) {
             isAdding = true;
             isUpdating = false;
 
             lamMoiForm();
             setKhoaForm(false);
-
-
-            String maMoi = dao.getNextId();
+            String maMoi = bus.getNextId();
             textMa.setText(maMoi);
             textMa.setEditable(false);
 
@@ -409,7 +370,6 @@ public class NCC extends JPanel {
             return;
         }
 
-
         try {
             NhaCungCap_DTO ncc = new NhaCungCap_DTO();
             ncc.setMaNCC(textMa.getText().trim());
@@ -417,6 +377,7 @@ public class NCC extends JPanel {
             ncc.setMaSoThue(textMST.getText().trim());
             ncc.setSdt(textSDT.getText().trim());
             ncc.setNguoiLienHe(textNLH.getText().trim());
+
             String diaChiNhapVao = textDCHI.getText().trim();
             if (!diaChiNhapVao.isEmpty()) {
                 DiaChi_DAO dcDao = new DiaChi_DAO();
@@ -436,14 +397,14 @@ public class NCC extends JPanel {
             int trangThaiSo = (comboBoxTthai.getSelectedIndex() == 0) ? 1 : 0;
             ncc.setTrangThai(trangThaiSo);
 
-            if (dao.insert(ncc)) {
+            if (bus.insert(ncc)) {
                 JOptionPane.showMessageDialog(this, "Thêm thành công!");
                 loadDataToTable();
                 lamMoiForm();
                 setKhoaForm(true);
 
                 isAdding = false;
-                btnThemNCC.setText("Thêm ");
+                btnThemNCC.setText("Thêm");
                 btnCapNhat.setEnabled(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Thêm thất bại!");
@@ -484,6 +445,7 @@ public class NCC extends JPanel {
             ncc.setMaSoThue(textMST.getText().trim());
             ncc.setSdt(textSDT.getText().trim());
             ncc.setNguoiLienHe(textNLH.getText().trim());
+
             String diaChiNhapVao = textDCHI.getText().trim();
             DiaChi_DAO dcDao = new DiaChi_DAO();
 
@@ -510,13 +472,13 @@ public class NCC extends JPanel {
             int trangThaiSo = (comboBoxTthai.getSelectedIndex() == 0) ? 1 : 0;
             ncc.setTrangThai(trangThaiSo);
 
-            if (dao.update(ncc)) {
+            if (bus.update(ncc)) {
                 JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
                 loadDataToTable();
                 setKhoaForm(true);
 
                 isUpdating = false;
-                btnCapNhat.setText("Cập Nhật ");
+                btnCapNhat.setText("Cập Nhật");
                 btnThemNCC.setEnabled(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
@@ -530,11 +492,12 @@ public class NCC extends JPanel {
 
     private void timKiemNCC() {
         String tuKhoa = textLoc.getText().trim().toLowerCase();
-
         String trangThaiLoc = "";
+
         if (comboBoxTrangThai.getSelectedItem() != null) {
             trangThaiLoc = comboBoxTrangThai.getSelectedItem().toString();
         }
+
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(modelNCC);
         tableDanhSach.setRowSorter(sorter);
 
@@ -551,7 +514,6 @@ public class NCC extends JPanel {
     }
 
     private void themSanPhamChoNCC() {
-
         if (!isAddingSP) {
             isAddingSP = true;
             isUpdatingSP = false;
@@ -587,7 +549,6 @@ public class NCC extends JPanel {
                 JOptionPane.showMessageDialog(this, "Thêm sản phẩm thành công!");
                 loadSanPhamTheoNCC(maNCC);
                 lamMoiFormSanPham();
-
 
                 isAddingSP = false;
                 setKhoaFormSP(true);
@@ -629,7 +590,6 @@ public class NCC extends JPanel {
             double giaMoi = Double.parseDouble(textGiaBan.getText().trim());
             int trangThai = comboBox1.getSelectedIndex() == 0 ? 1 : 0;
 
-            // Đã đổi sang dùng hàm set... để không bao giờ bị ngược dữ liệu
             SanPhamNCC_DTO spNcc = new SanPhamNCC_DTO();
             spNcc.setMaNCC(maNCC);
             spNcc.setMaSanPham(maSP);
@@ -641,7 +601,6 @@ public class NCC extends JPanel {
             if (spNccBus.update(spNcc)) {
                 JOptionPane.showMessageDialog(this, "Cập nhật sản phẩm thành công!");
                 loadSanPhamTheoNCC(maNCC);
-
 
                 isUpdatingSP = false;
                 setKhoaFormSP(true);
@@ -683,8 +642,25 @@ public class NCC extends JPanel {
     }
 
     private void thoatForm() {
-        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn thoát?", "Xác nhận", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-            System.exit(0);
+        if (JOptionPane.showConfirmDialog(this, "Bạn có muốn hủy bỏ các thao tác hiện tại không?", "Xác nhận", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            lamMoiForm();
+            setKhoaForm(true);
+            btnThemNCC.setText("Thêm");
+            btnThemNCC.setEnabled(true);
+            btnCapNhat.setText("Cập Nhật");
+            btnCapNhat.setEnabled(true);
+            isAdding = false;
+            isUpdating = false;
+
+            lamMoiFormSanPham();
+            setKhoaFormSP(true);
+            btnThem.setText("THÊM");
+            btnThem.setEnabled(true);
+            btnSua.setText("SỬA");
+            btnSua.setEnabled(true);
+            btnHuy.setEnabled(true);
+            isAddingSP = false;
+            isUpdatingSP = false;
         }
     }
 
@@ -707,7 +683,6 @@ public class NCC extends JPanel {
             btnItem.setContentAreaFilled(false);
             btnItem.setFocusPainted(false);
             btnItem.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
 
             btnItem.setPreferredSize(new Dimension(textLoc.getWidth(), 30));
             btnItem.setMaximumSize(new Dimension(textLoc.getWidth(), 30));
@@ -735,7 +710,6 @@ public class NCC extends JPanel {
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
         scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
-
 
         int height = Math.min(list.size() * 30, 150);
         scrollPane.setPreferredSize(new Dimension(textLoc.getWidth(), height));
