@@ -178,7 +178,6 @@ public class KVLT extends JPanel {
                 hienThiChiTiet();
             }
         });
-
         btnThemKV.addActionListener(e -> themKhuVuc());
         btnCapNhat.addActionListener(e -> capNhatKhuVuc());
         btnTimKiem.addActionListener(e -> timKiemKhuVuc());

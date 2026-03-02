@@ -23,7 +23,6 @@ public class KhuVucLuuTru_BUS {
     public ArrayList<KhuVucLuuTru_DTO> getAll() {
         return listCache;
     }
-
     public void refreshData() {
         listCache = dao.getAll();
         DiaChi_BUS diaChiBUS = DiaChi_BUS.getInstance();

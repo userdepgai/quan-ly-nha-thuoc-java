@@ -130,7 +130,6 @@ public class NhaCungCap_BUS {
         return result;
     }
 
-
     public NhaCungCap_DTO getById(String maNCC) {
         for (NhaCungCap_DTO ncc : listCache) {
             if (ncc.getMaNCC().equals(maNCC)) {

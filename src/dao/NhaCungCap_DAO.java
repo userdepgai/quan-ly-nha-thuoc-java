@@ -86,7 +86,6 @@ public class NhaCungCap_DAO {
         return false;
     }
     public String getNextId() {
-
         String sql = "SELECT Ma_NCC FROM NHACUNGCAP";
         int max = 0;
         try (Connection conn = DBConnection.getConnection();

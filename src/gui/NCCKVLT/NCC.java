@@ -56,7 +56,6 @@ public class NCC extends JPanel {
     private DefaultTableModel modelSP;
 
     private NhaCungCap_BUS bus = NhaCungCap_BUS.getInstance();
-
     private boolean isAdding = false;
     private boolean isUpdating = false;
     private boolean isAddingSP = false;

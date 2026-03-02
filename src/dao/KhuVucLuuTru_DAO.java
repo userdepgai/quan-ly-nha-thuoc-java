@@ -36,7 +36,6 @@ public class KhuVucLuuTru_DAO {
         }
         return list;
     }
-
     public boolean insert(KhuVucLuuTru_DTO kv) {
         String sql = "INSERT INTO KHUVUCLUUTRU (Ma_KVLT, Ten_KVLT, SucChua, HienCo, NgayLapKho, TrangThai, Ma_DC) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
