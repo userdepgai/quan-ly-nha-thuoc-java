@@ -312,7 +312,6 @@ public class KVLT extends JPanel {
                     DiaChi_DAO dcDao = new DiaChi_DAO();
                     DIACHI_DTO dcMoi = new DIACHI_DTO();
 
-
                     dcMoi.setMaDiaChi(dcDao.getNextId());
                     dcMoi.setSoNha(diaChiNhapVao);
                     dcMoi.setDuong("");
