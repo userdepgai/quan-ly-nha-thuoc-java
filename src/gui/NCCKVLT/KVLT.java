@@ -503,7 +503,6 @@ public class KVLT extends JPanel {
 
         scrollPane.setFocusable(false);
     }
-
     private void thoatForm() {
         if (JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn thoát?", "Xác nhận", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
             System.exit(0);

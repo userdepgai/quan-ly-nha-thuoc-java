@@ -64,7 +64,6 @@ public class NCC extends JPanel {
 
     public NCC() {
         this.setLayout(new BorderLayout());
-
         if (panelMain != null) {
             this.add(panelMain, BorderLayout.CENTER);
         } else {
