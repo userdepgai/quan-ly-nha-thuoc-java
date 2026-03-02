@@ -20,10 +20,10 @@ public class ThuocTinhDanhMuc_DAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
+                // Đã xóa rs.getInt("Kieu_TT")
                 ThuocTinhDanhMuc_DTO tt = new ThuocTinhDanhMuc_DTO(
                         rs.getString("MaThuocTinh"),
                         rs.getString("Ten_TT"),
-                        rs.getInt("Kieu_TT"),
                         rs.getInt("TrangThai"),
                         rs.getString("Ma_DM")
                 );
@@ -54,14 +54,16 @@ public class ThuocTinhDanhMuc_DAO {
 
     // 3. Thêm mới
     public boolean them(ThuocTinhDanhMuc_DTO tt) {
-        String sql = "INSERT INTO THUOCTINHDANHMUC (MaThuocTinh, Ten_TT, Kieu_TT, TrangThai, Ma_DM) VALUES (?, ?, ?, ?, ?)";
+        // Đã xóa Kieu_TT khỏi câu SQL
+        String sql = "INSERT INTO THUOCTINHDANHMUC (MaThuocTinh, Ten_TT, TrangThai, Ma_DM) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, tt.getMaThuocTinh());
             ps.setString(2, tt.getTenThuocTinh());
-            ps.setInt(3, tt.getKieuThuocTinh());
-            ps.setInt(4, tt.getTrangThai());
-            ps.setString(5, tt.getMaDM());
+            ps.setInt(3, tt.getTrangThai());      // Đẩy index lên 3
+            ps.setString(4, tt.getMaDM());        // Đẩy index lên 4
+
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -71,14 +73,16 @@ public class ThuocTinhDanhMuc_DAO {
 
     // 4. Cập nhật
     public boolean capNhat(ThuocTinhDanhMuc_DTO tt) {
-        String sql = "UPDATE THUOCTINHDANHMUC SET Ten_TT=?, Kieu_TT=?, TrangThai=?, Ma_DM=? WHERE MaThuocTinh=?";
+        // Đã xóa Kieu_TT khỏi câu SQL
+        String sql = "UPDATE THUOCTINHDANHMUC SET Ten_TT=?, TrangThai=?, Ma_DM=? WHERE MaThuocTinh=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, tt.getTenThuocTinh());
-            ps.setInt(2, tt.getKieuThuocTinh());
-            ps.setInt(3, tt.getTrangThai());
-            ps.setString(4, tt.getMaDM());
-            ps.setString(5, tt.getMaThuocTinh());
+            ps.setInt(2, tt.getTrangThai());      // Đẩy index lên 2
+            ps.setString(3, tt.getMaDM());        // Đẩy index lên 3
+            ps.setString(4, tt.getMaThuocTinh()); // Đẩy index lên 4
+
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();

@@ -2,7 +2,6 @@ package bus;
 
 import dao.ThuocTinhDanhMuc_DAO;
 import dto.ThuocTinhDanhMuc_DTO;
-import dto.GiaTriThuocTinh_DTO;
 
 import javax.swing.JOptionPane;
 import java.util.ArrayList;
@@ -11,9 +10,6 @@ public class ThuocTinhDanhMuc_BUS {
     private static ThuocTinhDanhMuc_BUS instance;
     private final ThuocTinhDanhMuc_DAO ttDao = new ThuocTinhDanhMuc_DAO();
     private ArrayList<ThuocTinhDanhMuc_DTO> listCache;
-
-    // Gọi GiaTriThuocTinh_BUS để xử lý các giá trị liên quan (giống SanPham gọi QuyCach)
-    private final GiaTriThuocTinh_BUS gtBus = GiaTriThuocTinh_BUS.getInstance();
 
     // Constructor Singleton - Load dữ liệu lần đầu
     private ThuocTinhDanhMuc_BUS() {
@@ -37,25 +33,6 @@ public class ThuocTinhDanhMuc_BUS {
         return ttDao.getNextId();
     }
 
-    /**
-     * Hàm xử lý logic: Nếu là kiểu "Nhập giá trị" (Kieu_TT = 1)
-     * mà chưa có giá trị nào thì tự động tạo 1 giá trị mặc định.
-     */
-    private void xuLyGiaTriMacDinh(ThuocTinhDanhMuc_DTO tt) {
-        // Chỉ xử lý nếu là kiểu Nhập giá trị (1)
-        if (tt.getKieuThuocTinh() == 1) {
-            ArrayList<GiaTriThuocTinh_DTO> dsHienTai = gtBus.getByMaThuocTinh(tt.getMaThuocTinh());
-
-            // Nếu chưa có dòng giá trị nào bên bảng GIATRITHUOCTINH
-            if (dsHienTai.isEmpty()) {
-                String maGTMoi = gtBus.getNextId();
-                // Tạo giá trị mặc định (Nội dung để trống hoặc ghi chú "Nhập liệu")
-                GiaTriThuocTinh_DTO gtNew = new GiaTriThuocTinh_DTO(maGTMoi, "", 1, tt.getMaThuocTinh());
-                gtBus.them(gtNew);
-            }
-        }
-    }
-
     // 3. Thêm thuộc tính danh mục
     public boolean them(ThuocTinhDanhMuc_DTO tt) {
         if (!kiemTraHopLe(tt)) return false;
@@ -63,8 +40,6 @@ public class ThuocTinhDanhMuc_BUS {
         boolean result = ttDao.them(tt);
         if (result) {
             refreshData(); // Cập nhật Cache Thuộc tính
-            // Sau khi thêm thuộc tính, kiểm tra để tự tạo giá trị mặc định nếu cần
-            xuLyGiaTriMacDinh(tt);
         }
         return result;
     }
@@ -76,8 +51,6 @@ public class ThuocTinhDanhMuc_BUS {
         boolean result = ttDao.capNhat(tt);
         if (result) {
             refreshData(); // Cập nhật Cache Thuộc tính
-            // Nếu chuyển từ Combobox sang Nhập giá trị, cũng cần đảm bảo có 1 dòng giá trị
-            xuLyGiaTriMacDinh(tt);
         }
         return result;
     }

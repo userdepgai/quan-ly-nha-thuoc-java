@@ -2,19 +2,20 @@ package gui.menu;
 
 import javax.swing.*;
 import java.awt.*;
+
+import bus.TaiKhoan_BUS;
 import dto.MenuItem;
 import gui.*;
-// Đã gộp các import từ cả hai nhánh
-import gui.NCCKVLT.KVLT;
-import gui.NCCKVLT.NCC;
 import gui.HOADON_GUI.LapHoaDon_GUI;
 import gui.HOADON_GUI.XuatHoaDon_GUI;
+import utils.Session;
 
 public class Menu extends JFrame {
     private JList<MenuItem> menuList;
     private DefaultListModel<MenuItem> menuModel;
     private JPanel contentPanel;
     private CardLayout cardLayout;
+    private TaiKhoan_BUS taiKhoanBus = TaiKhoan_BUS.getInstance();
 
     public Menu() {
         setTitle("Admin Dashboard");
@@ -29,7 +30,12 @@ public class Menu extends JFrame {
 
         menuModel = new DefaultListModel<>();
 
-        menuModel.addElement(new MenuItem("Thông tin cá nhân", "thongTinCaNhanFrame", icon("account.png"), false));
+        if(Session.isLoggedIn()) {
+            menuModel.addElement(new MenuItem(getNameUser(Session.getCurrentUser().getSdt()), null, icon("account.png"), false));
+        } else {
+            menuModel.addElement(new MenuItem("Nguyễn Gia Thịnh", null, icon("account.png"), false));
+        }
+
         menuModel.addElement(new MenuItem("TỔNG QUAN & ĐIỀU HÀNH", null, null, true));
         menuModel.addElement(new MenuItem("Dashboard", "dashboard", icon("dashboard.png"), false));
         menuModel.addElement(new MenuItem("Thống kê", "thongke", icon("thongKe.png"), false));
@@ -93,10 +99,11 @@ public class Menu extends JFrame {
         contentPanel.add(new ThuocTinhDanhMuc_GUI(), "thuocTinhDanhMuc");
         contentPanel.add(new QuanLySanPham_GUI(), "sanPham");
 
-        contentPanel.add(createContent("Khách hàng"), "khachhang");
-        contentPanel.add(createContent("Nhân viên"), "nhanvien");
-        contentPanel.add(new NCC(), "nhacungcap");
-        contentPanel.add(new KVLT(), "luutru");
+        contentPanel.add(new KhachHang_GUI(), "khachhang");
+        contentPanel.add(new NhanVien_GUI(), "nhanvien");
+        contentPanel.add(createContent("Nhà cung cấp"), "nhacungcap");
+
+        contentPanel.add(createContent("Khu vực lưu trữ"), "luutru");
         contentPanel.add(new LoHang_GUI(), "lohang");
         contentPanel.add(new PhieuNhap_GUI(), "phieunhap");
 
@@ -122,6 +129,7 @@ public class Menu extends JFrame {
                             dispose();
                             new DangNhapGUI().setVisible(true);
                         }
+                        Session.clear();
                         return;
                     }
                     if ("thongTinCaNhanFrame".equals(item.cardName)) {
@@ -153,8 +161,19 @@ public class Menu extends JFrame {
         panel.add(label, BorderLayout.CENTER);
         return panel;
     }
+
+    private String getNameUser(String sdt) {
+        return taiKhoanBus.getNameNhanVien(sdt);
+    }
     private Icon icon(String name) {
-        return new ImageIcon(getClass().getResource("/icons/" + name));
+        java.net.URL imgURL = getClass().getResource("/icons/" + name);
+        if (imgURL != null) {
+            return new ImageIcon(imgURL);
+        } else {
+            System.err.println("Lỗi: Không tìm thấy ảnh tại /icons/" + name);
+            return null;
+        }
     }
 
 }
+

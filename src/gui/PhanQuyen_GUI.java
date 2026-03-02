@@ -4,19 +4,15 @@ import bus.PhanQuyen_BUS;
 import dto.PhanQuyen_DTO;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Locale;
 
-public class PhanQuyen_GUI extends JPanel {
+public class PhanQuyen_GUI extends JPanel{
     private JPanel panelPhanQuyen;
     private JTable table_dsQuyen;
     private JButton btn_xuatExcel;
@@ -52,7 +48,7 @@ public class PhanQuyen_GUI extends JPanel {
 
     private PhanQuyen_BUS pqBus = PhanQuyen_BUS.getInstance();
 
-    public PhanQuyen_GUI() {
+    public PhanQuyen_GUI(){
         this.setLayout(new BorderLayout());
         this.add(panelPhanQuyen, BorderLayout.CENTER);
 
@@ -70,6 +66,7 @@ public class PhanQuyen_GUI extends JPanel {
         cmb_locTrangThai.setModel(new DefaultComboBoxModel<>(
                 new String[]{"Tất cả", "Hoạt động", "Ngưng hoạt động"}
         ));
+        setViewMode();
     }
 
     private void initTable() {
@@ -109,99 +106,42 @@ public class PhanQuyen_GUI extends JPanel {
 
     private void xuLySuKien() {
         table_dsQuyen.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting())
+            if(!e.getValueIsAdjusting())
                 hienChiTiet();
         });
 
         btn_them.addActionListener(e -> {
-            btn_them.setEnabled(false);
-            btn_capNhat.setEnabled(false);
-
-            isAdding = true;
-            isUpdating = false;
-
-            txt_maQuyen.setText(pqBus.getNextId());
-            txt_maQuyen.setEditable(false);
-
-            txt_tenQuyen.setText("");
-            txt_tenQuyen.setEditable(true);
-            txt_moTa.setText("");
-            txt_moTa.setEditable(true);
-
-            cmb_trangThai.setSelectedIndex(1);
-            cmb_trangThai.setEnabled(false);
-
-            btn_luu.setVisible(true);
-            btn_huy.setVisible(true);
+            setAddMode();
         });
 
         btn_capNhat.addActionListener(e -> {
-            int row = table_dsQuyen.getSelectedRow();
-            if (row < 0) {
+            if (table_dsQuyen.getSelectedRow() < 0) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn dòng cần cập nhật");
                 return;
             }
-            btn_them.setEnabled(false);
-            btn_capNhat.setEnabled(false);
-
-            isAdding = false;
-            isUpdating = true;
-
-            txt_tenQuyen.setEditable(true);
-            txt_moTa.setEditable(true);
-            cmb_trangThai.setEnabled(true);
-
-            btn_luu.setVisible(true);
-            btn_huy.setVisible(true);
+            setUpdateMode();
         });
 
         btn_luu.addActionListener(e -> {
-            String ma = txt_maQuyen.getText();
-            String ten = txt_tenQuyen.getText();
-            String moTa = txt_moTa.getText();
-            int trangThai = -1;
-
-            if (cmb_trangThai.getSelectedIndex() == 1) {
-                trangThai = 1;
-            } else if (cmb_trangThai.getSelectedIndex() == 2) {
-                trangThai = 0;
+            if (isAdding) {
+                xuLyThem();
+            } else if (isUpdating) {
+                xuLyCapNhat();
             }
-
-            PhanQuyen_DTO quyen = new PhanQuyen_DTO(ma, ten, moTa, trangThai);
-
-            boolean result = false;
-
-            if (kiemTraHopLe(quyen)) {
-                if (isAdding)
-                    result = pqBus.them(quyen);
-                else if (isUpdating)
-                    result = pqBus.capNhat(quyen);
-
-                if (result) {
-                    JOptionPane.showMessageDialog(this, "Lưu thành công");
-                    loadTableFromList(pqBus.getAll());
-                    resetState();
-                } else {
-                    if (pqBus.kiemTraHopLe(quyen))
-                        JOptionPane.showMessageDialog(this, "Lưu thất bại");
-                }
-            }
-
-            btn_them.setEnabled(true);
-            btn_capNhat.setEnabled(true);
         });
 
         btn_huy.addActionListener(e -> {
             btn_them.setEnabled(true);
             btn_capNhat.setEnabled(true);
 
-            resetState();
+            setViewMode();
+            clearForm();
         });
 
         txt_ndTimKiem.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if (!txt_ndTimKiem.getText().trim().isEmpty())
+                if(!txt_ndTimKiem.getText().trim().isEmpty())
                     hienThiGoiY(timKiem());
                 else popupGoiY.setVisible(false);
             }
@@ -219,6 +159,95 @@ public class PhanQuyen_GUI extends JPanel {
         });
     }
 
+    private void setAddMode() {
+        lockTable();
+
+        isAdding = true;
+        isUpdating = false;
+
+        txt_maQuyen.setText(pqBus.getNextId());
+        txt_maQuyen.setEditable(false);
+
+        txt_tenQuyen.setText("");
+        txt_tenQuyen.setEditable(true);
+
+        txt_moTa.setText("");
+        txt_moTa.setEditable(true);
+
+        cmb_trangThai.setSelectedItem("Hoạt động");
+        cmb_trangThai.setEnabled(false);
+
+        btn_luu.setVisible(true);
+        btn_huy.setVisible(true);
+
+        btn_them.setEnabled(false);
+        btn_capNhat.setEnabled(false);
+    }
+
+    private void setUpdateMode() {
+        lockTable();
+
+        isAdding = false;
+        isUpdating = true;
+
+        txt_maQuyen.setEditable(false);
+        txt_tenQuyen.setEditable(true);
+        txt_moTa.setEditable(true);
+
+        cmb_trangThai.setEnabled(true);
+
+        btn_luu.setVisible(true);
+        btn_huy.setVisible(true);
+
+        btn_them.setEnabled(false);
+        btn_capNhat.setEnabled(false);
+    }
+    private void xuLyThem() {
+        PhanQuyen_DTO quyen = layDuLieuTuForm();
+
+        if (!kiemTraHopLe(quyen)) return;
+
+        boolean result = pqBus.them(quyen);
+
+        if (result) {
+            JOptionPane.showMessageDialog(this, "Thêm thành công");
+            loadTableFromList(pqBus.getAll());
+            clearForm();
+            setViewMode();
+        } else {
+            JOptionPane.showMessageDialog(this, "Thêm thất bại");
+        }
+    }
+    private void xuLyCapNhat() {
+        PhanQuyen_DTO quyen = layDuLieuTuForm();
+
+        if (!kiemTraHopLe(quyen)) return;
+
+        boolean result = pqBus.capNhat(quyen);
+
+        if (result) {
+            JOptionPane.showMessageDialog(this, "Cập nhật thành công");
+            loadTableFromList(pqBus.getAll());
+            clearForm();
+            setViewMode();
+        } else {
+            JOptionPane.showMessageDialog(this, "Cập nhật thất bại");
+        }
+    }
+    private PhanQuyen_DTO layDuLieuTuForm() {
+        String ma = txt_maQuyen.getText().trim();
+        String ten = txt_tenQuyen.getText().trim();
+        String moTa = txt_moTa.getText().trim();
+
+        int trangThai = -1;
+        if (cmb_trangThai.getSelectedIndex() == 1)
+            trangThai = 1;
+        else if (cmb_trangThai.getSelectedIndex() == 2)
+            trangThai = 0;
+
+        return new PhanQuyen_DTO(ma, ten, moTa, trangThai);
+    }
+
     private ArrayList<PhanQuyen_DTO> timKiem() {
         String keyword = txt_ndTimKiem.getText().trim();
         Integer trangThai = null;
@@ -229,11 +258,10 @@ public class PhanQuyen_GUI extends JPanel {
         }
         return pqBus.timKiem(keyword, trangThai);
     }
-
     private void hienChiTiet() {
         int row = table_dsQuyen.getSelectedRow();
 
-        if (row >= 0) {
+        if(row >= 0) {
             txt_maQuyen.setText(table_dsQuyen.getValueAt(row, 1).toString());
             txt_tenQuyen.setText(table_dsQuyen.getValueAt(row, 2).toString());
             txt_moTa.setText(table_dsQuyen.getValueAt(row, 3).toString());
@@ -258,24 +286,6 @@ public class PhanQuyen_GUI extends JPanel {
         }
     }
 
-    private void resetState() {
-        clearForm();
-
-        txt_tenQuyen.setEditable(false);
-        txt_tenQuyen.setEnabled(true);
-        txt_moTa.setEditable(false);
-        txt_moTa.setEnabled(true);
-
-        cmb_trangThai.setEditable(false);
-        cmb_trangThai.setEnabled(false);
-
-        btn_luu.setVisible(false);
-        btn_huy.setVisible(false);
-
-        isAdding = false;
-        isUpdating = false;
-    }
-
     private void clearForm() {
         txt_maQuyen.setText("");
         txt_tenQuyen.setText("");
@@ -285,11 +295,11 @@ public class PhanQuyen_GUI extends JPanel {
     }
 
     public boolean kiemTraHopLe(PhanQuyen_DTO quyen) {
-        if (quyen.getTenQuyen().trim().isEmpty()) {
+        if(quyen.getTenQuyen().trim().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Tên quyền không được để trống");
             return false;
         }
-        if (quyen.getMoTa().trim().isEmpty()) {
+        if(quyen.getMoTa().trim().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Mô tả không được để trống");
             return false;
         }
@@ -331,10 +341,9 @@ public class PhanQuyen_GUI extends JPanel {
                     btnItem.setContentAreaFilled(true);
                     btnItem.setBackground(new Color(240, 240, 240));
                 }
-
                 public void mouseExited(MouseEvent evt) {
-                    btnItem.setContentAreaFilled(false);
-                }
+                btnItem.setContentAreaFilled(false);
+            }
             });
 
             panelNoiDung.add(btnItem);
@@ -355,4 +364,31 @@ public class PhanQuyen_GUI extends JPanel {
         scrollPane.setFocusable(false);
     }
 
+    private void setViewMode() {
+        unlockTable();
+
+        txt_maQuyen.setEditable(false);
+        txt_tenQuyen.setEditable(false);
+        txt_moTa.setEditable(false);
+
+        cmb_trangThai.setEnabled(false);
+
+        btn_luu.setVisible(false);
+        btn_huy.setVisible(false);
+
+        btn_them.setEnabled(true);
+        btn_capNhat.setEnabled(true);
+
+        isAdding = false;
+        isUpdating = false;
+    }
+    private void lockTable() {
+        table_dsQuyen.setRowSelectionAllowed(false);
+        table_dsQuyen.setEnabled(false);
+    }
+
+    private void unlockTable() {
+        table_dsQuyen.setRowSelectionAllowed(true);
+        table_dsQuyen.setEnabled(true);
+    }
 }
