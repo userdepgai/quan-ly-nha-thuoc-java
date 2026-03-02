@@ -163,4 +163,132 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     public void setDs_chiTietHDB(ArrayList<ChiTietHoaDonBan_DTO> ds_chiTietHDB) {
         this.ds_chiTietHDB = ds_chiTietHDB;
     }
+
+    // =============================
+// TRẠNG THÁI HÓA ĐƠN
+// =============================
+
+    // ===== VALUE (dùng cho DB + BUS) =====
+    public static final int TT_CHO_DUYET = 0;
+    public static final int TT_DA_DUYET = 1;
+    public static final int TT_DANG_GIAO = 2;
+    public static final int TT_HOAN_THANH = 3;
+    public static final int TT_DA_HUY = 4;
+    public static final int TT_YEU_CAU_HOAN = 5;
+
+
+    // ===== TEXT (dùng cho GUI) =====
+    public static final String CHO_DUYET = "Chờ duyệt";
+    public static final String DA_DUYET = "Đã duyệt";
+    public static final String DANG_GIAO = "Đang giao";
+    public static final String HOAN_THANH = "Đã hoàn thành";
+    public static final String DA_HUY = "Đã hủy";
+    public static final String YEU_CAU_HOAN = "Yêu cầu hoàn hàng";
+
+
+    // =============================
+// INT -> TEXT (hiển thị GUI)
+// =============================
+    public String getTrangThaiText() {
+
+        switch (getTrangThai()) {
+            case TT_CHO_DUYET: return CHO_DUYET;
+            case TT_DA_DUYET: return DA_DUYET;
+            case TT_DANG_GIAO: return DANG_GIAO;
+            case TT_HOAN_THANH: return HOAN_THANH;
+            case TT_DA_HUY: return DA_HUY;
+            case TT_YEU_CAU_HOAN: return YEU_CAU_HOAN;
+            default: return "Không xác định";
+        }
+    }
+
+
+    // =============================
+// TEXT -> INT (GUI -> DTO)
+// =============================
+    public void setTrangThaiFromText(String text) {
+
+        if (text == null) return;
+
+        switch (text) {
+            case CHO_DUYET -> setTrangThai(TT_CHO_DUYET);
+            case DA_DUYET -> setTrangThai(TT_DA_DUYET);
+            case DANG_GIAO -> setTrangThai(TT_DANG_GIAO);
+            case HOAN_THANH -> setTrangThai(TT_HOAN_THANH);
+            case DA_HUY -> setTrangThai(TT_DA_HUY);
+            case YEU_CAU_HOAN -> setTrangThai(TT_YEU_CAU_HOAN);
+        }
+    }
+    // =============================
+// KÊ TOA
+// =============================
+    public static final String KHONG_KE_TOA = "Không kê toa";
+    public static final String CO_KE_TOA = "Có kê toa";
+
+
+    // boolean -> text
+    public String getKeToaText() {
+        return keToa ? CO_KE_TOA : KHONG_KE_TOA;
+    }
+
+    // text -> boolean
+    public void setKeToaFromText(String text) {
+        this.keToa = CO_KE_TOA.equals(text);
+    }
+
+    // =============================
+// TÌNH TRẠNG THANH TOÁN
+// =============================
+
+    // ===== VALUE (dùng cho DB + BUS) =====
+    public static final int TT_CHUA_THANH_TOAN = 0;
+    public static final int TT_DA_THANH_TOAN = 1;
+    public static final int TT_DA_HOAN_TIEN = 2;
+
+
+    // ===== TEXT (dùng cho GUI) =====
+    public static final String CHUA_THANH_TOAN = "Chưa thanh toán";
+    public static final String DA_THANH_TOAN = "Đã thanh toán";
+    public static final String DA_HOAN_TIEN = "Đã hoàn tiền";
+
+
+    // =============================
+// INT -> TEXT (DTO -> GUI)
+// =============================
+    public String getTinhTrangThanhToanText() {
+
+        switch (tinhTrangThanhToan) {
+            case TT_CHUA_THANH_TOAN:
+                return CHUA_THANH_TOAN;
+
+            case TT_DA_THANH_TOAN:
+                return DA_THANH_TOAN;
+
+            case TT_DA_HOAN_TIEN:
+                return DA_HOAN_TIEN;
+
+            default:
+                return "Không xác định";
+        }
+    }
+
+
+    // =============================
+// TEXT -> INT (GUI -> DTO)
+// =============================
+    public void setTinhTrangThanhToanFromText(String text) {
+
+        if (text == null) return;
+
+        switch (text) {
+            case CHUA_THANH_TOAN ->
+                    this.tinhTrangThanhToan = TT_CHUA_THANH_TOAN;
+
+            case DA_THANH_TOAN ->
+                    this.tinhTrangThanhToan = TT_DA_THANH_TOAN;
+
+            case DA_HOAN_TIEN ->
+                    this.tinhTrangThanhToan = TT_DA_HOAN_TIEN;
+        }
+    }
 }

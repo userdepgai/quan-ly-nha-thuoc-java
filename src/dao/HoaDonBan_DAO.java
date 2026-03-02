@@ -2,6 +2,7 @@ package dao;
 
 import dto.HoaDonBan_DTO;
 import DBConnection.DBConnection;
+import dto.HoaDonOnline_DTO;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,7 +14,15 @@ public class HoaDonBan_DAO {
 
         ArrayList<HoaDonBan_DTO> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM HOADONBAN ORDER BY NgayLap DESC";
+        String sql = """
+                SELECT hdb.*,
+                       kh.Ten_KH,
+                       kh.SDT
+                FROM HOADONBAN hdb
+                LEFT JOIN KHACHHANG kh
+                    ON hdb.Ma_KH = kh.Ma_KH
+                ORDER BY hdb.NgayLap  ASC
+            """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -29,11 +38,60 @@ public class HoaDonBan_DAO {
 
         return list;
     }
+    public ArrayList<HoaDonOnline_DTO> getDanhSachDuyetOnline() {
 
+        ArrayList<HoaDonOnline_DTO> ds = new ArrayList<>();
+
+        String sql = """
+                SELECT hdb.*, kh.Ten_KH, kh.SDT
+                        FROM HOADONBAN hdb
+                        LEFT JOIN KHACHHANG kh
+                             ON hdb.Ma_KH = kh.Ma_KH
+                        WHERE hdb.LoaiHDB = 1
+                        AND hdb.TrangThai IN (0,1,2,5)
+                        ORDER BY hdb.TrangThai ASC, hdb.NgayLap ASC
+    """;
+
+        try (
+                Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()
+        ) {
+
+            while (rs.next()) {
+
+                HoaDonOnline_DTO hd = new HoaDonOnline_DTO();
+
+                hd.setMa(rs.getString("Ma_HDB"));
+                hd.setNgayLap(rs.getTimestamp("NgayLap").toLocalDateTime());
+                hd.setMaNhanVien(rs.getString("Ma_NV"));
+                hd.setMaKhachHang(rs.getString("Ma_KH"));
+                hd.setTrangThai(rs.getInt("TrangThai"));
+                hd.setLoaiHDB(rs.getInt("LoaiHDB"));
+                hd.setTinhTrangThanhToan(rs.getInt("TinhTrangThanhToan"));
+                hd.setThanhTien(rs.getDouble("ThanhTien"));
+
+                ds.add(hd);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ds;
+    }
     // ================= GET BY ID =================
     public HoaDonBan_DTO getById(String maHD) {
 
-        String sql = "SELECT * FROM HOADONBAN WHERE Ma_HDB=?";
+        String sql = """
+                SELECT hdb.*,
+                       kh.Ten_KH,
+                       kh.SDT
+                FROM HOADONBAN hdb
+                LEFT JOIN KHACHHANG kh
+                    ON hdb.Ma_KH = kh.Ma_KH
+                WHERE hdb.Ma_HDB=?
+            """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -113,28 +171,28 @@ public class HoaDonBan_DAO {
                 MaVoucher,
                 LoaiHDB
             )
-            VALUES ( ?,GETDATE(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )
+            VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )
             """;
 
         PreparedStatement ps = conn.prepareStatement(sql);
 
         ps.setString(1, hd.getMa());
-        ps.setInt(2, hd.getTinhTrangThanhToan());
-        ps.setBoolean(3, hd.isKeToa());
-        ps.setDouble(4, hd.getTongTienGoc());
-        ps.setDouble(5, hd.getTongGiaTriKhuyenMai());
-        ps.setInt(6, hd.getDiemThuongQuyDoi());
-        ps.setDouble(7, hd.getThanhTien());
-        ps.setDouble(8, hd.getTienNhan());
-        ps.setDouble(9, hd.getTienThoi());
-        ps.setString(10, hd.getGhiChu());
-        ps.setDouble(11, hd.getThueVAT());
-        ps.setInt(12, hd.getTrangThai());
-        ps.setString(13, hd.getMaNhanVien());
-        ps.setString(14, hd.getMaKhachHang());
-        ps.setString(15, hd.getMaVoucher());
-        ps.setInt(16, hd.getLoaiHDB());
-
+        ps.setTimestamp(2, Timestamp.valueOf(hd.getNgayLap()));
+        ps.setInt(3, hd.getTinhTrangThanhToan());
+        ps.setBoolean(4, hd.isKeToa());
+        ps.setDouble(5, hd.getTongTienGoc());
+        ps.setDouble(6, hd.getTongGiaTriKhuyenMai());
+        ps.setInt(7, hd.getDiemThuongQuyDoi());
+        ps.setDouble(8, hd.getThanhTien());
+        ps.setDouble(9, hd.getTienNhan());
+        ps.setDouble(10, hd.getTienThoi());
+        ps.setString(11, hd.getGhiChu());
+        ps.setDouble(12, hd.getThueVAT());
+        ps.setInt(13, hd.getTrangThai());
+        ps.setString(14, hd.getMaNhanVien());
+        ps.setString(15, hd.getMaKhachHang());
+        ps.setString(16, hd.getMaVoucher());
+        ps.setInt(17, hd.getLoaiHDB());
         return ps.executeUpdate() > 0;
     }
 
@@ -145,7 +203,7 @@ public class HoaDonBan_DAO {
             UPDATE HOADONBAN
             SET TrangThai=?,
                 NgayHoanThanh =
-                    CASE WHEN ?=1 THEN GETDATE()
+                    CASE WHEN ?=3 THEN GETDATE()
                          ELSE NgayHoanThanh END
             WHERE Ma_HDB=?
             """;

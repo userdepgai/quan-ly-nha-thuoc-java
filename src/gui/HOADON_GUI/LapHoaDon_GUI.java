@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.*;
 import java.awt.BorderLayout;
+import bus.HoaDonBan_BUS;
+import dto.ChiTietHoaDonBan_DTO;
 
 
 
@@ -53,6 +55,7 @@ public class LapHoaDon_GUI extends JPanel{
     private JLabel labelTienThoi;
     private JDateChooser JDateChooser1;
 
+    private HoaDonBan_BUS bus = HoaDonBan_BUS.getInstance();
 
     private DefaultTableModel modelBang;
 

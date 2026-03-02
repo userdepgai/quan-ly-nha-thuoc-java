@@ -13,7 +13,11 @@ public class ChiTietHoaDonBan_DAO {
 
         ArrayList<ChiTietHoaDonBan_DTO> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM CHITIETHOADON WHERE Ma_HDB=?";
+        String sql = """
+        SELECT ct.*
+        FROM CHITIETHOADON ct
+        WHERE ct.Ma_HDB = ?
+    """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -25,13 +29,13 @@ public class ChiTietHoaDonBan_DAO {
 
                 ChiTietHoaDonBan_DTO ct = new ChiTietHoaDonBan_DTO();
 
-                ct.setMaSP(rs.getString("MaSP"));
+                ct.setMaSP(rs.getString("Ma_SP"));
                 ct.setMaHDB(rs.getString("Ma_HDB"));
-                ct.setMaLo(rs.getString("MaLo"));
+                ct.setMaLo(rs.getString("Ma_Lo"));
                 ct.setMaKhuyenMai(rs.getString("Ma_KM"));
                 ct.setSoLuong(rs.getInt("SoLuong"));
                 ct.setGiaBan(rs.getDouble("GiaBan"));
-                ct.setGiaBanSauApKM(rs.getDouble("GiaBanSauKM"));
+                ct.setGiaBanSauApKM(rs.getDouble("GiaBanSauAp_KM"));
                 ct.setThanhTien(rs.getDouble("ThanhTien"));
 
                 list.add(ct);
@@ -43,7 +47,6 @@ public class ChiTietHoaDonBan_DAO {
 
         return list;
     }
-
     // ================= INSERT (NORMAL) =================
     public boolean insert(ChiTietHoaDonBan_DTO ct) {
 
@@ -61,7 +64,7 @@ public class ChiTietHoaDonBan_DAO {
             throws SQLException {
 
         String sql = """
-        INSERT INTO CHITIETHOADONBAN
+        INSERT INTO CHITIETHOADON
         (MaSP, Ma_HDB, MaLo, Ma_KM,
          SoLuong, GiaBan, GiaBanSauKM, ThanhTien)
         VALUES (?,?,?,?,?,?,?,?)
