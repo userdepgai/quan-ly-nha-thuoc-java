@@ -22,12 +22,9 @@ public class LoHang_DAO {
                         rs.getString("Ma_Lo"),
                         rs.getDouble("GiaNhap"),
                         rs.getDate("HSD").toLocalDate(),
-                        rs.getDate("NgaySanXuat") != null
-                                ? rs.getDate("NgaySanXuat").toLocalDate()
-                                : null,
-                        rs.getInt("SoLuongNhap"),
+                        rs.getInt("SoLuong"),
                         rs.getInt("SoLuongConLai"),
-                        rs.getDouble("ThanhTien"), // ✅ thêm dòng này
+                        rs.getDouble("ThanhTien"),
                         rs.getInt("TrangThai"),
                         rs.getInt("TrangThaiTonKho"),
                         rs.getString("Ma_PNK"),
@@ -74,7 +71,7 @@ public class LoHang_DAO {
 
         String sql = "INSERT INTO LOHANG "
                 + "(Ma_Lo, GiaNhap, HSD, NgaySanXuat, "
-                + "SoLuongNhap, SoLuongConLai, ThanhTien, "
+                + "SoLuong, SoLuongConLai, ThanhTien, "
                 + "TrangThai, TrangThaiTonKho, "
                 + "Ma_PNK, Ma_NCC, Ma_KVLT, Ma_SP) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -85,11 +82,6 @@ public class LoHang_DAO {
             ps.setString(1, lo.getMaLo());
             ps.setDouble(2, lo.getGiaNhap());
             ps.setDate(3, Date.valueOf(lo.getHsd()));
-
-            if (lo.getNgaySanXuat() != null)
-                ps.setDate(4, Date.valueOf(lo.getNgaySanXuat()));
-            else
-                ps.setNull(4, Types.DATE);
 
             ps.setInt(5, lo.getSoLuongNhap());
             ps.setInt(6, lo.getSoLuongConLai());
@@ -115,7 +107,7 @@ public class LoHang_DAO {
 
         String sql = "UPDATE LOHANG SET "
                 + "GiaNhap=?, HSD=?, NgaySanXuat=?, "
-                + "SoLuongNhap=?, SoLuongConLai=?, ThanhTien=?, "
+                + "SoLuong=?, SoLuongConLai=?, ThanhTien=?, "
                 + "TrangThai=?, TrangThaiTonKho=?, "
                 + "Ma_PNK=?, Ma_NCC=?, Ma_KVLT=?, Ma_SP=? "
                 + "WHERE Ma_Lo=?";
@@ -125,11 +117,6 @@ public class LoHang_DAO {
 
             ps.setDouble(1, lo.getGiaNhap());
             ps.setDate(2, Date.valueOf(lo.getHsd()));
-
-            if (lo.getNgaySanXuat() != null)
-                ps.setDate(3, Date.valueOf(lo.getNgaySanXuat()));
-            else
-                ps.setNull(3, Types.DATE);
 
             ps.setInt(4, lo.getSoLuongNhap());
             ps.setInt(5, lo.getSoLuongConLai());
