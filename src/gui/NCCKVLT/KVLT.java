@@ -37,12 +37,18 @@ public class KVLT extends JPanel {
     private JButton btnCapNhat;
     private JButton btnThemKV;
     private JPanel panelMain;
-    private JButton btn_Huy;
-    private JButton btn_Luu;
-    private DefaultTableModel modelKVLT;
 
+
+    private JButton btn_Luu;
+    private JButton btn_Huy;
+
+    private DefaultTableModel modelKVLT;
     private KhuVucLuuTru_BUS bus = KhuVucLuuTru_BUS.getInstance();
     private JPopupMenu popupGoiY = new JPopupMenu();
+
+
+    private boolean isAdding = false;
+    private boolean isUpdating = false;
 
     public KVLT() {
         this.setLayout(new BorderLayout());
@@ -53,8 +59,10 @@ public class KVLT extends JPanel {
         setupTableData();
         loadDataToTableKVLT();
         bus.refreshData();
-        setKhoaForm(true);
+
         addEvents();
+        setViewMode();
+
         this.revalidate();
         this.repaint();
     }
@@ -170,49 +178,55 @@ public class KVLT extends JPanel {
         }));
     }
 
-    private void addEvents() {
-        tableDanhSach.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent evt) {
-                hienThiChiTiet();
-            }
-        });
-        btnThemKV.addActionListener(e -> themKhuVuc());
-        btnCapNhat.addActionListener(e -> capNhatKhuVuc());
-        btnTimKiem.addActionListener(e -> timKiemKhuVuc());
-        btnThoat.addActionListener(e -> thoatForm());
-        textLoc.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                String keyword = textLoc.getText().trim().toLowerCase();
 
-                if (!keyword.isEmpty()) {
-                    ArrayList<KhuVucLuuTru_DTO> listGoiY = new ArrayList<>();
 
-                    for (KhuVucLuuTru_DTO kv : bus.getAll()) {
-                        String trangThaiStr = "";
-                        if (kv.getTrangThai() == 1) trangThaiStr = "còn trống";
-                        else if (kv.getTrangThai() == 2) trangThaiStr = "đã đầy";
-                        else trangThaiStr = "bảo trì ngừng";
+    private void setViewMode() {
+        isAdding = false;
+        isUpdating = false;
 
-                        String thongTinTongHop = String.format("%s %s %d %d %s %s",
-                                kv.getMaKVLT() != null ? kv.getMaKVLT() : "",
-                                kv.getTenKVLT() != null ? kv.getTenKVLT() : "",
-                                kv.getSucChua(),
-                                kv.getHienCo(),
-                                kv.getNgayLapKho() != null ? kv.getNgayLapKho().toString() : "",
-                                trangThaiStr
-                        ).toLowerCase();
-                        if (thongTinTongHop.contains(keyword)) {
-                            listGoiY.add(kv);
-                        }
-                    }
+        setKhoaForm(true);
 
-                    hienThiGoiYKVLT(listGoiY);
-                } else {
-                    popupGoiY.setVisible(false);
-                }
-            }
-        });
+        if (btn_Luu != null) btn_Luu.setVisible(false);
+        if (btn_Huy != null) btn_Huy.setVisible(false);
+
+        btnThemKV.setEnabled(true);
+        btnCapNhat.setEnabled(true);
+    }
+
+    private void setAddMode() {
+        isAdding = true;
+        isUpdating = false;
+
+        lamMoiForm();
+        setKhoaForm(false);
+
+        textMa.setText(bus.getNextId());
+        textMa.setEditable(false);
+        textHienCo.setText("0");
+        textHienCo.setEditable(false);
+
+        comboBoxTthai.setSelectedIndex(0);
+
+        btnThemKV.setEnabled(false);
+        btnCapNhat.setEnabled(false);
+
+        if (btn_Luu != null) btn_Luu.setVisible(true);
+        if (btn_Huy != null) btn_Huy.setVisible(true);
+    }
+
+    private void setUpdateMode() {
+        isAdding = false;
+        isUpdating = true;
+
+        setKhoaForm(false);
+        textMa.setEditable(false);
+        textHienCo.setEditable(false);
+
+        btnThemKV.setEnabled(false);
+        btnCapNhat.setEnabled(false);
+
+        if (btn_Luu != null) btn_Luu.setVisible(true);
+        if (btn_Huy != null) btn_Huy.setVisible(true);
     }
 
     private void setKhoaForm(boolean isLocked) {
@@ -256,37 +270,81 @@ public class KVLT extends JPanel {
             else if (trangThai.equals("Đã đầy")) comboBoxTthai.setSelectedIndex(1);
             else comboBoxTthai.setSelectedIndex(2);
 
-            setKhoaForm(true);
-            btnThemKV.setText("Thêm");
-            btnThemKV.setEnabled(true);
-            btnCapNhat.setText("Cập Nhật");
-            btnCapNhat.setEnabled(true);
+            setViewMode();
         }
     }
 
-    private void themKhuVuc() {
-        if (btnThemKV.getText().trim().equals("Thêm")) {
-            setKhoaForm(false);
-            lamMoiForm();
-            textMa.setText(bus.getNextId());
-            textMa.setEditable(false);
-            btnThemKV.setText("Xác nhận Thêm");
-            btnCapNhat.setEnabled(false);
-        } else {
-            try {
-                KhuVucLuuTru_DTO kv = new KhuVucLuuTru_DTO();
-                kv.setMaKVLT(textMa.getText().trim());
-                kv.setTenKVLT(textTen.getText().trim());
-                kv.setSucChua(Integer.parseInt(textSucChua.getText().trim()));
-                kv.setHienCo(0);
-                kv.setNgayLapKho(new Date(System.currentTimeMillis()));
-                kv.setTrangThai(comboBoxTthai.getSelectedIndex() + 1);
 
-                String diaChiNhapVao = textDCHI.getText().trim();
+    private void xuLyThem() {
+        try {
+            KhuVucLuuTru_DTO kv = new KhuVucLuuTru_DTO();
+            kv.setMaKVLT(textMa.getText().trim());
+            kv.setTenKVLT(textTen.getText().trim());
+            kv.setSucChua(Integer.parseInt(textSucChua.getText().trim()));
+            kv.setHienCo(0);
+            kv.setNgayLapKho(new Date(System.currentTimeMillis()));
+            kv.setTrangThai(comboBoxTthai.getSelectedIndex() + 1);
+
+            String diaChiNhapVao = textDCHI.getText().trim();
+            if (!diaChiNhapVao.isEmpty()) {
+                DiaChi_DAO dcDao = new DiaChi_DAO();
+                DIACHI_DTO dcMoi = new DIACHI_DTO();
+
+                dcMoi.setMaDiaChi(dcDao.getNextId());
+                dcMoi.setSoNha(diaChiNhapVao);
+                dcMoi.setDuong("");
+                dcMoi.setPhuong("");
+                dcMoi.setTinh("");
+
+                if (dcDao.them(dcMoi)) {
+                    kv.setDiaChi(dcMoi);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Lỗi: Không thể tạo mới Địa Chỉ trong CSDL!");
+                    return;
+                }
+            }
+
+            if (bus.insert(kv)) {
+                JOptionPane.showMessageDialog(this, "Thêm khu vực thành công!");
+                loadDataToTableKVLT();
+                setViewMode();
+                lamMoiForm();
+            } else {
+                JOptionPane.showMessageDialog(this, "Thêm khu vực thất bại!");
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập số hợp lệ vào ô Sức Chứa!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi dữ liệu: " + e.getMessage());
+        }
+    }
+
+    private void xuLyCapNhat() {
+        try {
+            KhuVucLuuTru_DTO kv = bus.getById(textMa.getText().trim());
+
+            if (kv == null) {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy khu vực lưu trữ này trong CSDL!");
+                return;
+            }
+            kv.setTenKVLT(textTen.getText().trim());
+            kv.setSucChua(Integer.parseInt(textSucChua.getText().trim()));
+            kv.setTrangThai(comboBoxTthai.getSelectedIndex() + 1);
+
+            String diaChiNhapVao = textDCHI.getText().trim();
+            DiaChi_DAO dcDao = new DiaChi_DAO();
+
+            if (kv.getDiaChi() != null && kv.getDiaChi().getMaDiaChi() != null) {
+                kv.getDiaChi().setSoNha(diaChiNhapVao);
+                kv.getDiaChi().setDuong("");
+                kv.getDiaChi().setPhuong("");
+                kv.getDiaChi().setTinh("");
+
+                dcDao.capNhat(kv.getDiaChi());
+            } else {
                 if (!diaChiNhapVao.isEmpty()) {
-                    DiaChi_DAO dcDao = new DiaChi_DAO();
                     DIACHI_DTO dcMoi = new DIACHI_DTO();
-
                     dcMoi.setMaDiaChi(dcDao.getNextId());
                     dcMoi.setSoNha(diaChiNhapVao);
                     dcMoi.setDuong("");
@@ -295,97 +353,97 @@ public class KVLT extends JPanel {
 
                     if (dcDao.them(dcMoi)) {
                         kv.setDiaChi(dcMoi);
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Lỗi: Không thể tạo mới Địa Chỉ trong CSDL!");
-                        return;
                     }
                 }
-
-                if (bus.insert(kv)) {
-                    JOptionPane.showMessageDialog(this, "Thêm khu vực thành công!");
-                    loadDataToTableKVLT();
-                    lamMoiForm();
-                    setKhoaForm(true);
-                    btnThemKV.setText("Thêm");
-                    btnCapNhat.setEnabled(true);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Thêm khu vực thất bại!");
-                }
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập số hợp lệ vào ô Sức Chứa!");
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Lỗi dữ liệu: " + e.getMessage());
             }
+
+            if (bus.update(kv)) {
+                JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+                loadDataToTableKVLT();
+                setViewMode();
+            } else {
+                JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
+            }
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Sức chứa phải là một số nguyên hợp lệ!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi dữ liệu: " + e.getMessage());
         }
     }
 
-    private void capNhatKhuVuc() {
-        int selectedRow = tableDanhSach.getSelectedRow();
-        if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn khu vực!");
-            return;
-        }
-        if (btnCapNhat.getText().trim().equals("Cập Nhật")) {
-            setKhoaForm(false);
-            textMa.setEditable(false);
-            btnCapNhat.setText("Xác nhận Sửa");
-            btnThemKV.setEnabled(false);
-        } else {
-            try {
-                KhuVucLuuTru_DTO kv = bus.getById(textMa.getText().trim());
 
-                if (kv == null) {
-                    JOptionPane.showMessageDialog(this, "Không tìm thấy khu vực lưu trữ này trong CSDL!");
-                    return;
+    private void addEvents() {
+        tableDanhSach.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                hienThiChiTiet();
+            }
+        });
+
+        btnThemKV.addActionListener(e -> setAddMode());
+
+        btnCapNhat.addActionListener(e -> {
+            if (tableDanhSach.getSelectedRow() < 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn khu vực cần cập nhật!");
+                return;
+            }
+            setUpdateMode();
+        });
+
+        if (btn_Luu != null) {
+            btn_Luu.addActionListener(e -> {
+                if (isAdding) {
+                    xuLyThem();
+                } else if (isUpdating) {
+                    xuLyCapNhat();
                 }
-                kv.setTenKVLT(textTen.getText().trim());
-                kv.setSucChua(Integer.parseInt(textSucChua.getText().trim()));
-                kv.setTrangThai(comboBoxTthai.getSelectedIndex() + 1);
+            });
+        }
 
-                String diaChiNhapVao = textDCHI.getText().trim();
-                DiaChi_DAO dcDao = new DiaChi_DAO();
+        if (btn_Huy != null) {
+            btn_Huy.addActionListener(e -> {
+                setViewMode();
+                lamMoiForm();
+            });
+        }
 
-                if (kv.getDiaChi() != null && kv.getDiaChi().getMaDiaChi() != null) {
-                    kv.getDiaChi().setSoNha(diaChiNhapVao);
-                    kv.getDiaChi().setDuong("");
-                    kv.getDiaChi().setPhuong("");
-                    kv.getDiaChi().setTinh("");
+        btnTimKiem.addActionListener(e -> timKiemKhuVuc());
+        btnThoat.addActionListener(e -> thoatForm());
 
-                    dcDao.capNhat(kv.getDiaChi());
-                } else {
-                    if (!diaChiNhapVao.isEmpty()) {
-                        DIACHI_DTO dcMoi = new DIACHI_DTO();
-                        dcMoi.setMaDiaChi(dcDao.getNextId());
-                        dcMoi.setSoNha(diaChiNhapVao);
-                        dcMoi.setDuong("");
-                        dcMoi.setPhuong("");
-                        dcMoi.setTinh("");
+        textLoc.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String keyword = textLoc.getText().trim().toLowerCase();
 
-                        if (dcDao.them(dcMoi)) {
-                            kv.setDiaChi(dcMoi);
+                if (!keyword.isEmpty()) {
+                    ArrayList<KhuVucLuuTru_DTO> listGoiY = new ArrayList<>();
+
+                    for (KhuVucLuuTru_DTO kv : bus.getAll()) {
+                        String trangThaiStr = "";
+                        if (kv.getTrangThai() == 1) trangThaiStr = "còn trống";
+                        else if (kv.getTrangThai() == 2) trangThaiStr = "đã đầy";
+                        else trangThaiStr = "bảo trì ngừng";
+
+                        String thongTinTongHop = String.format("%s %s %d %d %s %s",
+                                kv.getMaKVLT() != null ? kv.getMaKVLT() : "",
+                                kv.getTenKVLT() != null ? kv.getTenKVLT() : "",
+                                kv.getSucChua(),
+                                kv.getHienCo(),
+                                kv.getNgayLapKho() != null ? kv.getNgayLapKho().toString() : "",
+                                trangThaiStr
+                        ).toLowerCase();
+                        if (thongTinTongHop.contains(keyword)) {
+                            listGoiY.add(kv);
                         }
                     }
-                }
 
-                if (bus.update(kv)) {
-                    JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
-                    loadDataToTableKVLT();
-
-                    setKhoaForm(true);
-                    btnCapNhat.setText("Cập Nhật");
-                    btnThemKV.setEnabled(true);
+                    hienThiGoiYKVLT(listGoiY);
                 } else {
-                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
+                    popupGoiY.setVisible(false);
                 }
-
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Sức chứa phải là một số nguyên hợp lệ!");
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Lỗi dữ liệu: " + e.getMessage());
             }
-        }
+        });
     }
 
     private void timKiemKhuVuc() {
@@ -478,12 +536,8 @@ public class KVLT extends JPanel {
 
     private void thoatForm() {
         if (JOptionPane.showConfirmDialog(this, "Bạn có muốn hủy bỏ các thao tác hiện tại không?", "Xác nhận", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            setViewMode();
             lamMoiForm();
-            setKhoaForm(true);
-            btnThemKV.setText("Thêm");
-            btnThemKV.setEnabled(true);
-            btnCapNhat.setText("Cập Nhật");
-            btnCapNhat.setEnabled(true);
         }
     }
 
