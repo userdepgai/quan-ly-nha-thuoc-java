@@ -6,13 +6,10 @@ import dto.KhuVucLuuTru_DTO;
 import bus.KhuVucLuuTru_BUS;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -20,7 +17,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class KVLT extends JPanel {
 
@@ -41,6 +37,8 @@ public class KVLT extends JPanel {
     private JButton btnCapNhat;
     private JButton btnThemKV;
     private JPanel panelMain;
+    private JButton btn_Huy;
+    private JButton btn_Luu;
     private DefaultTableModel modelKVLT;
 
     private KhuVucLuuTru_BUS bus = KhuVucLuuTru_BUS.getInstance();

@@ -10,20 +10,16 @@ import dto.SanPhamNCC_DTO;
 import dto.SanPham_DTO;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class NCC extends JPanel {
     private JButton btnXuat;
@@ -43,7 +39,7 @@ public class NCC extends JPanel {
     private JTable tableChiTiet;
     private JTextField textTenSP;
     private JTextField textGiaBan;
-    private JComboBox comboBox1;
+    private JComboBox comboBoxTThai;
     private JButton btnThem;
     private JButton btnSua;
     private JButton btnHuy;
@@ -51,6 +47,8 @@ public class NCC extends JPanel {
     private JButton btnThemNCC;
     private JTextField textMaSP;
     private JPanel panelMain;
+    private JButton btn_Huy;
+    private JButton btn_Luu;
 
     private DefaultTableModel modelNCC;
     private DefaultTableModel modelSP;
@@ -76,6 +74,7 @@ public class NCC extends JPanel {
         addEvents();
         this.revalidate();
         this.repaint();
+        setViewMode();
     }
 
     private void setupTableData() {
@@ -128,7 +127,7 @@ public class NCC extends JPanel {
             System.out.println("Dữ liệu list trả về bị rỗng!");
             return;
         }
-        DiaChi_DAO diaChiDAO = new DiaChi_DAO(); // Riêng Address có thể bỏ qua tùy cấu trúc của bạn
+        DiaChi_DAO diaChiDAO = new DiaChi_DAO();
         ArrayList<DIACHI_DTO> listTatCaDiaChi = diaChiDAO.getAll();
 
         int stt = 1;
@@ -227,7 +226,156 @@ public class NCC extends JPanel {
             fixColumnWidth(table, 7, 130);
         }
     }
+    private void setViewMode() {
 
+        setKhoaForm(true);
+
+        btn_Luu.setVisible(false);
+        btn_Huy.setVisible(false);
+
+        btnThemNCC.setEnabled(true);
+        btnCapNhat.setEnabled(true);
+
+        isAdding = false;
+        isUpdating = false;
+    }
+    private void setAddMode() {
+
+        isAdding = true;
+        isUpdating = false;
+
+        lamMoiForm();
+        setKhoaForm(false);
+
+        textMa.setText(bus.getNextId());
+        textMa.setEditable(false);
+
+        comboBoxTthai.setSelectedIndex(0);
+        comboBoxTthai.setEnabled(false);
+
+        btnThemNCC.setEnabled(false);
+        btnCapNhat.setEnabled(false);
+
+        btn_Luu.setVisible(true);
+        btn_Huy.setVisible(true);
+    }
+    private void setUpdateMode() {
+
+        isAdding = false;
+        isUpdating = true;
+
+        setKhoaForm(false);
+        textMa.setEditable(false);
+        comboBoxTthai.setEnabled(true);
+
+        btnThemNCC.setEnabled(false);
+        btnCapNhat.setEnabled(false);
+
+        btn_Luu.setVisible(true);
+        btn_Huy.setVisible(true);
+    }
+    // nút thêm
+    private void xuLyThem() {
+
+        try {
+            NhaCungCap_DTO ncc = new NhaCungCap_DTO();
+            ncc.setMaNCC(textMa.getText().trim());
+            ncc.setTenNCC(textTen.getText().trim());
+            ncc.setMaSoThue(textMST.getText().trim());
+            ncc.setSdt(textSDT.getText().trim());
+            ncc.setNguoiLienHe(textNLH.getText().trim());
+
+            String diaChiNhap = textDCHI.getText().trim();
+
+            if (!diaChiNhap.isEmpty()) {
+                DiaChi_DAO dcDao = new DiaChi_DAO();
+                DIACHI_DTO dc = new DIACHI_DTO();
+                dc.setMaDiaChi(dcDao.getNextId());
+                dc.setSoNha(diaChiNhap);
+                dc.setDuong("");
+                dc.setPhuong("");
+                dc.setTinh("");
+
+                if (!dcDao.them(dc)) {
+                    JOptionPane.showMessageDialog(this, "Lỗi lưu địa chỉ!");
+                    return;
+                }
+
+                ncc.setDiaChi(dc);
+            }
+
+            ncc.setTrangThai(comboBoxTthai.getSelectedIndex() == 0 ? 1 : 0);
+
+            if (bus.insert(ncc)) {
+                JOptionPane.showMessageDialog(this, "Thêm thành công!");
+                loadDataToTable();
+                setViewMode();
+                lamMoiForm();
+            } else {
+                JOptionPane.showMessageDialog(this, "Thêm thất bại!");
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
+        }
+    }
+    private void xuLyCapNhat() {
+
+        try {
+            String ma = textMa.getText().trim();
+            NhaCungCap_DTO ncc = bus.getById(ma);
+
+            if (ncc == null) {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy NCC!");
+                return;
+            }
+
+            ncc.setTenNCC(textTen.getText().trim());
+            ncc.setMaSoThue(textMST.getText().trim());
+            ncc.setSdt(textSDT.getText().trim());
+            ncc.setNguoiLienHe(textNLH.getText().trim());
+
+            String diaChiNhap = textDCHI.getText().trim();
+            DiaChi_DAO dcDao = new DiaChi_DAO();
+
+            if (ncc.getDiaChi() != null) {
+
+                ncc.getDiaChi().setSoNha(diaChiNhap);
+                ncc.getDiaChi().setDuong("");
+                ncc.getDiaChi().setPhuong("");
+                ncc.getDiaChi().setTinh("");
+
+                dcDao.capNhat(ncc.getDiaChi());
+
+            } else if (!diaChiNhap.isEmpty()) {
+
+                DIACHI_DTO dc = new DIACHI_DTO();
+                dc.setMaDiaChi(dcDao.getNextId());
+                dc.setSoNha(diaChiNhap);
+                dc.setDuong("");
+                dc.setPhuong("");
+                dc.setTinh("");
+
+                if (dcDao.them(dc)) {
+                    ncc.setDiaChi(dc);
+                }
+            }
+
+            ncc.setTrangThai(comboBoxTthai.getSelectedIndex() == 0 ? 1 : 0);
+
+            if (bus.update(ncc)) {
+                JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+                loadDataToTable();
+                setViewMode();
+            } else {
+                JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
+        }
+    }
+    // hàm gọi sự kiện
     private void addEvents() {
         tableDanhSach.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
@@ -235,8 +383,28 @@ public class NCC extends JPanel {
             }
         });
 
-        btnThemNCC.addActionListener(e -> themNCC());
-        btnCapNhat.addActionListener(e -> capNhatNCC());
+        btnThemNCC.addActionListener(e -> setAddMode());
+
+        btnCapNhat.addActionListener(e -> {
+            if (tableDanhSach.getSelectedRow() < 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn nhà cung cấp!");
+                return;
+            }
+            setUpdateMode();
+        });
+
+        btn_Luu.addActionListener(e -> {
+            if (isAdding) {
+                xuLyThem();
+            } else if (isUpdating) {
+                xuLyCapNhat();
+            }
+        });
+
+        btn_Huy.addActionListener(e -> {
+            setViewMode();
+            lamMoiForm();
+        });
         btnTimKiem.addActionListener(e -> timKiemNCC());
         btnThoat.addActionListener(e -> thoatForm());
 
@@ -252,7 +420,7 @@ public class NCC extends JPanel {
                     textTenSP.setText(tableChiTiet.getValueAt(row, 2).toString());
                     textGiaBan.setText(tableChiTiet.getValueAt(row, 3).toString());
                     String tt = tableChiTiet.getValueAt(row, 4).toString();
-                    comboBox1.setSelectedIndex(tt.equals("CÒN_CUNG_CẤP") ? 0 : 1);
+                    comboBoxTThai.setSelectedIndex(tt.equals("CÒN_CUNG_CẤP") ? 0 : 1);
 
                     setKhoaFormSP(true);
                     isAddingSP = false;
@@ -287,15 +455,17 @@ public class NCC extends JPanel {
     }
 
     private void setKhoaForm(boolean isLocked) {
+
         textMa.setEditable(!isLocked);
         textTen.setEditable(!isLocked);
         textMST.setEditable(!isLocked);
         textNLH.setEditable(!isLocked);
         textSDT.setEditable(!isLocked);
         textDCHI.setEditable(!isLocked);
-        comboBoxTthai.setEnabled(!isLocked);
-    }
 
+        comboBoxTthai.setEnabled(!isLocked);
+
+    }
     private void lamMoiForm() {
         textMa.setText("");
         textMa.setEditable(true);
@@ -309,185 +479,70 @@ public class NCC extends JPanel {
     }
 
     private void setKhoaFormSP(boolean isLocked) {
+
         textMaSP.setEditable(!isLocked);
         textTenSP.setEditable(!isLocked);
         textGiaBan.setEditable(!isLocked);
-        comboBox1.setEnabled(!isLocked);
+
+        comboBoxTThai.setEnabled(!isLocked);
+
     }
 
     private void lamMoiFormSanPham() {
         textMaSP.setText("");
         textTenSP.setText("");
         textGiaBan.setText("");
-        comboBox1.setSelectedIndex(0);
+        comboBoxTThai.setSelectedIndex(0);
         tableChiTiet.clearSelection();
     }
 
     private void hienThiChiTiet() {
+
         int selectedRow = tableDanhSach.getSelectedRow();
-        if (selectedRow >= 0) {
-            int modelRow = tableDanhSach.convertRowIndexToModel(selectedRow);
+        if (selectedRow < 0) return;
+        if (isAddingSP || isUpdatingSP) {
+            isAddingSP = false;
+            isUpdatingSP = false;
 
-            textMa.setText(modelNCC.getValueAt(modelRow, 1).toString());
-            textTen.setText(modelNCC.getValueAt(modelRow, 2).toString());
-            textMST.setText(modelNCC.getValueAt(modelRow, 3).toString());
-            textSDT.setText(modelNCC.getValueAt(modelRow, 4).toString());
-            textNLH.setText(modelNCC.getValueAt(modelRow, 5).toString());
+            btnThem.setText("THÊM");
+            btnSua.setText("SỬA");
+            btnThem.setEnabled(true);
+            btnSua.setEnabled(true);
+            btnHuy.setEnabled(true);
 
-            Object objDC = modelNCC.getValueAt(modelRow, 6);
-            textDCHI.setText(objDC != null ? objDC.toString() : "");
-
-            String trangThai = modelNCC.getValueAt(modelRow, 7).toString();
-            comboBoxTthai.setSelectedIndex(trangThai.equals("ĐANG_GIAO_DỊCH") ? 0 : 1);
-
-            loadSanPhamTheoNCC(textMa.getText().trim());
-
-            setKhoaForm(true);
-            btnThemNCC.setText("Thêm");
-            btnCapNhat.setText("Cập Nhật");
-            btnThemNCC.setEnabled(true);
-            btnCapNhat.setEnabled(true);
-
-            isAdding = false;
-            isUpdating = false;
+            lamMoiFormSanPham();
+            setKhoaFormSP(true);
         }
+
+        int modelRow = tableDanhSach.convertRowIndexToModel(selectedRow);
+
+        textMa.setText(modelNCC.getValueAt(modelRow, 1).toString());
+        textTen.setText(modelNCC.getValueAt(modelRow, 2).toString());
+        textMST.setText(modelNCC.getValueAt(modelRow, 3).toString());
+        textSDT.setText(modelNCC.getValueAt(modelRow, 4).toString());
+        textNLH.setText(modelNCC.getValueAt(modelRow, 5).toString());
+
+        Object objDC = modelNCC.getValueAt(modelRow, 6);
+        textDCHI.setText(objDC != null ? objDC.toString() : "");
+
+        String trangThai = modelNCC.getValueAt(modelRow, 7).toString();
+        comboBoxTthai.setSelectedIndex(trangThai.equals("ĐANG_GIAO_DỊCH") ? 0 : 1);
+
+        modelSP.setRowCount(0);
+        lamMoiFormSanPham();
+
+        loadSanPhamTheoNCC(textMa.getText().trim());
+
+        setKhoaForm(true);
+
+        btnThemNCC.setEnabled(true);
+        btnCapNhat.setEnabled(true);
+
+        isAdding = false;
+        isUpdating = false;
     }
 
-    private void themNCC() {
-        if (!isAdding) {
-            isAdding = true;
-            isUpdating = false;
 
-            lamMoiForm();
-            setKhoaForm(false);
-            String maMoi = bus.getNextId();
-            textMa.setText(maMoi);
-            textMa.setEditable(false);
-
-            btnThemNCC.setText("Lưu");
-            btnCapNhat.setEnabled(false);
-            return;
-        }
-
-        try {
-            NhaCungCap_DTO ncc = new NhaCungCap_DTO();
-            ncc.setMaNCC(textMa.getText().trim());
-            ncc.setTenNCC(textTen.getText().trim());
-            ncc.setMaSoThue(textMST.getText().trim());
-            ncc.setSdt(textSDT.getText().trim());
-            ncc.setNguoiLienHe(textNLH.getText().trim());
-
-            String diaChiNhapVao = textDCHI.getText().trim();
-            if (!diaChiNhapVao.isEmpty()) {
-                DiaChi_DAO dcDao = new DiaChi_DAO();
-                DIACHI_DTO dcMoi = new DIACHI_DTO();
-                dcMoi.setMaDiaChi(dcDao.getNextId());
-                dcMoi.setSoNha(diaChiNhapVao);
-                dcMoi.setDuong("");
-                dcMoi.setPhuong("");
-                dcMoi.setTinh("");
-                if (dcDao.them(dcMoi)) {
-                    ncc.setDiaChi(dcMoi);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Lỗi: Không thể lưu thông tin Địa Chỉ vào CSDL!");
-                    return;
-                }
-            }
-            int trangThaiSo = (comboBoxTthai.getSelectedIndex() == 0) ? 1 : 0;
-            ncc.setTrangThai(trangThaiSo);
-
-            if (bus.insert(ncc)) {
-                JOptionPane.showMessageDialog(this, "Thêm thành công!");
-                loadDataToTable();
-                lamMoiForm();
-                setKhoaForm(true);
-
-                isAdding = false;
-                btnThemNCC.setText("Thêm");
-                btnCapNhat.setEnabled(true);
-            } else {
-                JOptionPane.showMessageDialog(this, "Thêm thất bại!");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
-        }
-    }
-
-    private void capNhatNCC() {
-        int selectedRow = tableDanhSach.getSelectedRow();
-        if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhà cung cấp!");
-            return;
-        }
-
-        if (!isUpdating) {
-            isUpdating = true;
-            isAdding = false;
-            setKhoaForm(false);
-            textMa.setEditable(false);
-            btnCapNhat.setText("Lưu");
-            btnThemNCC.setEnabled(false);
-            return;
-        }
-
-        try {
-            String maNCC = textMa.getText().trim();
-            NhaCungCap_DTO ncc = bus.getById(maNCC);
-
-            if (ncc == null) {
-                JOptionPane.showMessageDialog(this, "Không tìm thấy nhà cung cấp này trong CSDL!");
-                return;
-            }
-            ncc.setTenNCC(textTen.getText().trim());
-            ncc.setMaSoThue(textMST.getText().trim());
-            ncc.setSdt(textSDT.getText().trim());
-            ncc.setNguoiLienHe(textNLH.getText().trim());
-
-            String diaChiNhapVao = textDCHI.getText().trim();
-            DiaChi_DAO dcDao = new DiaChi_DAO();
-
-            if (ncc.getDiaChi() != null && ncc.getDiaChi().getMaDiaChi() != null) {
-                ncc.getDiaChi().setSoNha(diaChiNhapVao);
-                ncc.getDiaChi().setDuong("");
-                ncc.getDiaChi().setPhuong("");
-                ncc.getDiaChi().setTinh("");
-                dcDao.capNhat(ncc.getDiaChi());
-            } else {
-                if (!diaChiNhapVao.isEmpty()) {
-                    DIACHI_DTO dcMoi = new DIACHI_DTO();
-                    dcMoi.setMaDiaChi(dcDao.getNextId());
-                    dcMoi.setSoNha(diaChiNhapVao);
-                    dcMoi.setDuong("");
-                    dcMoi.setPhuong("");
-                    dcMoi.setTinh("");
-
-                    if (dcDao.them(dcMoi)) {
-                        ncc.setDiaChi(dcMoi);
-                    }
-                }
-            }
-            int trangThaiSo = (comboBoxTthai.getSelectedIndex() == 0) ? 1 : 0;
-            ncc.setTrangThai(trangThaiSo);
-
-            if (bus.update(ncc)) {
-                JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
-                loadDataToTable();
-                setKhoaForm(true);
-
-                isUpdating = false;
-                btnCapNhat.setText("Cập Nhật");
-                btnThemNCC.setEnabled(true);
-            } else {
-                JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
-        }
-    }
 
     private void timKiemNCC() {
         String tuKhoa = textLoc.getText().trim().toLowerCase();
@@ -519,7 +574,7 @@ public class NCC extends JPanel {
 
             lamMoiFormSanPham();
             setKhoaFormSP(false);
-
+            textMaSP.setEnabled(false);
             btnThem.setText("Lưu");
             btnSua.setEnabled(false);
             btnHuy.setEnabled(false);
@@ -541,7 +596,7 @@ public class NCC extends JPanel {
             spNcc.setMaNCC(maNCC);
             spNcc.setMaSanPham(maSP);
             spNcc.setGiaNhap(giaNhap);
-            spNcc.setTrangThai(comboBox1.getSelectedIndex() == 0 ? 1 : 0);
+            spNcc.setTrangThai(comboBoxTThai.getSelectedIndex() == 0 ? 1 : 0);
 
             SanPhamNCC_BUS spNccBus = SanPhamNCC_BUS.getInstance();
             if (spNccBus.insert(spNcc)) {
@@ -574,9 +629,8 @@ public class NCC extends JPanel {
             isAddingSP = false;
 
             setKhoaFormSP(false);
-            textMaSP.setEditable(false);
-            textTenSP.setEditable(false);
-
+            textMaSP.setEnabled(false);
+            textTenSP.setEnabled(false);
             btnSua.setText("Lưu");
             btnThem.setEnabled(false);
             btnHuy.setEnabled(false);
@@ -587,7 +641,7 @@ public class NCC extends JPanel {
             String maNCC = textMa.getText().trim();
             String maSP = textMaSP.getText().trim();
             double giaMoi = Double.parseDouble(textGiaBan.getText().trim());
-            int trangThai = comboBox1.getSelectedIndex() == 0 ? 1 : 0;
+            int trangThai = comboBoxTThai.getSelectedIndex() == 0 ? 1 : 0;
 
             SanPhamNCC_DTO spNcc = new SanPhamNCC_DTO();
             spNcc.setMaNCC(maNCC);
