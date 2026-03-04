@@ -88,6 +88,7 @@ public class KVLT extends JPanel {
         DefaultTableModel model2 = new DefaultTableModel(colChiTiet, 0);
         if (tableChiTiet != null) {
             tableChiTiet.setModel(model2);
+            setupTableChiTietProperties(tableChiTiet);
         }
     }
 
@@ -105,7 +106,7 @@ public class KVLT extends JPanel {
         int stt = 1;
         for (KhuVucLuuTru_DTO kv : list) {
             String trangThaiText = switch (kv.getTrangThai()) {
-                case 0 -> "Bảo trì/Ngừng";
+                case 0 -> "Bảo trì";
                 case 1 -> "Còn trống";
                 case 2 -> "Đã đầy";
                 default -> "Lỗi TT: " + kv.getTrangThai();
@@ -178,7 +179,25 @@ public class KVLT extends JPanel {
         }));
     }
 
+    private void setupTableChiTietProperties(JTable table) {
+        table.getTableHeader().setReorderingAllowed(false);
+        table.setFillsViewportHeight(true);
 
+        if (table.getColumnCount() > 0) {
+            DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+            centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+            table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+            table.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
+            table.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
+
+            fixColumnWidth(table, 0, 40);
+            fixColumnWidth(table, 1, 100);
+
+
+            fixColumnWidth(table, 3, 100);
+            fixColumnWidth(table, 4, 120);
+        }
+    }
 
     private void setViewMode() {
         isAdding = false;
@@ -240,7 +259,6 @@ public class KVLT extends JPanel {
 
     private void lamMoiForm() {
         textMa.setText("");
-        textMa.setEditable(true);
         textTen.setText("");
         textSucChua.setText("");
         textHienCo.setText("0");
@@ -253,7 +271,7 @@ public class KVLT extends JPanel {
         int selectedRow = tableDanhSach.getSelectedRow();
         if (selectedRow >= 0) {
             int modelRow = tableDanhSach.convertRowIndexToModel(selectedRow);
-
+            String maKV = modelKVLT.getValueAt(modelRow, 1).toString();
             textMa.setText(modelKVLT.getValueAt(modelRow, 1).toString());
             textTen.setText(modelKVLT.getValueAt(modelRow, 2).toString());
             textSucChua.setText(modelKVLT.getValueAt(modelRow, 3).toString());
@@ -269,8 +287,9 @@ public class KVLT extends JPanel {
             if (trangThai.equals("Còn trống")) comboBoxTthai.setSelectedIndex(0);
             else if (trangThai.equals("Đã đầy")) comboBoxTthai.setSelectedIndex(1);
             else comboBoxTthai.setSelectedIndex(2);
-
+            loadChiTietSanPham(maKV);
             setViewMode();
+
         }
     }
 
@@ -283,7 +302,15 @@ public class KVLT extends JPanel {
             kv.setSucChua(Integer.parseInt(textSucChua.getText().trim()));
             kv.setHienCo(0);
             kv.setNgayLapKho(new Date(System.currentTimeMillis()));
-            kv.setTrangThai(comboBoxTthai.getSelectedIndex() + 1);
+            int trangThaiValue = 0;
+            if (comboBoxTthai.getSelectedIndex() == 0) {
+                trangThaiValue = 1;
+            } else if (comboBoxTthai.getSelectedIndex() == 1) {
+                trangThaiValue = 2;
+            } else if (comboBoxTthai.getSelectedIndex() == 2) {
+                trangThaiValue = 0;
+            }
+            kv.setTrangThai(trangThaiValue);
 
             String diaChiNhapVao = textDCHI.getText().trim();
             if (!diaChiNhapVao.isEmpty()) {
@@ -330,7 +357,15 @@ public class KVLT extends JPanel {
             }
             kv.setTenKVLT(textTen.getText().trim());
             kv.setSucChua(Integer.parseInt(textSucChua.getText().trim()));
-            kv.setTrangThai(comboBoxTthai.getSelectedIndex() + 1);
+            int trangThaiValue = 0;
+            if (comboBoxTthai.getSelectedIndex() == 0) {
+                trangThaiValue = 1;
+            } else if (comboBoxTthai.getSelectedIndex() == 1) {
+                trangThaiValue = 2;
+            } else if (comboBoxTthai.getSelectedIndex() == 2) {
+                trangThaiValue = 0;
+            }
+            kv.setTrangThai(trangThaiValue);
 
             String diaChiNhapVao = textDCHI.getText().trim();
             DiaChi_DAO dcDao = new DiaChi_DAO();
@@ -423,7 +458,7 @@ public class KVLT extends JPanel {
                         String trangThaiStr = "";
                         if (kv.getTrangThai() == 1) trangThaiStr = "còn trống";
                         else if (kv.getTrangThai() == 2) trangThaiStr = "đã đầy";
-                        else trangThaiStr = "bảo trì ngừng";
+                        else trangThaiStr = "Bảo trì";
 
                         String thongTinTongHop = String.format("%s %s %d %d %s %s",
                                 kv.getMaKVLT() != null ? kv.getMaKVLT() : "",
@@ -454,9 +489,9 @@ public class KVLT extends JPanel {
             trangThaiLoc = comboBoxTrangThai.getSelectedItem().toString();
         }
 
-        if (trangThaiLoc.equals("CON_TRONG")) trangThaiLoc = "Còn trống";
-        else if (trangThaiLoc.equals("DAY")) trangThaiLoc = "Đã đầy";
-        else if (trangThaiLoc.equals("BAO_TRI")) trangThaiLoc = "Bảo trì";
+        if (trangThaiLoc.equals("Còn trống")) trangThaiLoc = "Còn trống";
+        else if (trangThaiLoc.equals("Đã đầy")) trangThaiLoc = "Đã đầy";
+        else if (trangThaiLoc.equals("Bảo trì")) trangThaiLoc = "Bảo trì";
 
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(modelKVLT);
         tableDanhSach.setRowSorter(sorter);
@@ -473,7 +508,46 @@ public class KVLT extends JPanel {
 
         sorter.setRowFilter(RowFilter.andFilter(filters));
     }
+    private void loadChiTietSanPham(String maKV) {
+        DefaultTableModel modelChiTiet = (DefaultTableModel) tableChiTiet.getModel();
+        modelChiTiet.setRowCount(0); // Làm sạch bảng phụ trước khi đổ dữ liệu mới
 
+        dao.LoHang_DAO loHangDAO = new dao.LoHang_DAO();
+        dao.SanPham_DAO spDAO = new dao.SanPham_DAO();
+
+        ArrayList<dto.LoHang_DTO> tatCaLoHang = loHangDAO.getAll();
+        ArrayList<dto.SanPham_DTO> tatCaSanPham = spDAO.getAll();
+
+        if (tatCaLoHang != null) {
+            int stt = 1;
+            for (dto.LoHang_DTO lo : tatCaLoHang) {
+
+                // Dùng .trim() để đảm bảo mã KVLT khớp hoàn toàn
+                if (lo.getMaKvlt() != null && lo.getMaKvlt().trim().equals(maKV.trim())) {
+
+                    String tenSP = "Không tìm thấy tên";
+                    if (tatCaSanPham != null) {
+                        for (dto.SanPham_DTO sp : tatCaSanPham) {
+                            // Dùng .trim() để đối chiếu tìm tên Sản Phẩm
+                            if (sp.getMaSP() != null && lo.getMaSp() != null &&
+                                    sp.getMaSP().trim().equals(lo.getMaSp().trim())) {
+                                tenSP = sp.getTenSP();
+                                break;
+                            }
+                        }
+                    }
+
+                    modelChiTiet.addRow(new Object[]{
+                            stt++,
+                            lo.getMaSp(),
+                            tenSP,
+                            lo.getSoLuongConLai(),
+                            lo.getMaLo()
+                    });
+                }
+            }
+        }
+    }
     private void hienThiGoiYKVLT(ArrayList<KhuVucLuuTru_DTO> list) {
         popupGoiY.setVisible(false);
         popupGoiY.removeAll();
@@ -535,9 +609,20 @@ public class KVLT extends JPanel {
     }
 
     private void thoatForm() {
-        if (JOptionPane.showConfirmDialog(this, "Bạn có muốn hủy bỏ các thao tác hiện tại không?", "Xác nhận", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-            setViewMode();
-            lamMoiForm();
+        textLoc.setText("");
+        if (comboBoxTrangThai != null) {
+            comboBoxTrangThai.setSelectedIndex(0);
+        }
+
+        if (tableDanhSach.getRowSorter() != null) {
+            tableDanhSach.setRowSorter(null);
+        }
+        setViewMode();
+        lamMoiForm();
+
+        loadDataToTableKVLT();
+        if (popupGoiY != null) {
+            popupGoiY.setVisible(false);
         }
     }
 

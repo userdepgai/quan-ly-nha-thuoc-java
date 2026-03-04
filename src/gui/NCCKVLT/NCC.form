@@ -110,8 +110,8 @@
                 </constraints>
                 <properties>
                   <model>
-                    <item value="ĐANG_GIAO_DỊCH"/>
-                    <item value="NGỪNG_HỢP_TÁC"/>
+                    <item value="Đang Giao Dịch"/>
+                    <item value="Ngừng Hợp Tác"/>
                   </model>
                 </properties>
               </component>
@@ -268,8 +268,8 @@
                     </constraints>
                     <properties>
                       <model>
-                        <item value="ĐANG_GIAO_DỊCH"/>
-                        <item value="NGỪNG_HỢP_TÁC"/>
+                        <item value="Đang Giao Dịch"/>
+                        <item value="Ngừng Hợp Tác"/>
                       </model>
                     </properties>
                   </component>
@@ -378,8 +378,8 @@
                         </constraints>
                         <properties>
                           <model>
-                            <item value="CÒN_CUNG_CẤP"/>
-                            <item value="NGỪNG_CUNG_CẤP"/>
+                            <item value="Còn Cung cấp"/>
+                            <item value="Ngừng Cung Cấp"/>
                           </model>
                         </properties>
                       </component>
