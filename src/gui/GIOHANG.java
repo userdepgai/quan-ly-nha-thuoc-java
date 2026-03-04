@@ -15,7 +15,6 @@ public class GIOHANG {
     private JScrollPane scrollGioHang;
     private JPanel pnlDanhSachSP;
 
-
     private List<ProductItem> listGioHang = new ArrayList<>();
 
     public GIOHANG() {
@@ -63,82 +62,67 @@ public class GIOHANG {
     }
 
     // ==============================================================
-    // HÀM TẠO 1 CHIẾC THẺ SẢN PHẨM (CÓ TÍCH HỢP NÚT MÃ GIẢM GIÁ)
+    // HÀM TẠO 1 CHIẾC THẺ SẢN PHẨM
     // ==============================================================
     private JPanel taoTheSanPham(ProductItem item) {
         JPanel card = new JPanel(new BorderLayout(15, 0));
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(230, 230, 230), 1),
-                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+                BorderFactory.createLineBorder(Color.decode("#E0E0E0"), 1), // Viền xám nhạt tinh tế
+                BorderFactory.createEmptyBorder(12, 12, 12, 12)
         ));
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120)); // Tăng chiều cao để đủ chỗ cho nút
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
 
-        // --- BÊN TRÁI: Checkbox + Ảnh sản phẩm ---
-        JPanel pnlLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        // --- 1. BÊN TRÁI: Checkbox + Ảnh sản phẩm ---
+        JPanel pnlLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         pnlLeft.setOpaque(false);
         pnlLeft.add(new JCheckBox());
 
         JLabel lblAnh = new JLabel("ẢNH");
         lblAnh.setPreferredSize(new Dimension(80, 80));
         lblAnh.setOpaque(true);
-        lblAnh.setBackground(new Color(245, 245, 245));
+        lblAnh.setBackground(Color.decode("#F5F5F5"));
+        lblAnh.setForeground(Color.decode("#9E9E9E"));
         lblAnh.setHorizontalAlignment(SwingConstants.CENTER);
-        lblAnh.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        lblAnh.setBorder(BorderFactory.createLineBorder(Color.decode("#EEEEEE")));
         pnlLeft.add(lblAnh);
 
-        // --- Ở GIỮA: Thông tin (Tên, Giá, Nút Khuyến Mãi) ---
+        // --- 2. Ở GIỮA: Thông tin (Mã SP, Tên, Giá gốc) ---
         JPanel pnlInfo = new JPanel();
         pnlInfo.setLayout(new BoxLayout(pnlInfo, BoxLayout.Y_AXIS));
         pnlInfo.setOpaque(false);
+        pnlInfo.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+        JLabel lblMa = new JLabel("Mã SP: " + item.ma);
+        lblMa.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblMa.setForeground(Color.decode("#888888")); // Xám trung tính
 
         JLabel lblTen = new JLabel(item.ten);
-        lblTen.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        JLabel lblGia = new JLabel(String.format("%,.0fđ", item.gia));
-        lblGia.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblGia.setForeground(Color.RED);
+        lblTen.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        lblTen.setForeground(Color.decode("#222222")); // Đen xám dịu mắt
 
-        // Tạo nút bấm Khuyến Mãi ngay trong lòng sản phẩm
-        JButton btnKhuyenMai = new JButton("Mã giảm giá ▼");
-        btnKhuyenMai.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        btnKhuyenMai.setForeground(new Color(0, 102, 204)); // Màu xanh link
-        btnKhuyenMai.setContentAreaFilled(false);
-        btnKhuyenMai.setBorderPainted(false);
-        btnKhuyenMai.setFocusPainted(false);
-        btnKhuyenMai.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnKhuyenMai.setMargin(new Insets(0, 0, 0, 0));
+        // Format giá gốc bằng HTML để ép màu chính xác
+        JLabel lblGiaGoc = new JLabel();
+        lblGiaGoc.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        if (item.giaSale < item.gia) {
+            lblGiaGoc.setText("<html><font color='#999999'>Giá gốc: <strike>" + String.format("%,.0fđ", item.gia) + "</strike></font></html>");
+        } else {
+            lblGiaGoc.setText("<html><font color='#555555'>Giá gốc: " + String.format("%,.0fđ", item.gia) + "</font></html>");
+        }
 
-        // Sự kiện khi nhấn nút "Mã giảm giá"
-        btnKhuyenMai.addActionListener(e -> {
-            if (promoPanel != null) {
-                boolean isVisible = promoPanel.isVisible();
-                promoPanel.setVisible(!isVisible);
-
-                if (!isVisible) {
-                    btnKhuyenMai.setText("Mã giảm giá ▲");
-                    loadDanhSachKhuyenMai(); // Tải danh sách voucher
-                } else {
-                    btnKhuyenMai.setText("Mã giảm giá ▼");
-                }
-
-                // Cập nhật lại giao diện tổng
-                if (MainPanel != null) {
-                    MainPanel.revalidate();
-                    MainPanel.repaint();
-                }
-            }
-        });
-
+        pnlInfo.add(lblMa);
         pnlInfo.add(Box.createVerticalStrut(5));
         pnlInfo.add(lblTen);
         pnlInfo.add(Box.createVerticalStrut(5));
-        pnlInfo.add(lblGia);
-        pnlInfo.add(Box.createVerticalStrut(5));
-        pnlInfo.add(btnKhuyenMai); // Nhét nút vào panel giữa
+        pnlInfo.add(lblGiaGoc);
 
-        // --- BÊN PHẢI: Số lượng + Nút Xóa ---
-        JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 25));
+        // --- 3. BÊN PHẢI: Số lượng, Xóa (Trái) & Giá sale, Nút KM (Dưới) ---
+        JPanel pnlRight = new JPanel(new BorderLayout());
         pnlRight.setOpaque(false);
+
+        // Góc trên cùng bên phải
+        JPanel pnlRightTop = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        pnlRightTop.setOpaque(false);
 
         JSpinner spinSL = new JSpinner(new SpinnerNumberModel(item.soLuong, 1, 100, 1));
         spinSL.setPreferredSize(new Dimension(50, 25));
@@ -147,24 +131,76 @@ public class GIOHANG {
         });
 
         JButton btnXoa = new JButton("Xóa");
-        btnXoa.setForeground(Color.RED);
+        btnXoa.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnXoa.setForeground(Color.decode("#D32F2F")); // Đỏ mượt Material Design
         btnXoa.setContentAreaFilled(false);
         btnXoa.setBorderPainted(false);
         btnXoa.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnXoa.setMargin(new Insets(0, 0, 0, 0));
 
         btnXoa.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(MainPanel,
                     "Bỏ sản phẩm này khỏi giỏ?", "Xác nhận", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 listGioHang.remove(item);
-                renderGioHang(); // Vẽ lại giao diện sau khi xóa
+                renderGioHang();
             }
         });
 
-        pnlRight.add(spinSL);
-        pnlRight.add(btnXoa);
+        pnlRightTop.add(spinSL);
+        pnlRightTop.add(btnXoa);
 
-        // Ghép 3 phần lại thành 1 thẻ hoàn chỉnh
+        // Góc dưới cùng bên phải
+        JPanel pnlRightBottom = new JPanel();
+        pnlRightBottom.setLayout(new BoxLayout(pnlRightBottom, BoxLayout.Y_AXIS));
+        pnlRightBottom.setOpaque(false);
+
+        JLabel lblGiaSale = new JLabel();
+        lblGiaSale.setFont(new Font("Segoe UI", Font.BOLD, 16)); // Tăng size lên 16 cho nổi bật
+        lblGiaSale.setForeground(Color.decode("#EE4D2D")); // Màu đỏ cam chuẩn E-commerce
+        lblGiaSale.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        if (item.giaSale < item.gia) {
+            lblGiaSale.setText("Sale: " + String.format("%,.0fđ", item.giaSale));
+        } else {
+            lblGiaSale.setText(" "); // Dùng space để giữ bố cục không bị xô lệch
+        }
+
+        JButton btnKhuyenMai = new JButton("Mã giảm giá ▼");
+        btnKhuyenMai.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnKhuyenMai.setForeground(Color.decode("#1A73E8")); // Màu xanh dương Google hiện đại
+        btnKhuyenMai.setContentAreaFilled(false);
+        btnKhuyenMai.setBorderPainted(false);
+        btnKhuyenMai.setFocusPainted(false);
+        btnKhuyenMai.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnKhuyenMai.setMargin(new Insets(0, 0, 0, 0));
+        btnKhuyenMai.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        btnKhuyenMai.addActionListener(e -> {
+            if (promoPanel != null) {
+                boolean isVisible = promoPanel.isVisible();
+                promoPanel.setVisible(!isVisible);
+
+                if (!isVisible) {
+                    btnKhuyenMai.setText("Mã giảm giá ▲");
+                    loadDanhSachKhuyenMai(item, lblGiaGoc, lblGiaSale, btnKhuyenMai);
+                } else {
+                    btnKhuyenMai.setText("Mã giảm giá ▼");
+                }
+
+                if (MainPanel != null) {
+                    MainPanel.revalidate();
+                    MainPanel.repaint();
+                }
+            }
+        });
+
+        pnlRightBottom.add(lblGiaSale);
+        pnlRightBottom.add(Box.createVerticalStrut(5));
+        pnlRightBottom.add(btnKhuyenMai);
+
+        pnlRight.add(pnlRightTop, BorderLayout.NORTH);
+        pnlRight.add(pnlRightBottom, BorderLayout.SOUTH);
+
         card.add(pnlLeft, BorderLayout.WEST);
         card.add(pnlInfo, BorderLayout.CENTER);
         card.add(pnlRight, BorderLayout.EAST);
@@ -173,13 +209,13 @@ public class GIOHANG {
     }
 
     // ==============================================================
-    // CÁC HÀM TẠO KHUYẾN MÃI (GIỮ NGUYÊN)
+    // CÁC HÀM TẠO KHUYẾN MÃI (ĐÃ CẬP NHẬT MÀU VÀ LOGIC)
     // ==============================================================
-    private JPanel taoTheKhuyenMai(String maKM, String moTa, double donToiThieu) {
-        JPanel card = new JPanel();
-        card.setLayout(new BorderLayout(5, 5));
+    private JPanel taoTheKhuyenMai(String maKM, String moTa, double mucGiam, boolean isPhanTram,
+                                   ProductItem item, JLabel lblGiaGoc, JLabel lblGiaSale, JButton btnKhuyenMai) {
+        JPanel card = new JPanel(new BorderLayout(5, 5));
         card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+                BorderFactory.createLineBorder(Color.decode("#E0E0E0"), 1),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
         card.setBackground(Color.WHITE);
@@ -190,38 +226,43 @@ public class GIOHANG {
 
         JLabel lblMa = new JLabel("Mã: " + maKM);
         lblMa.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblMa.setForeground(new Color(220, 53, 69));
+        lblMa.setForeground(Color.decode("#EE4D2D")); // Đồng bộ màu đỏ cam E-commerce
 
         JLabel lblMoTa = new JLabel(moTa);
         lblMoTa.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-
-        JLabel lblDieuKien = new JLabel("Đơn tối thiểu: " + String.format("%,.0f", donToiThieu) + "đ");
-        lblDieuKien.setFont(new Font("Segoe UI", Font.ITALIC, 11));
-        lblDieuKien.setForeground(Color.GRAY);
+        lblMoTa.setForeground(Color.decode("#444444"));
 
         pnlText.add(lblMa);
         pnlText.add(Box.createVerticalStrut(5));
         pnlText.add(lblMoTa);
-        pnlText.add(Box.createVerticalStrut(5));
-        pnlText.add(lblDieuKien);
 
         JPanel pnlButton = new JPanel(new BorderLayout());
         pnlButton.setBackground(Color.WHITE);
         JButton btnApDung = new JButton("ÁP DỤNG");
-        btnApDung.setBackground(new Color(40, 167, 69));
+        btnApDung.setBackground(Color.decode("#28A745")); // Xanh lá cây
         btnApDung.setForeground(Color.WHITE);
         btnApDung.setFocusPainted(false);
+        btnApDung.setCursor(new Cursor(Cursor.HAND_CURSOR));
         pnlButton.add(btnApDung, BorderLayout.CENTER);
 
         btnApDung.addActionListener(e -> {
-            JOptionPane.showMessageDialog(MainPanel, "Bạn đã áp dụng mã: " + maKM + "\n" + moTa);
+            // Tính toán giá sale mới
+            double tienGiam = isPhanTram ? (item.gia * mucGiam / 100) : mucGiam;
+            item.giaSale = item.gia - tienGiam;
+            if (item.giaSale < 0) item.giaSale = 0;
+
+            // Cập nhật lại UI thẻ sản phẩm
+            lblGiaSale.setText("Sale: " + String.format("%,.0fđ", item.giaSale));
+            lblGiaGoc.setText("<html><font color='#999999'>Giá gốc: <strike>" + String.format("%,.0fđ", item.gia) + "</strike></font></html>");
+
+            JOptionPane.showMessageDialog(MainPanel, "Đã áp dụng mã: " + maKM + "\nCho: " + item.ten);
+
+            // Đóng panel khuyến mãi và trả lại trạng thái nút
             if (promoPanel != null) {
                 promoPanel.setVisible(false);
+                btnKhuyenMai.setText("Mã giảm giá ▼");
             }
-            Window window = SwingUtilities.getWindowAncestor(MainPanel);
-            if (window != null) {
-                window.pack();
-            }
+
         });
 
         card.add(pnlText, BorderLayout.CENTER);
@@ -231,18 +272,18 @@ public class GIOHANG {
         return card;
     }
 
-    private void loadDanhSachKhuyenMai() {
+    private void loadDanhSachKhuyenMai(ProductItem item, JLabel lblGiaGoc, JLabel lblGiaSale, JButton btnKhuyenMai) {
         if (scrollKhuyenMai == null) return;
 
         JPanel listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         listPanel.setBackground(Color.WHITE);
 
-        listPanel.add(taoTheKhuyenMai("GIAM10K", "Giảm thẳng 10.000đ vào tổng hóa đơn", 100000));
+        listPanel.add(taoTheKhuyenMai("GIAM10K", "Giảm thẳng 10.000đ", 10000, false, item, lblGiaGoc, lblGiaSale, btnKhuyenMai));
         listPanel.add(Box.createVerticalStrut(10));
-        listPanel.add(taoTheKhuyenMai("SALE20", "Giảm 20% tối đa 50K cho khách mới", 250000));
+        listPanel.add(taoTheKhuyenMai("SALE20", "Giảm 20% cho sản phẩm này", 20, true, item, lblGiaGoc, lblGiaSale, btnKhuyenMai));
         listPanel.add(Box.createVerticalStrut(10));
-        listPanel.add(taoTheKhuyenMai("FREESHIP", "Miễn phí vận chuyển toàn quốc", 300000));
+        listPanel.add(taoTheKhuyenMai("GIAM50K", "Giảm mạnh 50.000đ", 50000, false, item, lblGiaGoc, lblGiaSale, btnKhuyenMai));
 
         scrollKhuyenMai.setViewportView(listPanel);
         scrollKhuyenMai.getVerticalScrollBar().setUnitIncrement(16);
@@ -260,18 +301,17 @@ public class GIOHANG {
         return MainPanel;
     }
 
-    // ==============================================================
-    // CLASS PHỤ: LƯU TRỮ THÔNG TIN SẢN PHẨM
-    // ==============================================================
     class ProductItem {
         String ma, ten;
         double gia;
+        double giaSale;
         int soLuong;
 
         public ProductItem(String ma, String ten, double gia, int soLuong) {
             this.ma = ma;
             this.ten = ten;
             this.gia = gia;
+            this.giaSale = gia;
             this.soLuong = soLuong;
         }
     }

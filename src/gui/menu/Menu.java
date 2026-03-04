@@ -90,7 +90,7 @@ public class Menu extends JFrame {
         contentPanel = new JPanel(cardLayout);
 
         contentPanel.add(new DashBoard_GUI(), "dashboard");
-        contentPanel.add(new ThongTinCaNhanNhanVien_GUI(), "thongke");
+        contentPanel.add(new THONGKE().getPanelMain(), "thongke");
         contentPanel.add(createContent("Báo cáo"), "baocao");
 
         contentPanel.add(new LapHoaDon_GUI(), "banhang");

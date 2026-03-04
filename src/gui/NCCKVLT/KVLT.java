@@ -510,7 +510,7 @@ public class KVLT extends JPanel {
     }
     private void loadChiTietSanPham(String maKV) {
         DefaultTableModel modelChiTiet = (DefaultTableModel) tableChiTiet.getModel();
-        modelChiTiet.setRowCount(0); // Làm sạch bảng phụ trước khi đổ dữ liệu mới
+        modelChiTiet.setRowCount(0);
 
         dao.LoHang_DAO loHangDAO = new dao.LoHang_DAO();
         dao.SanPham_DAO spDAO = new dao.SanPham_DAO();
@@ -522,13 +522,11 @@ public class KVLT extends JPanel {
             int stt = 1;
             for (dto.LoHang_DTO lo : tatCaLoHang) {
 
-                // Dùng .trim() để đảm bảo mã KVLT khớp hoàn toàn
                 if (lo.getMaKvlt() != null && lo.getMaKvlt().trim().equals(maKV.trim())) {
 
                     String tenSP = "Không tìm thấy tên";
                     if (tatCaSanPham != null) {
                         for (dto.SanPham_DTO sp : tatCaSanPham) {
-                            // Dùng .trim() để đối chiếu tìm tên Sản Phẩm
                             if (sp.getMaSP() != null && lo.getMaSp() != null &&
                                     sp.getMaSP().trim().equals(lo.getMaSp().trim())) {
                                 tenSP = sp.getTenSP();
