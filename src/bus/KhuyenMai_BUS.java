@@ -106,4 +106,15 @@ public class KhuyenMai_BUS {
         }
         return true;
     }
+    public KhuyenMai_DTO getByTen(String tenKM){
+
+        if(tenKM == null) return null;
+
+        for(KhuyenMai_DTO km : getAll()){
+            if(km.getTenKM().equals(tenKM))
+                return km;
+        }
+
+        return null;
+    }
 }

@@ -14,7 +14,6 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
     private HoaDonOnline_BUS(){
         super();
-        loadKhachHang();
     }
 
     public static HoaDonOnline_BUS getInstance(){
@@ -75,7 +74,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
     // =====================================================
     public void duyetDon(String maHD) {
 
-        HoaDonBan_DTO hd = hoaDonDAO.getById(maHD);
+        HoaDonBan_DTO hd = getById(maHD);
 
         if (hd == null)
             throw new RuntimeException("Không tìm thấy hóa đơn");
@@ -123,7 +122,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
     // =====================================================
     public void giaoHang(String maHD) {
 
-        HoaDonBan_DTO hd = hoaDonDAO.getById(maHD);
+        HoaDonBan_DTO hd = getById(maHD);
 
         if (hd.getTrangThai() != HoaDonBan_DTO.TT_DA_DUYET)
             throw new RuntimeException("Chưa duyệt");
@@ -140,7 +139,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
     // =====================================================
     public void hoanThanh(String maHD) {
 
-        HoaDonBan_DTO hd = hoaDonDAO.getById(maHD);
+        HoaDonBan_DTO hd = getById(maHD);
 
         if (hd.getTrangThai() != HoaDonBan_DTO.TT_DANG_GIAO)
             throw new RuntimeException("Chưa giao");
@@ -159,7 +158,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
     // =====================================================
     public void hoanHang(String maHD) {
 
-        HoaDonBan_DTO hd = hoaDonDAO.getById(maHD);
+        HoaDonBan_DTO hd = getById(maHD);
 
         if (hd.getTrangThai() != HoaDonBan_DTO.TT_HOAN_THANH)
             throw new RuntimeException("Chưa hoàn thành");
@@ -177,7 +176,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         }
 
         int diem = (int)(hd.getThanhTien() / 10000);
-        khDAO.truDiem(hd.getMaKhachHang(), diem);
+        //khBus.truDiem(hd.getMaKhachHang(), diem);
 
         hoaDonDAO.capNhatTrangThai(
                 maHD,
@@ -226,12 +225,12 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         int diem = (int)(hd.getThanhTien() / 10000);
 
-        khDAO.congDiem(hd.getMaKhachHang(), diem);
+       //khBus.congDiem(hd.getMaKhachHang(), diem);
     }
 
     public HoaDonOnline_DTO getHoaDonOnline(String maHD) {
 
-        HoaDonBan_DTO hdBan = hoaDonDAO.getById(maHD);
+        HoaDonBan_DTO hdBan = getById(maHD);
 
         if (hdBan == null) return null;
 

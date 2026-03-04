@@ -1,5 +1,7 @@
 package gui.HOADON_GUI;
 
+import bus.KhachHang_BUS;
+import bus.SanPham_BUS;
 import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
@@ -66,6 +68,8 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
     private DefaultTableModel modelHoaDon;
     private DefaultTableModel modelChiTiet;
     private HoaDonBan_BUS hoaDonBUS = HoaDonBan_BUS.getInstance();
+    private KhachHang_BUS khBUS = KhachHang_BUS.getInstance();
+    private SanPham_BUS spBUS = SanPham_BUS.getInstance();
 
     public QuanLyHoaDonBan_GUI() {
         setLayout(new BorderLayout());
@@ -122,8 +126,6 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
     private void loadDanhSachHoaDon(){
 
         modelHoaDon.setRowCount(0);
-
-        hoaDonBUS.loadKhachHang(); // load cache KH
 
         int stt = 1;
 
@@ -262,7 +264,7 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
                     hoaDonBUS.getTenSP(ct.getMaSP()),
                     ct.getSoLuong(),
                     ct.getGiaBan(),
-                    ct.getMaKhuyenMai(),
+                    hoaDonBUS.getTenKhuyenMai(ct.getMaKhuyenMai()),
                     ct.getGiaBanSauApKM(),
                     ct.getThanhTien()
             });
@@ -290,7 +292,7 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
         txtThueVAT.setText(String.valueOf(hd.getThueVAT()));
         txtThanhTien.setText(String.valueOf(hd.getThanhTien()));
         txtThanhTienCT.setText(String.valueOf(hd.getThanhTien()));
-        txtVoucher.setText(hd.getMaVoucher());
+        txtVoucher.setText(hoaDonBUS.getTenVoucher(hd.getMaVoucher()));
         txtDiemThuong.setText(String.valueOf(hd.getDiemThuongQuyDoi()));
     }
 

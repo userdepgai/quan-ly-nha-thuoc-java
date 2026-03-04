@@ -1,6 +1,8 @@
 package gui.HOADON_GUI;
 
 import bus.HoaDonOnline_BUS;
+import bus.KhachHang_BUS;
+import bus.SanPham_BUS;
 import com.toedter.calendar.JDateChooser;
 import dto.HoaDonOnline_DTO;
 
@@ -75,6 +77,8 @@ public class DuyetDonHang_GUI extends JPanel{
     private DefaultTableModel modelChiTiet;
     private HoaDonOnline_BUS bus =
             HoaDonOnline_BUS.getInstance();
+    private KhachHang_BUS khBUS = KhachHang_BUS.getInstance();
+    private SanPham_BUS spBUS = SanPham_BUS.getInstance();
 
     public DuyetDonHang_GUI() {
         setLayout(new BorderLayout());

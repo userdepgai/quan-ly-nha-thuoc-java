@@ -135,40 +135,5 @@ public class KhachHang_DAO {
 
         return false;
     }
-    // ================= CỘNG ĐIỂM =================
-    public void congDiem(String maKH, int diem){
 
-        String sql =
-                "UPDATE KHACHHANG SET DiemThuong = DiemThuong + ? WHERE MaKH = ?";
-
-        try(Connection con = DBConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql)){
-
-            ps.setInt(1, diem);
-            ps.setString(2, maKH);
-
-            ps.executeUpdate();
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-    // ================= TRỪ ĐIỂM =================
-    public void truDiem(String maKH, int diem){
-
-        String sql =
-                "UPDATE KHACHHANG SET DiemThuong = DiemThuong - ? WHERE MaKH = ?";
-
-        try(Connection con = DBConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql)){
-
-            ps.setInt(1, diem);
-            ps.setString(2, maKH);
-
-            ps.executeUpdate();
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
 }

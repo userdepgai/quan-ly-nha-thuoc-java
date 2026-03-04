@@ -1,5 +1,7 @@
 package gui.HOADON_GUI;
 
+import bus.KhuyenMai_BUS;
+import bus.SanPham_BUS;
 import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
@@ -8,7 +10,9 @@ import java.awt.event.*;
 import java.awt.BorderLayout;
 import bus.HoaDonBan_BUS;
 import dto.ChiTietHoaDonBan_DTO;
-
+import dto.HoaDonBan_DTO;
+import dto.KhuyenMai_DTO;
+import dto.SanPham_DTO;
 
 
 public class LapHoaDon_GUI extends JPanel{
@@ -23,7 +27,7 @@ public class LapHoaDon_GUI extends JPanel{
     private JTextField txtNhanVienLap;
     private JComboBox cbMaSP;
     private JComboBox cbTenSP;
-    private JComboBox cbKM;
+    private JComboBox cbKhuyenMai;
     private JButton btnThem;
     private JButton btnXoa;
     private JButton btnSua;
@@ -54,32 +58,121 @@ public class LapHoaDon_GUI extends JPanel{
     private JLabel labelTienNhan;
     private JLabel labelTienThoi;
     private JDateChooser JDateChooser1;
+    private JSpinner snSoLuong;
+
+    private boolean dangDongBo = false;
 
     private HoaDonBan_BUS bus = HoaDonBan_BUS.getInstance();
+    // ===== BUS =====
+    private SanPham_BUS spBus = SanPham_BUS.getInstance();
+    private KhuyenMai_BUS kmBus = KhuyenMai_BUS.getInstance();
 
     private DefaultTableModel modelBang;
 
     public LapHoaDon_GUI() {
+        cbMaSP.setEditable(true);
+        cbTenSP.setEditable(true);
         khoiTaoBang();
         suKienNut();
+        loadComboBox();
 
         this.setLayout(new BorderLayout());
         this.add(panel_LapHoaDon, BorderLayout.CENTER);
 
+        btnSua.setEnabled(false);
+        btnXoa.setEnabled(false);
+
     }
-
-
-    /* ================== KHỞI TẠO BẢNG ================== */
-
     private void khoiTaoBang() {
         modelBang = new DefaultTableModel(
                 new String[]{
-                        "STT","Mã sản phẩm","Tên sản phẩm","Công dụng","Đơn vị tính", "Số lượng","Giá bán", "Khuyến mãi","Thành tiền"
+                        "STT","Mã sản phẩm","Tên sản phẩm","Đơn vị tính", "Giá bán", "Khuyến mãi","Giá sau khuyến mãi","Số lượng","Thành tiền"
                 }, 0
         );
         tableTTSP.setModel(modelBang);
+
+        tableTTSP.getTableHeader().setResizingAllowed(false);
+        tableTTSP.getTableHeader().setReorderingAllowed(false);
+        tableTTSP.setRowHeight(25);
+        tableTTSP.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    }
+    // ===============================
+// LOAD DATA COMBOBOX
+// ===============================
+    private void loadComboBox(){
+
+        loadCBMaSP();
+        loadCBTenSP();
+        loadCBKhuyenMai();
+    }
+    private void loadCBMaSP(){
+
+        cbMaSP.removeAllItems();
+        cbMaSP.addItem("-- Chọn --");
+
+        for(SanPham_DTO sp : spBus.getAll()){
+            cbMaSP.addItem(sp.getMaSP());
+        }
+    }
+    private void loadCBTenSP(){
+
+        cbTenSP.removeAllItems();
+        cbTenSP.addItem("-- Chọn --");
+
+        for(SanPham_DTO sp : spBus.getAll()){
+            cbTenSP.addItem(sp.getTenSP());
+        }
+    }
+    private void loadCBKhuyenMai(){
+
+        cbKhuyenMai.removeAllItems();
+        cbKhuyenMai.addItem(null);
+
+        for(KhuyenMai_DTO km : kmBus.getAll()){
+            cbKhuyenMai.addItem(km.getTenKM());
+        }
     }
 
+
+    private void loadTableFromBUS(){
+
+        modelBang.setRowCount(0);
+
+        int stt = 1;
+
+        for(ChiTietHoaDonBan_DTO ct : bus.getDsTam()){
+
+            modelBang.addRow(new Object[]{
+                    stt++,
+                    ct.getMaSP(),
+                    bus.getTenSP(ct.getMaSP()),
+                    bus.getDonViTinh(ct.getMaSP()),
+                    ct.getGiaBan(),
+                    bus.getTenKhuyenMai(ct.getMaKhuyenMai()),
+                    ct.getGiaBanSauApKM(),
+                    ct.getSoLuong(),
+                    ct.getThanhTien()
+            });
+        }
+    }
+    /* ================== KHỞI TẠO BẢNG ================== */
+
+
+    private void tinhTienThoi(){
+
+        try{
+            double tienNhan =
+                    Double.parseDouble(txtTienNhan.getText());
+
+            double thanhTien =
+                    Double.parseDouble(txtThanhTien.getText());
+
+            txtTienThoi.setText(
+                    String.valueOf(tienNhan - thanhTien)
+            );
+
+        }catch(Exception ignored){}
+    }
     /* ================== SỰ KIỆN NÚT ================== */
 
     private void suKienNut() {
@@ -94,23 +187,26 @@ public class LapHoaDon_GUI extends JPanel{
                 if (dong >= 0) {
                     cbMaSP.setSelectedItem(modelBang.getValueAt(dong,1));
                     cbTenSP.setSelectedItem(modelBang.getValueAt(dong,2));
+
+                    btnSua.setEnabled(true);
+                    btnXoa.setEnabled(true);
                 }
             }
         });
 
         /* ===== XOÁ ===== */
         btnXoa.addActionListener(e -> {
-            int dong = tableTTSP.getSelectedRow();
-            if (dong >= 0) {
-                int xacNhan = JOptionPane.showConfirmDialog(
-                        null,"Xoá sản phẩm?",
-                        "Xác nhận",JOptionPane.YES_NO_OPTION);
 
-                if (xacNhan == JOptionPane.YES_OPTION) {
-                    modelBang.removeRow(dong);
-                    tinhTien();
-                }
-            }
+            int row = tableTTSP.getSelectedRow();
+            if(row < 0) return;
+
+            String maSP =
+                    modelBang.getValueAt(row,1).toString();
+
+            bus.xoaSanPham(maSP);
+
+            loadTableFromBUS();
+            hienTongTien();
         });
 
         /* ===== SỬA ===== */
@@ -137,6 +233,59 @@ public class LapHoaDon_GUI extends JPanel{
 
             new XuatHoaDon_GUI(parent).setVisible(true);
         });
+
+        cbMaSP.addActionListener(e -> {
+
+            if(dangDongBo) return;
+
+            Object obj = cbMaSP.getSelectedItem();
+            if(obj == null) return;
+
+            String maSP = obj.toString().trim();
+
+            if(maSP.equals("-- Chọn --") || maSP.isEmpty())
+                return;
+
+            String tenSP = bus.getTenSP(maSP);
+
+            if(tenSP != null){
+                dangDongBo = true;
+                cbTenSP.setSelectedItem(tenSP);
+                dangDongBo = false;
+            }
+        });
+        cbTenSP.addActionListener(e -> {
+
+            if(dangDongBo) return;
+
+            Object obj = cbTenSP.getSelectedItem();
+            if(obj == null) return;
+
+            String tenSP = obj.toString().trim();
+
+            for(SanPham_DTO sp : spBus.getAll()){
+
+                if(sp.getTenSP().equalsIgnoreCase(tenSP)){
+
+                    dangDongBo = true;
+                    cbMaSP.setSelectedItem(sp.getMaSP());
+                    dangDongBo = false;
+
+                    break;
+                }
+            }
+        });
+        /*
+        cbVoucher.addActionListener(e -> {
+
+            String ten =
+                    (String) cbVoucher.getSelectedItem();
+
+            bus.apDungVoucher(ten);
+            hienTongTien();
+        });
+        */
+
     }
 
 
@@ -145,27 +294,47 @@ public class LapHoaDon_GUI extends JPanel{
 
     private void themSanPham() {
 
-        String ma = cbMaSP.getSelectedItem()+"";
-        String ten = cbTenSP.getSelectedItem()+"";
+        try{
+            String maSP = cbMaSP.getSelectedItem()+"";
 
-        if(ma.equals("") && ten.equals("")) {
-            JOptionPane.showMessageDialog(null,"Chọn sản phẩm!");
-            return;
+            int soLuong = (int) snSoLuong.getValue();
+
+            // ===== lấy KM user chọn =====
+            String tenKM = null;
+
+            if(cbKhuyenMai.getSelectedIndex() > 0){
+                 tenKM = cbKhuyenMai.getSelectedItem().toString();
+
+
+            }
+
+            // ⭐ gọi đúng BUS
+            bus.themSanPham(maSP, soLuong, tenKM);
+
+            loadTableFromBUS();
+            resetFormSanPham();
+            hienTongTien();
+
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,ex.getMessage());
         }
-
-        int stt = modelBang.getRowCount()+1;
-
-        double gia = 10000;
-        double km = 0;
-        double thanhTien = gia - km;
-
-        modelBang.addRow(new Object[]{
-                stt,ma,ten,"Thuốc ho","Hộp",1,gia,km,thanhTien
-        });
-
-        tinhTien();
     }
+    private void resetFormSanPham(){
 
+        dangDongBo = true;
+
+        cbMaSP.setSelectedIndex(0);
+        cbTenSP.setSelectedIndex(0);
+        cbKhuyenMai.setSelectedIndex(0);
+
+        dangDongBo = false;
+
+        tableTTSP.clearSelection();
+
+        // khóa lại nút
+        btnSua.setEnabled(false);
+        btnXoa.setEnabled(false);
+    }
     /* ================== SỬA ================== */
 
     private void suaSanPham() {
@@ -179,48 +348,20 @@ public class LapHoaDon_GUI extends JPanel{
         JOptionPane.showMessageDialog(null,"Đã sửa!");
     }
 
-    /* ================== TÍNH TIỀN ================== */
+    private void hienTongTien(){
 
-    private void tinhTien() {
+        HoaDonBan_DTO hd = bus.getHoaDon();
 
-        double tong = 0;
+        if(hd == null) return;
 
-        for(int i=0;i<modelBang.getRowCount();i++) {
-            tong += Double.parseDouble(
-                    modelBang.getValueAt(i,6).toString());
-        }
+        txtTongTien.setText(
+                String.valueOf(hd.getTongTienGoc()));
 
-        txtTongTien.setText(tong+"");
+        txtTongGTKM.setText(
+                String.valueOf(hd.getTongGiaTriKhuyenMai()));
 
-        double gtdt = txtGTDT.getText().isEmpty()?0:
-                Double.parseDouble(txtGTDT.getText());
-
-        double gtkm = txtTongGTKM.getText().isEmpty()?0:
-                Double.parseDouble(txtTongGTKM.getText());
-
-        double voucher = 0;
-        double vat = 0.1; // VAT 10%
-
-        double thanhTien =
-                (tong - gtdt - gtkm - voucher)
-                        + (tong*vat);
-
-        txtThanhTien.setText(String.valueOf(thanhTien));
-
-        tinhTienThoi();
-    }
-
-    /* ================== TIỀN THỐI ================== */
-
-    private void tinhTienThoi() {
-        try {
-            double nhan =
-                    Double.parseDouble(txtTienNhan.getText());
-            double thanh =
-                    Double.parseDouble(txtThanhTien.getText());
-
-            txtTienThoi.setText((nhan-thanh)+"");
-        } catch(Exception ignored){}
+        txtThanhTien.setText(
+                String.valueOf(hd.getThanhTien()));
     }
 
     private void createUIComponents() {

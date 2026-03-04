@@ -6,7 +6,9 @@ import java.awt.*;
 import bus.TaiKhoan_BUS;
 import dto.MenuItem;
 import gui.*;
+import gui.HOADON_GUI.DuyetDonHang_GUI;
 import gui.HOADON_GUI.LapHoaDon_GUI;
+import gui.HOADON_GUI.QuanLyHoaDonBan_GUI;
 import gui.HOADON_GUI.XuatHoaDon_GUI;
 import gui.NCCKVLT.KVLT;
 import gui.NCCKVLT.NCC;
@@ -94,8 +96,8 @@ public class Menu extends JFrame {
         contentPanel.add(createContent("Báo cáo"), "baocao");
 
         contentPanel.add(new LapHoaDon_GUI(), "banhang");
-        contentPanel.add(createContent("Duyệt hóa đơn online"), "duyethd");
-        contentPanel.add(new XuatHoaDon_GUI(), "hoadon");
+        contentPanel.add(new DuyetDonHang_GUI(), "duyethd");
+        contentPanel.add(new QuanLyHoaDonBan_GUI(), "hoadon");
 
         contentPanel.add(new DanhMuc_GUI(), "danhMuc");
         contentPanel.add(new ThuocTinhDanhMuc_GUI(), "thuocTinhDanhMuc");

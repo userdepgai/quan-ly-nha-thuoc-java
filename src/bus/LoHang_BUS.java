@@ -67,7 +67,83 @@ public class LoHang_BUS {
 
         return result;
     }
+    public ArrayList<LoHang_DTO> getLoConBanByMaSP(String maSp) {
+        ArrayList<LoHang_DTO> result = new ArrayList<>();
+        if (maSp == null || maSp.isEmpty()) return result;
+        LocalDate today = LocalDate.now();
+        for (LoHang_DTO lo : listCache) {
+            if (lo.getMaSp().equals(maSp)
+                    && lo.getSoLuongConLai() > 0
+                    && lo.getTrangThai() == 1
+                    && (lo.getHsd().isAfter(today) || lo.getHsd().isEqual(today))) {
 
+                result.add(lo);
+            }
+        }
+        sapXepTheoHSDTangDan(result);
+        return result;
+    }
+    private void sapXepTheoHSDTangDan(ArrayList<LoHang_DTO> list) {
+        list.sort((o1, o2) -> o1.getHsd().compareTo(o2.getHsd()));
+    }
+
+    public boolean kiemTraDuTon(String maSp, int soLuongCanBan) {
+        if (soLuongCanBan <= 0) return false;
+        int tongTon = getTongTonByMaSP(maSp);
+        return tongTon >= soLuongCanBan;
+    }
+
+    public Map<LoHang_DTO, Integer> phanBoLoDeBan(String maSp, int soLuongCanBan) {
+        Map<LoHang_DTO, Integer> result = new LinkedHashMap<>();
+        if (!kiemTraDuTon(maSp, soLuongCanBan)) {
+            return result;
+        }
+        ArrayList<LoHang_DTO> dsLo = getLoConBanByMaSP(maSp);
+        int soLuongConLaiCanBan = soLuongCanBan;
+        for (LoHang_DTO lo : dsLo) {
+            if (soLuongConLaiCanBan <= 0) break;
+            int ton = lo.getSoLuongConLai();
+            if (ton <= 0) continue;
+            int soLuongTru = Math.min(ton, soLuongConLaiCanBan);
+            result.put(lo, soLuongTru);
+            soLuongConLaiCanBan -= soLuongTru;
+        }
+        return result;
+    }
+
+    public void congTonKhiHuy(Map<LoHang_DTO, Integer> dsLo) {
+
+        if (dsLo == null || dsLo.isEmpty()) return;
+
+        for (Map.Entry<LoHang_DTO, Integer> entry : dsLo.entrySet()) {
+
+            LoHang_DTO lo = entry.getKey();
+            int soLuongCong = entry.getValue();
+
+            lo.congSoLuongConLai(soLuongCong);
+        }
+
+        refreshData();
+    }
+
+    public int getTongTonByMaSP(String maSp) {
+
+        int tong = 0;
+
+        LocalDate today = LocalDate.now();
+
+        for (LoHang_DTO lo : listCache) {
+            if (lo.getMaSp().equals(maSp)
+                    && lo.getSoLuongConLai() > 0
+                    && lo.getTrangThai() == 1
+                    && (lo.getHsd().isAfter(today) || lo.getHsd().isEqual(today))) {
+
+                tong += lo.getSoLuongConLai();
+            }
+        }
+
+        return tong;
+    }
     public boolean kiemTraHopLe(LoHang_DTO lo) {
 
         if (lo.getGiaNhap() <= 0) {
@@ -107,7 +183,16 @@ public class LoHang_BUS {
 
         return true;
     }
-
+    public double getGiaNhapCaoNhatTrongLoChon(Map<LoHang_DTO, Integer> dsLoDaChon) {
+        if (dsLoDaChon == null || dsLoDaChon.isEmpty()) {
+            return -1;
+        }
+        double maxGiaNhap = Double.MIN_VALUE;
+        for (LoHang_DTO lo : dsLoDaChon.keySet()) {
+            maxGiaNhap = Math.max(maxGiaNhap, lo.getGiaNhap());
+        }
+        return maxGiaNhap;
+    }
     public void refreshData() {
         listCache = dao.getAll();
     }
