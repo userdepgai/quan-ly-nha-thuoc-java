@@ -23,6 +23,14 @@ public class KhachHang_BUS {
         }
         return instance;
     }
+    private int getHeSoDiem(String hang) {
+        switch (hang) {
+            case "Bạc": return 2;
+            case "Vàng": return 3;
+            case "Kim cương": return 5;
+            default: return 1; // Đồng
+        }
+    }
 
     // ================= GET ALL =================
     public ArrayList<KhachHang_DTO> getAll() {
@@ -154,9 +162,59 @@ public class KhachHang_BUS {
         listCache = khDao.getAll();
     }
     private String tinhHang(double diemHang) {
-        if (diemHang > 3000) return "Kim cương";
+        if (diemHang >= 3000) return "Kim cương";
         if (diemHang >= 1000) return "Vàng";
         if (diemHang >= 300) return "Bạc";
         return "Đồng";
+    }
+    public void congDiemMuaHang(String maKH, double tongTien) {
+
+        KhachHang_DTO kh = getById(maKH);
+        if (kh == null) return;
+
+        // Làm tròn xuống bội số 10.000
+        double tienLamTron = Math.floor(tongTien / 10000) * 10000;
+
+        int heSo = getHeSoDiem(kh.getHang());
+
+        double diemCong = (tienLamTron / 10000) * heSo;
+
+        // Cộng điểm thưởng
+        kh.setDiemThuong(kh.getDiemThuong() + diemCong);
+
+        // Cộng điểm hạng (không bao giờ trừ)
+        kh.setDiemHang(kh.getDiemHang() + diemCong);
+
+        // Xét lại hạng
+        kh.setHang(tinhHang(kh.getDiemHang()));
+
+        khDao.capNhat(kh);
+        refreshData();
+    }
+    public boolean truDiemThuong(String maKH, double diemCanTru) {
+
+        KhachHang_DTO kh = getById(maKH);
+        if (kh == null) return false;
+
+        if (diemCanTru <= 0) return false;
+
+        if (kh.getDiemThuong() < diemCanTru) {
+            JOptionPane.showMessageDialog(null, "Không đủ điểm thưởng để sử dụng");
+            return false;
+        }
+
+        // Trừ điểm thưởng
+        kh.setDiemThuong(kh.getDiemThuong() - diemCanTru);
+
+        // ❌ KHÔNG trừ điểm hạng
+        // Điểm hạng là tích lũy vĩnh viễn
+
+        khDao.capNhat(kh);
+        refreshData();
+
+        return true;
+    }
+    public double quyDoiTien(double diemThuong) {
+        return (diemThuong / 500) * 10000;
     }
 }
