@@ -624,7 +624,5 @@ public class KVLT extends JPanel {
         }
     }
 
-    public JPanel getPanelMain() {
-        return panelMain;
-    }
+
 }
