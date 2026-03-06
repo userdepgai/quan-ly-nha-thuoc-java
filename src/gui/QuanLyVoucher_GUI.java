@@ -1,6 +1,7 @@
 package gui;
 
 import bus.Voucher_BUS;
+import com.toedter.calendar.JDateChooser;
 import dto.Voucher_DTO;
 
 import javax.swing.*;
@@ -36,14 +37,8 @@ public class QuanLyVoucher_GUI extends JPanel {
     private JComboBox cmbTrangThai; // ComboBox lọc trạng thái (theo thiết kế form của bạn)
     private JLabel labelTimKiem;
     private JComboBox cmbTimTheo;
-    private JComboBox cmbLoaiGiam;
-    private JLabel labelLoaiGiam;
     private JLabel labelLocTrangThai;
     private JComboBox<String> cmbLocTrangThai;
-    private JTextField txtLocNgayBatDau;
-    private JTextField txtLocNgayKetThuc;
-    private JLabel labelLocNgayBatDau;
-    private JLabel labelLocNgayKetThuc;
     private JPanel panelDanhSachVoucher;
     private JPanel panelTieuDe;
     private JPanel panelCapNhat;
@@ -57,6 +52,20 @@ public class QuanLyVoucher_GUI extends JPanel {
     private JTextField txtDonToiThieu;
     private JLabel labelDonToiThieu;
     private JLabel labelTrangThai;
+    private JPanel panelNgayBatDau;
+    private JDateChooser jdNgayBatDau;
+    private JPanel panelNgayKetThuc;
+    private JDateChooser jdNgayKetThuc;
+    private JButton btnHuy;
+    private JButton btnLuu;
+    private JLabel labelLoaiGiam;
+    private JComboBox cmbLoaiGiam;
+    private JLabel labelLocNgayBatDau;
+    private JPanel LocNgayBatDau;
+    private JDateChooser jdLocNgayBatDau;
+    private JPanel LocNgayKetThuc;
+    private JDateChooser jdLocNgayKetThuc;
+    private JLabel labelSoLuotSuDung;
     private DefaultTableModel modelVoucher;
 
     // KHAI BÁO BUS VÀ ĐỊNH DẠNG
@@ -188,5 +197,32 @@ public class QuanLyVoucher_GUI extends JPanel {
                 }
             }
         });
+    }
+    private void createUIComponents() {
+        // Khởi tạo 4 bộ chọn ngày
+        jdLocNgayBatDau = new JDateChooser();
+        jdLocNgayKetThuc = new JDateChooser();
+        jdNgayBatDau = new JDateChooser();
+        jdNgayKetThuc = new JDateChooser();
+
+        // Định dạng chung
+        String format = "dd/MM/yyyy";
+        jdLocNgayBatDau.setDateFormatString(format);
+        jdLocNgayKetThuc.setDateFormatString(format);
+        jdNgayBatDau.setDateFormatString(format);
+        jdNgayKetThuc.setDateFormatString(format);
+
+        // Gắn vào các Panel (Nhớ tích chọn "Custom Create" trong .form cho 4 JPanel này)
+        LocNgayBatDau = new JPanel(new BorderLayout());
+        LocNgayBatDau.add(jdLocNgayBatDau);
+
+        LocNgayKetThuc = new JPanel(new BorderLayout());
+        LocNgayKetThuc.add(jdLocNgayKetThuc);
+
+        panelNgayBatDau = new JPanel(new BorderLayout());
+        panelNgayBatDau.add(jdNgayBatDau);
+
+        panelNgayKetThuc = new JPanel(new BorderLayout());
+        panelNgayKetThuc.add(jdNgayKetThuc);
     }
 }

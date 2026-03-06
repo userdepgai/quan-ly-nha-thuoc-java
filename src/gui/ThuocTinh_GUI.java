@@ -14,7 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-public class ThuocTinhDanhMuc_GUI extends JPanel{
+public class ThuocTinh_GUI extends JPanel{
     private JButton btnCapNhat;
     private JButton btnThem;
     private JPanel panelDanhSachThuocTinh;
@@ -74,7 +74,7 @@ public class ThuocTinhDanhMuc_GUI extends JPanel{
     private final bus.GiaTriThuocTinh_SP_BUS gtSpBUS = bus.GiaTriThuocTinh_SP_BUS.getInstance();
     private final bus.SanPham_BUS spBUS = bus.SanPham_BUS.getInstance();
 
-    public ThuocTinhDanhMuc_GUI() {
+    public ThuocTinh_GUI() {
         this.setLayout(new BorderLayout());
         if (panelQuanLyThuocTinh != null) {
             this.add(panelQuanLyThuocTinh, BorderLayout.CENTER);
