@@ -101,6 +101,11 @@ public class KhuyenMai_BUS {
         if (result) refreshData();
         return result;
     }
+    public boolean capNhatTrangThaiTheoCTKM(String maCT, int trangThaiMoi) {
+        boolean result = kmDao.capNhatTrangThaiTheoCTKM(maCT, trangThaiMoi);
+        if (result) refreshData();
+        return result;
+    }
 
     private boolean kiemTraHopLe(KhuyenMai_DTO km) {
         if (km.getTenKM() == null || km.getTenKM().trim().isEmpty()) {

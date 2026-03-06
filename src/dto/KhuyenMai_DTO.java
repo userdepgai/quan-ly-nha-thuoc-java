@@ -75,14 +75,6 @@ public class KhuyenMai_DTO {
 
     // --- CÁC HÀM HỖ TRỢ LOGIC HIỂN THỊ ---
 
-    // Logic: Nếu chương trình cha ngưng áp dụng thì con ngưng theo
-    public String getTrangThaiHienThi(int trangThaiCTKM) {
-        if (trangThaiCTKM == TT_NGUNG_AP_DUNG) {
-            return NGUNG_AP_DUNG + " (Theo CT)";
-        }
-        return (this.trangThai == TT_DANG_AP_DUNG) ? DANG_AP_DUNG : NGUNG_AP_DUNG;
-    }
-
     public String getTrangThaiText() {
         return (this.trangThai == TT_DANG_AP_DUNG) ? DANG_AP_DUNG : NGUNG_AP_DUNG;
     }
