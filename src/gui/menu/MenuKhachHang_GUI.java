@@ -5,7 +5,7 @@ import java.awt.*;
 import dto.MenuItem;
 import gui.*;
 public class MenuKhachHang_GUI extends JFrame{
-
+    private GIOHANG gioHangGUI;
     private JList<MenuItem> menuList;
     private DefaultListModel<MenuItem> menuModel;
     private JPanel contentPanel;
@@ -50,9 +50,9 @@ public class MenuKhachHang_GUI extends JFrame{
 
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
-
+        gioHangGUI = new GIOHANG();
         contentPanel.add(new TrangChu_GUI(),"trangChu");
-        contentPanel.add(createContent("Gio hang"), "gioHang");
+        contentPanel.add(gioHangGUI, "gioHang");
         contentPanel.add(createContent("Cho giao hang"),"choGiaoHang");
         contentPanel.add(createContent("Lich su mua hang"),"lichSuMuaHang");
 
@@ -76,6 +76,9 @@ public class MenuKhachHang_GUI extends JFrame{
                             new DangNhapGUI().setVisible(true);
                         }
                         return;
+                    }
+                    if ("gioHang".equals(item.cardName)) {
+                        gioHangGUI.loadData();
                     }
                     cardLayout.show(contentPanel, item.cardName);
                 }

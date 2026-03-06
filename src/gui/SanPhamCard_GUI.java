@@ -3,7 +3,8 @@ package gui;
 import dto.SanPham_DTO;
 import javax.swing.*;
 import java.awt.*;
-
+import bus.GioHangManager;
+import dto.ProductItem;
 public class SanPhamCard_GUI extends JPanel {
 
     private JPanel panel_card;
@@ -40,11 +41,9 @@ public class SanPhamCard_GUI extends JPanel {
         txt_gia.setEditable(false);
 
         setHinhAnh(sp.getHinhAnh());
-        // 1. Tạo một MouseAdapter chung để dùng cho tất cả thành phần
         java.awt.event.MouseAdapter commonClick = new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                // Mở frame chi tiết khi click bất cứ đâu trên card
                 ChiTietSanPhamCard_GUI frame = new ChiTietSanPhamCard_GUI(sp, giaBan);
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
@@ -55,7 +54,6 @@ public class SanPhamCard_GUI extends JPanel {
         panel_card.addMouseListener(commonClick);
         panel_card.setCursor(new Cursor(Cursor.HAND_CURSOR));
         lblHinhAnh.setCursor(new Cursor(Cursor.HAND_CURSOR));
-// 3. (Tùy chọn) Đổi con trỏ chuột thành hình bàn tay để người dùng biết là click được
         Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
         lblHinhAnh.setCursor(handCursor);
         txt_maSanPham.setCursor(handCursor);
@@ -68,7 +66,19 @@ public class SanPhamCard_GUI extends JPanel {
             frame.setVisible(true);
 
         });
+        btn_themGioHang.addActionListener(e ->
+        {
+            String ma = sp.getMaSP();
+            String ten = sp.getTenSP();
+            double gia = giaBan;
+            int soLuong = 1;
+            ProductItem item = new ProductItem(ma, ten, gia, soLuong);
+            GioHangManager.themVaoGioHang(item);
+            JOptionPane.showMessageDialog(this, "Đã thêm " + ten + " vào giỏ hàng!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+        });
     }
+
+
     private void setHinhAnh(String path) {
 
         if (path == null || path.isEmpty()) {
