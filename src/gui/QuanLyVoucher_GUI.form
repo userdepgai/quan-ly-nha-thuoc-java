@@ -412,6 +412,14 @@
                   <text value="Số lượt sử dụng cho Khách"/>
                 </properties>
               </component>
+              <component id="8b17a" class="javax.swing.JTextField" binding="txtSoLuotSuDung">
+                <constraints>
+                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+              </component>
             </children>
           </grid>
           <grid id="ab29b" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
