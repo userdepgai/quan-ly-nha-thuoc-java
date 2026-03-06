@@ -174,8 +174,8 @@ public class KhachHang_GUI extends JPanel {
                         .toLocalDate();
                 boolean gioiTinh = rd_nam.isSelected();
 
-                double diemThuong = Double.parseDouble(txt_diemThuong.getText());
-                double diemHang = Double.parseDouble(txt_diemHang.getText());
+                int diemThuong = Integer.parseInt(txt_diemThuong.getText());
+                int diemHang = Integer.parseInt(txt_diemHang.getText());
 
                 String hang = cmb_hang.getSelectedItem().toString();
                 if (JDate_ngayDKThanhVien.getDate() == null) {
@@ -329,7 +329,7 @@ public class KhachHang_GUI extends JPanel {
 
                     // ===== NGÀY SINH =====
                     try {
-                        Object ngaySinhObj = model.getValueAt(row, 3);
+                        Object ngaySinhObj = model.getValueAt(row, 4);
                         if (ngaySinhObj != null) {
                             java.sql.Date sqlDate = java.sql.Date.valueOf(ngaySinhObj.toString());
                             JDate_ngaySinh.setDate(sqlDate);
@@ -347,15 +347,15 @@ public class KhachHang_GUI extends JPanel {
                         rd_nu.setSelected(true);
 
                     // ===== ĐIỂM =====
-                    txt_diemThuong.setText(String.valueOf(model.getValueAt(row, 5)));
-                    txt_diemHang.setText(String.valueOf(model.getValueAt(row, 6)));
+                    txt_diemThuong.setText(String.valueOf(model.getValueAt(row, 6)));
+                    txt_diemHang.setText(String.valueOf(model.getValueAt(row, 7)));
 
                     // ===== HẠNG =====
-                    cmb_hang.setSelectedItem(model.getValueAt(row, 7).toString());
+                    cmb_hang.setSelectedItem(model.getValueAt(row, 8).toString());
 
                     // ===== NGÀY ĐĂNG KÝ =====
                     try {
-                        Object ngayDKObj = model.getValueAt(row, 8);
+                        Object ngayDKObj = model.getValueAt(row, 9);
                         if (ngayDKObj != null) {
                             java.sql.Date sqlDateDK = java.sql.Date.valueOf(ngayDKObj.toString());
                             JDate_ngayDKThanhVien.setDate(sqlDateDK);

@@ -161,7 +161,7 @@ public class KhachHang_BUS {
     public void refreshData() {
         listCache = khDao.getAll();
     }
-    private String tinhHang(double diemHang) {
+    private String tinhHang(int diemHang) {
         if (diemHang >= 3000) return "Kim cương";
         if (diemHang >= 1000) return "Vàng";
         if (diemHang >= 300) return "Bạc";
@@ -181,7 +181,7 @@ public class KhachHang_BUS {
         khDao.capNhat(kh);
         refreshData();
     }
-    public boolean truDiemThuong(String maKH, double diemCanTru) {
+    public boolean truDiemThuong(String maKH, int diemCanTru) {
 
         KhachHang_DTO kh = getById(maKH);
         if (kh == null) return false;
