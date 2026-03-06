@@ -201,10 +201,13 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
                         jdNgayBatDau.setDate(ctkmFull.getNgayBatDau());
                         jdNgayKetThuc.setDate(ctkmFull.getNgayKetThuc());
 
-                        // Đổ trạng thái
-                        if(cmbTrangThai != null) {
-                            String trangThaiStr = (ctkmFull.getTrangThai() == 1) ? "Đang áp dụng" : "Ngưng áp dụng";
-                            cmbTrangThai.setSelectedItem(trangThaiStr);
+                        String smartStatus = ctkmFull.getTrangThaiText();
+
+                        // Nếu chương trình hết hạn hoặc Admin đã tắt -> hiện Ngưng áp dụng
+                        if (smartStatus.equals("Chưa diễn ra")) {
+                            cmbTrangThai.setSelectedItem(ChuongTrinhKM_DTO.DANG_AP_DUNG);
+                        } else {
+                            cmbTrangThai.setSelectedItem(smartStatus);
                         }
 
 
@@ -433,8 +436,15 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
 
         boolean success = isAdding ? ctkmBUS.them(ct) : ctkmBUS.capNhat(ct);
         if (success) {
-            JOptionPane.showMessageDialog(this, "Lưu thành công!");
-            loadDataToTable_CTKM(ctkmBUS.getAll()); // Gọi lại đúng hàm tham số
+            JOptionPane.showMessageDialog(this, "Lưu chương trình thành công!");
+            loadDataToTable_CTKM(ctkmBUS.getAll());
+
+            // THÊM: Nếu đang cập nhật, load lại cả bảng khuyến mãi bên cạnh
+            // để thấy trạng thái con đã bị đổi (nếu có)
+            if (!isAdding) {
+                loadDataToTable_KhuyenMai(ct.getMa());
+            }
+
             setViewMode();
             clearForm();
         } else {

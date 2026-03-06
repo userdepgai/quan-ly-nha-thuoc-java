@@ -202,12 +202,8 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
             boolean matchLoai = locLoai.equals("Tất cả") || km.getLoaiKMText().equals(locLoai);
 
             // 3. Kiểm tra Trạng thái (Lấy trạng thái hiển thị thông minh)
-            ChuongTrinhKM_DTO ct = ctkmBUS.getById(km.getMaChuongTrinh());
-            int statusCT = (ct != null) ? ct.getTrangThai() : 0;
-            String ttHienThi = km.getTrangThaiHienThi(statusCT);
-
-            // Dùng startsWith để "Ngưng áp dụng" khớp được với "Ngưng áp dụng (Theo CT)"
-            boolean matchTrangThai = locTrangThai.equals("Tất cả") || ttHienThi.startsWith(locTrangThai);
+            String ttHienThi = km.getTrangThaiText(); // Lấy trực tiếp từ con
+            boolean matchTrangThai = locTrangThai.equals("Tất cả") || ttHienThi.equals(locTrangThai);
 
             // 4. Kiểm tra Đối tượng
             boolean matchDoiTuong = locDoiTuong.equals("Tất cả") || km.getDoiTuongText().equals(locDoiTuong);
@@ -254,7 +250,7 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
             int statusCT = (ct != null) ? ct.getTrangThai() : 0;
 
             String loaiKMStr = km.getLoaiKMText();
-            String trangThaiHienThi = km.getTrangThaiHienThi(statusCT);
+            String trangThaiHienThi = km.getTrangThaiText();
             String doiTuongStr = km.getDoiTuongText();
 
             // HIỂN THỊ NGUYÊN BẢN GIÁ TRỊ (Ví dụ 0.05 hoặc 20000)
@@ -288,15 +284,11 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
 
         txtMaKhuyenMai.setText(km.getMaKM());
         txtTenKhuyenMai.setText(km.getTenKM());
-
-        // HIỂN THỊ 0.05 LÊN TEXTFIELD
         txtGiaTriKhuyenMai.setText(String.valueOf(km.getGiaTriKhuyenMai()));
-
         cmbLoaiKhuyenMai.setSelectedItem(km.getLoaiKMText());
 
-        ChuongTrinhKM_DTO ctCha = ctkmBUS.getById(km.getMaChuongTrinh());
-        int trangThaiCha = (ctCha != null) ? ctCha.getTrangThai() : 0;
-        cmbTrangThai.setSelectedItem(km.getTrangThaiHienThi(trangThaiCha));
+        // Hiển thị trạng thái của chính nó (vì đã được đồng bộ SQL khi tắt CTKM)
+        cmbTrangThai.setSelectedItem(km.getTrangThaiText());
 
         cmbDoiTuongApDung.setSelectedItem(km.getDoiTuongText());
         setSelectedComboBoxItem(cmbChuongTrinhKhuyenMai, km.getMaChuongTrinh());
@@ -314,43 +306,71 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
 
     private void saveKhuyenMai() {
         try {
+            // 1. Lấy dữ liệu cơ bản
             String ma = txtMaKhuyenMai.getText().trim();
             String ten = txtTenKhuyenMai.getText().trim();
-
-            // LẤY TRỰC TIẾP GIÁ TRỊ (VÍ DỤ: 0.05)
             double giaTri = Double.parseDouble(txtGiaTriKhuyenMai.getText().trim());
 
-            String textLoai = (String) cmbLoaiKhuyenMai.getSelectedItem();
-            int loai = textLoai.equals(KhuyenMai_DTO.PHAN_TRAM) ? KhuyenMai_DTO.LOAI_PHAN_TRAM : KhuyenMai_DTO.LOAI_TIEN_MAT;
+            // 2. Chuyển đổi ComboBox sang kiểu int (Dùng các hàm parse của DTO)
+            String selectedLoai = (String) cmbLoaiKhuyenMai.getSelectedItem();
+            int loai = selectedLoai.equals(KhuyenMai_DTO.PHAN_TRAM) ? KhuyenMai_DTO.LOAI_PHAN_TRAM : KhuyenMai_DTO.LOAI_TIEN_MAT;
 
-            int trangThai = KhuyenMai_DTO.parseTrangThaiFromText((String) cmbTrangThai.getSelectedItem());
-
-            String textDoiTuong = (String) cmbDoiTuongApDung.getSelectedItem();
-            int doiTuong = textDoiTuong.equals(KhuyenMai_DTO.SAN_PHAM) ? KhuyenMai_DTO.DT_SAN_PHAM : KhuyenMai_DTO.DT_DANH_MUC;
-
+            String textTrangThai = (String) cmbTrangThai.getSelectedItem();
             String maCT = cmbChuongTrinhKhuyenMai.getSelectedItem().toString().split(" - ")[0];
-            String maSP = (doiTuong == KhuyenMai_DTO.DT_SAN_PHAM) ? cmbApDungSanPham.getSelectedItem().toString().split(" - ")[0] : null;
-            String maDM = (doiTuong == KhuyenMai_DTO.DT_DANH_MUC) ? cmbApDungDanhMuc.getSelectedItem().toString().split(" - ")[0] : null;
 
+            // KIỂM TRA RÀNG BUỘC NGHIỆP VỤ
+            ChuongTrinhKM_DTO ctCha = ctkmBUS.getById(maCT);
+            if (textTrangThai.equals(KhuyenMai_DTO.DANG_AP_DUNG)) {
+                // Nếu chương trình cha đang ngưng (0), không cho phép bật Khuyến mãi con
+                if (ctCha == null || ctCha.getTrangThai() == ChuongTrinhKM_DTO.TT_NGUNG_AP_DUNG) {
+                    JOptionPane.showMessageDialog(this,
+                            "Chương trình chủ đang Ngưng áp dụng. Bạn không thể chuyển Khuyến mãi này sang 'Đang áp dụng'!",
+                            "Lỗi nghiệp vụ", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            int trangThai = KhuyenMai_DTO.parseTrangThaiFromText(textTrangThai);
+
+            String selectedDoiTuong = (String) cmbDoiTuongApDung.getSelectedItem();
+            int doiTuong = selectedDoiTuong.equals(KhuyenMai_DTO.SAN_PHAM) ? KhuyenMai_DTO.DT_SAN_PHAM : KhuyenMai_DTO.DT_DANH_MUC;
+
+            // 3. Xử lý lấy mã CT, SP, DM (Có kiểm tra null)
+            Object itemCT = cmbChuongTrinhKhuyenMai.getSelectedItem();
+            if (itemCT == null) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn Chương trình khuyến mãi!");
+                return;
+            }
+
+            String maSP = (doiTuong == KhuyenMai_DTO.DT_SAN_PHAM && cmbApDungSanPham.getSelectedItem() != null)
+                    ? cmbApDungSanPham.getSelectedItem().toString().split(" - ")[0] : null;
+
+            String maDM = (doiTuong == KhuyenMai_DTO.DT_DANH_MUC && cmbApDungDanhMuc.getSelectedItem() != null)
+                    ? cmbApDungDanhMuc.getSelectedItem().toString().split(" - ")[0] : null;
+
+            // 4. Tạo DTO với thứ tự tham số đúng như Constructor đã sửa
+            // Thứ tự: ma, ten, loai, giaTri, trangThai, doiTuong, maCT, maSP, maDM
             KhuyenMai_DTO km = new KhuyenMai_DTO(ma, ten, loai, giaTri, trangThai, doiTuong, maCT, maSP, maDM);
 
+            // 5. Gọi BUS thực hiện
             boolean success;
             if (isAdding) {
-                // Lấy số lượt từ textfield
                 int soLuot = Integer.parseInt(txtSoLuotSuDung.getText().trim());
                 success = kmBUS.them(km, soLuot);
             } else {
-                // Cập nhật không truyền số lượt (theo yêu cầu)
                 success = kmBUS.capNhat(km);
             }
 
             if (success) {
                 JOptionPane.showMessageDialog(this, "Lưu thành công!");
-                setViewMode();
                 loadDataToTable_KhuyenMai(kmBUS.getAll());
+                setViewMode();
+                clearForm();
+            } else {
+                JOptionPane.showMessageDialog(this, "Lưu thất bại!");
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập số hợp lệ cho giá trị và số lượt!");
+            JOptionPane.showMessageDialog(this, "Giá trị khuyến mãi hoặc số lượt không hợp lệ!");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
         }

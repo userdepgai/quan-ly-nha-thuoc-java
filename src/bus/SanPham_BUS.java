@@ -46,6 +46,18 @@ public class SanPham_BUS {
         }
         return null;
     }
+    public SanPham_DTO getByTenSP(String tenSP) {
+        if (tenSP == null || tenSP.trim().isEmpty()) {
+            return null;
+        }
+
+        for (SanPham_DTO sp : getAll()) {
+            if (sp.getTenSP().equalsIgnoreCase(tenSP.trim())) {
+                return sp;
+            }
+        }
+        return null;
+    }
 
     /**
      * Lấy mã sản phẩm tiếp theo (Gọi DAO)
