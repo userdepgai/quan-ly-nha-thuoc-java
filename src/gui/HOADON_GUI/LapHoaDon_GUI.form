@@ -72,7 +72,7 @@
                 <properties/>
                 <border type="none" title=""/>
                 <children>
-                  <component id="b5c11" class="javax.swing.JCheckBox" binding="cbToaBacSi">
+                  <component id="b5c11" class="javax.swing.JCheckBox" binding="chbToaBacSi">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -80,7 +80,7 @@
                       <text value="Toa bác sĩ"/>
                     </properties>
                   </component>
-                  <component id="40dcb" class="javax.swing.JCheckBox" binding="cbDiemThuong">
+                  <component id="40dcb" class="javax.swing.JCheckBox" binding="chbDiemThuong">
                     <constraints>
                       <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -144,21 +144,14 @@
                     </constraints>
                     <properties/>
                   </component>
-                  <grid id="e7bcc" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                    <margin top="0" left="0" bottom="0" right="0"/>
+                  <component id="ba7ec" class="javax.swing.JTextField" binding="txtNgayLap">
                     <constraints>
-                      <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                        <preferred-size width="150" height="-1"/>
+                      </grid>
                     </constraints>
                     <properties/>
-                    <border type="none"/>
-                    <children>
-                      <component id="87e46" class="com.toedter.calendar.JDateChooser" binding="JDateChooser1" custom-create="true" default-binding="true">
-                        <constraints>
-                          <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                      </component>
-                    </children>
-                  </grid>
+                  </component>
                 </children>
               </grid>
               <grid id="fee09" layout-manager="GridLayoutManager" row-count="3" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

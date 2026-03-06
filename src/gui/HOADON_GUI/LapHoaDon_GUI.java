@@ -1,8 +1,8 @@
 package gui.HOADON_GUI;
 
+import bus.KhachHang_BUS;
 import bus.KhuyenMai_BUS;
 import bus.SanPham_BUS;
-import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -10,9 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import bus.HoaDonBan_BUS;
-import dto.ChiTietHoaDonBan_DTO;
-import dto.HoaDonBan_DTO;
-import dto.SanPham_DTO;
+import dto.*;
 import utils.Session;
 
 
@@ -20,8 +18,8 @@ public class LapHoaDon_GUI extends JPanel{
     private JPanel panel_LapHoaDon;
     private JButton btnXuatExcel;
     private JButton btnNhapExcel;
-    private JCheckBox cbToaBacSi;
-    private JCheckBox cbDiemThuong;
+    private JCheckBox chbToaBacSi;
+    private JCheckBox chbDiemThuong;
     private JTextField txtTenKhachHang;
     private JTextField txtSoDienThoai;
     private JTextField txtNhanVienLap;
@@ -56,12 +54,12 @@ public class LapHoaDon_GUI extends JPanel{
     private JLabel labelTongGTKM;
     private JLabel labelTienNhan;
     private JLabel labelTienThoi;
-    private JDateChooser JDateChooser1;
     private JSpinner snSoLuong;
     private JButton btnHuy;
     private JLabel labelThanhTien;
     private JLabel labelThueVat;
     private JTextField txtThueVat;
+    private JTextField txtNgayLap;
 
     private boolean dangDongBo = false;
     private Runnable onHoaDonSaved;
@@ -94,7 +92,10 @@ public class LapHoaDon_GUI extends JPanel{
         themSuKienNhapCombo();
         khoaTextField();
         //loadCBVoucher();
-        JDateChooser1.setDate(new java.util.Date());
+        txtNgayLap.setText(
+                new java.text.SimpleDateFormat("dd/MM/yyyy")
+                        .format(new java.util.Date())
+        );
         capNhatThongTinHoaDon();
         this.setLayout(new BorderLayout());
         this.add(panel_LapHoaDon, BorderLayout.CENTER);
@@ -168,7 +169,7 @@ public class LapHoaDon_GUI extends JPanel{
             cbTenSP.addItem(sp.getTenSP());
         }
     }
-    /*
+
     private void loadCBKhuyenMai(
         String maSP,
         String maDanhMuc,
@@ -179,6 +180,7 @@ public class LapHoaDon_GUI extends JPanel{
 
     cbKhuyenMai.addItem("Chọn khuyến mãi");
 
+
     for(KhuyenMai_DTO km :
             bus.goiYKhuyenMai(maSP, maDanhMuc, giaBan))
     {
@@ -188,7 +190,7 @@ public class LapHoaDon_GUI extends JPanel{
     cbKhuyenMai.setSelectedIndex(0);
 }
 
-     */
+
     /*
     private void loadCBVoucher(){
 
@@ -228,7 +230,10 @@ public class LapHoaDon_GUI extends JPanel{
     }
     private void dongBoTheoMa(){
 
-        if(dangDongBo) return;
+        if(dangDongBo){
+            dangDongBo = false;
+            return;
+        }
 
         String ma = ((JTextField)
                 cbMaSP.getEditor().getEditorComponent())
@@ -243,13 +248,21 @@ public class LapHoaDon_GUI extends JPanel{
             dangDongBo = true;
             cbTenSP.setSelectedIndex(0);
             dangDongBo = false;
-
             return;
         }
 
         dangDongBo = true;
         cbTenSP.setSelectedItem(sp.getTenSP());
         dangDongBo = false;
+
+        // ===== LOAD KHUYẾN MÃI =====
+        double giaBan = bus.getGiaBanSP(ma);
+
+        loadCBKhuyenMai(
+                ma,
+                sp.getMaDM(),
+                giaBan
+        );
     }
     private void dongBoTheoTen(){
 
@@ -275,6 +288,13 @@ public class LapHoaDon_GUI extends JPanel{
         dangDongBo = true;
         cbMaSP.setSelectedItem(sp.getMaSP());
         dangDongBo = false;
+        double giaBan = bus.getGiaBanSP(sp.getMaSP());
+
+        loadCBKhuyenMai(
+                sp.getMaSP(),
+                sp.getMaDM(),
+                giaBan
+        );
     }
     private void loadTableFromBUS(){
 
@@ -330,6 +350,11 @@ public class LapHoaDon_GUI extends JPanel{
                 if (dong >= 0) {
                     cbMaSP.setSelectedItem(modelBang.getValueAt(dong,1));
                     cbTenSP.setSelectedItem(modelBang.getValueAt(dong,2));
+                    snSoLuong.setValue(
+                            Integer.parseInt(
+                                    modelBang.getValueAt(dong,7).toString()
+                            )
+                    );
 
                     btnSua.setEnabled(true);
                     btnXoa.setEnabled(true);
@@ -390,6 +415,9 @@ public class LapHoaDon_GUI extends JPanel{
             }
             bus.taoHoaDonMoi();
             modelBang.setRowCount(0);
+            txtSoDienThoai.setText("");
+            txtTenKhachHang.setText("");
+            chbDiemThuong.setSelected(false);
             capNhatThongTinHoaDon();
             JFrame parent =
                     (JFrame) SwingUtilities.getWindowAncestor(this);
@@ -408,14 +436,22 @@ public class LapHoaDon_GUI extends JPanel{
             if(maSP.equals("-- Chọn --") || maSP.isEmpty())
                 return;
 
-            String tenSP = bus.getTenSP(maSP);
+            SanPham_DTO sp = spBus.getById(maSP);
 
-            if(tenSP != null){
+            if(sp != null){
                 dangDongBo = true;
-                cbTenSP.setSelectedItem(tenSP);
+                cbTenSP.setSelectedItem(sp.getTenSP());
                 dangDongBo = false;
+                double giaBan = bus.getGiaBanSP(maSP);
+
+                loadCBKhuyenMai(
+                        maSP,
+                        sp.getMaDM(),
+                        giaBan
+                );
+
+
             }
-            //loadCBKhuyenMai(maSP);
             snSoLuong.setEnabled(true);
             snSoLuong.setValue(1);
         });
@@ -435,6 +471,13 @@ public class LapHoaDon_GUI extends JPanel{
                 dangDongBo = true;
                 cbMaSP.setSelectedItem(sp.getMaSP());
                 dangDongBo = false;
+                double giaBan = bus.getGiaBanSP(sp.getMaSP());
+
+                loadCBKhuyenMai(
+                        sp.getMaSP(),
+                        sp.getMaDM(),
+                        giaBan
+                );
             }
 
             snSoLuong.setEnabled(true);
@@ -450,7 +493,88 @@ public class LapHoaDon_GUI extends JPanel{
             capNhatThongTinHoaDon();
         });
         */
+        chbToaBacSi.addActionListener(e -> {
 
+            if(!chbToaBacSi.isSelected()){
+
+                int confirm = JOptionPane.showConfirmDialog(
+                        this,
+                        "Bỏ kê toa sẽ xóa các thuốc kê toa đã thêm. Tiếp tục?",
+                        "Xác nhận",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if(confirm == JOptionPane.YES_OPTION){
+                    bus.xoaSanPhamKeToa();
+                    loadTableFromBUS();
+                    capNhatThongTinHoaDon();
+                }else{
+                    chbToaBacSi.setSelected(true);
+                }
+            }
+
+        });
+        txtSoDienThoai.addKeyListener(new KeyAdapter(){
+            public void keyReleased(KeyEvent e){
+
+                String sdt = txtSoDienThoai.getText().trim();
+
+                // nếu chưa nhập gì
+                if(sdt.isEmpty()){
+                    txtTenKhachHang.setText("");
+                    bus.getHoaDon().setMaKhachHang(null);
+                    return;
+                }
+
+                KhachHang_DTO kh =
+                        KhachHang_BUS.getInstance().getBysdt(sdt);
+
+                if(kh != null){
+
+                    // hiện tên khách
+                    txtTenKhachHang.setText(kh.getTen());
+
+                    // gán vào hóa đơn
+                    bus.getHoaDon().setMaKhachHang(kh.getMa());
+
+                }else{
+
+                    // không tìm thấy
+                    txtTenKhachHang.setText("");
+
+                    bus.getHoaDon().setMaKhachHang(null);
+                }
+            }
+        });
+        chbDiemThuong.addActionListener(e -> {
+
+            // nếu người dùng tick dùng điểm
+            if(chbDiemThuong.isSelected()){
+
+                // kiểm tra hóa đơn có khách hàng chưa
+                if(bus.getHoaDon().getMaKhachHang() == null){
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Không thể sử dụng điểm thưởng.\nVui lòng nhập số điện thoại khách hàng hợp lệ."
+                    );
+
+                    chbDiemThuong.setSelected(false);
+                    return;
+                }
+
+
+                bus.setDungDiemThuong(true);
+
+            }else{
+
+
+                bus.setDungDiemThuong(false);
+
+            }
+
+            capNhatThongTinHoaDon();
+        });
     }
 
 
@@ -486,7 +610,9 @@ public class LapHoaDon_GUI extends JPanel{
             }
 
             // ⭐ gọi đúng BUS
-            bus.themSanPham(maSP, soLuong, tenKM);
+            boolean coToa = chbToaBacSi.isSelected();
+
+            bus.themSanPham(maSP, soLuong, tenKM, coToa);
 
             //loadCBVoucher();
             loadTableFromBUS();
@@ -503,13 +629,14 @@ public class LapHoaDon_GUI extends JPanel{
 
         cbMaSP.setSelectedIndex(0);
         cbTenSP.setSelectedIndex(0);
-        cbKhuyenMai.setSelectedIndex(0);
+
+        cbKhuyenMai.removeAllItems();
+        cbKhuyenMai.addItem("Chọn khuyến mãi");
 
         dangDongBo = false;
 
         tableTTSP.clearSelection();
 
-        // khóa lại nút
         btnSua.setEnabled(false);
         btnXoa.setEnabled(false);
 
@@ -526,12 +653,18 @@ public class LapHoaDon_GUI extends JPanel{
         String maSP = modelBang.getValueAt(dong,1).toString();
         int soLuong = (int) snSoLuong.getValue();
 
+        boolean coToa = chbToaBacSi.isSelected();
+
+        String tenKM = null;
+
+        if(cbKhuyenMai.getSelectedIndex() > 0){
+            tenKM = cbKhuyenMai.getSelectedItem().toString();
+        }
+
         bus.xoaSanPham(maSP);
-        bus.themSanPham(maSP, soLuong, null);
+        bus.themSanPham(maSP, soLuong, tenKM, coToa);
 
         loadTableFromBUS();
-
-        JOptionPane.showMessageDialog(this,"Đã sửa!");
     }
     private void hienTongTien(){
 
@@ -567,10 +700,7 @@ public class LapHoaDon_GUI extends JPanel{
 
         tinhTienThoi();
     }
-    private void createUIComponents() {
-        JDateChooser1 = new com.toedter.calendar.JDateChooser();
-        JDateChooser1.setDateFormatString("dd/MM/yyyy");
-    }
+
     private boolean validateThongTin(){
 
         if(bus.getDsTam().isEmpty()){
