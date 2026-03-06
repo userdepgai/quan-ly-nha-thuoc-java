@@ -27,8 +27,8 @@ public class KhachHang_DAO {
                         rs.getString("SDT"),
                         rs.getDate("NgaySinh").toLocalDate(),
                         rs.getBoolean("GioiTinh"),
-                        rs.getDouble("DiemThuong"),
-                        rs.getDouble("DiemHang"),
+                        rs.getInt("DiemThuong"),
+                        rs.getInt("DiemHang"),
                         rs.getString("Hang"),
                         rs.getDate("NgayDKThanhVien").toLocalDate()
                 );

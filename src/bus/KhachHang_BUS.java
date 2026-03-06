@@ -23,6 +23,14 @@ public class KhachHang_BUS {
         }
         return instance;
     }
+    private int getHeSoDiem(String hang) {
+        switch (hang) {
+            case "Bạc": return 2;
+            case "Vàng": return 3;
+            case "Kim cương": return 5;
+            default: return 1; // Đồng
+        }
+    }
 
     // ================= GET ALL =================
     public ArrayList<KhachHang_DTO> getAll() {
@@ -153,10 +161,50 @@ public class KhachHang_BUS {
     public void refreshData() {
         listCache = khDao.getAll();
     }
-    private String tinhHang(double diemHang) {
-        if (diemHang > 3000) return "Kim cương";
+    private String tinhHang(int diemHang) {
+        if (diemHang >= 3000) return "Kim cương";
         if (diemHang >= 1000) return "Vàng";
         if (diemHang >= 300) return "Bạc";
         return "Đồng";
+    }
+    public void congDiemMuaHang(String maKH, int diemCong) {
+
+        KhachHang_DTO kh = getById(maKH);
+        if (kh == null) return;
+
+        kh.setDiemThuong(kh.getDiemThuong() + diemCong);
+
+        kh.setDiemHang(kh.getDiemHang() + diemCong);
+
+        kh.setHang(tinhHang(kh.getDiemHang()));
+
+        khDao.capNhat(kh);
+        refreshData();
+    }
+    public boolean truDiemThuong(String maKH, int diemCanTru) {
+
+        KhachHang_DTO kh = getById(maKH);
+        if (kh == null) return false;
+
+        if (diemCanTru <= 0) return false;
+
+        if (kh.getDiemThuong() < diemCanTru) {
+            JOptionPane.showMessageDialog(null, "Không đủ điểm thưởng để sử dụng");
+            return false;
+        }
+
+        // Trừ điểm thưởng
+        kh.setDiemThuong(kh.getDiemThuong() - diemCanTru);
+
+        // ❌ KHÔNG trừ điểm hạng
+        // Điểm hạng là tích lũy vĩnh viễn
+
+        khDao.capNhat(kh);
+        refreshData();
+
+        return true;
+    }
+    public double quyDoiTien(double diemThuong) {
+        return (diemThuong / 500) * 10000;
     }
 }
