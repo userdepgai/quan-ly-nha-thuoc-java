@@ -51,7 +51,7 @@ public class MenuKhachHang_GUI extends JFrame{
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
-        contentPanel.add(createContent("Trang chu"),"trangChu");
+        contentPanel.add(new TrangChu_GUI(),"trangChu");
         contentPanel.add(createContent("Gio hang"), "gioHang");
         contentPanel.add(createContent("Cho giao hang"),"choGiaoHang");
         contentPanel.add(createContent("Lich su mua hang"),"lichSuMuaHang");

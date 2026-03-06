@@ -46,15 +46,15 @@ public class NhanVien_GUI extends JPanel {
     private JComboBox<String> cmb_chonChucVu;
     private JComboBox<String> cmb_chonTrangThai;
     private JTextField txt_namSinh;
-
+    private NhanVien_BUS bus = NhanVien_BUS.getInstance();
     public NhanVien_GUI() {
-
         this.setLayout(new BorderLayout());
         this.add(panel_nhanVien, BorderLayout.CENTER);
         cmb_timKiem.setEditable(true);
         initTable();
         initComponent();
-        loadTable(NhanVien_BUS.getInstance().getAll());
+        loadTable(bus.getAll());
+        setViewMode();
         xuLySuKien();
     }
 
@@ -160,6 +160,7 @@ public class NhanVien_GUI extends JPanel {
                     nv.getTrangThai() == 0 ? "Đang làm" : "Nghỉ"
             });
         }
+
     }
 
     // ================= GET FORM DATA =================
@@ -217,12 +218,70 @@ public class NhanVien_GUI extends JPanel {
         txt_sdt.setText("");
         txt_luongCoBan.setText("");
         txt_namSinh.setText("");
+        txt_diaChi.setText("");
         JDate_ngayVaoLam.setDate(null);
 
         rd_nu.setSelected(true);
         cmb_chucVu.setSelectedIndex(0);
         cmb_trangThai.setSelectedIndex(0);
         }
+    private void lockTable() {
+        table1.setRowSelectionAllowed(false);
+        table1.setEnabled(false);
+    }
+    private void setViewMode() {
+
+        unlockTable();
+
+        txt_maNV.setEditable(false);
+        txt_tenNV.setEditable(false);
+        txt_sdt.setEditable(false);
+        txt_diaChi.setEditable(false);
+        txt_luongCoBan.setEditable(false);
+        txt_namSinh.setEditable(false);
+
+        rd_nam.setEnabled(false);
+        rd_nu.setEnabled(false);
+
+        cmb_chucVu.setEnabled(false);
+        cmb_trangThai.setEnabled(false);
+
+        JDate_ngayVaoLam.setEnabled(false);
+
+        btn_luu.setVisible(false);
+        btn_huy.setVisible(false);
+
+        btn_them.setEnabled(true);
+        btn_capNhat.setEnabled(true);
+    }
+    private void setUpdateMode() {
+
+        lockTable();
+
+        txt_tenNV.setEditable(true);
+        txt_sdt.setEditable(true);
+        txt_diaChi.setEditable(true);
+        txt_luongCoBan.setEditable(true);
+        txt_namSinh.setEditable(true);
+
+        rd_nam.setEnabled(true);
+        rd_nu.setEnabled(true);
+
+        cmb_chucVu.setEnabled(true);
+        cmb_trangThai.setEnabled(true);
+
+        JDate_ngayVaoLam.setEnabled(true);
+
+        btn_luu.setVisible(true);
+        btn_huy.setVisible(true);
+
+        btn_them.setEnabled(false);
+        btn_capNhat.setEnabled(false);
+    }
+    private void unlockTable() {
+        table1.setRowSelectionAllowed(true);
+        table1.setEnabled(true);
+    }
     private void resetState() {
 
         clearForm();
@@ -297,10 +356,10 @@ public class NhanVien_GUI extends JPanel {
                 txt_sdt.setText(model.getValueAt(row, 3).toString());
 
                 try {
-                    txt_namSinh.setText(model.getValueAt(row, 3).toString());
+                    txt_namSinh.setText(model.getValueAt(row, 4).toString());
 
                     java.sql.Date nvl =
-                            java.sql.Date.valueOf(model.getValueAt(row, 7).toString());
+                            java.sql.Date.valueOf(model.getValueAt(row, 8).toString());
                     JDate_ngayVaoLam.setDate(nvl);
 
                 } catch (Exception ex) {
@@ -308,18 +367,18 @@ public class NhanVien_GUI extends JPanel {
                     JDate_ngayVaoLam.setDate(null);
                 }
 
-                if (model.getValueAt(row, 4).toString().equals("Nam"))
+                if (model.getValueAt(row, 5).toString().equals("Nam"))
                     rd_nam.setSelected(true);
                 else
                     rd_nu.setSelected(true);
 
-                cmb_chucVu.setSelectedItem(model.getValueAt(row, 5).toString());
-                txt_luongCoBan.setText(model.getValueAt(row, 6).toString());
-                cmb_trangThai.setSelectedItem(model.getValueAt(row, 8).toString());
+                cmb_chucVu.setSelectedItem(model.getValueAt(row, 6).toString());
+                txt_luongCoBan.setText(model.getValueAt(row, 7).toString());
+                cmb_trangThai.setSelectedItem(model.getValueAt(row, 9).toString());
 
                 if (row < 0) return;
 
-                NhanVien_DTO nv = NhanVien_BUS.getInstance().getAll().get(row);
+                NhanVien_DTO nv = bus.getAll().get(row);
 
                 String maDC = nv.getMaDiaChi();
 
@@ -333,16 +392,19 @@ public class NhanVien_GUI extends JPanel {
             String loai = cmb_locTrangThai.getSelectedItem().toString();
             loadSuggestData(loai);
         });
-
+        btnTimKiem.addActionListener(e -> {
+            loadTable(timKiem());
+        });
         // THÊM
         btn_them.addActionListener(e -> {
 
             isAdding = true;
             isUpdating = false;
 
-            String ma = NhanVien_BUS.getInstance().getNextId();
+            String ma = bus.getNextId();
             txt_maNV.setText(ma);
             txt_maNV.setEditable(false);
+            setUpdateMode();
             btn_luu.setVisible(true);
             btn_huy.setVisible(true);
         });
@@ -350,13 +412,15 @@ public class NhanVien_GUI extends JPanel {
         // CẬP NHẬT
         btn_capNhat.addActionListener(e -> {
 
-            if (txt_maNV.getText().isEmpty()) return;
+            if (table1.getSelectedRow() < 0) {
+                JOptionPane.showMessageDialog(this,"Vui lòng chọn nhân viên");
+                return;
+            }
 
-            isAdding = false;
             isUpdating = true;
+            isAdding = false;
 
-            btn_luu.setVisible(true);
-            btn_huy.setVisible(true);
+            setUpdateMode();
         });
         // ===== LƯU =====
         btn_luu.addActionListener(e -> {
@@ -370,28 +434,36 @@ public class NhanVien_GUI extends JPanel {
             boolean result = false;
 
             if (isAdding) {
-                result = NhanVien_BUS.getInstance().them(nv);
+                result = bus.them(nv);
             }
 
             if (isUpdating) {
-                result = NhanVien_BUS.getInstance().capNhat(nv);
+                result = bus.capNhat(nv);
             }
 
             if (result) {
                 JOptionPane.showMessageDialog(this, "Thành công");
-                loadTable(NhanVien_BUS.getInstance().getAll());
+                loadTable(bus.getAll());
                 resetState();
+                setViewMode();   // THÊM
             }
         });
 
 // ===== HỦY =====
         btn_huy.addActionListener(e -> {
             resetState();
+            setViewMode();
         });
         // THOÁT
         btn_thoat.addActionListener(e -> {
-            clearForm();
-            loadTable(NhanVien_BUS.getInstance().getAll());
+
+            cmb_chonTrangThai.setSelectedIndex(0);
+            cmb_chonChucVu.setSelectedIndex(0);
+
+            ((JTextField)cmb_timKiem.getEditor()
+                    .getEditorComponent()).setText("");
+
+            loadTable(bus.getAll());
         });
     }
 
@@ -407,7 +479,7 @@ public class NhanVien_GUI extends JPanel {
 
         DefaultComboBoxModel<String> modelSuggest = new DefaultComboBoxModel<>();
 
-        for (NhanVien_DTO nv : NhanVien_BUS.getInstance().getAll()) {
+        for (NhanVien_DTO nv : bus.getAll()) {
 
             switch (loai) {
 
@@ -436,6 +508,25 @@ public class NhanVien_GUI extends JPanel {
 
         cmb_timKiem.setModel(modelSuggest);
     }
+    private ArrayList<NhanVien_DTO> timKiem() {
 
+        String keyword = ((JTextField)cmb_timKiem.getEditor().getEditorComponent())
+                .getText().trim();
+
+        String chucVu = null;
+        if(cmb_chonChucVu.getSelectedIndex() > 0){
+            chucVu = cmb_chonChucVu.getSelectedItem().toString();
+        }
+
+        Integer trangThai = null;
+        if(cmb_chonTrangThai.getSelectedIndex() == 1){
+            trangThai = 0; // đang làm
+        }
+        else if(cmb_chonTrangThai.getSelectedIndex() == 2){
+            trangThai = 1; // nghỉ
+        }
+
+        return bus.timKiem(keyword, chucVu, trangThai);
+    }
 
 }
