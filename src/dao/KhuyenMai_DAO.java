@@ -24,10 +24,10 @@ public class KhuyenMai_DAO {
                 KhuyenMai_DTO km = new KhuyenMai_DTO(
                         rs.getString("Ma_KM"),
                         rs.getString("Ten_KM"),
+                        rs.getInt("LoaiKM"),
+                        rs.getDouble("GiaTriKM"),
                         rs.getInt("TrangThai"),
                         rs.getInt("DoiTuongApDung"),
-                        rs.getInt("LoaiKM"),      // SỬA: Lấy kiểu INT từ SQL
-                        rs.getDouble("GiaTriKM"),
                         rs.getString("Ma_CTKM"),
                         rs.getString("Ma_SP"),
                         rs.getString("Ma_DM")
@@ -55,10 +55,10 @@ public class KhuyenMai_DAO {
                 km = new KhuyenMai_DTO(
                         rs.getString("Ma_KM"),
                         rs.getString("Ten_KM"),
+                        rs.getInt("LoaiKM"),
+                        rs.getDouble("GiaTriKM"),
                         rs.getInt("TrangThai"),
                         rs.getInt("DoiTuongApDung"),
-                        rs.getInt("LoaiKM"),      // SỬA: Lấy kiểu INT
-                        rs.getDouble("GiaTriKM"),
                         rs.getString("Ma_CTKM"),
                         rs.getString("Ma_SP"),
                         rs.getString("Ma_DM")
@@ -167,10 +167,10 @@ public class KhuyenMai_DAO {
                 list.add(new KhuyenMai_DTO(
                         rs.getString("Ma_KM"),
                         rs.getString("Ten_KM"),
-                        rs.getInt("TrangThai"),
-                        rs.getInt("DoiTuongApDung"),
                         rs.getInt("LoaiKM"),
                         rs.getDouble("GiaTriKM"),
+                        rs.getInt("TrangThai"),
+                        rs.getInt("DoiTuongApDung"),
                         rs.getString("Ma_CTKM"),
                         rs.getString("Ma_SP"),
                         rs.getString("Ma_DM")

@@ -43,22 +43,6 @@ public class PhanQuyen_BUS {
         return result;
     }
 
-    public boolean kiemTraHopLe(PhanQuyen_DTO quyen) {
-        if(quyen.getTenQuyen().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Tên quyền không được để trống");
-            return false;
-        }
-        if(quyen.getMoTa().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Mô tả không được để trống");
-            return false;
-        }
-        if (quyen.getTrangThai() == -1) {
-            JOptionPane.showMessageDialog(null, "Vui lòng chọn trạng thái");
-            return false;
-        }
-        return true;
-    }
-
     public ArrayList<PhanQuyen_DTO> timKiem(String keyword, Integer trangThai) {
         ArrayList<PhanQuyen_DTO> result = new ArrayList<>();
         keyword = keyword.toLowerCase();

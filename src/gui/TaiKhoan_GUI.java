@@ -64,13 +64,18 @@ public class TaiKhoan_GUI extends JPanel{
     }
 
     private void fromEdit() {
+        cmb_trangThai.setModel(new DefaultComboBoxModel<>(new String[]{
+                "-- Chọn trạng thái --",
+                TaiKhoan_DTO.MO,
+                TaiKhoan_DTO.KHOA
+        }));
 
-        cmb_trangThai.setModel(new DefaultComboBoxModel<>(
-                new String[]{"-- Chọn trạng thái --", "Mở", "Khóa"}
-        ));
-        cmb_locTrangThai.setModel(new DefaultComboBoxModel<>(
-                new String[]{"-- Chọn trạng thái --", "Mở", "Khóa"}
-        ));
+        cmb_locTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{
+                "-- Chọn trạng thái --",
+                TaiKhoan_DTO.MO,
+                TaiKhoan_DTO.KHOA
+        }));
+
         loadComboQuyen();
         setViewMode();
     }
@@ -122,7 +127,7 @@ public class TaiKhoan_GUI extends JPanel{
                     tk.getMatKhau(),
                     tk.getNgayKichHoat(),
                    tenQuyen,
-                   tk.getTrangThai() == 1 ? "Mở" : "Khóa"
+                    tk.getTrangThaiText()
             });
         }
     }
@@ -182,16 +187,9 @@ public class TaiKhoan_GUI extends JPanel{
             JOptionPane.showMessageDialog(this, "Ngày kích hoạt không hợp lệ (yyyy-MM-dd)");
             return null;
         }
-        String tt = cmb_trangThai.getSelectedItem().toString();
+        String textTrangThai = (String) cmb_trangThai.getSelectedItem();
+        int trangThai = TaiKhoan_DTO.parseTrangThaiFromText(textTrangThai);
 
-        int trangThai;
-        if (tt.equals("Mở")) {
-            trangThai = 1;
-        } else if (tt.equals("Khóa")) {
-            trangThai = 0;
-        } else {
-            trangThai = -1;
-        }
 
         String tenQuyen = cmb_quyen.getSelectedItem().toString();
         String maQuyen = bus.getMaQuyen(tenQuyen);
@@ -272,11 +270,12 @@ public class TaiKhoan_GUI extends JPanel{
     }
     private ArrayList<TaiKhoan_DTO> timKiem() {
         String keyword = txt_ndTimKiem.getText().trim();
+        String textTrangThai = (String) cmb_locTrangThai.getSelectedItem();
         Integer trangThai = null;
-        if(cmb_locTrangThai.getSelectedIndex() == 1) {
-            trangThai = 1;
-        } else if (cmb_locTrangThai.getSelectedIndex() == 2){
-            trangThai = 0;
+
+        int parsed = TaiKhoan_DTO.parseTrangThaiFromText(textTrangThai);
+        if (parsed != -1) {
+            trangThai = parsed;
         }
         Object selected = cmb_locQuyen.getSelectedItem();
 
@@ -304,9 +303,7 @@ public class TaiKhoan_GUI extends JPanel{
                 txt_tenNguoiDung.setText(bus.getNameNhanVien(sdt));
             }
 
-            cmb_trangThai.setSelectedItem(
-                    tk.getTrangThai() == 1 ? "Mở" : "Khóa"
-            );
+            cmb_trangThai.setSelectedItem(tk.getTrangThaiText());
         }
     }
 

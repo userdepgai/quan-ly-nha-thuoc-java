@@ -4,6 +4,11 @@ import java.time.LocalDate;
 
 public class TaiKhoan_DTO {
 
+    public static final int TT_KHOA = 0;
+    public static final int TT_MO = 1;
+    public static final String KHOA = "Khóa";
+    public static final String MO = "Mở";
+
     private String maTK;
     private String sdt;
     private String matKhau;
@@ -69,5 +74,27 @@ public class TaiKhoan_DTO {
 
     public void setTrangThai(int trangThai) {
         this.trangThai = trangThai;
+    }
+    public String getTrangThaiText() {
+        return switch (trangThai) {
+            case TT_MO -> MO;
+            case TT_KHOA -> KHOA;
+            default -> "Không xác định";
+        };
+    }
+    public void setTrangThaiFromText(String text) {
+        if (text == null) return;
+        switch (text) {
+            case MO -> this.trangThai = TT_MO;
+            case KHOA -> this.trangThai = TT_KHOA;
+        }
+    }
+    public static int parseTrangThaiFromText(String text) {
+        if (text == null) return -1;
+        return switch (text) {
+            case MO -> TT_MO;
+            case KHOA -> TT_KHOA;
+            default -> -1;
+        };
     }
 }

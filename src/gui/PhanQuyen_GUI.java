@@ -60,12 +60,18 @@ public class PhanQuyen_GUI extends JPanel{
     }
 
     private void formEdit() {
-        cmb_trangThai.setModel(new DefaultComboBoxModel<>(
-                new String[]{"-- Chọn trạng thái --", "Hoạt động", "Ngưng hoạt động"}
-        ));
-        cmb_locTrangThai.setModel(new DefaultComboBoxModel<>(
-                new String[]{"Tất cả", "Hoạt động", "Ngưng hoạt động"}
-        ));
+        cmb_trangThai.setModel(new DefaultComboBoxModel<>(new String[]{
+                "-- Chọn trạng thái --",
+                PhanQuyen_DTO.HOAT_DONG,
+                PhanQuyen_DTO.NGUNG_HOAT_DONG
+        }));
+
+        cmb_locTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Tất cả",
+                PhanQuyen_DTO.HOAT_DONG,
+                PhanQuyen_DTO.NGUNG_HOAT_DONG
+        }));
+
         setViewMode();
     }
 
@@ -160,6 +166,7 @@ public class PhanQuyen_GUI extends JPanel{
     }
 
     private void setAddMode() {
+
         lockTable();
 
         isAdding = true;
@@ -174,7 +181,7 @@ public class PhanQuyen_GUI extends JPanel{
         txt_moTa.setText("");
         txt_moTa.setEditable(true);
 
-        cmb_trangThai.setSelectedItem("Hoạt động");
+        cmb_trangThai.setSelectedItem(PhanQuyen_DTO.HOAT_DONG);
         cmb_trangThai.setEnabled(false);
 
         btn_luu.setVisible(true);
@@ -238,36 +245,28 @@ public class PhanQuyen_GUI extends JPanel{
         String ma = txt_maQuyen.getText().trim();
         String ten = txt_tenQuyen.getText().trim();
         String moTa = txt_moTa.getText().trim();
-
-        int trangThai = -1;
-        if (cmb_trangThai.getSelectedIndex() == 1)
-            trangThai = 1;
-        else if (cmb_trangThai.getSelectedIndex() == 2)
-            trangThai = 0;
-
+        String textTrangThai = (String) cmb_trangThai.getSelectedItem();
+        int trangThai = PhanQuyen_DTO.parseTrangThaiFromText(textTrangThai);
         return new PhanQuyen_DTO(ma, ten, moTa, trangThai);
     }
 
     private ArrayList<PhanQuyen_DTO> timKiem() {
         String keyword = txt_ndTimKiem.getText().trim();
+        String textTrangThai = (String) cmb_locTrangThai.getSelectedItem();
         Integer trangThai = null;
-        if (cmb_locTrangThai.getSelectedIndex() == 1) {
-            trangThai = 1;
-        } else if (cmb_locTrangThai.getSelectedIndex() == 2) {
-            trangThai = 0;
+        if (!textTrangThai.equals("Tất cả")) {
+            trangThai = PhanQuyen_DTO.parseTrangThaiFromText(textTrangThai);
         }
         return pqBus.timKiem(keyword, trangThai);
     }
     private void hienChiTiet() {
         int row = table_dsQuyen.getSelectedRow();
-
-        if(row >= 0) {
+        if (row >= 0) {
             txt_maQuyen.setText(table_dsQuyen.getValueAt(row, 1).toString());
             txt_tenQuyen.setText(table_dsQuyen.getValueAt(row, 2).toString());
             txt_moTa.setText(table_dsQuyen.getValueAt(row, 3).toString());
-
-            String trangThai = table_dsQuyen.getValueAt(row, 4).toString();
-            cmb_trangThai.setSelectedItem(trangThai);
+            String trangThaiText = table_dsQuyen.getValueAt(row, 4).toString();
+            cmb_trangThai.setSelectedItem(trangThaiText);
         }
     }
 
@@ -281,7 +280,7 @@ public class PhanQuyen_GUI extends JPanel{
                     quyen.getMaQuyen(),
                     quyen.getTenQuyen(),
                     quyen.getMoTa(),
-                    quyen.getTrangThai() == 1 ? "Hoạt động" : "Ngưng hoạt động"
+                    quyen.getTrangThaiText()
             });
         }
     }
@@ -295,18 +294,22 @@ public class PhanQuyen_GUI extends JPanel{
     }
 
     public boolean kiemTraHopLe(PhanQuyen_DTO quyen) {
-        if(quyen.getTenQuyen().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Tên quyền không được để trống");
+
+        if (quyen.getTenQuyen().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên quyền không được để trống");
             return false;
         }
-        if(quyen.getMoTa().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Mô tả không được để trống");
+
+        if (quyen.getMoTa().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Mô tả không được để trống");
             return false;
         }
+
         if (quyen.getTrangThai() == -1) {
-            JOptionPane.showMessageDialog(null, "Vui lòng chọn trạng thái");
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn trạng thái");
             return false;
         }
+
         return true;
     }
 
