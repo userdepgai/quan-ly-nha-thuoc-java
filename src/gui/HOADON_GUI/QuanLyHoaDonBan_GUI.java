@@ -1,5 +1,6 @@
 package gui.HOADON_GUI;
 
+import bus.HoaDonOnline_BUS;
 import bus.KhachHang_BUS;
 import bus.SanPham_BUS;
 import com.toedter.calendar.JDateChooser;
@@ -123,7 +124,7 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
 
         loadDanhSachHoaDon();
     }
-    private void loadDanhSachHoaDon(){
+    public void loadDanhSachHoaDon(){
 
         modelHoaDon.setRowCount(0);
 
@@ -236,20 +237,34 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
 
         if(hd == null) return;
 
-        // ===== HIỆN / ẨN PHÍ VẬN CHUYỂN =====
+        // ===== HIỆN / ẨN PHÍ VẬN CHUYỂN + ĐỊA CHỈ =====
         if(hd.getLoaiHDB() == 1){ // ONLINE
 
             hienPhiVanChuyen(true);
+            hienDiaChi(true);
 
-            txtPhiVC.setText(
-                    String.valueOf(
-                            hd.getThanhTien() - hd.getTongTienGoc()
-                    )
-            );
+            HoaDonOnline_DTO online =
+                    HoaDonOnline_BUS.getInstance()
+                            .getHoaDonOnline(maHD);
+
+            if(online != null){
+
+                txtPhiVC.setText(
+                        String.valueOf(online.getPhiVanChuyen())
+                );
+
+                txtDCGiaoHang.setText(
+                        online.getMaDiaChiGiaoHang()
+                );
+            }
 
         }else{ // OFFLINE
 
             hienPhiVanChuyen(false);
+            hienDiaChi(false);
+
+            txtPhiVC.setText("");
+            txtDCGiaoHang.setText("");
         }
 
         var dsCT = hoaDonBUS.getChiTietHoaDon(maHD);
@@ -301,7 +316,11 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
         labelPhiVC.setVisible(hien);
         txtPhiVC.setVisible(hien);
     }
+    private void hienDiaChi(boolean hien){
 
+        labelDCGiaoHang.setVisible(hien);
+        txtDCGiaoHang.setVisible(hien);
+    }
     private void createUIComponents() {
         JDateChooser1 = new com.toedter.calendar.JDateChooser();
         JDateChooser1.setDateFormatString("dd/MM/yyyy");
@@ -309,5 +328,7 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
         JDateChooser2 = new com.toedter.calendar.JDateChooser();
         JDateChooser2.setDateFormatString("dd/MM/yyyy");
     }
-
+    public void reloadDanhSach(){
+        loadDanhSachHoaDon();
+    }
 }

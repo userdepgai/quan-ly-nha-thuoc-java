@@ -4,6 +4,7 @@ import dto.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Map;
 
 
 // HOA DON ONLINE BUS
@@ -37,37 +38,33 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         HoaDonOnline_DTO hd = new HoaDonOnline_DTO();
 
-        String maHD = getNextID(); // dùng từ BUS CHA
+        String maHD = getNextID();
 
         hd.setMa(maHD);
         hd.setMaKhachHang(maKH);
-        hd.setLoaiHDB(1); // ONLINE
+        hd.setLoaiHDB(1);
         hd.setTrangThai(HoaDonBan_DTO.TT_CHO_DUYET);
-        hd.setPhiVanChuyen(50000);
-        hd.setTinhTrangThanhToan(0);
+        hd.setTinhTrangThanhToan(HoaDonBan_DTO.TT_CHUA_THANH_TOAN);
         hd.setNgayLap(LocalDateTime.now());
 
-        // ===== THÊM THÔNG TIN ONLINE =====
+        hd.setPhiVanChuyen(50000);
         hd.setMaDiaChiGiaoHang(diaChiGiao);
-        double tong = 0;
 
-        for (ChiTietHoaDonBan_DTO ct : dsCT) {
-            tong += ct.getThanhTien();
-        }
+        // ⭐ dùng logic BUS cha
+        this.hoaDon = hd;
+        this.dsChiTietHDB = dsCT;
 
-        hd.setTongTienGoc(tong);
-        hd.setThanhTien(tong + hd.getPhiVanChuyen());
+        tinhTongTien();
 
         hoaDonDAO.insert(hd);
 
-        for (ChiTietHoaDonBan_DTO ct : dsCT) {
+        for(ChiTietHoaDonBan_DTO ct : dsCT){
             ct.setMaHDB(maHD);
             ctDAO.insert(ct);
         }
 
         return maHD;
     }
-
 
     // =====================================================
     // NHÂN VIÊN DUYỆT ĐƠN
@@ -84,22 +81,18 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         ArrayList<ChiTietHoaDonBan_DTO> ds =
                 ctDAO.getByMaHD(maHD);
-    /*
-        // kiểm tra tồn kho
+
         for (ChiTietHoaDonBan_DTO ct : ds) {
 
             boolean duHang =
-                    loDAO.kiemTraTonKho(ct.getMaSP(), ct.getSoLuong());
+                    loBus.kiemTraDuTon(ct.getMaSP(), ct.getSoLuong());
 
             if (!duHang)
                 throw new RuntimeException(
                         "Không đủ hàng: " + ct.getMaSP());
         }
-*/
-        // trừ kho FIFO
-        for (ChiTietHoaDonBan_DTO ct : ds) {
-           // loDAO.truKhoFIFO(ct.getMaSP(), ct.getSoLuong());
-        }
+
+        loBus.refreshData();
 
         hoaDonDAO.capNhatTrangThai(maHD,
                 HoaDonBan_DTO.TT_DA_DUYET);
@@ -110,6 +103,23 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
     // TỪ CHỐI ĐƠN
     // =====================================================
     public void huyDonHang(String maHD) {
+
+        HoaDonBan_DTO hd = getById(maHD);
+
+        if(hd.getTrangThai() == HoaDonBan_DTO.TT_DANG_GIAO){
+
+            ArrayList<ChiTietHoaDonBan_DTO> ds =
+                    ctDAO.getByMaHD(maHD);
+
+            for(ChiTietHoaDonBan_DTO ct : ds){
+
+                var dsLo =
+                        loBus.phanBoLoDeBan(ct.getMaSP(), ct.getSoLuong());
+
+                loBus.congTonKhiHuy(dsLo);
+            }
+        }
+
         hoaDonDAO.capNhatTrangThai(
                 maHD,
                 HoaDonBan_DTO.TT_DA_HUY
@@ -126,6 +136,28 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         if (hd.getTrangThai() != HoaDonBan_DTO.TT_DA_DUYET)
             throw new RuntimeException("Chưa duyệt");
+
+        ArrayList<ChiTietHoaDonBan_DTO> ds =
+                ctDAO.getByMaHD(maHD);
+
+        for (ChiTietHoaDonBan_DTO ct : ds) {
+
+            Map<LoHang_DTO, Integer> dsLo =
+                    loBus.phanBoLoDeBan(ct.getMaSP(), ct.getSoLuong());
+
+            if(dsLo.isEmpty())
+                throw new RuntimeException("Không đủ hàng");
+
+            for(Map.Entry<LoHang_DTO,Integer> entry : dsLo.entrySet()){
+
+                LoHang_DTO lo = entry.getKey();
+                int soLuongTru = entry.getValue();
+
+                lo.truSoLuongConLai(soLuongTru);
+
+                loBus.capNhat(lo);   // update DB
+            }
+        }
 
         hoaDonDAO.capNhatTrangThai(
                 maHD,
@@ -172,11 +204,14 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 ctDAO.getByMaHD(maHD);
 
         for (ChiTietHoaDonBan_DTO ct : ds) {
-            //loDAO.congKho(ct.getMaSP(), ct.getSoLuong());
+
+            var dsLo = loBus.phanBoLoDeBan(ct.getMaSP(), ct.getSoLuong());
+
+            loBus.congTonKhiHuy(dsLo);
         }
 
         int diem = (int)(hd.getThanhTien() / 10000);
-        //khBus.truDiem(hd.getMaKhachHang(), diem);
+        khBus.truDiemThuong(hd.getMaKhachHang(), diem);
 
         hoaDonDAO.capNhatTrangThai(
                 maHD,
@@ -184,26 +219,37 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         );
     }
 
+    public void duyetHoanHang(String maHD){
 
-    // =====================================================
-    // AUTO HỦY SAU 3 NGÀY
-    // =====================================================
-    public void autoHuyDonTre() {
+        HoaDonBan_DTO hd = getById(maHD);
 
-        ArrayList<HoaDonBan_DTO> ds = hoaDonDAO.getAll();
+        if(hd.getTrangThai() != HoaDonBan_DTO.TT_YEU_CAU_HOAN)
+            throw new RuntimeException("Không phải yêu cầu hoàn");
 
-        for (HoaDonBan_DTO hd : ds) {
+        ArrayList<ChiTietHoaDonBan_DTO> ds =
+                ctDAO.getByMaHD(maHD);
 
-            if (hd.getLoaiHDB() == 1 &&
-                    hd.getTrangThai() == HoaDonBan_DTO.TT_CHO_DUYET &&
-                    hd.getNgayLap().plusDays(3).isBefore(LocalDateTime.now())) {
+        for(ChiTietHoaDonBan_DTO ct : ds){
 
-                hoaDonDAO.capNhatTrangThai(
-                        hd.getMa(),
-                        HoaDonBan_DTO.TT_DA_HUY);
-            }
+            var dsLo =
+                    loBus.phanBoLoDeBan(ct.getMaSP(), ct.getSoLuong());
+
+            loBus.congTonKhiHuy(dsLo);
         }
+
+        int diem = (int)(hd.getThanhTien() / 10000);
+
+        khBus.truDiemThuong(
+                hd.getMaKhachHang(),
+                diem
+        );
+
+        hoaDonDAO.capNhatTrangThai(
+                maHD,
+                HoaDonBan_DTO.TT_DA_HUY
+        );
     }
+
 
     public void capNhatTrangThai(String maHD, int trangThaiMoi){
 
@@ -225,9 +271,9 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         int diem = (int)(hd.getThanhTien() / 10000);
 
-       //khBus.congDiem(hd.getMaKhachHang(), diem);
+       khBus.congDiemMuaHang(hd.getMaKhachHang(), diem);
     }
-
+    /*
     public HoaDonOnline_DTO getHoaDonOnline(String maHD) {
 
         HoaDonBan_DTO hdBan = getById(maHD);
@@ -246,6 +292,19 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         hd.setTongTienGoc(hdBan.getTongTienGoc());
         hd.setThueVAT(hdBan.getThueVAT());
 
+
         return hd;
+    }
+    */
+
+    public HoaDonOnline_DTO getHoaDonOnline(String maHD){
+
+        HoaDonBan_DTO hd = getById(maHD);
+
+        if(hd instanceof HoaDonOnline_DTO online){
+            return online;
+        }
+
+        return null;
     }
 }

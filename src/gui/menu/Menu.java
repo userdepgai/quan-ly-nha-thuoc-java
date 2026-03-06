@@ -95,6 +95,15 @@ public class Menu extends JFrame {
         contentPanel.add(new ThongTinCaNhanNhanVien_GUI(), "thongke");
         contentPanel.add(createContent("Báo cáo"), "baocao");
 
+        //  tạo 1 instance duy nhất
+        QuanLyHoaDonBan_GUI qlHoaDonGUI = new QuanLyHoaDonBan_GUI();
+        LapHoaDon_GUI lapHoaDonGUI = new LapHoaDon_GUI();
+
+        //  gắn callback khi lưu hóa đơn
+        lapHoaDonGUI.setOnHoaDonSaved(() -> {
+            qlHoaDonGUI.reloadDanhSach();
+        });
+
         contentPanel.add(new LapHoaDon_GUI(), "banhang");
         contentPanel.add(new DuyetDonHang_GUI(), "duyethd");
         contentPanel.add(new QuanLyHoaDonBan_GUI(), "hoadon");

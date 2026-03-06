@@ -53,14 +53,12 @@ public class DuyetDonHang_GUI extends JPanel{
     private JLabel labelSDT;
     private JLabel labelDCGIaoHang;
     private JLabel labelTongTien;
-    private JTextField txtGhiChu;
     private JLabel labelVoucher;
     private JLabel labelDiemThuong;
     private JLabel labelPhiVC;
     private JLabel labelThueVAT;
     private JLabel labelThanhTien;
     private JLabel labelTrangThaiHienTai;
-    private JLabel labelGhiChu;
     private JLabel labelThahTienCT;
     private JLabel labelTrangThaiCN;
     private JPanel JPanel;
@@ -72,6 +70,8 @@ public class DuyetDonHang_GUI extends JPanel{
     private JDateChooser JDateChooser2;
     private JScrollPane scrTTCTDonDat;
     private JScrollPane scrDSHDChoCN;
+    private JLabel labelGhiChu;
+    private JTextField txtGhiChu;
 
     private DefaultTableModel modelHoaDon;
     private DefaultTableModel modelChiTiet;
@@ -245,7 +245,9 @@ public class DuyetDonHang_GUI extends JPanel{
         txtPhiVC.setText(String.valueOf(hd.getPhiVanChuyen()));
         txtThueVAT.setText(String.valueOf(hd.getThueVAT()));
         txtThanhTien.setText(String.valueOf(hd.getThanhTien()));
+        txtTTHienTai.setText(hd.getTrangThaiText());
 
+        loadTrangThaiCapNhat(hd);
     }
 
     private void suKienCapNhat() {
@@ -318,7 +320,34 @@ public class DuyetDonHang_GUI extends JPanel{
     }
 
 
+    private void loadTrangThaiCapNhat(HoaDonOnline_DTO hd){
 
+        cbTrangThaiCN.removeAllItems();
+
+        int tt = hd.getTrangThai();
+
+        switch (tt){
+
+            case HoaDonOnline_DTO.TT_CHO_DUYET -> {
+                cbTrangThaiCN.addItem("Đã duyệt");
+                cbTrangThaiCN.addItem("Hủy");
+            }
+
+            case HoaDonOnline_DTO.TT_DA_DUYET -> {
+                cbTrangThaiCN.addItem("Đang giao");
+            }
+
+            case HoaDonOnline_DTO.TT_DANG_GIAO -> {
+                cbTrangThaiCN.addItem("Hoàn thành");
+                cbTrangThaiCN.addItem("Hủy");
+            }
+
+            case HoaDonOnline_DTO.TT_YEU_CAU_HOAN -> {
+                cbTrangThaiCN.addItem("Đã hủy");
+                cbTrangThaiCN.addItem("Hoàn thành");
+            }
+        }
+    }
     private void createUIComponents() {
         JDateChooser1 = new com.toedter.calendar.JDateChooser();
         JDateChooser1.setDateFormatString("dd/MM/yyyy");

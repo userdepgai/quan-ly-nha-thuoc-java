@@ -152,27 +152,29 @@ public class HoaDonBan_DAO {
             throws SQLException {
 
         String sql = """
-            INSERT INTO HOADONBAN(
-                Ma_HDB,
-                NgayLap,
-                TinhTrangThanhToan,
-                KeToa,
-                TongTienGoc,
-                TongGiaTri_KM,
-                DiemThuongQuyDoi,
-                ThanhTien,
-                TienNhan,
-                TienThoi,
-                GhiChu,
-                ThueVAT,
-                TrangThai,
-                Ma_NV,
-                Ma_KH,
-                MaVoucher,
-                LoaiHDB
-            )
-            VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )
-            """;
+                INSERT INTO HOADONBAN(
+                       Ma_HDB,
+                       NgayLap,
+                       TinhTrangThanhToan,
+                       KeToa,
+                       TongTienGoc,
+                       TongGiaTri_KM,
+                       DiemThuongQuyDoi,
+                       ThanhTien,
+                       TienNhan,
+                       TienThoi,
+                       GhiChu,
+                       PhiVanChuyen,
+                       ThueVAT,
+                       TrangThai,
+                       LoaiHDB,
+                       Ma_NV,
+                       Ma_KH,
+                       MaVoucher,
+                       Ma_DC
+                        )
+                      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        """;
 
         PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -187,12 +189,24 @@ public class HoaDonBan_DAO {
         ps.setDouble(9, hd.getTienNhan());
         ps.setDouble(10, hd.getTienThoi());
         ps.setString(11, hd.getGhiChu());
-        ps.setDouble(12, hd.getThueVAT());
-        ps.setInt(13, hd.getTrangThai());
-        ps.setString(14, hd.getMaNhanVien());
-        ps.setString(15, hd.getMaKhachHang());
-        ps.setString(16, hd.getMaVoucher());
-        ps.setInt(17, hd.getLoaiHDB());
+        ps.setDouble(13, hd.getThueVAT());
+        ps.setInt(14, hd.getTrangThai());
+        ps.setInt(15, hd.getLoaiHDB());
+        ps.setString(16, hd.getMaNhanVien());
+        ps.setString(17, hd.getMaKhachHang());
+        ps.setString(18, hd.getMaVoucher());
+
+        if (hd instanceof HoaDonOnline_DTO online) {
+
+            ps.setDouble(12, online.getPhiVanChuyen());
+            ps.setString(19, online.getMaDiaChiGiaoHang());
+
+        } else {
+
+            ps.setDouble(12, 0);
+            ps.setString(19, null);
+        }
+
         return ps.executeUpdate() > 0;
     }
 
@@ -227,7 +241,15 @@ public class HoaDonBan_DAO {
     // ================= MAP RESULTSET =================
     private HoaDonBan_DTO mapHoaDon(ResultSet rs) throws SQLException {
 
-        HoaDonBan_DTO hd = new HoaDonBan_DTO();
+        int loai = rs.getInt("LoaiHDB");
+
+        HoaDonBan_DTO hd;
+
+        if(loai == 1){
+            hd = new HoaDonOnline_DTO();
+        }else{
+            hd = new HoaDonBan_DTO();
+        }
 
         hd.setMa(rs.getString("Ma_HDB"));
 
@@ -248,11 +270,17 @@ public class HoaDonBan_DAO {
         hd.setTienThoi(rs.getDouble("TienThoi"));
         hd.setThueVAT(rs.getDouble("ThueVAT"));
         hd.setGhiChu(rs.getString("GhiChu"));
-        hd.setLoaiHDB(rs.getInt("LoaiHDB"));
+        hd.setLoaiHDB(loai);
         hd.setMaNhanVien(rs.getString("Ma_NV"));
         hd.setMaKhachHang(rs.getString("Ma_KH"));
         hd.setMaVoucher(rs.getString("MaVoucher"));
         hd.setKeToa(rs.getBoolean("KeToa"));
+
+        // nếu là hóa đơn online
+        if(hd instanceof HoaDonOnline_DTO online){
+            online.setPhiVanChuyen(rs.getDouble("PhiVanChuyen"));
+            online.setMaDiaChiGiaoHang(rs.getString("Ma_DC"));
+        }
 
         return hd;
     }

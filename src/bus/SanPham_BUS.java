@@ -118,4 +118,17 @@ public class SanPham_BUS {
         }
         return true;
     }
+    public SanPham_DTO getByTenSP(String tenSP){
+
+        if(tenSP == null) return null;
+
+        for(SanPham_DTO sp : listCache){
+
+            if(sp.getTenSP().equalsIgnoreCase(tenSP)){
+                return sp;
+            }
+        }
+
+        return null;
+    }
 }

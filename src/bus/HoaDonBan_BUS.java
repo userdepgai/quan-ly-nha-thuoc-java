@@ -21,19 +21,18 @@ public class HoaDonBan_BUS {
     protected ChiTietHoaDonBan_DAO ctDAO = new ChiTietHoaDonBan_DAO();
     protected KhachHang_BUS khBus = KhachHang_BUS.getInstance();
     private SanPham_BUS spBus = SanPham_BUS.getInstance();
-    private LoHang_BUS loBus = LoHang_BUS.getInstance();
+    protected LoHang_BUS loBus = LoHang_BUS.getInstance();
     private QuyCach_BUS qcBus = QuyCach_BUS.getInstance();
     private KhuyenMai_BUS kmBus = KhuyenMai_BUS.getInstance();
     private Voucher_BUS vchBUs = Voucher_BUS.getInstance();
+    private NhanVien_BUS nvBus = NhanVien_BUS.getInstance();
 
+        private static final boolean TEST_MODE = true;
 
-        private static final boolean TEST_MODE = true; // ⭐ thêm dòng này
-
-    private HoaDonBan_DTO hoaDon;
+    protected HoaDonBan_DTO hoaDon;
     private ArrayList<HoaDonBan_DTO> listCache;
 
-    private ArrayList<ChiTietHoaDonBan_DTO> listCacheCT;
-    private ArrayList<ChiTietHoaDonBan_DTO> dsChiTietHDB = new ArrayList<>();
+    protected ArrayList<ChiTietHoaDonBan_DTO> dsChiTietHDB = new ArrayList<>();
 
     public ArrayList<HoaDonBan_DTO> getAllHoaDon(){
         return hoaDonDAO.getAll();
@@ -117,7 +116,7 @@ public class HoaDonBan_BUS {
     // =====================================================
     // TẠO HÓA ĐƠN
     // =====================================================
-   /*public void taoHoaDonMoi(){
+   public void taoHoaDonMoi(){
 
         hoaDon = new HoaDonBan_DTO();
 
@@ -127,8 +126,14 @@ public class HoaDonBan_BUS {
         if(tk == null)
             throw new RuntimeException("Chưa đăng nhập");
 
-        // ⭐ TẠM DÙNG maTK làm maNV (không sửa class khác)
-        String maNV = tk.getMaTK();
+       String sdt = tk.getSdt();
+
+       NhanVien_DTO nv = nvBus.getBysdt(sdt);
+
+       if(nv == null)
+           throw new RuntimeException("Không tìm thấy nhân viên");
+
+       String maNV = nv.getMa();
 
         hoaDon.setMa(getNextID());
         hoaDon.setMaNhanVien(maNV);
@@ -136,13 +141,14 @@ public class HoaDonBan_BUS {
         hoaDon.setTrangThai(HoaDonBan_DTO.TT_HOAN_THANH);
         hoaDon.setTongGiaTriKhuyenMai(0);
 
-        dsCTTam.clear();
+        dsChiTietHDB.clear();
     }
 
-    */
+
     //public ArrayList<KhuyenMai_DTO> getKMHopLeTheoSP(String maSP){
         //return kmBus.getDanhSachKMHopLe(maSP);
    // }
+    /*
     public void taoHoaDonMoi(){
 
         hoaDon = new HoaDonBan_DTO();
@@ -169,6 +175,8 @@ public class HoaDonBan_BUS {
 
         dsChiTietHDB.clear();
     }
+
+     */
     // =====================================================
     // THÊM SẢN PHẨM FIFO
     // =====================================================
@@ -194,6 +202,9 @@ public class HoaDonBan_BUS {
         if(daTonTai(maSP))
             throw new RuntimeException("Mỗi sản phẩm chỉ 1 dòng");
         // ===== CHỌN LÔ FIFO =====
+        if(!loBus.kiemTraDuTon(maSP, soLuong))
+            throw new RuntimeException("Không đủ tồn");
+
         Map<LoHang_DTO,Integer> dsLoChon =
                 loBus.phanBoLoDeBan(maSP, soLuong);
 
@@ -205,8 +216,6 @@ public class HoaDonBan_BUS {
 // ===== TÍNH GIÁ BÁN =====
         double giaBan = tinhGiaBan(maSP, giaNhapMax);
 
-        if(!loBus.kiemTraDuTon(maSP, soLuong))
-            throw new RuntimeException("Không đủ tồn");
 
 
 
@@ -216,9 +225,9 @@ public class HoaDonBan_BUS {
         ct.setMaSP(maSP);
         ct.setSoLuong(soLuong);
         ct.setGiaBan(giaBan);
-
-        double thanhTien =
-                tinhThanhTienMotSP(giaBan, soLuong, maKM);
+        double giaSauKM = tinhGiaSauKhuyenMai(giaBan, maKM);
+        ct.setGiaBanSauApKM(giaSauKM);
+        double thanhTien = giaSauKM * soLuong;
 
         ct.setThanhTien(thanhTien);
 
@@ -229,15 +238,17 @@ public class HoaDonBan_BUS {
     /*
     public ArrayList<KhuyenMai_DTO> goiYKhuyenMai(
         String maSP,
-        double giaBan,
-        int soLuong)
+        String maDanhMuc,
+        double giaBan)
 {
-    if(hoaDon == null) return new ArrayList<>();
+
+    if(hoaDon == null)
+        return new ArrayList<>();
 
     return kmBus.getDSKMSapXepTotNhat(
             maSP,
-            giaBan,
-            soLuong
+            maDanhMuc,
+            giaBan
     );
 }
     */
@@ -250,7 +261,7 @@ public class HoaDonBan_BUS {
             hoaDon.getTongTienGoc()
             - hoaDon.getTongGiaTriKhuyenMai();
 
-    return vchBus.getDSVoucherHopLe(thanhTienTam);
+    return vchBus.getDSVoucherSapXepTotNhat(thanhTienTam);
 }
 
      */
@@ -413,7 +424,13 @@ public class HoaDonBan_BUS {
 
         double vat = truocVAT * 0.05;
 
-        double thanhTien = truocVAT + vat;
+        double phiShip = 0;
+
+        if(hoaDon instanceof HoaDonOnline_DTO online){
+            phiShip = online.getPhiVanChuyen();
+        }
+
+        double thanhTien = truocVAT + vat + phiShip;
 
         hoaDon.setTongTienGoc(tongGoc);
         hoaDon.setTongGiaTriKhuyenMai(tongKM);
@@ -449,7 +466,7 @@ public class HoaDonBan_BUS {
     // =====================================================
     // TÍNH TIỀN
     // =====================================================
-    private void tinhTongTien(){
+    protected void tinhTongTien(){
 
         tinhThanhTienSauCung();
     }
@@ -510,7 +527,7 @@ public class HoaDonBan_BUS {
                     lo.getSoLuongConLai() - soLuongTru
             );
 
-            loBus.capNhat(lo); // giữ nguyên
+            loBus.capNhat(lo);
         }
     }
 

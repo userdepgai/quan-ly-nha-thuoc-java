@@ -182,7 +182,7 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     public static final String DA_DUYET = "Đã duyệt";
     public static final String DANG_GIAO = "Đang giao";
     public static final String HOAN_THANH = "Đã hoàn thành";
-    public static final String DA_HUY = "Đã hủy";
+    public static final String DA_HUY = "Hủy";
     public static final String YEU_CAU_HOAN = "Yêu cầu hoàn hàng";
 
 

@@ -72,6 +72,7 @@ public class LoHang_GUI extends JPanel{
 
         initTable();
         loadTableFromList(bus.getAll());
+
     }
 
     private void initTable() {

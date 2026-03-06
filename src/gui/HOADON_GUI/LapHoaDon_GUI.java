@@ -6,17 +6,17 @@ import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.*;
-import java.awt.BorderLayout;
+
 import bus.HoaDonBan_BUS;
 import dto.ChiTietHoaDonBan_DTO;
 import dto.HoaDonBan_DTO;
-import dto.KhuyenMai_DTO;
 import dto.SanPham_DTO;
+import utils.Session;
 
 
 public class LapHoaDon_GUI extends JPanel{
-
     private JPanel panel_LapHoaDon;
     private JButton btnXuatExcel;
     private JButton btnNhapExcel;
@@ -54,14 +54,17 @@ public class LapHoaDon_GUI extends JPanel{
     private JLabel labelTongTien;
     private JLabel labelGTDT;
     private JLabel labelTongGTKM;
-    private JPanel labelThanhTien;
     private JLabel labelTienNhan;
     private JLabel labelTienThoi;
     private JDateChooser JDateChooser1;
     private JSpinner snSoLuong;
+    private JButton btnHuy;
+    private JLabel labelThanhTien;
+    private JLabel labelThueVat;
+    private JTextField txtThueVat;
 
     private boolean dangDongBo = false;
-
+    private Runnable onHoaDonSaved;
     private HoaDonBan_BUS bus = HoaDonBan_BUS.getInstance();
     // ===== BUS =====
     private SanPham_BUS spBus = SanPham_BUS.getInstance();
@@ -69,18 +72,48 @@ public class LapHoaDon_GUI extends JPanel{
 
     private DefaultTableModel modelBang;
 
+    public void setOnHoaDonSaved(Runnable action){
+        this.onHoaDonSaved = action;
+    }
     public LapHoaDon_GUI() {
+
+            if(bus.getHoaDon() == null && Session.getCurrentUser() != null){
+                bus.taoHoaDonMoi();
+            }
+
+            HoaDonBan_DTO hd = bus.getHoaDon();
+            if(hd != null){
+                txtNhanVienLap.setText(hd.getMaNhanVien());
+            }
+
         cbMaSP.setEditable(true);
         cbTenSP.setEditable(true);
         khoiTaoBang();
         suKienNut();
         loadComboBox();
-
+        themSuKienNhapCombo();
+        khoaTextField();
+        //loadCBVoucher();
+        JDateChooser1.setDate(new java.util.Date());
+        capNhatThongTinHoaDon();
         this.setLayout(new BorderLayout());
         this.add(panel_LapHoaDon, BorderLayout.CENTER);
-
         btnSua.setEnabled(false);
         btnXoa.setEnabled(false);
+        snSoLuong.setModel(
+                new SpinnerNumberModel(0,0,999,1)
+        );
+        snSoLuong.setEnabled(false);
+
+    }
+    private void khoaTextField(){
+
+        txtTongTien.setEditable(false);
+        txtGTDT.setEditable(false);
+        txtTongGTKM.setEditable(false);
+        txtThanhTien.setEditable(false);
+        txtTienThoi.setEditable(false);
+        txtThueVat.setEditable(false);
 
     }
     private void khoiTaoBang() {
@@ -91,11 +124,23 @@ public class LapHoaDon_GUI extends JPanel{
         );
         tableTTSP.setModel(modelBang);
 
+        tableTTSP.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        tableTTSP.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableTTSP.getColumnModel().getColumn(1).setPreferredWidth(120);
+        tableTTSP.getColumnModel().getColumn(2).setPreferredWidth(200);
+        tableTTSP.getColumnModel().getColumn(3).setPreferredWidth(100);
+        tableTTSP.getColumnModel().getColumn(4).setPreferredWidth(100);
+        tableTTSP.getColumnModel().getColumn(5).setPreferredWidth(150);
+        tableTTSP.getColumnModel().getColumn(6).setPreferredWidth(150);
+        tableTTSP.getColumnModel().getColumn(7).setPreferredWidth(80);
+        tableTTSP.getColumnModel().getColumn(8).setPreferredWidth(120);
+
         tableTTSP.getTableHeader().setResizingAllowed(false);
         tableTTSP.getTableHeader().setReorderingAllowed(false);
         tableTTSP.setRowHeight(25);
         tableTTSP.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
+
     // ===============================
 // LOAD DATA COMBOBOX
 // ===============================
@@ -103,7 +148,7 @@ public class LapHoaDon_GUI extends JPanel{
 
         loadCBMaSP();
         loadCBTenSP();
-        loadCBKhuyenMai();
+        //loadCBKhuyenMai();
     }
     private void loadCBMaSP(){
 
@@ -123,17 +168,114 @@ public class LapHoaDon_GUI extends JPanel{
             cbTenSP.addItem(sp.getTenSP());
         }
     }
-    private void loadCBKhuyenMai(){
+    /*
+    private void loadCBKhuyenMai(
+        String maSP,
+        String maDanhMuc,
+        double giaBan)
+{
 
-        cbKhuyenMai.removeAllItems();
-        cbKhuyenMai.addItem(null);
+    cbKhuyenMai.removeAllItems();
 
-        for(KhuyenMai_DTO km : kmBus.getAll()){
-            cbKhuyenMai.addItem(km.getTenKM());
-        }
+    cbKhuyenMai.addItem("Chọn khuyến mãi");
+
+    for(KhuyenMai_DTO km :
+            bus.goiYKhuyenMai(maSP, maDanhMuc, giaBan))
+    {
+        cbKhuyenMai.addItem(km.getTenKM());
     }
 
+    cbKhuyenMai.setSelectedIndex(0);
+}
 
+     */
+    /*
+    private void loadCBVoucher(){
+
+    cbVoucher.removeAllItems();
+
+    cbVoucher.addItem("Không voucher");
+
+    if(bus.getHoaDon() == null) return;
+
+    for(Voucher_DTO v : bus.goiYVoucher()){
+            cbVoucher.addItem(v.getTen());
+}
+    }
+
+    cbVoucher.setSelectedIndex(0);
+}
+    */
+    private void themSuKienNhapCombo(){
+
+        JTextField txtMa =
+                (JTextField) cbMaSP.getEditor().getEditorComponent();
+
+        JTextField txtTen =
+                (JTextField) cbTenSP.getEditor().getEditorComponent();
+
+        txtMa.addKeyListener(new KeyAdapter(){
+            public void keyReleased(KeyEvent e){
+                dongBoTheoMa();
+            }
+        });
+
+        txtTen.addKeyListener(new KeyAdapter(){
+            public void keyReleased(KeyEvent e){
+                dongBoTheoTen();
+            }
+        });
+    }
+    private void dongBoTheoMa(){
+
+        if(dangDongBo) return;
+
+        String ma = ((JTextField)
+                cbMaSP.getEditor().getEditorComponent())
+                .getText().trim();
+
+        if(ma.isEmpty()) return;
+
+        SanPham_DTO sp = spBus.getById(ma);
+
+        if(sp == null){
+
+            dangDongBo = true;
+            cbTenSP.setSelectedIndex(0);
+            dangDongBo = false;
+
+            return;
+        }
+
+        dangDongBo = true;
+        cbTenSP.setSelectedItem(sp.getTenSP());
+        dangDongBo = false;
+    }
+    private void dongBoTheoTen(){
+
+        if(dangDongBo) return;
+
+        String ten = ((JTextField)
+                cbTenSP.getEditor().getEditorComponent())
+                .getText().trim();
+
+        if(ten.isEmpty()) return;
+
+        SanPham_DTO sp = spBus.getByTenSP(ten);
+
+        if(sp == null){
+
+            dangDongBo = true;
+            cbMaSP.setSelectedIndex(0);
+            dangDongBo = false;
+
+            return;
+        }
+
+        dangDongBo = true;
+        cbMaSP.setSelectedItem(sp.getMaSP());
+        dangDongBo = false;
+    }
     private void loadTableFromBUS(){
 
         modelBang.setRowCount(0);
@@ -154,6 +296,7 @@ public class LapHoaDon_GUI extends JPanel{
                     ct.getThanhTien()
             });
         }
+        capNhatThongTinHoaDon();
     }
     /* ================== KHỞI TẠO BẢNG ================== */
 
@@ -190,6 +333,8 @@ public class LapHoaDon_GUI extends JPanel{
 
                     btnSua.setEnabled(true);
                     btnXoa.setEnabled(true);
+                    hienTongTien();
+                    tinhTienThoi();
                 }
             }
         });
@@ -206,7 +351,7 @@ public class LapHoaDon_GUI extends JPanel{
             bus.xoaSanPham(maSP);
 
             loadTableFromBUS();
-            hienTongTien();
+            capNhatThongTinHoaDon();
         });
 
         /* ===== SỬA ===== */
@@ -228,6 +373,24 @@ public class LapHoaDon_GUI extends JPanel{
         });
 
         btnLuu.addActionListener(e -> {
+            if(!validateThongTin()) return;
+            boolean ok = bus.luuHoaDon();
+
+            if(!ok){
+                JOptionPane.showMessageDialog(this,
+                        "Lưu hóa đơn thất bại!");
+                return;
+            }
+
+            JOptionPane.showMessageDialog(this,
+                    "Lưu hóa đơn thành công!");
+
+            if(onHoaDonSaved != null){
+                onHoaDonSaved.run();
+            }
+            bus.taoHoaDonMoi();
+            modelBang.setRowCount(0);
+            capNhatThongTinHoaDon();
             JFrame parent =
                     (JFrame) SwingUtilities.getWindowAncestor(this);
 
@@ -235,7 +398,6 @@ public class LapHoaDon_GUI extends JPanel{
         });
 
         cbMaSP.addActionListener(e -> {
-
             if(dangDongBo) return;
 
             Object obj = cbMaSP.getSelectedItem();
@@ -253,6 +415,9 @@ public class LapHoaDon_GUI extends JPanel{
                 cbTenSP.setSelectedItem(tenSP);
                 dangDongBo = false;
             }
+            //loadCBKhuyenMai(maSP);
+            snSoLuong.setEnabled(true);
+            snSoLuong.setValue(1);
         });
         cbTenSP.addActionListener(e -> {
 
@@ -263,17 +428,17 @@ public class LapHoaDon_GUI extends JPanel{
 
             String tenSP = obj.toString().trim();
 
-            for(SanPham_DTO sp : spBus.getAll()){
+            SanPham_DTO sp = spBus.getByTenSP(tenSP);
 
-                if(sp.getTenSP().equalsIgnoreCase(tenSP)){
+            if(sp != null){
 
-                    dangDongBo = true;
-                    cbMaSP.setSelectedItem(sp.getMaSP());
-                    dangDongBo = false;
-
-                    break;
-                }
+                dangDongBo = true;
+                cbMaSP.setSelectedItem(sp.getMaSP());
+                dangDongBo = false;
             }
+
+            snSoLuong.setEnabled(true);
+            snSoLuong.setValue(1);
         });
         /*
         cbVoucher.addActionListener(e -> {
@@ -282,7 +447,7 @@ public class LapHoaDon_GUI extends JPanel{
                     (String) cbVoucher.getSelectedItem();
 
             bus.apDungVoucher(ten);
-            hienTongTien();
+            capNhatThongTinHoaDon();
         });
         */
 
@@ -293,9 +458,21 @@ public class LapHoaDon_GUI extends JPanel{
     /* ================== HÀM THÊM ================== */
 
     private void themSanPham() {
+        String maSP =
+                ((JTextField) cbMaSP.getEditor()
+                        .getEditorComponent())
+                        .getText().trim();
+
+        SanPham_DTO sp = spBus.getById(maSP);
+
+        if(sp == null){
+            JOptionPane.showMessageDialog(null,
+                    "Mã sản phẩm không tồn tại");
+            return;
+        }
 
         try{
-            String maSP = cbMaSP.getSelectedItem()+"";
+
 
             int soLuong = (int) snSoLuong.getValue();
 
@@ -311,9 +488,10 @@ public class LapHoaDon_GUI extends JPanel{
             // ⭐ gọi đúng BUS
             bus.themSanPham(maSP, soLuong, tenKM);
 
+            //loadCBVoucher();
             loadTableFromBUS();
             resetFormSanPham();
-            hienTongTien();
+            capNhatThongTinHoaDon();
 
         }catch(Exception ex){
             JOptionPane.showMessageDialog(null,ex.getMessage());
@@ -334,6 +512,9 @@ public class LapHoaDon_GUI extends JPanel{
         // khóa lại nút
         btnSua.setEnabled(false);
         btnXoa.setEnabled(false);
+
+        snSoLuong.setValue(0);
+        snSoLuong.setEnabled(false);
     }
     /* ================== SỬA ================== */
 
@@ -342,12 +523,16 @@ public class LapHoaDon_GUI extends JPanel{
         int dong = tableTTSP.getSelectedRow();
         if(dong < 0) return;
 
-        modelBang.setValueAt(cbMaSP.getSelectedItem(),dong,1);
-        modelBang.setValueAt(cbTenSP.getSelectedItem(),dong,2);
+        String maSP = modelBang.getValueAt(dong,1).toString();
+        int soLuong = (int) snSoLuong.getValue();
 
-        JOptionPane.showMessageDialog(null,"Đã sửa!");
+        bus.xoaSanPham(maSP);
+        bus.themSanPham(maSP, soLuong, null);
+
+        loadTableFromBUS();
+
+        JOptionPane.showMessageDialog(this,"Đã sửa!");
     }
-
     private void hienTongTien(){
 
         HoaDonBan_DTO hd = bus.getHoaDon();
@@ -363,11 +548,50 @@ public class LapHoaDon_GUI extends JPanel{
         txtThanhTien.setText(
                 String.valueOf(hd.getThanhTien()));
     }
+    private void capNhatThongTinHoaDon(){
 
+        HoaDonBan_DTO hd = bus.getHoaDon();
+        if(hd == null){
+            txtTongTien.setText("0");
+            txtTongGTKM.setText("0");
+            txtGTDT.setText("0");
+            txtThanhTien.setText("0");
+            txtTienThoi.setText("0");
+            return;
+        }
+
+        txtTongTien.setText(String.valueOf(hd.getTongTienGoc()));
+        txtTongGTKM.setText(String.valueOf(hd.getTongGiaTriKhuyenMai()));
+        txtGTDT.setText(String.valueOf(hd.getDiemThuongQuyDoi()));
+        txtThanhTien.setText(String.valueOf(hd.getThanhTien()));
+
+        tinhTienThoi();
+    }
     private void createUIComponents() {
         JDateChooser1 = new com.toedter.calendar.JDateChooser();
         JDateChooser1.setDateFormatString("dd/MM/yyyy");
     }
+    private boolean validateThongTin(){
 
+        if(bus.getDsTam().isEmpty()){
+            JOptionPane.showMessageDialog(this,"Chưa có sản phẩm");
+            return false;
+        }
+
+
+        if(txtTienNhan.getText().trim().isEmpty()){
+            JOptionPane.showMessageDialog(this,"Nhập tiền nhận");
+            return false;
+        }
+
+        try{
+            Double.parseDouble(txtTienNhan.getText());
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(this,"Tiền nhận không hợp lệ");
+            return false;
+        }
+
+        return true;
+    }
 }
 
