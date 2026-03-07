@@ -1,7 +1,9 @@
 package bus;
 
 import dao.ThongKe_DAO;
+import dto.ThongKeKhachHang_DTO;
 import dto.ThongKe_DTO;
+import java.util.Date;
 import java.util.List;
 
 public class ThongKe_BUS {
@@ -11,11 +13,25 @@ public class ThongKe_BUS {
         thongKeDAO = new ThongKe_DAO();
     }
 
-    public List<ThongKe_DTO> thongKeDoanhThu(java.util.Date tuNgay, java.util.Date denNgay) {
-        // Có thể thêm code kiểm tra logic ở đây (ví dụ: tuNgay có lớn hơn denNgay không)
-        if (tuNgay.after(denNgay)) {
-            return null; // Ngày bắt đầu không thể sau ngày kết thúc
+    public List<ThongKe_DTO> thongKeDoanhThu(Date tuNgay, Date denNgay, String maDanhMuc) {
+
+        if (tuNgay == null || denNgay == null) {
+            return null;
         }
-        return thongKeDAO.thongKeDoanhThu(tuNgay, denNgay);
+
+        if (tuNgay.after(denNgay)) {
+            return null;
+        }
+
+        return thongKeDAO.thongKeDoanhThu(tuNgay, denNgay, maDanhMuc);
+    }
+    public List<ThongKeKhachHang_DTO> thongKeKhachHangVIP(Date tuNgay, Date denNgay, String hangThanhVien) {
+        if (tuNgay == null || denNgay == null) {
+            return null;
+        }
+        if (tuNgay.after(denNgay)) {
+            return null;
+        }
+        return thongKeDAO.thongKeKhachHangVIP(tuNgay, denNgay, hangThanhVien);
     }
 }

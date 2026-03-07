@@ -103,8 +103,13 @@ public class KVLT extends JPanel {
         DiaChi_DAO diaChiDAO = new DiaChi_DAO();
         ArrayList<DIACHI_DTO> listTatCaDiaChi = diaChiDAO.getAll();
 
+        dao.LoHang_DAO loHangDAO = new dao.LoHang_DAO();
+        ArrayList<dto.LoHang_DTO> tatCaLoHang = loHangDAO.getAll();
+
         int stt = 1;
+
         for (KhuVucLuuTru_DTO kv : list) {
+
             String trangThaiText = switch (kv.getTrangThai()) {
                 case 0 -> "Bảo trì";
                 case 1 -> "Còn trống";
@@ -112,26 +117,47 @@ public class KVLT extends JPanel {
                 default -> "Lỗi TT: " + kv.getTrangThai();
             };
 
+            int hienCoTinhToan = 0;
+
+            if (tatCaLoHang != null) {
+                for (dto.LoHang_DTO lo : tatCaLoHang) {
+                    if (lo.getMaKvlt() != null && lo.getMaKvlt().trim().equals(kv.getMaKVLT().trim())) {
+                        hienCoTinhToan += lo.getSoLuongConLai();
+                    }
+                }
+            }
             String diaChiHienThi = "";
+
             if (kv.getDiaChi() != null && kv.getDiaChi().getMaDiaChi() != null) {
+
                 String maDCCanTim = kv.getDiaChi().getMaDiaChi();
 
                 for (DIACHI_DTO dcFull : listTatCaDiaChi) {
+
                     if (dcFull.getMaDiaChi().equals(maDCCanTim)) {
+
                         kv.setDiaChi(dcFull);
+
                         StringBuilder sb = new StringBuilder();
+
                         if (dcFull.getSoNha() != null && !dcFull.getSoNha().isEmpty())
                             sb.append(dcFull.getSoNha()).append(", ");
+
                         if (dcFull.getDuong() != null && !dcFull.getDuong().isEmpty())
                             sb.append(dcFull.getDuong()).append(", ");
+
                         if (dcFull.getPhuong() != null && !dcFull.getPhuong().isEmpty())
                             sb.append(dcFull.getPhuong()).append(", ");
-                        if (dcFull.getTinh() != null && !dcFull.getTinh().isEmpty()) sb.append(dcFull.getTinh());
+
+                        if (dcFull.getTinh() != null && !dcFull.getTinh().isEmpty())
+                            sb.append(dcFull.getTinh());
 
                         diaChiHienThi = sb.toString();
+
                         if (diaChiHienThi.endsWith(", ")) {
                             diaChiHienThi = diaChiHienThi.substring(0, diaChiHienThi.length() - 2);
                         }
+
                         break;
                     }
                 }
@@ -142,7 +168,7 @@ public class KVLT extends JPanel {
                     kv.getMaKVLT(),
                     kv.getTenKVLT(),
                     kv.getSucChua(),
-                    kv.getHienCo(),
+                    hienCoTinhToan,
                     kv.getNgayLapKho(),
                     diaChiHienThi,
                     trangThaiText

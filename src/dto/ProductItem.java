@@ -1,5 +1,4 @@
-package dto; // Đổi tên 'dto' thành tên thư mục của bạn nếu cần
-
+package dto;
 public class ProductItem {
     public String ma;
     public String ten;

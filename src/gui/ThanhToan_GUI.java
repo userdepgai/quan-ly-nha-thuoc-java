@@ -1,13 +1,11 @@
 package gui;
 
-import DBConnection.DBConnection;
+import bus.ThanhToan_BUS;
 import bus.Voucher_BUS;
 import dto.ProductItem;
+import dto.ThanhToan_DTO;
 import dto.Voucher_DTO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -30,17 +28,22 @@ public class ThanhToan_GUI extends JPanel {
     private JPanel pnlDanhSachMua;
     private JButton btnSua;
     private JButton btnThemDC;
+
     private Runnable onDatHangThanhCongCallback;
     private List<ProductItem> danhSachMua;
     private double tienHangGoc;
     private Voucher_DTO voucherApDung;
     private final double PHI_VAN_CHUYEN = 15000;
 
+    private ThanhToan_BUS thanhToanBUS;
+
     public ThanhToan_GUI() {
         if (mainPanel != null) {
             this.setLayout(new BorderLayout());
             this.add(mainPanel, BorderLayout.CENTER);
         }
+
+        thanhToanBUS = new ThanhToan_BUS();
 
         caiDatGiaoDienBanDau();
         ganSuKien();
@@ -53,38 +56,14 @@ public class ThanhToan_GUI extends JPanel {
 
         String idTaiKhoan = tk.getMaTK();
 
-        String sql = "SELECT kh.Ten_KH, kh.SDT, dc.SoNha, dc.Duong, dc.Phuong, dc.Tinh " +
-                "FROM TAIKHOAN tk " +
-                "JOIN KHACHHANG kh ON tk.SDT = kh.SDT " +
-                "LEFT JOIN KHACHHANGDIACHI khdc ON kh.Ma_KH = khdc.Ma_KH AND khdc.TrangThai = 1 " +
-                "LEFT JOIN DIACHI dc ON khdc.Ma_DC = dc.Ma_DC " +
-                "WHERE tk.Ma_TK = ?";
+        ThanhToan_DTO thongTin = thanhToanBUS.layThongTinKhachHang(idTaiKhoan);
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-
-            pst.setString(1, idTaiKhoan);
-            ResultSet rs = pst.executeQuery();
-
-            if (rs.next()) {
-                textTen.setText(rs.getString("Ten_KH"));
-                textSDT.setText(rs.getString("SDT"));
-
-                String soNha = rs.getString("SoNha") != null ? rs.getString("SoNha") + " " : "";
-                String duong = rs.getString("Duong") != null ? rs.getString("Duong") + ", " : "";
-                String phuong = rs.getString("Phuong") != null ? rs.getString("Phuong") + ", " : "";
-                String tinh = rs.getString("Tinh") != null ? rs.getString("Tinh") : "";
-
-                String fullAddress = (soNha + duong + phuong + tinh).trim();
-                if (fullAddress.endsWith(",")) {
-                    fullAddress = fullAddress.substring(0, fullAddress.length() - 1);
-                }
-
-                textDiaChi.setText(fullAddress);
-            }
-        } catch (Exception e) {
-            System.out.println("Lỗi SQL tự động điền thông tin: " + e.getMessage());
-            e.printStackTrace();
+        if (thongTin != null) {
+            textTen.setText(thongTin.getTenKH());
+            textSDT.setText(thongTin.getSdt());
+            textDiaChi.setText(thongTin.getDiaChiChiTiet());
+        } else {
+            System.out.println("Không tìm thấy thông tin cho tài khoản: " + idTaiKhoan);
         }
     }
 
@@ -152,7 +131,6 @@ public class ThanhToan_GUI extends JPanel {
     }
 
     private void tinhToanVaHienThi() {
-
         double tongTienHangGocToanBo = 0;
         double tongGiamGiaSanPham = 0;
 
@@ -263,8 +241,6 @@ public class ThanhToan_GUI extends JPanel {
     }
 
     private void xuLyDatHangThanhCong(String tenKhachHang) {
-
-
         JOptionPane.showMessageDialog(this, "🎉 Đặt hàng thành công!\nCảm ơn " + tenKhachHang + " đã mua sắm.");
 
         Window win = SwingUtilities.getWindowAncestor(this);
@@ -374,6 +350,7 @@ public class ThanhToan_GUI extends JPanel {
             });
         }
     }
+
     public void setOnDatHangThanhCong(Runnable callback) {
         this.onDatHangThanhCongCallback = callback;
     }

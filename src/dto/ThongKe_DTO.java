@@ -1,4 +1,4 @@
-package dto; // Đổi tên package cho phù hợp với project của bạn
+package dto;
 
 public class ThongKe_DTO {
     private String maSanPham;

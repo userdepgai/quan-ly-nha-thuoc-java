@@ -3,12 +3,15 @@ package gui.THONGKEBAOCAO;
 import bus.ThongKe_BUS;
 import dto.ThongKe_DTO;
 import com.toedter.calendar.JDateChooser;
-
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -23,7 +26,7 @@ public class THONGKEDOANHTHU extends JPanel {
     private JDateChooser jdBatDau;
     private JDateChooser jdKetThuc;
 
-    private JComboBox comboBoxDM;
+    private JComboBox<String> comboBoxDM;
     private JButton btnThoat;
     private JButton btnTimKiem;
     private JTextField textTBD;
@@ -52,74 +55,54 @@ public class THONGKEDOANHTHU extends JPanel {
             pnlNgayKetThuc.add(jdKetThuc, BorderLayout.CENTER);
         }
 
-        // Gọi hàm khởi tạo và làm đẹp bảng
         initTableAndFields();
 
-        // Khởi tạo BUS
         thongKeBUS = new ThongKe_BUS();
 
-        // Gọi hàm bắt sự kiện cho các nút
         initEvents();
-
-        // MỚI: Tự động load dữ liệu khi vừa mở tab
         loadDefaultData();
     }
 
     private void initTableAndFields() {
-        String[] columnNames = {"STT", "Mã Sản Phẩm", "Giá Nhập", "Giá Bán", "SL Bán", "Lợi Nhuận"};
 
-        // Khởi tạo model và chặn người dùng click đúp sửa dữ liệu
+        String[] columnNames = {"STT", "Mã Sản Phẩm", "Giá Nhập", "Giá Bán", "SL Bán", "Lợi Nhuận"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
 
         if (tableThongKe != null) {
             tableThongKe.setModel(tableModel);
-
-            // 1. Chỉnh font chữ và chiều cao dòng cho bảng
             tableThongKe.setFont(new Font("Arial", Font.PLAIN, 14));
             tableThongKe.setRowHeight(30);
-
-            // 2. Tùy chỉnh phần Tiêu đề (Header)
             tableThongKe.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
-            tableThongKe.getTableHeader().setBackground(new Color(220, 230, 241)); // Màu xanh nhạt
-
-            // THÊM 2 DÒNG NÀY ĐỂ CỐ ĐỊNH CỘT: Không cho đổi vị trí, không cho kéo kích thước
+            tableThongKe.getTableHeader().setBackground(new Color(220, 230, 241));
             tableThongKe.getTableHeader().setReorderingAllowed(false);
             tableThongKe.getTableHeader().setResizingAllowed(false);
 
-            // 3. Chỉnh độ rộng các cột
-            tableThongKe.getColumnModel().getColumn(0).setPreferredWidth(50);  // STT
-            tableThongKe.getColumnModel().getColumn(1).setPreferredWidth(150); // Mã SP
-            tableThongKe.getColumnModel().getColumn(2).setPreferredWidth(130); // Giá Nhập
-            tableThongKe.getColumnModel().getColumn(3).setPreferredWidth(130); // Giá Bán
-            tableThongKe.getColumnModel().getColumn(4).setPreferredWidth(80);  // SL Bán
-            tableThongKe.getColumnModel().getColumn(5).setPreferredWidth(150); // Lợi nhuận
+            tableThongKe.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tableThongKe.getColumnModel().getColumn(1).setPreferredWidth(150);
+            tableThongKe.getColumnModel().getColumn(2).setPreferredWidth(130);
+            tableThongKe.getColumnModel().getColumn(3).setPreferredWidth(130);
+            tableThongKe.getColumnModel().getColumn(4).setPreferredWidth(80);
+            tableThongKe.getColumnModel().getColumn(5).setPreferredWidth(150);
 
-            // 4. Căn lề dữ liệu trong các cột
             DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
             centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-
             DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
             rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
 
             tableThongKe.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
             tableThongKe.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
             tableThongKe.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
-
             tableThongKe.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
             tableThongKe.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);
             tableThongKe.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
 
-            // 5. Thêm hiệu ứng màu sắc khi chọn dòng
             tableThongKe.setSelectionBackground(new Color(173, 216, 230));
             tableThongKe.setSelectionForeground(Color.BLACK);
         }
 
-        // 6. Làm nổi bật 2 ô text Tổng kết
         if (textTBD != null) {
             textTBD.setEditable(false);
             textTBD.setFont(new Font("Arial", Font.BOLD, 14));
@@ -135,7 +118,6 @@ public class THONGKEDOANHTHU extends JPanel {
     }
 
     private void initEvents() {
-        // 1. Sự kiện nút Tìm Kiếm
         if (btnTimKiem != null) {
             btnTimKiem.addActionListener(e -> {
                 Date tuNgay = jdBatDau.getDate();
@@ -146,67 +128,43 @@ public class THONGKEDOANHTHU extends JPanel {
                     return;
                 }
 
-                List<ThongKe_DTO> danhSachThongKe = thongKeBUS.thongKeDoanhThu(tuNgay, denNgay);
-
-                if (danhSachThongKe == null) {
+                if (tuNgay.after(denNgay)) {
                     JOptionPane.showMessageDialog(this, "Ngày bắt đầu không thể lớn hơn ngày kết thúc!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
+                String danhMuc = comboBoxDM != null && comboBoxDM.getSelectedItem() != null ? comboBoxDM.getSelectedItem().toString() : "ALL";
+
+                List<ThongKe_DTO> danhSachThongKe = thongKeBUS.thongKeDoanhThu(tuNgay, denNgay, danhMuc);
                 loadDataToTable(danhSachThongKe);
             });
         }
 
-        // 2. Sự kiện nút Thoát
         if (btnThoat != null) {
             btnThoat.addActionListener(e -> {
-                jdBatDau.setDate(null);
-                jdKetThuc.setDate(null);
-                tableModel.setRowCount(0);
-                textTBD.setText("");
-                textLN.setText("");
+                if (comboBoxDM != null) comboBoxDM.setSelectedIndex(0);
+
+                loadDefaultData();
             });
         }
+
     }
 
-    // MỚI: Hàm load dữ liệu mặc định tính đến ngày hiện tại
+
+
+
+
+
+
     private void loadDefaultData() {
         try {
-            // Ngày kết thúc mặc định là hôm nay
             Date today = new Date();
             jdKetThuc.setDate(today);
-
-            // Ngày bắt đầu mặc định (ví dụ lấy từ năm 2020 để quét toàn bộ dữ liệu)
             Date startDate = new java.text.SimpleDateFormat("dd/MM/yyyy").parse("01/01/2020");
             jdBatDau.setDate(startDate);
-
-            // Tự động gọi BUS lấy dữ liệu và đổ lên bảng mà không cần bấm Tìm kiếm
-            List<ThongKe_DTO> danhSachMacDinh = thongKeBUS.thongKeDoanhThu(startDate, today);
+            List<ThongKe_DTO> danhSachMacDinh = thongKeBUS.thongKeDoanhThu(startDate, today, "ALL");
             if (danhSachMacDinh != null) {
-                // Ta gọi hàm load nhưng không truyền thông báo nếu rỗng lúc mới mở lên
-                tableModel.setRowCount(0);
-
-                int stt = 1;
-                double tongDoanhThu = 0;
-                double tongLoiNhuan = 0;
-                DecimalFormat df = new DecimalFormat("#,###");
-
-                for (ThongKe_DTO tk : danhSachMacDinh) {
-                    Object[] row = {
-                            stt++,
-                            tk.getMaSanPham(),
-                            df.format(tk.getGiaNhap()),
-                            df.format(tk.getGiaBan()),
-                            tk.getSoLuongBan(),
-                            df.format(tk.getLoiNhuan())
-                    };
-                    tableModel.addRow(row);
-                    tongDoanhThu += (tk.getGiaBan() * tk.getSoLuongBan());
-                    tongLoiNhuan += tk.getLoiNhuan();
-                }
-
-                if (textTBD != null) textTBD.setText(df.format(tongDoanhThu) + " VNĐ");
-                if (textLN != null) textLN.setText(df.format(tongLoiNhuan) + " VNĐ");
+                loadDataToTable(danhSachMacDinh); // Dùng lại hàm loadDataToTable cho gọn
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -215,11 +173,9 @@ public class THONGKEDOANHTHU extends JPanel {
 
     private void loadDataToTable(List<ThongKe_DTO> listTk) {
         tableModel.setRowCount(0);
-
         int stt = 1;
         double tongDoanhThu = 0;
         double tongLoiNhuan = 0;
-
         DecimalFormat df = new DecimalFormat("#,###");
 
         for (ThongKe_DTO tk : listTk) {
@@ -239,10 +195,6 @@ public class THONGKEDOANHTHU extends JPanel {
 
         if (textTBD != null) textTBD.setText(df.format(tongDoanhThu) + " VNĐ");
         if (textLN != null) textLN.setText(df.format(tongLoiNhuan) + " VNĐ");
-
-        if (listTk.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Không có dữ liệu doanh thu trong khoảng thời gian này!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-        }
     }
 
     public JPanel getPanelMain() {
