@@ -4,11 +4,15 @@ import bus.HoaDonOnline_BUS;
 import bus.KhachHang_BUS;
 import bus.SanPham_BUS;
 import com.toedter.calendar.JDateChooser;
+import dto.HoaDonBan_DTO;
 import dto.HoaDonOnline_DTO;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Locale;
 
 public class DuyetDonHang_GUI extends JPanel{
     private JPanel panel_DuyetDonHang;
@@ -36,14 +40,12 @@ public class DuyetDonHang_GUI extends JPanel{
     private JComboBox cbTimTheo;
     private JComboBox cbGia;
     private JTextField txtNhapTT;
-    private JComboBox cbTTTT;
     private JComboBox cbTrangThai;
     private JButton btnTiemKiem;
     private JButton btnReset;
     private JLabel labelTimTheo;
     private JLabel labelGia;
     private JLabel labelNhapTT;
-    private JLabel labelTTTT;
     private JLabel labelTrangThai;
     private JLabel labelTuNgay;
     private JLabel labelDenNgay;
@@ -72,6 +74,9 @@ public class DuyetDonHang_GUI extends JPanel{
     private JScrollPane scrDSHDChoCN;
     private JLabel labelGhiChu;
     private JTextField txtGhiChu;
+    private JLabel labelTTTT;
+    private JComboBox cbTTTT;
+    private JPopupMenu popupGoiY = new JPopupMenu();
 
     private DefaultTableModel modelHoaDon;
     private DefaultTableModel modelChiTiet;
@@ -86,12 +91,16 @@ public class DuyetDonHang_GUI extends JPanel{
 
         khoiTaoBangHoaDon();
         khoiTaoBangChiTiet();
+        khoaThongTin();
+        formEdit();
 
-
-        loadDanhSachHoaDonOnline();
+        loadTableFromList(bus.getDanhSachDuyetOnline());
 
         suKienBangHoaDon();
+        suKienTimKiem();
+        suKienReset();;
         //suKienCapNhat();
+        suKienGoiY();;
 
     }
 
@@ -136,6 +145,29 @@ public class DuyetDonHang_GUI extends JPanel{
 
 
     }
+    private void loadTableFromList(java.util.List<HoaDonOnline_DTO> list){
+
+        modelHoaDon.setRowCount(0);
+
+        int stt = 1;
+
+        for(HoaDonOnline_DTO hd : list){
+
+            modelHoaDon.addRow(new Object[]{
+                    stt++,
+                    hd.getMa(),
+                    bus.getTenKH(hd.getMaKhachHang()),
+                    hd.getNgayLap(),
+                    bus.getSDT(hd.getMaKhachHang()),
+                    hd.getMaNhanVien(),
+                    hd.getTinhTrangThanhToanText(),
+                    hd.getTrangThaiText(),
+                    formatTien(hd.getThanhTien())
+            });
+        }
+
+        txtHienCo.setText(String.valueOf(list.size()));
+    }
 
     private void khoiTaoBangChiTiet() {
         modelChiTiet = new DefaultTableModel(
@@ -175,27 +207,147 @@ public class DuyetDonHang_GUI extends JPanel{
 
 
     }
-    private void loadDanhSachHoaDonOnline(){
+    private void loadChiTietHoaDon(String maHD) {
 
-        modelHoaDon.setRowCount(0);
+        modelChiTiet.setRowCount(0);
+
+        var ds = bus.getChiTietHoaDon(maHD);
 
         int stt = 1;
 
-        for(HoaDonOnline_DTO hd : bus.getDanhSachDuyetOnline()){
+        for(var ct : ds){
 
-            modelHoaDon.addRow(new Object[]{
+            modelChiTiet.addRow(new Object[]{
                     stt++,
-                    hd.getMa(),
-                    bus.getTenKH(hd.getMaKhachHang()),
-                    hd.getNgayLap(),
-                    bus.getSDT(hd.getMaKhachHang()),
-                    hd.getMaNhanVien(),
-                    hd.getTinhTrangThanhToanText(),
-                    hd.getTrangThaiText(),
-                    hd.getThanhTien()
+                    ct.getMaSP(),
+                    bus.getTenSP(ct.getMaSP()),
+                    ct.getSoLuong(),
+                    formatTien(ct.getGiaBan()),
+                    ct.getMaKhuyenMai(),
+                    formatTien(ct.getGiaBanSauApKM()),
+                    formatTien(ct.getThanhTien())
             });
         }
 
+        HoaDonOnline_DTO hd = bus.getHoaDonOnline(maHD);
+
+        txtTenKH.setText(bus.getTenKH(hd.getMaKhachHang()));
+        txtSDT.setText(bus.getSDT(hd.getMaKhachHang()));
+        txtNgayLap.setText(hd.getNgayLap().toString());
+        txtTongTien.setText(formatTien(hd.getTongTienGoc()));
+        txtPhiVC.setText(formatTien(hd.getPhiVanChuyen()));
+        NumberFormat percent = NumberFormat.getPercentInstance();
+        percent.setMaximumFractionDigits(0);
+        txtThueVAT.setText(percent.format(hd.getThueVAT()));
+        txtThanhTien.setText(formatTien(hd.getThanhTien()));
+        txtTTHienTai.setText(hd.getTrangThaiText());
+        txtDCGiaoHang.setText(hd.getMaDiaChiGiaoHang());
+        txtThanhTienCT.setText(formatTien(hd.getThanhTien()));
+        txtTTTT.setText(hd.getTinhTrangThanhToanText());
+
+
+        hienThiNeuCo(
+                labelVoucher,
+                txtVoucher,
+                bus.getTenVoucher(hd.getMaVoucher())
+        );
+
+        hienThiNeuCo(
+                labelDiemThuong,
+                txtDiemThuong,
+                formatTien(hd.getDiemThuongQuyDoi())
+        );
+
+        hienThiNeuCo(
+                labelTongGTKM,
+                txtTongGTKM,
+                formatTien(hd.getTongGiaTriKhuyenMai())
+        );
+
+        hienThiNeuCo(
+                labelGhiChu,
+                txtGhiChu,
+                hd.getGhiChu()
+        );
+
+        loadTrangThaiCapNhat(hd);
+    }
+    private void khoaThongTin(){
+
+        txtNgayLap.setEditable(false);
+        txtTenKH.setEditable(false);
+        txtSDT.setEditable(false);
+        txtDCGiaoHang.setEditable(false);
+
+        txtTongTien.setEditable(false);
+        txtVoucher.setEditable(false);
+        txtDiemThuong.setEditable(false);
+        txtTongGTKM.setEditable(false);
+
+        txtThueVAT.setEditable(false);
+        txtPhiVC.setEditable(false);
+        txtThanhTien.setEditable(false);
+
+        txtTTTT.setEditable(false);
+        txtTTHienTai.setEditable(false);
+
+        txtThanhTienCT.setEditable(false);
+        txtGhiChu.setEditable(false);
+    }
+    private void hienThiNeuCo(JLabel label, JTextField txt, String value){
+
+        if(value == null || value.trim().isEmpty() || value.equals("0") || value.equals("0.0")){
+            label.setVisible(false);
+            txt.setVisible(false);
+        }else{
+            label.setVisible(true);
+            txt.setVisible(true);
+            txt.setText(value);
+        }
+    }
+    private String formatTien(double tien){
+        NumberFormat nf = NumberFormat.getInstance(new Locale("vi","VN"));
+        return nf.format(tien) + " đ";
+    }
+    private void formEdit(){
+
+        cbTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Tất cả",
+                HoaDonOnline_DTO.CHO_DUYET,
+                HoaDonOnline_DTO.DA_DUYET,
+                HoaDonOnline_DTO.DANG_GIAO,
+                HoaDonOnline_DTO.HOAN_THANH,
+                HoaDonOnline_DTO.DA_HUY,
+                HoaDonOnline_DTO.YEU_CAU_HOAN
+        }));
+
+        cbTTTT.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Tất cả",
+                HoaDonOnline_DTO.CHUA_THANH_TOAN,
+                HoaDonOnline_DTO.DA_THANH_TOAN,
+                HoaDonOnline_DTO.DA_HOAN_TIEN
+        }));
+
+        loadCBTimTheo();
+        loadCBGia();
+    }
+    private void loadCBTimTheo(){
+
+        cbTimTheo.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Mã hóa đơn",
+                "SĐT",
+                "Tên khách hàng"
+        }));
+    }
+    private void loadCBGia(){
+
+        cbGia.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Tất cả",
+                "Dưới 500.000",
+                "500.000 - 1.000.000",
+                "1.000.000 - 3.000.000",
+                "Trên 3.000.000"
+        }));
     }
 
     private void suKienBangHoaDon() {
@@ -214,41 +366,7 @@ public class DuyetDonHang_GUI extends JPanel{
                     loadChiTietHoaDon(maHD);
                 });
     }
-    private void loadChiTietHoaDon(String maHD) {
 
-        modelChiTiet.setRowCount(0);
-
-        var ds = bus.getChiTietHoaDon(maHD);
-
-        int stt = 1;
-
-        for(var ct : ds){
-
-            modelChiTiet.addRow(new Object[]{
-                    stt++,
-                    ct.getMaSP(),
-                    bus.getTenSP(ct.getMaSP()),
-                    ct.getSoLuong(),
-                    ct.getGiaBan(),
-                    ct.getMaKhuyenMai(),
-                    ct.getGiaBanSauApKM(),
-                    ct.getThanhTien()
-            });
-        }
-
-        HoaDonOnline_DTO hd = bus.getHoaDonOnline(maHD);
-
-        txtTenKH.setText(bus.getTenKH(hd.getMaKhachHang()));
-        txtSDT.setText(bus.getSDT(hd.getMaKhachHang()));
-        txtNgayLap.setText(hd.getNgayLap().toString());
-        txtTongTien.setText(String.valueOf(hd.getTongTienGoc()));
-        txtPhiVC.setText(String.valueOf(hd.getPhiVanChuyen()));
-        txtThueVAT.setText(String.valueOf(hd.getThueVAT()));
-        txtThanhTien.setText(String.valueOf(hd.getThanhTien()));
-        txtTTHienTai.setText(hd.getTrangThaiText());
-
-        loadTrangThaiCapNhat(hd);
-    }
 
     private void suKienCapNhat() {
 
@@ -315,7 +433,7 @@ public class DuyetDonHang_GUI extends JPanel{
             JOptionPane.showMessageDialog(null,
                     "Cập nhật thành công!");
 
-            loadDanhSachHoaDonOnline();
+            loadTableFromList(bus.getDanhSachDuyetOnline());
         });
     }
 
@@ -354,5 +472,189 @@ public class DuyetDonHang_GUI extends JPanel{
 
         JDateChooser2 = new com.toedter.calendar.JDateChooser();
         JDateChooser2.setDateFormatString("dd/MM/yyyy");
+    }
+    private void timKiemHoaDon(){
+
+        String kieuTim = cbTimTheo.getSelectedItem().toString();
+        String keyword = txtNhapTT.getText().trim();
+
+        Integer trangThai =
+                cbTrangThai.getSelectedIndex()==0 ? null :
+                        cbTrangThai.getSelectedIndex()-1;
+
+        Integer thanhToan =
+                cbTTTT.getSelectedIndex()==0 ? null :
+                        cbTTTT.getSelectedIndex()-1;
+
+        Integer mucGia =
+                cbGia.getSelectedIndex()==0 ? null :
+                        cbGia.getSelectedIndex()-1;
+
+        java.time.LocalDateTime tuNgay = null;
+        java.time.LocalDateTime denNgay = null;
+
+        if(JDateChooser1.getDate()!=null && JDateChooser2.getDate()==null){
+            JOptionPane.showMessageDialog(this,"Phải chọn đến ngày");
+            return;
+        }
+
+        if(JDateChooser2.getDate()!=null && JDateChooser1.getDate()==null){
+            JOptionPane.showMessageDialog(this,"Phải chọn từ ngày");
+            return;
+        }
+
+        if(JDateChooser1.getDate()!=null){
+
+            tuNgay = JDateChooser1.getDate()
+                    .toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDate()
+                    .atStartOfDay();
+
+            denNgay = JDateChooser2.getDate()
+                    .toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDate()
+                    .atTime(23,59,59);
+        }
+
+        var list = bus.timKiemHoaDonOnline(
+                kieuTim,
+                keyword,
+                trangThai,
+                thanhToan,
+                mucGia,
+                tuNgay,
+                denNgay
+        );
+
+        loadTableFromList(list);
+    }
+    private void suKienTimKiem(){
+
+        btnTiemKiem.addActionListener(e -> timKiemHoaDon());
+
+    }
+    private void suKienReset(){
+
+        btnReset.addActionListener(e -> {
+
+            txtNhapTT.setText("");
+
+            cbTimTheo.setSelectedIndex(0);
+            cbTrangThai.setSelectedIndex(0);
+            cbTTTT.setSelectedIndex(0);
+            cbGia.setSelectedIndex(0);
+
+            JDateChooser1.setDate(null);
+            JDateChooser2.setDate(null);
+
+            loadTableFromList(bus.getDanhSachDuyetOnline());
+
+            txtHienCo.setText(
+                    String.valueOf(modelHoaDon.getRowCount())
+            );
+        });
+    }
+    private void hienThiGoiY(ArrayList<HoaDonOnline_DTO> list){
+
+        popupGoiY.removeAll();
+        popupGoiY.setLayout(new GridLayout(0,1));
+
+        String kieuTim = cbTimTheo.getSelectedItem().toString();
+
+        for(HoaDonOnline_DTO hd : list){
+
+            String text = "";
+
+            if(kieuTim.equals("Mã hóa đơn")){
+                text = hd.getMa();
+            }
+
+            else if(kieuTim.equals("SĐT")){
+                text = bus.getSDT(hd.getMaKhachHang());
+            }
+
+            else if(kieuTim.equals("Tên khách hàng")){
+                text = bus.getTenKH(hd.getMaKhachHang());
+            }
+
+            final String value = text;
+
+            JButton btn = new JButton(text);
+            btn.setHorizontalAlignment(SwingConstants.LEFT);
+
+            btn.setFocusPainted(false);
+            btn.setBorder(BorderFactory.createEmptyBorder(5,10,5,10));
+            btn.setBackground(Color.WHITE);
+            btn.setForeground(Color.BLACK);
+            btn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+
+            btn.addActionListener(e -> {
+                txtNhapTT.setText(value);
+                popupGoiY.setVisible(false);
+            });
+
+            popupGoiY.add(btn);
+        }
+
+        if(list.size() > 0)
+            popupGoiY.show(txtNhapTT,0,txtNhapTT.getHeight());
+        else
+            popupGoiY.setVisible(false);
+    }
+    private ArrayList<HoaDonOnline_DTO> timKiemGoiY(){
+
+        String kieuTim = cbTimTheo.getSelectedItem().toString();
+        String keyword = txtNhapTT.getText().trim().toLowerCase();
+
+        ArrayList<HoaDonOnline_DTO> ketQua = new ArrayList<>();
+
+        if(keyword.isEmpty()) return ketQua;
+
+        for(HoaDonOnline_DTO hd : bus.getDanhSachDuyetOnline()){
+
+            if(kieuTim.equals("Mã hóa đơn")){
+
+                if(hd.getMa().toLowerCase().contains(keyword))
+                    ketQua.add(hd);
+            }
+
+            else if(kieuTim.equals("SĐT")){
+
+                String sdt = bus.getSDT(hd.getMaKhachHang());
+
+                if(sdt != null && sdt.toLowerCase().contains(keyword))
+                    ketQua.add(hd);
+            }
+
+            else if(kieuTim.equals("Tên khách hàng")){
+
+                String ten = bus.getTenKH(hd.getMaKhachHang());
+
+                if(ten != null && ten.toLowerCase().contains(keyword))
+                    ketQua.add(hd);
+            }
+
+            if(ketQua.size() == 8) break;
+        }
+
+        return ketQua;
+    }
+    private void suKienGoiY(){
+
+        txtNhapTT.addKeyListener(new java.awt.event.KeyAdapter() {
+
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+
+                if(!txtNhapTT.getText().trim().isEmpty())
+                    hienThiGoiY(timKiemGoiY());
+                else
+                    popupGoiY.setVisible(false);
+
+            }
+        });
+
     }
 }

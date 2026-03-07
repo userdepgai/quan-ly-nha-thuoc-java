@@ -307,4 +307,36 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         return null;
     }
+    public ArrayList<HoaDonOnline_DTO> timKiemHoaDonOnline(
+            String kieuTim,
+            String keyword,
+            Integer trangThai,
+            Integer thanhToan,
+            Integer mucGia,
+            LocalDateTime tuNgay,
+            LocalDateTime denNgay
+    ){
+
+        ArrayList<HoaDonBan_DTO> ds =
+                super.timKiem(
+                        kieuTim,
+                        keyword,
+                        trangThai,
+                        thanhToan,
+                        1,
+                        mucGia,
+                        tuNgay,
+                        denNgay
+                );
+
+        ArrayList<HoaDonOnline_DTO> ketQua = new ArrayList<>();
+
+        for(HoaDonBan_DTO hd : ds){
+            if(hd instanceof HoaDonOnline_DTO online){
+                ketQua.add(online);
+            }
+        }
+
+        return ketQua;
+    }
 }

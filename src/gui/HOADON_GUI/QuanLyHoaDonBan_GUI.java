@@ -9,7 +9,12 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;import bus.HoaDonBan_BUS;
 import dto.*;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 public class QuanLyHoaDonBan_GUI extends JPanel {
     private JPanel panel_QuanLyHDB;
@@ -65,6 +70,7 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
     private JDateChooser JDateChooser2;
     private JScrollPane srcTTCTHD;
     private JScrollPane srcDSHD;
+    private JPopupMenu popupGoiY = new JPopupMenu();
 
     private DefaultTableModel modelHoaDon;
     private DefaultTableModel modelChiTiet;
@@ -78,8 +84,12 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
 
         khoiTaoBangHoaDon();
         khoiTaoBangChiTiet();
-
+        khoaThongTin();
+        formEdit();
         suKienChonHoaDon();
+        suKienTimKiem();
+        suKienReset();
+        suKienGoiY();
     }
 
     private void khoiTaoBangHoaDon() {
@@ -111,8 +121,8 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
         tableDSHD.getColumnModel().getColumn(6).setPreferredWidth(100);
         tableDSHD.getColumnModel().getColumn(7).setPreferredWidth(70);
         tableDSHD.getColumnModel().getColumn(8).setPreferredWidth(100);
-        tableDSHD.getColumnModel().getColumn(9).setPreferredWidth(100);
-        tableDSHD.getColumnModel().getColumn(10).setPreferredWidth(150);
+        tableDSHD.getColumnModel().getColumn(9).setPreferredWidth(120);
+        tableDSHD.getColumnModel().getColumn(10).setPreferredWidth(130);
 
         tableDSHD.getTableHeader().setResizingAllowed(false);
         tableDSHD.getTableHeader().setReorderingAllowed(false);
@@ -122,9 +132,9 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
         srcDSHD.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         srcDSHD.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
 
-        loadDanhSachHoaDon();
+        loadTableFromList(hoaDonBUS.getAllHoaDon());
     }
-    public void loadDanhSachHoaDon(){
+    private void loadTableFromList(java.util.List<HoaDonBan_DTO> list){
 
         modelHoaDon.setRowCount(0);
 
@@ -133,41 +143,26 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
         DateTimeFormatter fmt =
                 DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-        for(HoaDonBan_DTO hd : hoaDonBUS.getAllHoaDon()){
+        for(HoaDonBan_DTO hd : list){
 
             modelHoaDon.addRow(new Object[]{
                     stt++,
                     hd.getMa(),
-
-                    // TÊN KH
                     hoaDonBUS.getTenKH(hd.getMaKhachHang()),
-
-                    // NGÀY LẬP
                     hd.getNgayLap()==null ? "" :
                             hd.getNgayLap().format(fmt),
-
-                    // SDT
                     hoaDonBUS.getSDT(hd.getMaKhachHang()),
-
-                    // NV
                     hd.getMaNhanVien(),
-
-                    // LOẠI HD
-                    hd.getLoaiHDB()==1 ? "Online" : "Tại quầy",
-
-                    // KÊ TOA
-                    hd.isKeToa() ? "Có" : "Không",
-
-                    // THANH TOÁN
+                    hd.getLoaiHDBText(),
+                    hd.getKeToaText(),
                     hd.getTinhTrangThanhToanText(),
-
-                    // TRẠNG THÁI
                     hd.getTrangThaiText(),
-
-                    // THÀNH TIỀN
-                    hd.getThanhTien()
+                    formatTien(hd.getThanhTien())
             });
         }
+
+
+        txtHienCo.setText(String.valueOf(modelHoaDon.getRowCount()));
     }
     private void khoiTaoBangChiTiet() {
         modelChiTiet = new DefaultTableModel(
@@ -206,24 +201,6 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
         srcTTCTHD.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         srcTTCTHD.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
     }
-
-    private void suKienChonHoaDon() {
-
-        tableDSHD.getSelectionModel()
-                .addListSelectionListener(e -> {
-
-                    if(e.getValueIsAdjusting()) return;
-
-                    int row = tableDSHD.getSelectedRow();
-                    if (row < 0) return;
-
-                    String maHD =
-                            modelHoaDon.getValueAt(row, 1).toString();
-
-                    hienChiTiet(maHD);
-                });
-    }
-
     private void hienChiTiet(String maHD) {
 
         modelChiTiet.setRowCount(0);
@@ -249,11 +226,15 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
 
             if(online != null){
 
-                txtPhiVC.setText(
-                        String.valueOf(online.getPhiVanChuyen())
+                hienThiNeuCo(
+                        labelPhiVC,
+                        txtPhiVC,
+                        formatTien(online.getPhiVanChuyen())
                 );
 
-                txtDCGiaoHang.setText(
+                hienThiNeuCo(
+                        labelDCGiaoHang,
+                        txtDCGiaoHang,
                         online.getMaDiaChiGiaoHang()
                 );
             }
@@ -278,10 +259,10 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
                     ct.getMaSP(),
                     hoaDonBUS.getTenSP(ct.getMaSP()),
                     ct.getSoLuong(),
-                    ct.getGiaBan(),
+                    formatTien(ct.getGiaBan()),
                     hoaDonBUS.getTenKhuyenMai(ct.getMaKhuyenMai()),
-                    ct.getGiaBanSauApKM(),
-                    ct.getThanhTien()
+                    formatTien(ct.getGiaBanSauApKM()),
+                    formatTien(ct.getThanhTien())
             });
         }
 
@@ -302,15 +283,31 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
                         hd.getNgayLap().format(fmt)
         );
 
-        txtTongTien.setText(String.valueOf(hd.getTongTienGoc()));
-        txtTongGTKM.setText(String.valueOf(hd.getTongGiaTriKhuyenMai()));
-        txtThueVAT.setText(String.valueOf(hd.getThueVAT()));
-        txtThanhTien.setText(String.valueOf(hd.getThanhTien()));
-        txtThanhTienCT.setText(String.valueOf(hd.getThanhTien()));
-        txtVoucher.setText(hoaDonBUS.getTenVoucher(hd.getMaVoucher()));
-        txtDiemThuong.setText(String.valueOf(hd.getDiemThuongQuyDoi()));
-    }
+        txtTongTien.setText(formatTien(hd.getTongTienGoc()));
+        txtTongGTKM.setText(formatTien(hd.getTongGiaTriKhuyenMai()));
+        NumberFormat percent = NumberFormat.getPercentInstance();
+        percent.setMaximumFractionDigits(0);
+        txtThueVAT.setText(percent.format(hd.getThueVAT()));
+        txtThanhTien.setText(formatTien(hd.getThanhTien()));
+        txtThanhTienCT.setText(formatTien(hd.getThanhTien()));
+        hienThiNeuCo(
+                labelVoucher,
+                txtVoucher,
+                hoaDonBUS.getTenVoucher(hd.getMaVoucher())
+        );
 
+        hienThiNeuCo(
+                labelDiemThuong,
+                txtDiemThuong,
+                String.valueOf(hd.getDiemThuongQuyDoi())
+        );
+
+        hienThiNeuCo(
+                labelGhiChu,
+                txtGhiChu,
+                hd.getGhiChu()
+        );
+    }
     private void hienPhiVanChuyen(boolean hien){
 
         labelPhiVC.setVisible(hien);
@@ -321,6 +318,104 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
         labelDCGiaoHang.setVisible(hien);
         txtDCGiaoHang.setVisible(hien);
     }
+    private void khoaThongTin(){
+
+        txtHienCo.setEditable(false);
+        txtNgayLap.setEditable(false);
+        txtTenKH.setEditable(false);
+        txtSDT.setEditable(false);
+        txtDCGiaoHang.setEditable(false);
+        txtGhiChu.setEditable(false);
+
+        txtTongTien.setEditable(false);
+        txtVoucher.setEditable(false);
+        txtDiemThuong.setEditable(false);
+        txtTongGTKM.setEditable(false);
+        txtThueVAT.setEditable(false);
+        txtPhiVC.setEditable(false);
+        txtThanhTien.setEditable(false);
+        txtThanhTienCT.setEditable(false);
+    }
+    private void hienThiNeuCo(JLabel label, JTextField txt, String value){
+
+        if(value == null || value.trim().isEmpty()){
+            label.setVisible(false);
+            txt.setVisible(false);
+        }else{
+            label.setVisible(true);
+            txt.setVisible(true);
+            txt.setText(value);
+        }
+    }
+    private void formEdit(){
+
+        cbTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Tất cả",
+                HoaDonBan_DTO.CHO_DUYET,
+                HoaDonBan_DTO.DA_DUYET,
+                HoaDonBan_DTO.DANG_GIAO,
+                HoaDonBan_DTO.HOAN_THANH,
+                HoaDonBan_DTO.DA_HUY,
+                HoaDonBan_DTO.YEU_CAU_HOAN
+        }));
+
+        cbTTTT.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Tất cả",
+                HoaDonBan_DTO.CHUA_THANH_TOAN,
+                HoaDonBan_DTO.DA_THANH_TOAN,
+                HoaDonBan_DTO.DA_HOAN_TIEN
+        }));
+
+        cbLoaiHD.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Tất cả",
+                HoaDonBan_DTO.TAI_QUAY,
+                HoaDonBan_DTO.TRUC_TUYEN
+        }));
+        loadCBTimTheo();
+        loadCBGia();
+
+
+    }
+    private void loadCBTimTheo(){
+
+        cbTimTheo.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Mã hóa đơn",
+                "SĐT",
+                "Tên khách hàng"
+        }));
+
+    }
+    private void loadCBGia(){
+
+        cbGia.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Tất cả",
+                "Dưới 500.000",
+                "500.000 - 1.000.000",
+                "1.000.000 - 3.000.000",
+                "Trên 3.000.000"
+        }));
+
+    }
+
+    private void suKienChonHoaDon() {
+
+        tableDSHD.getSelectionModel()
+                .addListSelectionListener(e -> {
+
+                    if(e.getValueIsAdjusting()) return;
+
+                    int row = tableDSHD.getSelectedRow();
+                    if (row < 0) return;
+
+                    String maHD =
+                            modelHoaDon.getValueAt(row, 1).toString();
+
+                    hienChiTiet(maHD);
+                });
+    }
+
+
+
     private void createUIComponents() {
         JDateChooser1 = new com.toedter.calendar.JDateChooser();
         JDateChooser1.setDateFormatString("dd/MM/yyyy");
@@ -328,7 +423,199 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
         JDateChooser2 = new com.toedter.calendar.JDateChooser();
         JDateChooser2.setDateFormatString("dd/MM/yyyy");
     }
+    private void timKiemHoaDon(){
+
+        String kieuTim = cbTimTheo.getSelectedItem().toString();
+        String keyword = txtNhapTT.getText().trim();
+
+        Integer trangThai = cbTrangThai.getSelectedIndex() == 0 ?
+                null : cbTrangThai.getSelectedIndex()-1;
+
+        Integer thanhToan = cbTTTT.getSelectedIndex() == 0 ?
+                null : cbTTTT.getSelectedIndex()-1;
+
+        Integer loaiHD = cbLoaiHD.getSelectedIndex() == 0 ?
+                null : cbLoaiHD.getSelectedIndex()-1;
+
+        Integer mucGia = cbGia.getSelectedIndex() == 0 ?
+                null : cbGia.getSelectedIndex()-1;
+
+        java.time.LocalDateTime tuNgay = null;
+        java.time.LocalDateTime denNgay = null;
+
+        if(JDateChooser1.getDate()!=null && JDateChooser2.getDate()==null){
+            JOptionPane.showMessageDialog(this,"Phải chọn đến ngày");
+            return;
+        }
+
+        if(JDateChooser2.getDate()!=null && JDateChooser1.getDate()==null){
+            JOptionPane.showMessageDialog(this,"Phải chọn từ ngày");
+            return;
+        }
+
+        if(JDateChooser1.getDate()!=null){
+
+            tuNgay = JDateChooser1.getDate()
+                    .toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDate()
+                    .atStartOfDay();
+
+            denNgay = JDateChooser2.getDate()
+                    .toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDate()
+                    .atTime(23,59,59);
+        }
+
+        var list = hoaDonBUS.timKiem(
+                kieuTim,
+                keyword,
+                trangThai,
+                thanhToan,
+                loaiHD,
+                mucGia,
+                tuNgay,
+                denNgay
+        );
+
+        loadTableFromList(list);
+    }
+
+    private void suKienTimKiem(){
+
+        btnTimKiem.addActionListener(e -> timKiemHoaDon());
+
+    }
+    private void suKienReset(){
+
+        btnReset.addActionListener(e -> {
+
+            txtNhapTT.setText("");
+
+            cbTimTheo.setSelectedIndex(0);
+            cbTrangThai.setSelectedIndex(0);
+            cbTTTT.setSelectedIndex(0);
+            cbLoaiHD.setSelectedIndex(0);
+            cbGia.setSelectedIndex(0);
+
+            JDateChooser1.setDate(null);
+            JDateChooser2.setDate(null);
+
+            loadTableFromList(hoaDonBUS.getAllHoaDon());
+
+            txtHienCo.setText(
+                    String.valueOf(modelHoaDon.getRowCount())
+            );
+
+        });
+    }
+    private void hienThiGoiY(ArrayList<HoaDonBan_DTO> list){
+
+        popupGoiY.removeAll();
+        popupGoiY.setLayout(new GridLayout(0,1));
+
+        String kieuTim = cbTimTheo.getSelectedItem().toString();
+
+        for(HoaDonBan_DTO hd : list){
+
+            String text = "";
+
+            if(kieuTim.equals("Mã hóa đơn")){
+                text = hd.getMa();
+            }
+
+            else if(kieuTim.equals("SĐT")){
+                text = hoaDonBUS.getSDT(hd.getMaKhachHang());
+            }
+
+            else if(kieuTim.equals("Tên khách hàng")){
+                text = hoaDonBUS.getTenKH(hd.getMaKhachHang());
+            }
+
+            final String value = text;
+
+            JButton btn = new JButton(text);
+            btn.setHorizontalAlignment(SwingConstants.LEFT);
+
+            btn.setFocusPainted(false);
+            btn.setBorder(BorderFactory.createEmptyBorder(5,10,5,10));
+            btn.setBackground(Color.WHITE);
+            btn.setForeground(Color.BLACK);
+            btn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+
+            btn.addActionListener(e -> {
+                txtNhapTT.setText(value);
+                popupGoiY.setVisible(false);
+            });
+
+            popupGoiY.add(btn);
+        }
+
+        if(list.size() > 0)
+            popupGoiY.show(txtNhapTT,0,txtNhapTT.getHeight());
+        else
+            popupGoiY.setVisible(false);
+    }
+    private ArrayList<HoaDonBan_DTO> timKiemGoiY(){
+
+        String kieuTim = cbTimTheo.getSelectedItem().toString();
+        String keyword = txtNhapTT.getText().trim().toLowerCase();
+
+        ArrayList<HoaDonBan_DTO> ketQua = new ArrayList<>();
+
+        if(keyword.isEmpty()) return ketQua;
+
+        for(HoaDonBan_DTO hd : hoaDonBUS.getAllHoaDon()){
+
+            if(kieuTim.equals("Mã hóa đơn")){
+
+                if(hd.getMa().toLowerCase().contains(keyword))
+                    ketQua.add(hd);
+            }
+
+            else if(kieuTim.equals("SĐT")){
+
+                String sdt = hoaDonBUS.getSDT(hd.getMaKhachHang());
+
+                if(sdt != null && sdt.toLowerCase().contains(keyword))
+                    ketQua.add(hd);
+            }
+
+            else if(kieuTim.equals("Tên khách hàng")){
+
+                String ten = hoaDonBUS.getTenKH(hd.getMaKhachHang());
+
+                if(ten != null && ten.toLowerCase().contains(keyword))
+                    ketQua.add(hd);
+            }
+
+            if(ketQua.size() == 8) break; // chỉ hiện tối đa 8 gợi ý
+        }
+
+        return ketQua;
+    }
+    private void suKienGoiY(){
+
+        txtNhapTT.addKeyListener(new java.awt.event.KeyAdapter() {
+
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+
+                if(!txtNhapTT.getText().trim().isEmpty())
+                    hienThiGoiY(timKiemGoiY());
+                else
+                    popupGoiY.setVisible(false);
+
+            }
+        });
+
+    }
+    private String formatTien(double tien){
+        NumberFormat nf = NumberFormat.getInstance(new java.util.Locale("vi","VN"));
+        return nf.format(tien) + " đ";
+    }
     public void reloadDanhSach(){
-        loadDanhSachHoaDon();
+        loadTableFromList(hoaDonBUS.getAllHoaDon());
     }
 }

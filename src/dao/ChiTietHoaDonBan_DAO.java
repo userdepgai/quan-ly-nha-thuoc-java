@@ -64,23 +64,24 @@ public class ChiTietHoaDonBan_DAO {
             throws SQLException {
 
         String sql = """
-        INSERT INTO CHITIETHOADON
-        (MaSP, Ma_HDB, MaLo, Ma_KM,
-         SoLuong, GiaBan, GiaBanSauKM, ThanhTien)
-        VALUES (?,?,?,?,?,?,?,?)
-        """;
+    INSERT INTO CHITIETHOADON
+    (Ma_SP, Ma_HDB, Ma_Lo, Ma_KM,
+     SoLuong, GiaBan, GiaBanSauAp_KM, ThanhTien)
+    VALUES (?,?,?,?,?,?,?,?)
+    """;
 
-        PreparedStatement ps = conn.prepareStatement(sql);
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
-        ps.setString(1, ct.getMaSP());
-        ps.setString(2, ct.getMaHDB());
-        ps.setString(3, ct.getMaLo());
-        ps.setString(4, ct.getMaKhuyenMai());
-        ps.setInt(5, ct.getSoLuong());
-        ps.setDouble(6, ct.getGiaBan());
-        ps.setDouble(7, ct.getGiaBanSauApKM());
-        ps.setDouble(8, ct.getThanhTien());
+            ps.setString(1, ct.getMaSP());
+            ps.setString(2, ct.getMaHDB());
+            ps.setString(3, ct.getMaLo());
+            ps.setString(4, ct.getMaKhuyenMai());
+            ps.setInt(5, ct.getSoLuong());
+            ps.setDouble(6, ct.getGiaBan());
+            ps.setDouble(7, ct.getGiaBanSauApKM());
+            ps.setDouble(8, ct.getThanhTien());
 
-        return ps.executeUpdate() > 0;
+            return ps.executeUpdate() > 0;
+        }
     }
 }

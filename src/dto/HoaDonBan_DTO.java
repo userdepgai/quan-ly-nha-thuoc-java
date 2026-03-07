@@ -222,8 +222,8 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     // =============================
 // KÊ TOA
 // =============================
-    public static final String KHONG_KE_TOA = "Không kê toa";
-    public static final String CO_KE_TOA = "Có kê toa";
+    public static final String KHONG_KE_TOA = "Không ";
+    public static final String CO_KE_TOA = "Có ";
 
 
     // boolean -> text
@@ -289,6 +289,53 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
 
             case DA_HOAN_TIEN ->
                     this.tinhTrangThanhToan = TT_DA_HOAN_TIEN;
+        }
+    }
+    // =============================
+// LOẠI HÓA ĐƠN BÁN
+// =============================
+
+    // ===== VALUE (dùng cho DB + BUS) =====
+    public static final int LOAI_TAI_QUAY = 0;
+    public static final int LOAI_TRUC_TUYEN = 1;
+
+
+    // ===== TEXT (dùng cho GUI) =====
+    public static final String TAI_QUAY = "Tại quầy";
+    public static final String TRUC_TUYEN = "Trực tuyến";
+
+
+    // =============================
+// INT -> TEXT (DTO -> GUI)
+// =============================
+    public String getLoaiHDBText() {
+
+        switch (loaiHDB) {
+            case LOAI_TAI_QUAY:
+                return TAI_QUAY;
+
+            case LOAI_TRUC_TUYEN:
+                return TRUC_TUYEN;
+
+            default:
+                return "Không xác định";
+        }
+    }
+
+
+    // =============================
+// TEXT -> INT (GUI -> DTO)
+// =============================
+    public void setLoaiHDBFromText(String text) {
+
+        if (text == null) return;
+
+        switch (text) {
+            case TAI_QUAY ->
+                    this.loaiHDB = LOAI_TAI_QUAY;
+
+            case TRUC_TUYEN ->
+                    this.loaiHDB = LOAI_TRUC_TUYEN;
         }
     }
 }

@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="panel_DuyetDonHang" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="10" left="5" bottom="10" right="5"/>
     <constraints>
-      <xy x="20" y="20" width="881" height="1078"/>
+      <xy x="20" y="20" width="909" height="1078"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -111,22 +111,6 @@
                 </constraints>
                 <properties/>
               </component>
-              <component id="2d8ac" class="javax.swing.JLabel" binding="labelTTTT">
-                <constraints>
-                  <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="Tình trạng thanh toán"/>
-                </properties>
-              </component>
-              <component id="3eecf" class="javax.swing.JComboBox" binding="cbTTTT">
-                <constraints>
-                  <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <model/>
-                </properties>
-              </component>
               <component id="ae18c" class="javax.swing.JLabel" binding="labelTrangThai">
                 <constraints>
                   <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -203,6 +187,20 @@
                   </component>
                 </children>
               </grid>
+              <component id="9487c" class="javax.swing.JLabel" binding="labelTTTT">
+                <constraints>
+                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Tình trạng thanh toán"/>
+                </properties>
+              </component>
+              <component id="6232f" class="javax.swing.JComboBox" binding="cbTTTT">
+                <constraints>
+                  <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
             </children>
           </grid>
           <vspacer id="5a280">

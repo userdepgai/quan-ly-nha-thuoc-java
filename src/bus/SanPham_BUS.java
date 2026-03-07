@@ -188,17 +188,4 @@ public class SanPham_BUS {
         // Có thể thêm các validate khác ở đây
         return true;
     }
-    public SanPham_DTO getByTenSP(String tenSP){
-
-        if(tenSP == null) return null;
-
-        for(SanPham_DTO sp : listSanPham){
-
-            if(sp.getTenSP().equalsIgnoreCase(tenSP)){
-                return sp;
-            }
-        }
-
-        return null;
-    }
 }

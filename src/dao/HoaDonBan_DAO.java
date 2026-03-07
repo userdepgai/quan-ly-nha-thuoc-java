@@ -189,13 +189,6 @@ public class HoaDonBan_DAO {
         ps.setDouble(9, hd.getTienNhan());
         ps.setDouble(10, hd.getTienThoi());
         ps.setString(11, hd.getGhiChu());
-        ps.setDouble(13, hd.getThueVAT());
-        ps.setInt(14, hd.getTrangThai());
-        ps.setInt(15, hd.getLoaiHDB());
-        ps.setString(16, hd.getMaNhanVien());
-        ps.setString(17, hd.getMaKhachHang());
-        ps.setString(18, hd.getMaVoucher());
-
         if (hd instanceof HoaDonOnline_DTO online) {
 
             ps.setDouble(12, online.getPhiVanChuyen());
@@ -206,6 +199,13 @@ public class HoaDonBan_DAO {
             ps.setDouble(12, 0);
             ps.setString(19, null);
         }
+        ps.setDouble(13, hd.getThueVAT());
+        ps.setInt(14, hd.getTrangThai());
+        ps.setInt(15, hd.getLoaiHDB());
+        ps.setString(16, hd.getMaNhanVien());
+        ps.setString(17, hd.getMaKhachHang());
+        ps.setString(18, hd.getMaVoucher());
+
 
         return ps.executeUpdate() > 0;
     }
