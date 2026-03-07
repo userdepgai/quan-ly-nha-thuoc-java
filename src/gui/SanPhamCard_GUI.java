@@ -72,7 +72,8 @@ public class SanPhamCard_GUI extends JPanel {
             String ten = sp.getTenSP();
             double gia = giaBan;
             int soLuong = 1;
-            ProductItem item = new ProductItem(ma, ten, gia, soLuong);
+            String maDM = sp.getMaDM();
+            ProductItem item = new ProductItem(ma, ten, gia, soLuong,maDM);
             GioHangManager.themVaoGioHang(item);
             JOptionPane.showMessageDialog(this, "Đã thêm " + ten + " vào giỏ hàng!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
         });
