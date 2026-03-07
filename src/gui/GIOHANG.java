@@ -68,7 +68,6 @@ public class GIOHANG extends JPanel {
             });
         }
 
-
         if (btnChonVoucher != null) {
             btnChonVoucher.setText("🏷️ Chọn Voucher");
             btnChonVoucher.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -78,7 +77,6 @@ public class GIOHANG extends JPanel {
 
             btnChonVoucher.addActionListener(e -> hienThiDialogVoucher());
         }
-
 
         if (btnMuaHang != null) {
             btnMuaHang.setText("Mua Hàng");
@@ -107,13 +105,28 @@ public class GIOHANG extends JPanel {
                     return;
                 }
 
-                JOptionPane.showMessageDialog(this, "Thanh Toán thành công!\nBạn đã trả: " + textTtien.getText());
-                GioHangManager.danhSachGioHang.removeAll(danhSachMua);
+                // --- BẮT ĐẦU XỬ LÝ CHUYỂN TRANG SANG THANH TOÁN ---
 
-                if (tấtCảCheckBox != null) tấtCảCheckBox.setSelected(false);
-                if (btnChonVoucher != null) btnChonVoucher.setText("🏷️ Chọn Voucher");
+                // 1. Tính tổng tiền hàng gốc của các món đã chọn (Chưa trừ Voucher)
+                double tongTienHang = layTongTienHang();
 
-                loadData();
+                // 2. Khởi tạo Giao diện Thanh Toán
+                gui.THONGKEBAOCAO.ThanhToan_GUI pnlThanhToan = new gui.THONGKEBAOCAO.ThanhToan_GUI();
+
+                // 3. Truyền dữ liệu sang trang Thanh Toán
+                pnlThanhToan.setDuLieuThanhToan(danhSachMua, tongTienHang, voucherDangApDung);
+
+                // 4. Thực hiện chuyển trang bằng cách gỡ Panel hiện tại và đắp Panel Thanh Toán lên
+                Window parentWindow = SwingUtilities.getWindowAncestor(this);
+                if (parentWindow instanceof JFrame) {
+                    JFrame frame = (JFrame) parentWindow;
+                    frame.getContentPane().removeAll(); // Xóa trang Giỏ hàng khỏi giao diện chính
+                    frame.getContentPane().add(pnlThanhToan, BorderLayout.CENTER); // Thêm trang Thanh toán vào
+                    frame.revalidate(); // Báo cho Frame biết layout đã thay đổi
+                    frame.repaint();    // Vẽ lại giao diện
+                } else {
+                    JOptionPane.showMessageDialog(this, "Không tìm thấy Frame chính để chuyển trang!");
+                }
             });
         }
 
@@ -200,7 +213,6 @@ public class GIOHANG extends JPanel {
         tấtCảCheckBox.setSelected(allSelected);
     }
 
-
     private void hienThiDialogVoucher() {
         Window parentWindow = SwingUtilities.getWindowAncestor(this);
         JDialog dialog = new JDialog(parentWindow instanceof Frame ? (Frame) parentWindow : null, "Chọn Voucher", JDialog.ModalityType.APPLICATION_MODAL);
@@ -237,7 +249,6 @@ public class GIOHANG extends JPanel {
 
             for (Voucher_DTO v : listVoucher) {
                 if (v.getTrangThai() == 1 && v.getNgayBatDau().getTime() <= now && v.getNgayKetThuc().getTime() >= now) {
-
                     pnlList.add(taoTheVoucherDialog(v, dialog));
                     pnlList.add(Box.createVerticalStrut(10));
                 }
@@ -326,8 +337,6 @@ public class GIOHANG extends JPanel {
 
         return marginWrapper;
     }
-
-
 
     private JPanel taoTheSanPham(ProductItem item) {
         JPanel cardWrapper = new JPanel(new BorderLayout());
@@ -462,13 +471,10 @@ public class GIOHANG extends JPanel {
         boolean coKhuyenMaiPhuHop = false;
 
         if (listKM != null) {
-
-
             for (KhuyenMai_DTO km : listKM) {
                 boolean isKhuyenMaiHopLe = false;
 
                 if (km.getTrangThai() == 1) {
-
                     if (km.getDoiTuongApDung() == 1) {
                         if (km.getMaSanPham() != null && item.ma != null &&
                                 km.getMaSanPham().trim().equalsIgnoreCase(item.ma.trim())) {
@@ -492,7 +498,6 @@ public class GIOHANG extends JPanel {
                 }
             }
         }
-
 
         btnKhuyenMaiSP.addActionListener(e -> {
             boolean isVis = pnlKhuyenMaiCollapse.isVisible();

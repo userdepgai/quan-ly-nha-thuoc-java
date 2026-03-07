@@ -143,7 +143,6 @@ public class ThanhToan_GUI extends JPanel {
     // HÀM MAIN ĐỂ CHẠY TEST ĐỘC LẬP GIAO DIỆN NÀY
     // ==============================================================
     public static void main(String[] args) {
-        // Chạy giao diện trong luồng an toàn của Swing
         SwingUtilities.invokeLater(() -> {
             try {
                 // Đổi giao diện sang giao diện mặc định của hệ điều hành cho đẹp
@@ -151,34 +150,22 @@ public class ThanhToan_GUI extends JPanel {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            // 1. Tạo một cửa sổ (Frame) để chứa cái Panel Thanh Toán
             JFrame frame = new JFrame("TEST GIAO DIỆN THANH TOÁN");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(500, 600); // Kích thước cửa sổ test
-            frame.setLocationRelativeTo(null); // Cho hiển thị ra giữa màn hình
+            frame.setSize(500, 600);
+            frame.setLocationRelativeTo(null);
 
-            // 2. Khởi tạo Panel Thanh Toán của bạn
             ThanhToan_GUI pnlThanhToan = new ThanhToan_GUI();
 
-            // 3. TẠO DỮ LIỆU GIẢ ĐỂ TEST (Giả lập khách đã chọn hàng từ Giỏ Hàng)
             java.util.List<ProductItem> mockDanhSach = new java.util.ArrayList<>();
 
-            // Giả sử tạo 1 món hàng (Bạn có thể phải sửa lại cách gán giá trị tùy vào class ProductItem của bạn nhé)
-            // Truyền 5 tham số vào: Mã SP, Tên SP, Giá Sale, Số Lượng, Mã Danh Mục (hoặc ảnh)
+
             ProductItem sp1 = new ProductItem("SP000009", "Kem chống nắng Vichy", 37120.0, 2, "DM001");
 
-            // Giả lập tổng tiền từ giỏ hàng ném sang (37.120 x 2)
             double mockTongTien = 74240;
 
-            // Giả lập Voucher (Ở đây mình truyền null tức là không xài voucher.
-            // Nếu bạn muốn test voucher thì khởi tạo new Voucher_DTO() rồi truyền vào nhé)
             Voucher_DTO mockVoucher = null;
-
-            // 4. Bơm dữ liệu giả vào Panel
             pnlThanhToan.setDuLieuThanhToan(mockDanhSach, mockTongTien, mockVoucher);
-
-            // 5. Gắn Panel vào Frame và hiển thị lên
             frame.add(pnlThanhToan);
             frame.setVisible(true);
         });
