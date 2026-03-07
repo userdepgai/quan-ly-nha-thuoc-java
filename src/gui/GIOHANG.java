@@ -92,7 +92,6 @@ public class GIOHANG extends JPanel {
                     JOptionPane.showMessageDialog(this, "Giỏ hàng đang trống!");
                     return;
                 }
-
                 List<ProductItem> danhSachMua = new ArrayList<>();
                 for (int i = 0; i < listCbxSanPham.size(); i++) {
                     if (listCbxSanPham.get(i).isSelected()) {
@@ -105,28 +104,28 @@ public class GIOHANG extends JPanel {
                     return;
                 }
 
-                // --- BẮT ĐẦU XỬ LÝ CHUYỂN TRANG SANG THANH TOÁN ---
-
-                // 1. Tính tổng tiền hàng gốc của các món đã chọn (Chưa trừ Voucher)
-                double tongTienHang = layTongTienHang();
-
-                // 2. Khởi tạo Giao diện Thanh Toán
-                gui.THONGKEBAOCAO.ThanhToan_GUI pnlThanhToan = new gui.THONGKEBAOCAO.ThanhToan_GUI();
-
-                // 3. Truyền dữ liệu sang trang Thanh Toán
-                pnlThanhToan.setDuLieuThanhToan(danhSachMua, tongTienHang, voucherDangApDung);
-
-                // 4. Thực hiện chuyển trang bằng cách gỡ Panel hiện tại và đắp Panel Thanh Toán lên
                 Window parentWindow = SwingUtilities.getWindowAncestor(this);
-                if (parentWindow instanceof JFrame) {
-                    JFrame frame = (JFrame) parentWindow;
-                    frame.getContentPane().removeAll(); // Xóa trang Giỏ hàng khỏi giao diện chính
-                    frame.getContentPane().add(pnlThanhToan, BorderLayout.CENTER); // Thêm trang Thanh toán vào
-                    frame.revalidate(); // Báo cho Frame biết layout đã thay đổi
-                    frame.repaint();    // Vẽ lại giao diện
-                } else {
-                    JOptionPane.showMessageDialog(this, "Không tìm thấy Frame chính để chuyển trang!");
-                }
+
+                JDialog popupThanhToan = new JDialog(parentWindow instanceof Frame ? (Frame) parentWindow : null, "Xác nhận Thanh Toán", true);
+
+                ThanhToan_GUI pnlThanhToan = new ThanhToan_GUI();
+
+
+                double tongTienHang = layTongTienHang();
+                pnlThanhToan.setDuLieuThanhToan(danhSachMua, tongTienHang, voucherDangApDung);
+                pnlThanhToan.setOnDatHangThanhCong(() -> {
+                    GioHangManager.danhSachGioHang.removeAll(danhSachMua);
+
+                    loadData();
+                    kiemTraChonTatCa();
+                });
+
+                popupThanhToan.getContentPane().add(pnlThanhToan);
+                popupThanhToan.pack();
+                popupThanhToan.setSize(650, 700);
+                popupThanhToan.setLocationRelativeTo(parentWindow);
+                popupThanhToan.setResizable(false);
+                popupThanhToan.setVisible(true);
             });
         }
 
@@ -434,13 +433,13 @@ public class GIOHANG extends JPanel {
         pnlRightBottom.setLayout(new BoxLayout(pnlRightBottom, BoxLayout.Y_AXIS));
         pnlRightBottom.setOpaque(false);
 
-        JLabel lblThanhTienMoiMon = new JLabel("Cộng: " + String.format("%,.0fđ", item.giaSale * item.soLuong));
+        JLabel lblThanhTienMoiMon = new JLabel("Thành Tiền: " + String.format("%,.0fđ", item.giaSale * item.soLuong));
         lblThanhTienMoiMon.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lblThanhTienMoiMon.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         spinSL.addChangeListener(e -> {
             item.soLuong = (int) spinSL.getValue();
-            lblThanhTienMoiMon.setText("Cộng: " + String.format("%,.0fđ", item.giaSale * item.soLuong));
+            lblThanhTienMoiMon.setText("Thành Tiền: " + String.format("%,.0fđ", item.giaSale * item.soLuong));
             tinhTongTien();
         });
 
@@ -547,11 +546,9 @@ public class GIOHANG extends JPanel {
 
             item.giaSale = item.gia - tienGiam;
             if(item.giaSale < 0) item.giaSale = 0;
-
-            // Hiển thị lại UI
             lblGiaSale.setText("Sale: " + String.format("%,.0fđ", item.giaSale));
             lblGiaGoc.setText("<html><font color='#999999'>Giá gốc: <strike>" + String.format("%,.0fđ", item.gia) + "</strike></font></html>");
-            lblThanhTienMoiMon.setText("Cộng: " + String.format("%,.0fđ", item.giaSale * item.soLuong));
+            lblThanhTienMoiMon.setText("Thành Tiền: " + String.format("%,.0fđ", item.giaSale * item.soLuong));
 
             tinhTongTien();
 

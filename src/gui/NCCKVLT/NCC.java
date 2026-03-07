@@ -19,6 +19,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class NCC extends JPanel {
@@ -137,7 +138,6 @@ public class NCC extends JPanel {
         int stt = 1;
 
         for (NhaCungCap_DTO ncc : listNCC) {
-            // Đã sửa trạng thái hiển thị
             String trangThaiText = (ncc.getTrangThai() == 1) ? "Đang Giao Dịch" : "Ngừng Hợp Tác";
             String diaChiHienThi = "";
 
@@ -189,7 +189,7 @@ public class NCC extends JPanel {
 
         SanPham_BUS spBus = SanPham_BUS.getInstance();
         spBus.refreshData();
-
+        DecimalFormat df = new DecimalFormat("#,###");
         int stt = 1;
 
         for (SanPhamNCC_DTO spNcc : list) {
@@ -200,7 +200,7 @@ public class NCC extends JPanel {
                     stt++,
                     spNcc.getMaSanPham(),
                     tenSP,
-                    spNcc.getGiaNhap(),
+                    df.format(spNcc.getGiaNhap()),
                     spNcc.getTrangThai() == 1 ? "Còn Cung Cấp" : "Ngừng Cung Cấp"
             });
         }
