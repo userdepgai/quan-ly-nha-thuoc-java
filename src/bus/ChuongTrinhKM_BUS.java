@@ -66,7 +66,9 @@ public class ChuongTrinhKM_BUS {
         if (!kiemTraHopLe(ctkm)) return false;
 
         boolean result = dao.capNhat(ctkm);
-        if (result) refreshData();
+        if (result) {
+            refreshData();
+        }
         return result;
     }
 

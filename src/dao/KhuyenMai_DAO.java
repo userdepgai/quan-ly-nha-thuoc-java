@@ -24,10 +24,10 @@ public class KhuyenMai_DAO {
                 KhuyenMai_DTO km = new KhuyenMai_DTO(
                         rs.getString("Ma_KM"),
                         rs.getString("Ten_KM"),
+                        rs.getInt("LoaiKM"),
+                        rs.getDouble("GiaTriKM"),
                         rs.getInt("TrangThai"),
                         rs.getInt("DoiTuongApDung"),
-                        rs.getInt("LoaiKM"),      // SỬA: Lấy kiểu INT từ SQL
-                        rs.getDouble("GiaTriKM"),
                         rs.getString("Ma_CTKM"),
                         rs.getString("Ma_SP"),
                         rs.getString("Ma_DM")
@@ -55,10 +55,10 @@ public class KhuyenMai_DAO {
                 km = new KhuyenMai_DTO(
                         rs.getString("Ma_KM"),
                         rs.getString("Ten_KM"),
+                        rs.getInt("LoaiKM"),
+                        rs.getDouble("GiaTriKM"),
                         rs.getInt("TrangThai"),
                         rs.getInt("DoiTuongApDung"),
-                        rs.getInt("LoaiKM"),      // SỬA: Lấy kiểu INT
-                        rs.getDouble("GiaTriKM"),
                         rs.getString("Ma_CTKM"),
                         rs.getString("Ma_SP"),
                         rs.getString("Ma_DM")
@@ -167,10 +167,10 @@ public class KhuyenMai_DAO {
                 list.add(new KhuyenMai_DTO(
                         rs.getString("Ma_KM"),
                         rs.getString("Ten_KM"),
-                        rs.getInt("TrangThai"),
-                        rs.getInt("DoiTuongApDung"),
                         rs.getInt("LoaiKM"),
                         rs.getDouble("GiaTriKM"),
+                        rs.getInt("TrangThai"),
+                        rs.getInt("DoiTuongApDung"),
                         rs.getString("Ma_CTKM"),
                         rs.getString("Ma_SP"),
                         rs.getString("Ma_DM")
@@ -178,5 +178,17 @@ public class KhuyenMai_DAO {
             }
         } catch (Exception e) { e.printStackTrace(); }
         return list;
+    }
+    public boolean capNhatTrangThaiTheoCTKM(String maCTKM, int trangThaiMoi) {
+        String sql = "UPDATE KHUYENMAI SET TrangThai = ? WHERE Ma_CTKM = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, trangThaiMoi);
+            ps.setString(2, maCTKM);
+            return ps.executeUpdate() >= 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

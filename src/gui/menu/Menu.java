@@ -54,8 +54,8 @@ public class Menu extends JFrame {
         menuModel.addElement(new MenuItem("Nhà cung cấp", "nhacungcap", icon("nhaCungCap.png"),false));
 
         menuModel.addElement(new MenuItem("DANH MỤC & SẢN PHẨM", null, null,true));
-        menuModel.addElement(new MenuItem("Danh mục sản phẩm", "danhMuc", icon("danhMuc.png"),false));
-        menuModel.addElement(new MenuItem("Thuộc tính danh mục", "thuocTinhDanhMuc", icon("thuocTinhDanhMuc.png"),false));
+        menuModel.addElement(new MenuItem("Danh mục", "danhMuc", icon("danhMuc.png"),false));
+        menuModel.addElement(new MenuItem("Thuộc tính", "thuocTinhDanhMuc", icon("thuocTinhDanhMuc.png"),false));
         menuModel.addElement(new MenuItem("Quản lý sản phẩm", "sanPham", icon("sanPham.png"),false));
 
         menuModel.addElement(new MenuItem("KHO & LƯU TRỮ", null, null,true));
@@ -98,7 +98,7 @@ public class Menu extends JFrame {
         contentPanel.add(new XuatHoaDon_GUI(), "hoadon");
 
         contentPanel.add(new DanhMuc_GUI(), "danhMuc");
-        contentPanel.add(new ThuocTinhDanhMuc_GUI(), "thuocTinhDanhMuc");
+        contentPanel.add(new ThuocTinh_GUI(), "thuocTinhDanhMuc");
         contentPanel.add(new QuanLySanPham_GUI(), "sanPham");
 
         contentPanel.add(new KhachHang_GUI(), "khachhang");

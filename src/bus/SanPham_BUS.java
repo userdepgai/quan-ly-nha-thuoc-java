@@ -4,118 +4,157 @@ import dao.SanPham_DAO;
 import dto.QuyCach_DTO;
 import dto.SanPham_DTO;
 
-import javax.swing.JOptionPane;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class SanPham_BUS {
     private static SanPham_BUS instance;
-    private SanPham_DAO spDao = new SanPham_DAO();
-    private ArrayList<SanPham_DTO> listCache;
-
-    // Gọi QuyCach_BUS để xử lý quy cách
-    private bus.QuyCach_BUS qcBus = bus.QuyCach_BUS.getInstance();
+    private final SanPham_DAO spDao = new SanPham_DAO();
+    private final QuyCach_BUS qcBus = QuyCach_BUS.getInstance();
+    private ArrayList<SanPham_DTO> listSanPham;
 
     private SanPham_BUS() {
-        listCache = spDao.getAll();
+        this.listSanPham = spDao.getAll();
     }
 
     public static SanPham_BUS getInstance() {
-        if (instance == null) instance = new SanPham_BUS();
+        if (instance == null) {
+            instance = new SanPham_BUS();
+        }
         return instance;
     }
 
+    /**
+     * Lấy danh sách sản phẩm (từ Cache)
+     */
     public ArrayList<SanPham_DTO> getAll() {
-        return listCache;
+        if (listSanPham == null) {
+            refreshData();
+        }
+        return listSanPham;
+    }
+
+    public SanPham_DTO getById(String maSP) {
+        for (SanPham_DTO sp : getAll()) {
+            if (sp.getMaSP().equals(maSP)) {
+                return sp;
+            }
+        }
+        return null;
+    }
+
+    public SanPham_DTO getByTenSP(String tenSP) {
+        if (tenSP == null || tenSP.trim().isEmpty()) return null;
+        for (SanPham_DTO sp : getAll()) {
+            if (sp.getTenSP().equalsIgnoreCase(tenSP.trim())) {
+                return sp;
+            }
+        }
+        return null;
     }
 
     public String getNextId() {
         return spDao.getNextId();
     }
 
-    // Hàm xử lý logic tìm hoặc tạo quy cách
-    private String xuLyQuyCach(int slTrongHop, int slHopTrongThung) {
-        // 1. Tìm xem quy cách này có chưa
-        for (QuyCach_DTO qc : qcBus.getAll()) {
-            if (qc.getSlTrongHop() == slTrongHop && qc.getSlHopTrongThung() == slHopTrongThung) {
-                return qc.getMaQC(); // Trả về mã QC đã tồn tại
+    /**
+     * HÀM LỌC TỔNG HỢP NÂNG CAO (Dùng cho cả Tìm kiếm và Gợi ý)
+     * @param keyword: Từ khóa nhập vào
+     * @param timTheo: "Tất cả", "Mã sản phẩm", "Tên sản phẩm"
+     * @param maDM: Mã danh mục hoặc "Tất cả"
+     * @param trangThai: 1 (Đang bán), 0 (Ngừng bán), null (Tất cả)
+     * @param sortLoiNhuan: "Không sắp xếp", "Tăng dần", "Giảm dần"
+     */
+    public ArrayList<SanPham_DTO> timKiemNangCao(String keyword, String timTheo, String maDM, Integer trangThai, String sortLoiNhuan) {
+        ArrayList<SanPham_DTO> result = new ArrayList<>();
+        String key = (keyword == null) ? "" : keyword.toLowerCase().trim();
+
+        for (SanPham_DTO sp : getAll()) {
+            // 1. Lọc theo Từ khóa & Tiêu chí tìm kiếm
+            boolean matchKey = false;
+            if (timTheo.equals("Tất cả")) {
+                matchKey = sp.getMaSP().toLowerCase().contains(key) || sp.getTenSP().toLowerCase().contains(key);
+            } else if (timTheo.equals("Mã sản phẩm")) {
+                matchKey = sp.getMaSP().toLowerCase().contains(key);
+            } else { // Tên sản phẩm
+                matchKey = sp.getTenSP().toLowerCase().contains(key);
+            }
+
+            // 2. Lọc theo Danh mục
+            boolean matchDM = (maDM == null || maDM.equals("Tất cả") || (sp.getMaDM() != null && sp.getMaDM().equals(maDM)));
+
+            // 3. Lọc theo Trạng thái
+            boolean matchTT = (trangThai == null || sp.getTrangThai() == trangThai);
+
+            // Kết hợp các điều kiện
+            if (matchKey && matchDM && matchTT) {
+                result.add(sp);
             }
         }
-        // 2. Nếu chưa có -> Tạo mới
-        String maQCMoi = qcBus.getNextId();
-        QuyCach_DTO qcNew = new QuyCach_DTO(maQCMoi, slTrongHop, slHopTrongThung, slTrongHop * slHopTrongThung);
-        if (qcBus.them(qcNew)) {
-            return maQCMoi;
+
+        // 4. Xử lý Sắp xếp theo Lợi nhuận (nếu có yêu cầu)
+        if (sortLoiNhuan != null && !sortLoiNhuan.equals("Không sắp xếp")) {
+            result.sort((sp1, sp2) -> {
+                if (sortLoiNhuan.equals("Tăng dần")) {
+                    return Double.compare(sp1.getLoiNhuan(), sp2.getLoiNhuan());
+                } else {
+                    return Double.compare(sp2.getLoiNhuan(), sp1.getLoiNhuan());
+                }
+            });
         }
-        return null;
-    }
 
-    // Thêm sản phẩm (Nhận thêm tham số quy cách từ GUI)
-    public boolean themSanPham(SanPham_DTO sp, int slTrongHop, int slHopTrongThung) {
-        if (!kiemTraHopLe(sp)) return false;
-
-        // Xử lý quy cách trước
-        String maQC = xuLyQuyCach(slTrongHop, slHopTrongThung);
-        if (maQC == null) {
-            JOptionPane.showMessageDialog(null, "Lỗi khi tạo quy cách đóng gói!");
-            return false;
-        }
-        sp.setMaQC(maQC); // Gán mã QC vào SP
-
-        boolean result = spDao.them(sp);
-        if (result) refreshData();
         return result;
     }
 
-    // Cập nhật sản phẩm
-    public boolean capNhatSanPham(SanPham_DTO sp, int slTrongHop, int slHopTrongThung) {
+    private String xuLyQuyCach(int slTrongHop, int slHopTrongThung) {
+        for (QuyCach_DTO qc : qcBus.getAll()) {
+            if (qc.getSlTrongHop() == slTrongHop && qc.getSlHopTrongThung() == slHopTrongThung) {
+                return qc.getMaQC();
+            }
+        }
+        String maQCMoi = qcBus.getNextId();
+        int tongSL = slTrongHop * slHopTrongThung;
+        QuyCach_DTO qcNew = new QuyCach_DTO(maQCMoi, slTrongHop, slHopTrongThung, tongSL);
+        if (qcBus.them(qcNew)) return maQCMoi;
+        return null;
+    }
+
+    public boolean them(SanPham_DTO sp, int slTrongHop, int slHopTrongThung) {
+        if (!kiemTraHopLe(sp)) return false;
+        if (getById(sp.getMaSP()) != null) return false;
+
+        String maQC = xuLyQuyCach(slTrongHop, slHopTrongThung);
+        if (maQC == null) return false;
+        sp.setMaQC(maQC);
+
+        boolean result = spDao.them(sp);
+        if (result) {
+            listSanPham.add(sp);
+        }
+        return result;
+    }
+
+    public boolean capNhat(SanPham_DTO sp, int slTrongHop, int slHopTrongThung) {
         if (!kiemTraHopLe(sp)) return false;
 
-        // Xử lý quy cách (có thể người dùng đổi quy cách)
         String maQC = xuLyQuyCach(slTrongHop, slHopTrongThung);
         if (maQC == null) return false;
         sp.setMaQC(maQC);
 
         boolean result = spDao.capNhat(sp);
-        if (result) refreshData();
+        if (result) {
+            refreshData();
+        }
         return result;
     }
 
     public void refreshData() {
-        listCache = spDao.getAll();
-    }
-
-    // Lấy SP theo ID từ Cache
-    public SanPham_DTO getById(String maSP) {
-        for(SanPham_DTO sp : listCache) {
-            if (sp.getMaSP().equals(maSP)) return sp;
-        }
-        return null;
-    }
-
-    // Tìm kiếm
-    public ArrayList<SanPham_DTO> timKiem(String keyword, String maDM, Integer trangThai) {
-        ArrayList<SanPham_DTO> result = new ArrayList<>();
-        String key = (keyword == null) ? "" : keyword.toLowerCase();
-
-        for (SanPham_DTO sp : listCache) {
-            boolean matchKey = sp.getTenSP().toLowerCase().contains(key) || sp.getMaSP().toLowerCase().contains(key);
-            boolean matchDM = (maDM == null || maDM.equals("Tất cả") || sp.getMaDM().equals(maDM));
-            boolean matchTT = (trangThai == null || sp.getTrangThai() == trangThai);
-
-            if (matchKey && matchDM && matchTT) result.add(sp);
-        }
-        return result;
+        listSanPham = spDao.getAll();
     }
 
     private boolean kiemTraHopLe(SanPham_DTO sp) {
-        if (sp.getTenSP().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Tên sản phẩm không được để trống");
-            return false;
-        }
-        if (sp.getLoiNhuan() < 0) {
-            JOptionPane.showMessageDialog(null, "Lợi nhuận không hợp lệ");
-            return false;
-        }
+        if (sp.getTenSP() == null || sp.getTenSP().trim().isEmpty()) return false;
+        if (sp.getLoiNhuan() < 0) return false;
         return true;
     }
 }
