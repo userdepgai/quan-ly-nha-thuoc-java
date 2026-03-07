@@ -18,8 +18,6 @@ import java.util.ArrayList;
 public class QuanLyChuongTrinhKM_GUI extends JPanel {
     private JPanel panelTieuDe;
     private JLabel label_tieuDe;
-    private JButton btnNhapExcel;
-    private JButton btnXuatExcel;
     private JPanel panelDanhSachChuongTrinhKhuyenMai;
     private JTable tableChuongTrinhKhuyenMai;
     private JPanel panelThongTinChiTiet;
@@ -454,18 +452,32 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
 
 
     private boolean validateForm() {
+        // 1. Kiểm tra để trống tên chương trình
         if (txtTenChuongTrinhKhuyenMai.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tên chương trình không được để trống");
+            JOptionPane.showMessageDialog(this, "Tên chương trình không được để trống!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
+            txtTenChuongTrinhKhuyenMai.requestFocus();
             return false;
         }
-        if (jdNgayBatDau.getDate() == null || jdNgayKetThuc.getDate() == null) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn đầy đủ ngày bắt đầu và kết thúc");
+
+        // 2. Kiểm tra ngày bắt đầu (Trường hợp chưa chọn)
+        if (jdNgayBatDau.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày bắt đầu cho chương trình!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
             return false;
         }
+
+        // 3. Kiểm tra ngày kết thúc (Trường hợp chưa chọn)
+        if (jdNgayKetThuc.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày kết thúc cho chương trình!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        // 4. KIỂM TRA LOGIC THỜI GIAN: Ngày kết thúc không được trước ngày bắt đầu
+        // Tách riêng lỗi logic để người dùng dễ nhận biết
         if (jdNgayBatDau.getDate().after(jdNgayKetThuc.getDate())) {
-            JOptionPane.showMessageDialog(this, "Ngày bắt đầu không được sau ngày kết thúc");
+            JOptionPane.showMessageDialog(this, "Lỗi: Ngày kết thúc không được trước ngày bắt đầu!", "Lỗi logic thời gian", JOptionPane.ERROR_MESSAGE);
             return false;
         }
+
         return true;
     }
 

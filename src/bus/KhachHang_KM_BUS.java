@@ -42,4 +42,18 @@ public class KhachHang_KM_BUS {
         }
         return false;
     }
+
+    /**
+     * Lấy số lượt tối đa đã thiết lập cho mã KM này (đại diện lấy từ KH000001)
+     * Phục vụ hiển thị lên giao diện Quản lý Khuyến mãi
+     */
+    public int getSoLuotToiDa(String maKM, String maKH) {
+        ArrayList<KhachHang_KM_DTO> list = khkmDAO.getByMaKH(maKH);
+        for (KhachHang_KM_DTO item : list) {
+            if (item.getMaKM().equals(maKM)) {
+                return item.getSoLuotToiDa();
+            }
+        }
+        return 0;
+    }
 }

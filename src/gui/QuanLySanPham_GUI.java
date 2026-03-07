@@ -6,6 +6,7 @@ import dto.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -134,6 +135,7 @@ public class QuanLySanPham_GUI extends JPanel {
         }));
 
         cmbTimTheo.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Tất cả",
                 "Tên sản phẩm",
                 "Mã sản phẩm"
         }));
@@ -215,12 +217,11 @@ public class QuanLySanPham_GUI extends JPanel {
         txtNhapThongTin.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyReleased(java.awt.event.KeyEvent e) {
-                // Chỉ gợi ý khi ô không trống
-                if (!txtNhapThongTin.getText().trim().isEmpty()) {
+                if (e.getKeyCode() != java.awt.event.KeyEvent.VK_UP &&
+                        e.getKeyCode() != java.awt.event.KeyEvent.VK_DOWN &&
+                        e.getKeyCode() != java.awt.event.KeyEvent.VK_ENTER) {
                     hienThiGoiY();
-                } else {
-                    popupGoiY.setVisible(false);
-                    thucHienLoc(); // Nếu xóa hết thì tự động load lại bảng gốc
+                    thucHienLoc();
                 }
             }
         });
@@ -233,14 +234,20 @@ public class QuanLySanPham_GUI extends JPanel {
         // Nút Tìm kiếm
         btnTimKiem.addActionListener(e -> thucHienLoc());
 
-        // Nút Thoát (Reset bộ lọc)
+        // 2. Tự động lọc khi thay đổi các ComboBox
+        ActionListener al = e -> thucHienLoc();
+        cmbTimTheo.addActionListener(al);
+        cmbLocDanhMuc.addActionListener(al);
+        cmbLocTrangThai.addActionListener(al);
+        cmbLocLoiNhuan.addActionListener(al);
+
+        // 3. Nút Làm mới (Thoát lọc)
         btnThoat.addActionListener(e -> {
-            clearForm();
             txtNhapThongTin.setText("");
             cmbTimTheo.setSelectedIndex(0);
             cmbLocDanhMuc.setSelectedIndex(0);
-            cmbLocLoiNhuan.setSelectedIndex(0);
             cmbLocTrangThai.setSelectedIndex(0);
+            cmbLocLoiNhuan.setSelectedIndex(0);
             loadDataToTable(spBUS.getAll());
         });
 
@@ -285,68 +292,75 @@ public class QuanLySanPham_GUI extends JPanel {
         });
     }
 
-    // 3. HÀM HIỂN THỊ GỢI Ý (Auto-suggestion)
+
+    // 4. HÀM THỰC HIỆN LỌC NÂNG CAO (KẾT HỢP TẤT CẢ TIÊU CHÍ)
+    private void thucHienLoc() {
+        String keyword = txtNhapThongTin.getText().trim();
+        String timTheo = (String) cmbTimTheo.getSelectedItem();
+
+        // Lấy mã Danh mục từ tên được chọn
+        String tenDM = (String) cmbLocDanhMuc.getSelectedItem();
+        String maDM = "Tất cả";
+        if (!tenDM.equals("Tất cả")) {
+            for (DanhMuc_DTO dm : dmBUS.getAll()) {
+                if (dm.getTenDM().equals(tenDM)) {
+                    maDM = dm.getMaDM();
+                    break;
+                }
+            }
+        }
+
+        // Lấy trạng thái
+        String ttStr = (String) cmbLocTrangThai.getSelectedItem();
+        Integer trangThai = null;
+        if (!ttStr.equals("Tất cả")) {
+            trangThai = SanPham_DTO.parseTrangThaiFromText(ttStr);
+        }
+
+        String sortLN = (String) cmbLocLoiNhuan.getSelectedItem();
+
+        // GỌI BUS XỬ LÝ
+        ArrayList<SanPham_DTO> dsLoc = spBUS.timKiemNangCao(keyword, timTheo, maDM, trangThai, sortLN);
+
+        // Đổ dữ liệu lên bảng (Hàm này bạn đã viết ở bước trước)
+        loadDataToTable(dsLoc);
+    }
+
     private void hienThiGoiY() {
         popupGoiY.setVisible(false);
         popupGoiY.removeAll();
 
-        String textInput = txtNhapThongTin.getText().trim().toLowerCase();
+        String textInput = txtNhapThongTin.getText().trim();
+        if (textInput.isEmpty()) return;
+
         String timTheo = (String) cmbTimTheo.getSelectedItem();
 
-        // Lấy danh sách nguồn để gợi ý
-        ArrayList<SanPham_DTO> dsGoiY = new ArrayList<>();
-        for (SanPham_DTO sp : spBUS.getAll()) {
-            boolean match = false;
-            if ("Mã sản phẩm".equals(timTheo)) {
-                if (sp.getMaSP().toLowerCase().contains(textInput)) match = true;
-            } else {
-                if (sp.getTenSP().toLowerCase().contains(textInput)) match = true;
-            }
-
-            if (match) dsGoiY.add(sp);
-        }
+        // Tận dụng hàm lọc của BUS để lấy danh sách gợi ý (bỏ qua lọc DM, TT và Sắp xếp)
+        ArrayList<SanPham_DTO> dsGoiY = spBUS.timKiemNangCao(textInput, timTheo, "Tất cả", null, "Không sắp xếp");
 
         if (dsGoiY.isEmpty()) return;
 
-        // Tạo Panel chứa các item gợi ý
         JPanel panelGoiY = new JPanel();
         panelGoiY.setLayout(new BoxLayout(panelGoiY, BoxLayout.Y_AXIS));
         panelGoiY.setBackground(Color.WHITE);
 
-        // Chỉ lấy tối đa 10 gợi ý để không quá dài
         int count = 0;
         for (SanPham_DTO sp : dsGoiY) {
             if (count >= 10) break;
 
             String hienThi = sp.getMaSP() + " - " + sp.getTenSP();
             JButton btnItem = new JButton(hienThi);
+            // ... (Phần Style Button và Hover effect giữ nguyên như code của bạn) ...
 
-            // Style cho button giống label
-            btnItem.setAlignmentX(Component.LEFT_ALIGNMENT);
-            btnItem.setHorizontalAlignment(SwingConstants.LEFT);
-            btnItem.setBorderPainted(false);
-            btnItem.setContentAreaFilled(false);
-            btnItem.setFocusPainted(false);
-            btnItem.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            btnItem.setPreferredSize(new Dimension(txtNhapThongTin.getWidth(), 30));
-            btnItem.setMaximumSize(new Dimension(txtNhapThongTin.getWidth(), 30));
-
-            // Hover effect
-            btnItem.addMouseListener(new MouseAdapter() {
-                public void mouseEntered(MouseEvent evt) {
-                    btnItem.setContentAreaFilled(true);
-                    btnItem.setBackground(new Color(230, 230, 230));
-                }
-                public void mouseExited(MouseEvent evt) {
-                    btnItem.setContentAreaFilled(false);
-                }
-            });
-
-            // Click vào gợi ý -> Điền vào ô text và lọc luôn
             btnItem.addActionListener(e -> {
-                txtNhapThongTin.setText(timTheo.equals("Mã sản phẩm") ? sp.getMaSP() : sp.getTenSP());
+                // Nếu tìm theo "Tất cả" hoặc "Mã", điền Mã. Nếu tìm theo "Tên", điền Tên.
+                if (timTheo.equals("Tên sản phẩm")) {
+                    txtNhapThongTin.setText(sp.getTenSP());
+                } else {
+                    txtNhapThongTin.setText(sp.getMaSP());
+                }
                 popupGoiY.setVisible(false);
-                thucHienLoc(); // Thực hiện lọc ngay
+                thucHienLoc();
             });
 
             panelGoiY.add(btnItem);
@@ -355,85 +369,10 @@ public class QuanLySanPham_GUI extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(panelGoiY);
         scrollPane.setBorder(null);
-
-        // Hiển thị Popup ngay dưới ô nhập
         popupGoiY.add(scrollPane);
         popupGoiY.setFocusable(false);
-        popupGoiY.setPreferredSize(new Dimension(txtNhapThongTin.getWidth(), count * 30 + 5));
         popupGoiY.show(txtNhapThongTin, 0, txtNhapThongTin.getHeight());
-
-        // Focus lại vào ô nhập liệu để gõ tiếp được
         txtNhapThongTin.requestFocus();
-    }
-
-    // 4. HÀM THỰC HIỆN LỌC NÂNG CAO (KẾT HỢP TẤT CẢ TIÊU CHÍ)
-    private void thucHienLoc() {
-        // Lấy tất cả dữ liệu gốc
-        ArrayList<SanPham_DTO> list = spBUS.getAll();
-        ArrayList<SanPham_DTO> result = new ArrayList<>();
-
-        // 1. Lấy các tiêu chí từ GUI
-        String keyword = txtNhapThongTin.getText().trim().toLowerCase();
-        String criteria = (String) cmbTimTheo.getSelectedItem();
-
-        String tenDMLoc = (String) cmbLocDanhMuc.getSelectedItem();
-        String trangThaiText = (String) cmbLocTrangThai.getSelectedItem();
-        String sapXepLoiNhuan = (String) cmbLocLoiNhuan.getSelectedItem();
-
-        // 2. Vòng lặp lọc (Filter)
-        for (SanPham_DTO sp : list) {
-            // --- Tiêu chí 1: Danh mục ---
-            boolean matchDM = true;
-            if (!"Tất cả".equals(tenDMLoc)) {
-                // Cần lấy tên danh mục của sp hiện tại để so sánh
-                DanhMuc_DTO dm = dmBUS.getById(sp.getMaDM());
-                String tenDMSp = (dm != null) ? dm.getTenDM() : "";
-                if (!tenDMSp.equals(tenDMLoc)) {
-                    matchDM = false;
-                }
-            }
-
-            // --- Tiêu chí 2: Trạng thái ---
-            boolean matchTT = true;
-            if (!"Tất cả".equals(trangThaiText)) {
-                // So sánh chuỗi hiển thị trạng thái (Đang bán/Ngừng bán)
-                if (!sp.getTrangThaiText().equals(trangThaiText)) {
-                    matchTT = false;
-                }
-            }
-
-            // --- Tiêu chí 3: Từ khóa tìm kiếm ---
-            boolean matchKeyword = true;
-            if (!keyword.isEmpty()) {
-                if ("Mã sản phẩm".equals(criteria)) {
-                    if (!sp.getMaSP().toLowerCase().contains(keyword)) matchKeyword = false;
-                } else {
-                    // Tìm theo tên
-                    if (!sp.getTenSP().toLowerCase().contains(keyword)) matchKeyword = false;
-                }
-            }
-
-            // KẾT HỢP (AND)
-            if (matchDM && matchTT && matchKeyword) {
-                result.add(sp);
-            }
-        }
-
-        // 3. Sắp xếp (Sorting)
-        if (!"Không sắp xếp".equals(sapXepLoiNhuan)) {
-            result.sort((sp1, sp2) -> {
-                double ln1 = sp1.getLoiNhuan();
-                double ln2 = sp2.getLoiNhuan();
-                if ("Tăng dần".equals(sapXepLoiNhuan)) {
-                    return Double.compare(ln1, ln2);
-                } else {
-                    return Double.compare(ln2, ln1); // Giảm dần
-                }
-            });
-        }
-
-        // 4. Hiển thị kết quả
-        loadDataToTable(result);
     }
 
     private void fillData(SanPham_DTO sp) {

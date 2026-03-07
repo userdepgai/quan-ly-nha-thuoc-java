@@ -21,8 +21,6 @@ public class ThuocTinh_GUI extends JPanel{
     private JTable tableThuocTinh;
     private JPanel panelTieuDe;
     private JLabel label_tieuDe;
-    private JButton btnNhapExcel;
-    private JButton btnXuatExcel;
     private JPanel panelCapNhat;
     private JPanel panelThongTinChiTiet;
     private JPanel panelThuocTinh;

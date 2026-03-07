@@ -40,15 +40,15 @@ public class Voucher_BUS {
      * LOGIC THÊM VÀ PHÂN PHỐI VOUCHER
      */
     public boolean them(Voucher_DTO v, int soLuot) {
+        // Gọi validate trước khi thực hiện nghiệp vụ
         if (!validate(v)) return false;
+
         if (soLuot <= 0) {
-            JOptionPane.showMessageDialog(null, "Số lượt sử dụng phải lớn hơn 0!");
+            JOptionPane.showMessageDialog(null, "Số lượt sử dụng tối đa phải lớn hơn 0!");
             return false;
         }
 
-        // 1. Thêm vào bảng VOUCHER
         if (dao.them(v)) {
-            // 2. Phân phối cho tất cả khách hàng (Sử dụng SQL INSERT SELECT để tối ưu)
             boolean distributed = KhachHang_Voucher_DAO.getInstance().phanPhoiVoucherToanHeThong(v.getMa(), soLuot);
             if (distributed) {
                 refreshData();
@@ -60,19 +60,25 @@ public class Voucher_BUS {
 
     public boolean capNhat(Voucher_DTO v) {
         if (!validate(v)) return false;
-        if (dao.capNhat(v)) { refreshData(); return true; }
+        if (dao.capNhat(v)) {
+            refreshData();
+            return true;
+        }
         return false;
     }
 
     /**
      * HÀM LỌC TỔNG HỢP (Chuyển từ GUI xuống)
      */
-    public ArrayList<Voucher_DTO> timKiemNangCao(String keyword, String timTheo, String locTrangThai) {
+    /**
+     * HÀM LỌC TỔNG HỢP NÂNG CAO (Nâng cấp)
+     */
+    public ArrayList<Voucher_DTO> timKiemNangCao(String keyword, String timTheo, String locLoai, String locTrangThai, Date filterBD, Date filterKT) {
         ArrayList<Voucher_DTO> result = new ArrayList<>();
         String key = keyword.toLowerCase().trim();
 
         for (Voucher_DTO v : getAll()) {
-            // 1. Khớp từ khóa
+            // 1. Lọc tiêu chí Mã/Tên
             boolean matchKey = false;
             if (timTheo.equals("Tất cả")) {
                 matchKey = v.getMa().toLowerCase().contains(key) || v.getTen().toLowerCase().contains(key);
@@ -82,35 +88,76 @@ public class Voucher_BUS {
                 matchKey = v.getTen().toLowerCase().contains(key);
             }
 
-            // 2. Khớp trạng thái (Lấy text logic từ DTO)
+            // 2. Lọc theo Loại Voucher (Sửa theo tên biến mới)
+            boolean matchLoai = locLoai.equals("Tất cả") || v.getLoaiVoucherText().equals(locLoai);
+
+            // 3. Lọc theo Trạng thái
             boolean matchStatus = locTrangThai.equals("Tất cả") || v.getTrangThaiText().equals(locTrangThai);
 
-            if (matchKey && matchStatus) result.add(key.isEmpty() && locTrangThai.equals("Tất cả") ? v : v);
+            // 4. Lọc theo Thời gian (Overlap - Giao thoa)
+            boolean matchDate = true;
+            if (filterBD != null && filterKT != null) {
+                // Voucher có hiệu lực trong khoảng lọc nếu (Ngày bắt đầu <= filterKT) AND (Ngày kết thúc >= filterBD)
+                if (v.getNgayBatDau().after(filterKT) || v.getNgayKetThuc().before(filterBD)) {
+                    matchDate = false;
+                }
+            } else if (filterBD != null) {
+                if (v.getNgayKetThuc().before(filterBD)) matchDate = false;
+            } else if (filterKT != null) {
+                if (v.getNgayBatDau().after(filterKT)) matchDate = false;
+            }
 
-            if (matchKey && matchStatus) {
+            if (matchKey && matchLoai && matchStatus && matchDate) {
                 result.add(v);
             }
         }
         return result;
     }
 
+    public boolean kiemTraLogicLocNgay(java.util.Date bd, java.util.Date kt, boolean isStartDateChanged) {
+        if (bd != null && kt != null) {
+            if (bd.after(kt)) {
+                if (isStartDateChanged) {
+                    JOptionPane.showMessageDialog(null, "Ngày bắt đầu không được sau ngày kết thúc!", "Lỗi chọn ngày", JOptionPane.WARNING_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Ngày kết thúc không được trước ngày bắt đầu!", "Lỗi chọn ngày", JOptionPane.WARNING_MESSAGE);
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
     private boolean validate(Voucher_DTO v) {
-        if (v.getTen().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Tên voucher không được để trống!");
+        // 1. Kiểm tra để trống tên
+        if (v.getTen() == null || v.getTen().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Tên voucher không được để trống!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        if (v.getLoaiVoucher() == Voucher_DTO.LOAI_PHAN_TRAM && v.getGiaTriVoucher() > 1.0) {
-            JOptionPane.showMessageDialog(null, "Voucher phần trăm không được quá 100% (1.0)!");
-            return false;
-        }
+
+        // 2. Kiểm tra giá trị voucher
         if (v.getGiaTriVoucher() <= 0) {
-            JOptionPane.showMessageDialog(null, "Giá trị voucher phải lớn hơn 0!");
+            JOptionPane.showMessageDialog(null, "Giá trị voucher phải lớn hơn 0!", "Lỗi logic", JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        if (v.getNgayBatDau().after(v.getNgayKetThuc())) {
-            JOptionPane.showMessageDialog(null, "Ngày bắt đầu phải trước ngày kết thúc!");
+
+        // 3. Kiểm tra loại phần trăm (không quá 100% - tương đương 1.0)
+        if (v.getLoaiVoucher() == Voucher_DTO.LOAI_PHAN_TRAM && v.getGiaTriVoucher() > 1.0) {
+            JOptionPane.showMessageDialog(null, "Voucher phần trăm không được vượt quá 100% (Giá trị phải <= 1.0)!", "Lỗi logic", JOptionPane.ERROR_MESSAGE);
             return false;
         }
+
+        // 4. KIỂM TRA LOGIC NGÀY THÁNG (Yêu cầu của bạn)
+        if (v.getNgayBatDau() != null && v.getNgayKetThuc() != null) {
+            if (v.getNgayBatDau().after(v.getNgayKetThuc())) {
+                JOptionPane.showMessageDialog(null, "Lỗi: Ngày kết thúc không được trước ngày bắt đầu!", "Lỗi thời gian", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc!", "Thiếu dữ liệu", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
         return true;
     }
     // ========================================================================

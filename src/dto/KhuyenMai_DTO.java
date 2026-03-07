@@ -91,4 +91,14 @@ public class KhuyenMai_DTO {
         if (DANG_AP_DUNG.equals(text)) return TT_DANG_AP_DUNG;
         return TT_NGUNG_AP_DUNG;
     }
+    public String getTrangThaiThucTe(ChuongTrinhKM_DTO ct) {
+        // 1. Kiểm tra chương trình cha trước (bao gồm cả logic ngày tháng của cha)
+        // getTrangThaiText() của cha trả về "Đang áp dụng" khi (TrangThai=1 AND còn hạn)
+        if (ct == null || !ct.getTrangThaiText().equals(ChuongTrinhKM_DTO.DANG_AP_DUNG)) {
+            return "Vô hiệu (Do CT)";
+        }
+
+        // 2. Nếu cha đang OK, mới xét tới trạng thái của riêng nó
+        return (this.getTrangThai() == TT_DANG_AP_DUNG) ? DANG_AP_DUNG : NGUNG_AP_DUNG;
+    }
 }

@@ -43,8 +43,6 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
     private JTable tableKhuyenMai;
     private JPanel panelTieuDe;
     private JLabel label_tieuDe;
-    private JButton btnNhapExcel;
-    private JButton btnXuatExcel;
     private JPanel panelBoLoc;
     private JLabel labelTimKiem;
     private JComboBox<String> cmbTimTheo;
@@ -224,6 +222,9 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
         popupGoiY.removeAll();
         if (list.isEmpty() || txtNhapThongTin.getText().trim().isEmpty()) return;
 
+        // 1. Lấy tiêu chí tìm kiếm hiện tại từ ComboBox bộ lọc
+        String timTheo = (String) cmbTimTheo.getSelectedItem();
+
         int itemsToShow = Math.min(list.size(), 5); // Hiện tối đa 5 gợi ý
         for (int i = 0; i < itemsToShow; i++) {
             KhuyenMai_DTO km = list.get(i);
@@ -232,7 +233,13 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
             item.setPreferredSize(new Dimension(txtNhapThongTin.getWidth(), 30));
 
             item.addActionListener(e -> {
-                txtNhapThongTin.setText(km.getMaKM()); // Hoặc km.getTenKM() tùy bạn
+                // 2. KIỂM TRA LOGIC ĐỂ ĐIỀN TEXT
+                if ("Tên khuyến mãi".equals(timTheo)) {
+                    txtNhapThongTin.setText(km.getTenKM()); // Điền Tên nếu đang tìm theo tên
+                } else {
+                    txtNhapThongTin.setText(km.getMaKM());  // Điền Mã nếu tìm theo mã hoặc tất cả
+                }
+
                 loadDataToTable_KhuyenMai(thucHienLoc());
                 popupGoiY.setVisible(false);
             });
@@ -247,17 +254,16 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
         int stt = 1;
         for (KhuyenMai_DTO km : list) {
             ChuongTrinhKM_DTO ct = ctkmBUS.getById(km.getMaChuongTrinh());
-            int statusCT = (ct != null) ? ct.getTrangThai() : 0;
+
+            // Dùng hàm trạng thái thực tế vừa viết trong DTO
+            String trangThaiHienThi = km.getTrangThaiThucTe(ct);
 
             String loaiKMStr = km.getLoaiKMText();
-            String trangThaiHienThi = km.getTrangThaiText();
             String doiTuongStr = km.getDoiTuongText();
 
-            // HIỂN THỊ NGUYÊN BẢN GIÁ TRỊ (Ví dụ 0.05 hoặc 20000)
             double giaTriGoc = km.getGiaTriKhuyenMai();
             String giaTriStr = (km.getLoaiKhuyenMai() == KhuyenMai_DTO.LOAI_PHAN_TRAM)
-                    ? String.valueOf(giaTriGoc) // Hiện 0.05
-                    : df.format(giaTriGoc) + " VNĐ";
+                    ? String.valueOf(giaTriGoc) : df.format(giaTriGoc) + " VNĐ";
 
             String chiTietApDung = "";
             if (km.getDoiTuongApDung() == KhuyenMai_DTO.DT_DANH_MUC) {
@@ -287,20 +293,28 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
         txtGiaTriKhuyenMai.setText(String.valueOf(km.getGiaTriKhuyenMai()));
         cmbLoaiKhuyenMai.setSelectedItem(km.getLoaiKMText());
 
-        // Hiển thị trạng thái của chính nó (vì đã được đồng bộ SQL khi tắt CTKM)
+        // QUAN TRỌNG: Hiển thị trạng thái "GỐC" của chính nó lên Combo
+        // Để Admin có thể sửa thành "Đang áp dụng" kể cả khi cha đang tắt (đợi cha bật lên là nó tự chạy)
         cmbTrangThai.setSelectedItem(km.getTrangThaiText());
 
         cmbDoiTuongApDung.setSelectedItem(km.getDoiTuongText());
         setSelectedComboBoxItem(cmbChuongTrinhKhuyenMai, km.getMaChuongTrinh());
 
+        // Hiển thị số lượt tối đa
+        int soLuotMax = bus.KhachHang_KM_BUS.getInstance().getSoLuotToiDa(km.getMaKM(), "KH000001");
+        txtSoLuotSuDung.setText(String.valueOf(soLuotMax));
+
+        // Thiết lập trạng thái hiển thị dựa trên dữ liệu của dòng vừa click
         if (km.getDoiTuongApDung() == KhuyenMai_DTO.DT_DANH_MUC) {
             setSelectedComboBoxItem(cmbApDungDanhMuc, km.getMaDanhMuc());
             cmbApDungDanhMuc.setEnabled(true);
             cmbApDungSanPham.setEnabled(false);
+            cmbApDungSanPham.setSelectedIndex(-1);
         } else {
             setSelectedComboBoxItem(cmbApDungSanPham, km.getMaSanPham());
             cmbApDungSanPham.setEnabled(true);
             cmbApDungDanhMuc.setEnabled(false);
+            cmbApDungDanhMuc.setSelectedIndex(-1);
         }
     }
 
@@ -316,21 +330,8 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
             int loai = selectedLoai.equals(KhuyenMai_DTO.PHAN_TRAM) ? KhuyenMai_DTO.LOAI_PHAN_TRAM : KhuyenMai_DTO.LOAI_TIEN_MAT;
 
             String textTrangThai = (String) cmbTrangThai.getSelectedItem();
-            String maCT = cmbChuongTrinhKhuyenMai.getSelectedItem().toString().split(" - ")[0];
-
-            // KIỂM TRA RÀNG BUỘC NGHIỆP VỤ
-            ChuongTrinhKM_DTO ctCha = ctkmBUS.getById(maCT);
-            if (textTrangThai.equals(KhuyenMai_DTO.DANG_AP_DUNG)) {
-                // Nếu chương trình cha đang ngưng (0), không cho phép bật Khuyến mãi con
-                if (ctCha == null || ctCha.getTrangThai() == ChuongTrinhKM_DTO.TT_NGUNG_AP_DUNG) {
-                    JOptionPane.showMessageDialog(this,
-                            "Chương trình chủ đang Ngưng áp dụng. Bạn không thể chuyển Khuyến mãi này sang 'Đang áp dụng'!",
-                            "Lỗi nghiệp vụ", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
-
             int trangThai = KhuyenMai_DTO.parseTrangThaiFromText(textTrangThai);
+            String maCT = cmbChuongTrinhKhuyenMai.getSelectedItem().toString().split(" - ")[0];
 
             String selectedDoiTuong = (String) cmbDoiTuongApDung.getSelectedItem();
             int doiTuong = selectedDoiTuong.equals(KhuyenMai_DTO.SAN_PHAM) ? KhuyenMai_DTO.DT_SAN_PHAM : KhuyenMai_DTO.DT_DANH_MUC;
@@ -465,8 +466,7 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
 
     private void setViewMode() {
         isAdding = isUpdating = false;
-
-        // Khóa tất cả các ô nhập liệu
+        // Khóa tất cả
         txtMaKhuyenMai.setEditable(false);
         txtTenKhuyenMai.setEditable(false);
         txtGiaTriKhuyenMai.setEditable(false);
@@ -479,7 +479,6 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
         cmbApDungDanhMuc.setEnabled(false);
         cmbApDungSanPham.setEnabled(false);
 
-        // Điều khiển nút bấm
         btnLuu.setVisible(false);
         btnHuy.setVisible(false);
         btnThem.setEnabled(true);
@@ -488,66 +487,48 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
     }
 
     private void setAddMode() {
-        isAdding = true;
-        isUpdating = false;
-        clearForm(); // Xóa sạch form trước khi thêm
-
-        // Tự động sinh mã và khóa lại
+        isAdding = true; isUpdating = false;
+        clearForm();
         txtMaKhuyenMai.setText(kmBUS.getNextId());
-        txtMaKhuyenMai.setEditable(false);
-
-        // Cho phép nhập các thông tin khác
         txtTenKhuyenMai.setEditable(true);
         txtGiaTriKhuyenMai.setEditable(true);
 
-        // THÊM: Cho phép nhập số lượt sử dụng khi tạo mới
         txtSoLuotSuDung.setEditable(true);
-        txtSoLuotSuDung.setText("1"); // Mặc định là 1
+        txtSoLuotSuDung.setText("1");
 
         cmbLoaiKhuyenMai.setEnabled(true);
-        cmbTrangThai.setSelectedIndex(0); // Mặc định Đang áp dụng
-        cmbTrangThai.setEnabled(false);  // Khi thêm mới thường mặc định bật luôn
+        cmbTrangThai.setSelectedIndex(0);
+        cmbTrangThai.setEnabled(true);
         cmbDoiTuongApDung.setEnabled(true);
         cmbChuongTrinhKhuyenMai.setEnabled(true);
-
-        boolean isDM = cmbDoiTuongApDung.getSelectedIndex() == 0;
-        cmbApDungDanhMuc.setEnabled(isDM);
-        cmbApDungSanPham.setEnabled(!isDM);
-        if (isDM) cmbApDungSanPham.setSelectedIndex(-1);
-        else cmbApDungDanhMuc.setSelectedIndex(-1);
+        boolean checkDM = cmbDoiTuongApDung.getSelectedIndex() == 0;
+        cmbApDungDanhMuc.setEnabled(checkDM);
+        cmbApDungSanPham.setEnabled(!checkDM);
 
         btnLuu.setVisible(true);
         btnHuy.setVisible(true);
         btnThem.setEnabled(false);
         btnCapNhat.setEnabled(false);
-        tableKhuyenMai.setEnabled(false); // Khóa bảng khi đang thêm
+        tableKhuyenMai.setEnabled(false);
     }
 
     private void setUpdateMode() {
-        if (tableKhuyenMai.getSelectedRow() < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn khuyến mãi cần cập nhật!");
-            return;
-        }
-        isAdding = false;
-        isUpdating = true;
+        if (tableKhuyenMai.getSelectedRow() < 0) return;
+        isAdding = false; isUpdating = true;
 
-        txtMaKhuyenMai.setEditable(false); // Không sửa mã
         txtTenKhuyenMai.setEditable(true);
         txtGiaTriKhuyenMai.setEditable(true);
 
-        // YÊU CẦU: Cập nhật không được sửa số lượt sử dụng
+        // KHÓA Ô SỐ LƯỢT KHI CẬP NHẬT (Dữ liệu đã xuống SQL)
         txtSoLuotSuDung.setEditable(false);
 
         cmbLoaiKhuyenMai.setEnabled(true);
-        cmbTrangThai.setEnabled(true); // Cho phép tắt/mở trạng thái
+        cmbTrangThai.setEnabled(true);
         cmbDoiTuongApDung.setEnabled(true);
         cmbChuongTrinhKhuyenMai.setEnabled(true);
-
-        boolean isDM = cmbDoiTuongApDung.getSelectedIndex() == 0;
-        cmbApDungDanhMuc.setEnabled(isDM);
-        cmbApDungSanPham.setEnabled(!isDM);
-        if (isDM) cmbApDungSanPham.setSelectedIndex(-1);
-        else cmbApDungDanhMuc.setSelectedIndex(-1);
+        boolean checkDM = cmbDoiTuongApDung.getSelectedIndex() == 0;
+        cmbApDungDanhMuc.setEnabled(checkDM);
+        cmbApDungSanPham.setEnabled(!checkDM);
 
         btnLuu.setVisible(true);
         btnHuy.setVisible(true);

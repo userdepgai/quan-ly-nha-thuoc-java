@@ -15,10 +15,9 @@ public class KhachHang_KM_DAO {
         return instance;
     }
 
-    // 1. Thêm mới khuyến mãi cho TẤT CẢ khách hàng (Dùng khi tạo mã KM mới)
-    // Sử dụng INSERT SELECT để tối ưu hiệu suất cực cao
+    // 1. Phân phối Khuyến mãi cho TẤT CẢ khách hàng (Dùng khi tạo mã KM mới)
     public boolean phanPhoiKMToanHeThong(String maKM, int soLuot) {
-        String sql = "INSERT INTO KHUYENMAIKHACHHANG (Ma_KM, Ma_KH, SoLuongConLai, SoLuongToiDa) " +
+        String sql = "INSERT INTO KHUYENMAIKHACHHANG (Ma_KM, Ma_KH, SoLuongToiDa, SoLuongConLai) " +
                 "SELECT ?, Ma_KH, ?, ? FROM KHACHHANG WHERE TrangThai = 1";
 
         try (Connection conn = DBConnection.getConnection();
@@ -38,15 +37,15 @@ public class KhachHang_KM_DAO {
 
     // 2. Thêm thủ công cho 1 khách hàng cụ thể
     public boolean them(KhachHang_KM_DTO dto) {
-        String sql = "INSERT INTO KHUYENMAIKHACHHANG (Ma_KM, Ma_KH, SoLuongConLai, SoLuongToiDa) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO KHUYENMAIKHACHHANG (Ma_KM, Ma_KH, SoLuongToiDa, SoLuongConLai) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, dto.getMaKM());
             ps.setString(2, dto.getMaKH());
-            ps.setInt(3, dto.getSoLuotConLai());
-            ps.setInt(4, dto.getSoLuotToiDa());
+            ps.setInt(3, dto.getSoLuotToiDa());
+            ps.setInt(4, dto.getSoLuotConLai());
 
             return ps.executeUpdate() > 0;
 

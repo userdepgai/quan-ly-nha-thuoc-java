@@ -5,13 +5,12 @@ import dto.QuyCach_DTO;
 import dto.SanPham_DTO;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class SanPham_BUS {
     private static SanPham_BUS instance;
     private final SanPham_DAO spDao = new SanPham_DAO();
-
     private final QuyCach_BUS qcBus = QuyCach_BUS.getInstance();
-
     private ArrayList<SanPham_DTO> listSanPham;
 
     private SanPham_BUS() {
@@ -30,14 +29,11 @@ public class SanPham_BUS {
      */
     public ArrayList<SanPham_DTO> getAll() {
         if (listSanPham == null) {
-            listSanPham = spDao.getAll();
+            refreshData();
         }
         return listSanPham;
     }
 
-    /**
-     * Lấy sản phẩm theo mã (tìm trong Cache cho nhanh)
-     */
     public SanPham_DTO getById(String maSP) {
         for (SanPham_DTO sp : getAll()) {
             if (sp.getMaSP().equals(maSP)) {
@@ -46,11 +42,9 @@ public class SanPham_BUS {
         }
         return null;
     }
-    public SanPham_DTO getByTenSP(String tenSP) {
-        if (tenSP == null || tenSP.trim().isEmpty()) {
-            return null;
-        }
 
+    public SanPham_DTO getByTenSP(String tenSP) {
+        if (tenSP == null || tenSP.trim().isEmpty()) return null;
         for (SanPham_DTO sp : getAll()) {
             if (sp.getTenSP().equalsIgnoreCase(tenSP.trim())) {
                 return sp;
@@ -59,133 +53,108 @@ public class SanPham_BUS {
         return null;
     }
 
-    /**
-     * Lấy mã sản phẩm tiếp theo (Gọi DAO)
-     */
     public String getNextId() {
         return spDao.getNextId();
     }
 
     /**
-     * LOGIC NGHIỆP VỤ QUAN TRỌNG: Xử lý Quy Cách
-     * 1. Tìm trong DB xem đã có quy cách (slTrongHop, slHopTrongThung) chưa.
-     * 2. Nếu có -> Trả về MaQC.
-     * 3. Nếu chưa -> Tạo mới QuyCach -> Trả về MaQC mới.
+     * HÀM LỌC TỔNG HỢP NÂNG CAO (Dùng cho cả Tìm kiếm và Gợi ý)
+     * @param keyword: Từ khóa nhập vào
+     * @param timTheo: "Tất cả", "Mã sản phẩm", "Tên sản phẩm"
+     * @param maDM: Mã danh mục hoặc "Tất cả"
+     * @param trangThai: 1 (Đang bán), 0 (Ngừng bán), null (Tất cả)
+     * @param sortLoiNhuan: "Không sắp xếp", "Tăng dần", "Giảm dần"
      */
+    public ArrayList<SanPham_DTO> timKiemNangCao(String keyword, String timTheo, String maDM, Integer trangThai, String sortLoiNhuan) {
+        ArrayList<SanPham_DTO> result = new ArrayList<>();
+        String key = (keyword == null) ? "" : keyword.toLowerCase().trim();
+
+        for (SanPham_DTO sp : getAll()) {
+            // 1. Lọc theo Từ khóa & Tiêu chí tìm kiếm
+            boolean matchKey = false;
+            if (timTheo.equals("Tất cả")) {
+                matchKey = sp.getMaSP().toLowerCase().contains(key) || sp.getTenSP().toLowerCase().contains(key);
+            } else if (timTheo.equals("Mã sản phẩm")) {
+                matchKey = sp.getMaSP().toLowerCase().contains(key);
+            } else { // Tên sản phẩm
+                matchKey = sp.getTenSP().toLowerCase().contains(key);
+            }
+
+            // 2. Lọc theo Danh mục
+            boolean matchDM = (maDM == null || maDM.equals("Tất cả") || (sp.getMaDM() != null && sp.getMaDM().equals(maDM)));
+
+            // 3. Lọc theo Trạng thái
+            boolean matchTT = (trangThai == null || sp.getTrangThai() == trangThai);
+
+            // Kết hợp các điều kiện
+            if (matchKey && matchDM && matchTT) {
+                result.add(sp);
+            }
+        }
+
+        // 4. Xử lý Sắp xếp theo Lợi nhuận (nếu có yêu cầu)
+        if (sortLoiNhuan != null && !sortLoiNhuan.equals("Không sắp xếp")) {
+            result.sort((sp1, sp2) -> {
+                if (sortLoiNhuan.equals("Tăng dần")) {
+                    return Double.compare(sp1.getLoiNhuan(), sp2.getLoiNhuan());
+                } else {
+                    return Double.compare(sp2.getLoiNhuan(), sp1.getLoiNhuan());
+                }
+            });
+        }
+
+        return result;
+    }
+
     private String xuLyQuyCach(int slTrongHop, int slHopTrongThung) {
-        // 1. Duyệt danh sách quy cách hiện có để tìm trùng
         for (QuyCach_DTO qc : qcBus.getAll()) {
             if (qc.getSlTrongHop() == slTrongHop && qc.getSlHopTrongThung() == slHopTrongThung) {
                 return qc.getMaQC();
             }
         }
-
-        // 2. Nếu chưa có, tạo mới
         String maQCMoi = qcBus.getNextId();
-        // Tính tổng số lượng SP trong thùng = slTrongHop * slHopTrongThung
         int tongSL = slTrongHop * slHopTrongThung;
-
         QuyCach_DTO qcNew = new QuyCach_DTO(maQCMoi, slTrongHop, slHopTrongThung, tongSL);
-
-        // Gọi BUS Quy Cách để thêm mới
-        if (qcBus.them(qcNew)) {
-            return maQCMoi;
-        }
-
-        return null; // Trả về null nếu lỗi tạo quy cách
+        if (qcBus.them(qcNew)) return maQCMoi;
+        return null;
     }
 
-    /**
-     * Thêm sản phẩm
-     * @param sp Đối tượng sản phẩm (đã có thông tin cơ bản)
-     * @param slTrongHop Số lượng trong hộp (lấy từ GUI)
-     * @param slHopTrongThung Số hộp trong thùng (lấy từ GUI)
-     */
     public boolean them(SanPham_DTO sp, int slTrongHop, int slHopTrongThung) {
-        // 1. Kiểm tra dữ liệu hợp lệ
         if (!kiemTraHopLe(sp)) return false;
-
-        // 2. Kiểm tra trùng mã
         if (getById(sp.getMaSP()) != null) return false;
 
-        // 3. Xử lý logic Quy Cách để lấy được Mã QC
         String maQC = xuLyQuyCach(slTrongHop, slHopTrongThung);
-        if (maQC == null) return false; // Không xử lý được quy cách thì không thêm SP
+        if (maQC == null) return false;
+        sp.setMaQC(maQC);
 
-        sp.setMaQC(maQC); // Gán mã QC vào SP
-
-        // 4. Gọi DAO thêm xuống DB
         boolean result = spDao.them(sp);
-
-        // 5. Cập nhật Cache nếu thành công
         if (result) {
             listSanPham.add(sp);
         }
         return result;
     }
 
-    /**
-     * Cập nhật sản phẩm
-     */
     public boolean capNhat(SanPham_DTO sp, int slTrongHop, int slHopTrongThung) {
         if (!kiemTraHopLe(sp)) return false;
 
-        // 1. Xử lý quy cách (người dùng có thể thay đổi số lượng đóng gói)
         String maQC = xuLyQuyCach(slTrongHop, slHopTrongThung);
         if (maQC == null) return false;
-
         sp.setMaQC(maQC);
 
-        // 2. Gọi DAO cập nhật
         boolean result = spDao.capNhat(sp);
-
-        // 3. Cập nhật Cache: Reload lại toàn bộ hoặc sửa đối tượng trong list
         if (result) {
-            refreshData(); // Cách an toàn nhất là load lại list
+            refreshData();
         }
         return result;
     }
 
-    /**
-     * Làm mới danh sách cache từ Database
-     */
     public void refreshData() {
         listSanPham = spDao.getAll();
     }
 
-    /**
-     * Tìm kiếm và Lọc (Xử lý trên Ram/Cache)
-     */
-    public ArrayList<SanPham_DTO> timKiem(String keyword, String maDM, Integer trangThai) {
-        ArrayList<SanPham_DTO> result = new ArrayList<>();
-        String key = (keyword == null) ? "" : keyword.toLowerCase().trim();
-
-        for (SanPham_DTO sp : getAll()) {
-            // Điều kiện 1: Từ khóa (Mã hoặc Tên)
-            boolean matchKey = sp.getTenSP().toLowerCase().contains(key)
-                    || sp.getMaSP().toLowerCase().contains(key);
-
-            // Điều kiện 2: Danh mục (Nếu null hoặc "Tất cả" thì bỏ qua)
-            boolean matchDM = (maDM == null || maDM.equals("Tất cả") || (sp.getMaDM() != null && sp.getMaDM().equals(maDM)));
-
-            // Điều kiện 3: Trạng thái (Nếu null thì bỏ qua)
-            boolean matchTT = (trangThai == null || sp.getTrangThai() == trangThai);
-
-            // Kết hợp AND
-            if (matchKey && matchDM && matchTT) {
-                result.add(sp);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Validate dữ liệu nghiệp vụ
-     */
     private boolean kiemTraHopLe(SanPham_DTO sp) {
         if (sp.getTenSP() == null || sp.getTenSP().trim().isEmpty()) return false;
         if (sp.getLoiNhuan() < 0) return false;
-        // Có thể thêm các validate khác ở đây
         return true;
     }
 }
