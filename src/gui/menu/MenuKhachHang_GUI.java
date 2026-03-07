@@ -2,17 +2,26 @@ package gui.menu;
 
 import javax.swing.*;
 import java.awt.*;
+
+import bus.TaiKhoan_BUS;
 import dto.MenuItem;
+import dto.TaiKhoan_DTO;
 import gui.*;
-public class MenuKhachHang_GUI extends JFrame{
+import utils.Session;
+
+public class MenuKhachHang_GUI extends JFrame {
+
     private GIOHANG gioHangGUI;
     private JList<MenuItem> menuList;
     private DefaultListModel<MenuItem> menuModel;
     private JPanel contentPanel;
     private CardLayout cardLayout;
+
+    private TaiKhoan_BUS taiKhoanBus = TaiKhoan_BUS.getInstance();
+
     public MenuKhachHang_GUI() {
         setTitle("Trang chủ khách hàng");
-        setSize(800,700);
+        setSize(800, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -22,17 +31,22 @@ public class MenuKhachHang_GUI extends JFrame{
     private void intitUI() {
         menuModel = new DefaultListModel<>();
 
-        menuModel.addElement(new MenuItem("Nguyễn Gia Thịnh", null, icon("account.png"), false));
-        menuModel.addElement(new MenuItem("HỆ THỐNG", null,null,true));
-        menuModel.addElement(new MenuItem("Trang chủ","trangChu",icon("dashboard.png"),false));
-        menuModel.addElement(new MenuItem("Giỏ hàng","gioHang",icon("dashboard.png"),false));
-        menuModel.addElement(new MenuItem("Chờ giao hàng","choGiaoHang",icon("dashboard.png"),false));
-        menuModel.addElement(new MenuItem("Lịch sử mua hàng","lichSuMuaHang",icon("dashboard.png"),false));
+        if (Session.isLoggedIn()) {
+            menuModel.addElement(new MenuItem(getNameUser(Session.getCurrentUser().getSdt()), null, icon("account.png"), false));
+        } else {
+            menuModel.addElement(new MenuItem("Nguyễn Gia Thịnh", null, icon("account.png"), false));
+        }
 
-        menuModel.addElement(new MenuItem("HỒ SƠ", null, null,true));
-        menuModel.addElement(new MenuItem("Thông tin cá nhân", "thongTinCaNhan", icon("khachHang.png"),false));
-        menuModel.addElement(new MenuItem("Địa chỉ", "diaChi", icon("nhanVien.png"),false));
-        menuModel.addElement(new MenuItem("Đổi mật khẩu", "doiMatKhau", icon("nhaCungCap.png"),false));
+        menuModel.addElement(new MenuItem("HỆ THỐNG", null, null, true));
+        menuModel.addElement(new MenuItem("Trang chủ", "trangChu", icon("dashboard.png"), false));
+        menuModel.addElement(new MenuItem("Giỏ hàng", "gioHang", icon("dashboard.png"), false));
+        menuModel.addElement(new MenuItem("Chờ giao hàng", "choGiaoHang", icon("dashboard.png"), false));
+        menuModel.addElement(new MenuItem("Lịch sử mua hàng", "lichSuMuaHang", icon("dashboard.png"), false));
+
+        menuModel.addElement(new MenuItem("HỒ SƠ", null, null, true));
+        menuModel.addElement(new MenuItem("Thông tin cá nhân", "thongTinCaNhan", icon("khachHang.png"), false));
+        menuModel.addElement(new MenuItem("Địa chỉ", "diaChi", icon("nhanVien.png"), false));
+        menuModel.addElement(new MenuItem("Đổi mật khẩu", "doiMatKhau", icon("nhaCungCap.png"), false));
 
         menuModel.addElement(new MenuItem("Đăng xuất", "dangXuat", icon("logout.png"), false));
 
@@ -50,20 +64,23 @@ public class MenuKhachHang_GUI extends JFrame{
 
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
-        gioHangGUI = new GIOHANG();
-        contentPanel.add(new TrangChu_GUI(),"trangChu");
-        contentPanel.add(gioHangGUI, "gioHang");
-        contentPanel.add(createContent("Cho giao hang"),"choGiaoHang");
-        contentPanel.add(createContent("Lich su mua hang"),"lichSuMuaHang");
 
-        contentPanel.add(new ThongTinCaNhanKhachHang_GUI(),"thongTinCaNhan");
-        contentPanel.add(createContent("Dia chi"),"diaChi");
-        contentPanel.add(createContent("Doi mat khau"),"doiMatKhau");
+        gioHangGUI = new GIOHANG();
+
+        contentPanel.add(new TrangChu_GUI(), "trangChu");
+        contentPanel.add(gioHangGUI, "gioHang");
+
+        contentPanel.add(createContent("Cho giao hang"), "choGiaoHang");
+        contentPanel.add(createContent("Lich su mua hang"), "lichSuMuaHang");
+
+        contentPanel.add(new ThongTinCaNhanKhachHang_GUI(), "thongTinCaNhan");
+        contentPanel.add(createContent("Dia chi"), "diaChi");
+        contentPanel.add(createContent("Doi mat khau"), "doiMatKhau");
 
         menuList.addListSelectionListener(e -> {
-            if(!e.getValueIsAdjusting()) {
+            if (!e.getValueIsAdjusting()) {
                 MenuItem item = menuList.getSelectedValue();
-                if(item != null && !item.isGroup) {
+                if (item != null && !item.isGroup) {
                     if ("dangXuat".equals(item.cardName)) {
                         int confirm = JOptionPane.showConfirmDialog(
                                 this,
@@ -74,12 +91,15 @@ public class MenuKhachHang_GUI extends JFrame{
                         if (confirm == JOptionPane.YES_OPTION) {
                             dispose();
                             new DangNhapGUI().setVisible(true);
+                            Session.clear();
                         }
                         return;
                     }
+
                     if ("gioHang".equals(item.cardName)) {
                         gioHangGUI.loadData();
                     }
+
                     cardLayout.show(contentPanel, item.cardName);
                 }
             }
@@ -106,7 +126,11 @@ public class MenuKhachHang_GUI extends JFrame{
     }
 
     private Icon icon(String name) {
-         return new ImageIcon(getClass().getResource("/icons/" + name));
+        return new ImageIcon(getClass().getResource("/icons/" + name));
+    }
+
+    private String getNameUser(String sdt) {
+        return taiKhoanBus.getNameKhachHang(sdt);
     }
 
     public static void main(String[] args) {
