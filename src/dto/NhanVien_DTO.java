@@ -14,6 +14,9 @@ public class NhanVien_DTO extends Nguoi_DTO {
     public NhanVien_DTO(String maNV, String tenNV, Date ngaySinh, String diaChi, String gioiTinh, String soDienThoai, String chucVu, int trangThai, double luongCoBan, Date ngayVaoLam) {
         super();
     }
+    public NhanVien_DTO(){
+        super();
+    }
 
     public NhanVien_DTO(String ma, String ten, String sdt,
                         LocalDate ngaySinh, boolean gioiTinh,

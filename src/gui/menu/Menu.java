@@ -33,9 +33,9 @@ public class Menu extends JFrame {
         menuModel = new DefaultListModel<>();
 
         if(Session.isLoggedIn()) {
-            menuModel.addElement(new MenuItem(getNameUser(Session.getCurrentUser().getSdt()), null, icon("account.png"), false));
+            menuModel.addElement(new MenuItem(getNameUser(Session.getCurrentUser().getSdt()), "thongTinCaNhanFrame", icon("account.png"), false));
         } else {
-            menuModel.addElement(new MenuItem("Nguyễn Gia Thịnh", null, icon("account.png"), false));
+            menuModel.addElement(new MenuItem("Nguyễn Gia Thịnh", "thongTinCaNhanFrame", icon("account.png"), false));
         }
 
         menuModel.addElement(new MenuItem("TỔNG QUAN & ĐIỀU HÀNH", null, null, true));

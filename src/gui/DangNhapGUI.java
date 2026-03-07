@@ -4,6 +4,7 @@ import dto.TaiKhoan_DTO;
 import gui.menu.Menu;
 import gui.menu.MenuKhachHang_GUI;
 import gui.menu.*;
+import utils.CartService;
 import utils.Session;
 
 import javax.swing.*;
@@ -143,6 +144,9 @@ public class DangNhapGUI extends JFrame {
 
         if (taiKhoanDuocChon != null) {
             Session.setCurrentUser(taiKhoanDuocChon);
+            if (Session.isCustomer()) {
+                CartService.mergeGuestCartToUserCart();
+            }
             moGiaoDienTheoQuyen(taiKhoanDuocChon);
         }
     }
@@ -209,7 +213,6 @@ public class DangNhapGUI extends JFrame {
         } else {
             new Menu().setVisible(true);
         }
-
         dispose();
     }
     public boolean kiemTraSoDienThoai(String sdt) {

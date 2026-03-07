@@ -7,6 +7,7 @@ import bus.TaiKhoan_BUS;
 import dto.MenuItem;
 import dto.TaiKhoan_DTO;
 import gui.*;
+import gui.trangChuDatHang.TrangChu_GUI;
 import utils.Session;
 
 public class MenuKhachHang_GUI extends JFrame{
@@ -36,14 +37,13 @@ public class MenuKhachHang_GUI extends JFrame{
 
         menuModel.addElement(new MenuItem("HỆ THỐNG", null,null,true));
         menuModel.addElement(new MenuItem("Trang chủ","trangChu",icon("dashboard.png"),false));
-        menuModel.addElement(new MenuItem("Giỏ hàng","gioHang",icon("dashboard.png"),false));
-        menuModel.addElement(new MenuItem("Chờ giao hàng","choGiaoHang",icon("dashboard.png"),false));
-        menuModel.addElement(new MenuItem("Lịch sử mua hàng","lichSuMuaHang",icon("dashboard.png"),false));
+        menuModel.addElement(new MenuItem("Giỏ hàng","gioHang",icon("gioHang.png"),false));
+        menuModel.addElement(new MenuItem("Chờ giao hàng","choGiaoHang",icon("choGiaoHang.png"),false));
+        menuModel.addElement(new MenuItem("Lịch sử mua hàng","lichSuMuaHang",icon("lichSuMuaHang.png"),false));
 
         menuModel.addElement(new MenuItem("HỒ SƠ", null, null,true));
-        menuModel.addElement(new MenuItem("Thông tin cá nhân", "thongTinCaNhan", icon("khachHang.png"),false));
-        menuModel.addElement(new MenuItem("Địa chỉ", "diaChi", icon("nhanVien.png"),false));
-        menuModel.addElement(new MenuItem("Đổi mật khẩu", "doiMatKhau", icon("nhaCungCap.png"),false));
+        menuModel.addElement(new MenuItem("Thông tin cá nhân", "thongTinCaNhan", icon("nhanVien.png"),false));
+        menuModel.addElement(new MenuItem("Đổi mật khẩu", "doiMatKhau", icon("doiMatKhau.png"),false));
 
         menuModel.addElement(new MenuItem("Đăng xuất", "dangXuat", icon("logout.png"), false));
 
@@ -62,14 +62,13 @@ public class MenuKhachHang_GUI extends JFrame{
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
-        contentPanel.add(createContent("Trang chu"),"trangChu");
+        contentPanel.add(new TrangChu_GUI(),"trangChu");
         contentPanel.add(new GIOHANG().getMainPanel(), "gioHang");
         contentPanel.add(createContent("Cho giao hang"),"choGiaoHang");
         contentPanel.add(createContent("Lich su mua hang"),"lichSuMuaHang");
 
         contentPanel.add(new ThongTinCaNhanKhachHang_GUI(),"thongTinCaNhan");
-        contentPanel.add(createContent("Dia chi"),"diaChi");
-        contentPanel.add(createContent("Doi mat khau"),"doiMatKhau");
+        contentPanel.add(new DoiMatKhau_GUI(),"doiMatKhau");
 
         menuList.addListSelectionListener(e -> {
             if(!e.getValueIsAdjusting()) {

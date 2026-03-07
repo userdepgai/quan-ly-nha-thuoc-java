@@ -109,6 +109,13 @@ public class KhuVucLuuTru_BUS {
         }
         return null;
     }
+    public KhuVucLuuTru_DTO getByName(String tenKVLT) {
+        for (KhuVucLuuTru_DTO kv : listCache) {
+            if (kv.getTenKVLT().equals(tenKVLT))
+                return kv;
+        }
+        return null;
+    }
 
     public String getNextId() {
         return dao.getNextId();
