@@ -67,10 +67,6 @@ public class ChuongTrinhKM_BUS {
 
         boolean result = dao.capNhat(ctkm);
         if (result) {
-            // Nếu chương trình cha bị ngưng (0), cập nhật luôn tất cả con trong SQL thành (0)
-            if (ctkm.getTrangThai() == ChuongTrinhKM_DTO.TT_NGUNG_AP_DUNG) {
-                KhuyenMai_BUS.getInstance().capNhatTrangThaiTheoCTKM(ctkm.getMa(), 0);
-            }
             refreshData();
         }
         return result;

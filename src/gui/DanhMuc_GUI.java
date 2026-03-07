@@ -20,8 +20,6 @@ public class DanhMuc_GUI extends JPanel {
     // --- KHAI BÁO BIẾN GIAO DIỆN ---
     private JPanel panelDanhMucSanPham;
     private JLabel labelDanhMucSanPham;
-    private JButton btnXuatExcel;
-    private JButton btnNhapExcel;
     private JTable tableDanhMuc;
     private JButton btnCapNhat;
     private JButton btnThem;

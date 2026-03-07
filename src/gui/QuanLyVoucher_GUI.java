@@ -22,8 +22,6 @@ public class QuanLyVoucher_GUI extends JPanel {
     private JTextField txtMaVoucher;
     private JTextField txtTenVoucher;
     private JPanel panelQuanLyVoucher;
-    private JButton btnNhapExcel;
-    private JButton btnXuatExcel;
     private JTable tableVoucher;
     private JLabel labelMaVoucher;
     private JLabel labelTenVoucher;
@@ -59,8 +57,8 @@ public class QuanLyVoucher_GUI extends JPanel {
     private JDateChooser jdNgayKetThuc;
     private JButton btnHuy;
     private JButton btnLuu;
-    private JLabel labelLoaiGiam;
-    private JComboBox cmbLoaiGiam;
+    private JLabel labelLocLoaiVoucher;
+    private JComboBox cmbLocLoaiVoucher;
     private JLabel labelLocNgayBatDau;
     private JPanel LocNgayBatDau;
     private JDateChooser jdLocNgayBatDau;
@@ -103,27 +101,44 @@ public class QuanLyVoucher_GUI extends JPanel {
     }
 
     private void initComboBox_Voucher() {
-        // 1. Nạp dữ liệu cho ô Loại Voucher (Chi tiết)
+        // 1. Nạp dữ liệu cho ô Loại Voucher (Chi tiết) - Dùng hằng số DTO
         if (cmbLoaiVoucher != null) {
             cmbLoaiVoucher.removeAllItems();
-            cmbLoaiVoucher.addItem("Phần trăm");
-            cmbLoaiVoucher.addItem("Tiền mặt");
+            cmbLoaiVoucher.addItem(Voucher_DTO.PHAN_TRAM);
+            cmbLoaiVoucher.addItem(Voucher_DTO.TIEN_MAT);
         }
 
-        // 2. Nạp dữ liệu cho ô Trạng thái (Chi tiết - Ô đang bị lỗi của bạn)
+        // 2. Nạp dữ liệu cho ô Trạng thái (Chi tiết) - Dùng hằng số DTO
         if (cmbTrangThai != null) {
             cmbTrangThai.removeAllItems();
-            cmbTrangThai.addItem("Đang áp dụng");
-            cmbTrangThai.addItem("Ngưng áp dụng");
+            cmbTrangThai.addItem(Voucher_DTO.DANG_AP_DUNG);
+            cmbTrangThai.addItem(Voucher_DTO.NGUNG_AP_DUNG);
         }
 
-        // 3. Nạp dữ liệu cho ô comboBox1 (Ô lọc Trạng thái ở phía trên)
+        // 3. Nạp dữ liệu cho ô Tìm theo (Bộ lọc)
+        if (cmbTimTheo != null) {
+            cmbTimTheo.removeAllItems();
+            cmbTimTheo.addItem("Tất cả");
+            cmbTimTheo.addItem("Mã Voucher");
+            cmbTimTheo.addItem("Tên Voucher");
+        }
+
+        // 4. Nạp dữ liệu cho ô Lọc Trạng thái (Bộ lọc phía trên)
         if (cmbLocTrangThai != null) {
             cmbLocTrangThai.removeAllItems();
             cmbLocTrangThai.addItem("Tất cả");
-            cmbLocTrangThai.addItem("Đang áp dụng");
-            cmbLocTrangThai.addItem("Ngưng áp dụng");
+            cmbLocTrangThai.addItem(Voucher_DTO.DANG_AP_DUNG);
+            cmbLocTrangThai.addItem(Voucher_DTO.NGUNG_AP_DUNG);
+            cmbLocTrangThai.addItem("Chưa diễn ra"); // Thêm trạng thái thông minh từ DTO
         }
+
+         //5. Nếu bạn có ComboBox Lọc Loại Voucher ở bộ lọc phía trên
+         if (cmbLocLoaiVoucher != null) {
+             cmbLocLoaiVoucher.removeAllItems();
+             cmbLocLoaiVoucher.addItem("Tất cả");
+             cmbLocLoaiVoucher.addItem(Voucher_DTO.PHAN_TRAM);
+             cmbLocLoaiVoucher.addItem(Voucher_DTO.TIEN_MAT);
+         }
     }
 
     // ==============================================================
@@ -174,14 +189,99 @@ public class QuanLyVoucher_GUI extends JPanel {
 
         // Các sự kiện nút bấm
         btnThem.addActionListener(e -> setAddMode());
-        btnCapNhat.addActionListener(e -> setUpdateMode());
+        btnCapNhat.addActionListener(e -> {
+            if (tableVoucher.getSelectedRow() < 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn Voucher muốn cập nhật từ danh sách!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            setUpdateMode();
+        });
         btnLuu.addActionListener(e -> saveVoucher());
         btnHuy.addActionListener(e -> { setViewMode(); clearForm(); });
 
-        // Sự kiện lọc (Thêm vào nếu chưa có)
+        txtNhapThongTin.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+                if (e.getKeyCode() != java.awt.event.KeyEvent.VK_UP &&
+                        e.getKeyCode() != java.awt.event.KeyEvent.VK_DOWN &&
+                        e.getKeyCode() != java.awt.event.KeyEvent.VK_ENTER) {
+
+                    thucHienLoc(); // Tự động lọc khi gõ
+                    hienThiGoiY(vBUS.timKiemNangCao(txtNhapThongTin.getText(),
+                            (String)cmbTimTheo.getSelectedItem(), "Tất cả", "Tất cả", null, null));
+                }
+            }
+        });
+
+        jdLocNgayBatDau.addPropertyChangeListener("date", evt -> {
+            java.util.Date bd = jdLocNgayBatDau.getDate();
+            java.util.Date kt = jdLocNgayKetThuc.getDate();
+
+            // Truyền true vào tham số cuối vì đang đổi ô StartDate
+            if (!vBUS.kiemTraLogicLocNgay(bd, kt, true)) {
+                jdLocNgayBatDau.setDate(null);
+            } else {
+                loadDataToTable_Voucher(thucHienLoc());
+            }
+        });
+
+        jdLocNgayKetThuc.addPropertyChangeListener("date", evt -> {
+            java.util.Date bd = jdLocNgayBatDau.getDate();
+            java.util.Date kt = jdLocNgayKetThuc.getDate();
+
+            // Truyền false vào tham số cuối vì đang đổi ô EndDate
+            if (!vBUS.kiemTraLogicLocNgay(bd, kt, false)) {
+                jdLocNgayKetThuc.setDate(null);
+            } else {
+                loadDataToTable_Voucher(thucHienLoc());
+            }
+        });
+
+        // Tự động lọc khi thay đổi các điều kiện khác
         ActionListener locAction = e -> thucHienLoc();
-        cmbLocTrangThai.addActionListener(locAction);
         cmbTimTheo.addActionListener(locAction);
+        cmbLocTrangThai.addActionListener(locAction);
+        if (cmbLocLoaiVoucher != null) cmbLocLoaiVoucher.addActionListener(locAction);
+
+        btnTimkiem.addActionListener(e -> thucHienLoc());
+
+        btnThoat.addActionListener(e -> {
+            txtNhapThongTin.setText("");
+            cmbTimTheo.setSelectedIndex(0);
+            cmbLocTrangThai.setSelectedIndex(0);
+            jdLocNgayBatDau.setDate(null);
+            jdLocNgayKetThuc.setDate(null);
+            loadDataToTable_Voucher(vBUS.getAll());
+        });
+    }
+
+    private void hienThiGoiY(ArrayList<Voucher_DTO> list) {
+        popupGoiY.setVisible(false);
+        popupGoiY.removeAll();
+        if (list.isEmpty() || txtNhapThongTin.getText().trim().isEmpty()) return;
+
+        // 1. Lấy tiêu chí tìm kiếm hiện tại từ ComboBox
+        String timTheo = (String) cmbTimTheo.getSelectedItem();
+
+        for (int i = 0; i < Math.min(list.size(), 5); i++) {
+            Voucher_DTO v = list.get(i);
+            // Gợi ý vẫn hiện "Mã - Tên" cho người dùng dễ nhìn
+            JMenuItem item = new JMenuItem(v.getMa() + " - " + v.getTen());
+
+            item.addActionListener(e -> {
+                if (timTheo.equals("Tên Voucher")) {
+                    txtNhapThongTin.setText(v.getTen()); // Nếu tìm theo tên, điền Tên vào ô tìm kiếm
+                } else {
+                    txtNhapThongTin.setText(v.getMa());  // Nếu tìm theo mã (hoặc Tất cả), điền Mã
+                }
+
+                thucHienLoc();
+                popupGoiY.setVisible(false);
+            });
+            popupGoiY.add(item);
+        }
+        popupGoiY.show(txtNhapThongTin, 0, txtNhapThongTin.getHeight());
+        txtNhapThongTin.requestFocus();
     }
 
     // ==============================================================
@@ -214,12 +314,8 @@ public class QuanLyVoucher_GUI extends JPanel {
         }
 
         // 4. HIỂN THỊ SỐ LƯỢT SỬ DỤNG
-        // Vì Voucher này phát cho tất cả KH cùng 1 mức tối đa,
-        // ta lấy đại diện 1 khách hàng hoặc viết hàm lấy SoLuongToiDa trong Voucher_DAO
-        // Ở đây tôi giả định bạn lấy từ bảng trung gian thông qua BUS đã viết:
-        int soLuot = bus.KhachHang_Voucher_BUS.getInstance().getSoLuotConLai(v.getMa(), "KH000001");
-        // Lưu ý: Bạn nên viết thêm hàm getSoLuotToiDa(maVoucher) trong Voucher_DAO để lấy chính xác hơn.
-        txtSoLuotSuDung.setText(String.valueOf(soLuot));
+        int soLuotMax = bus.KhachHang_Voucher_BUS.getInstance().getSoLuotToiDa(v.getMa(), "KH000001");
+        txtSoLuotSuDung.setText(String.valueOf(soLuotMax));
 
         // Khóa ô mã
         txtMaVoucher.setEditable(false);
@@ -251,97 +347,138 @@ public class QuanLyVoucher_GUI extends JPanel {
         panelNgayKetThuc = new JPanel(new BorderLayout());
         panelNgayKetThuc.add(jdNgayKetThuc);
     }
-    private void thucHienLoc() {
+
+    private ArrayList<Voucher_DTO> thucHienLoc() {
         String keyword = txtNhapThongTin.getText();
         String timTheo = (String) cmbTimTheo.getSelectedItem();
         String locTrangThai = (String) cmbLocTrangThai.getSelectedItem();
 
-        // Gọi 1 dòng duy nhất từ BUS
-        ArrayList<Voucher_DTO> dsLoc = vBUS.timKiemNangCao(keyword, timTheo, locTrangThai);
+        // Sử dụng biến mới đã đổi tên
+        String locLoai = (cmbLocLoaiVoucher != null) ? (String) cmbLocLoaiVoucher.getSelectedItem() : "Tất cả";
 
+        java.util.Date filterBD = jdLocNgayBatDau.getDate();
+        java.util.Date filterKT = jdLocNgayKetThuc.getDate();
+
+        // Gọi BUS xử lý lọc
+        ArrayList<Voucher_DTO> dsLoc = vBUS.timKiemNangCao(keyword, timTheo, locLoai, locTrangThai, filterBD, filterKT);
         loadDataToTable_Voucher(dsLoc);
+        return dsLoc;
     }
 
     private void saveVoucher() {
         try {
+            // Bước 1: Kiểm tra nhập liệu thô (Check rỗng các ô bắt buộc)
             if (!validateForm()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ các thông tin bắt buộc!", "Thông báo", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            // 1. Thu thập dữ liệu từ GUI
             Voucher_DTO v = new Voucher_DTO();
-            v.setMa(txtMaVoucher.getText());
-            v.setTen(txtTenVoucher.getText());
+            v.setMa(txtMaVoucher.getText().trim());
+            v.setTen(txtTenVoucher.getText().trim());
             v.setLoaiVoucher(cmbLoaiVoucher.getSelectedIndex());
             v.setGiaTriVoucher(Double.parseDouble(txtGiaTriVoucher.getText().trim()));
             v.setDonToiThieu(Double.parseDouble(txtDonToiThieu.getText().trim()));
-            v.setNgayBatDau(new java.sql.Date(jdNgayBatDau.getDate().getTime()));
-            v.setNgayKetThuc(new java.sql.Date(jdNgayKetThuc.getDate().getTime()));
 
-            // Gán trạng thái thông qua hàm parse của DTO
-            if (!v.setTrangThaiFromText((String) cmbTrangThai.getSelectedItem())) {
-                JOptionPane.showMessageDialog(this, "Không thể kích hoạt Voucher đã hết hạn!");
+            // Lấy ngày từ JDateChooser
+            if (jdNgayBatDau.getDate() != null)
+                v.setNgayBatDau(new java.sql.Date(jdNgayBatDau.getDate().getTime()));
+            if (jdNgayKetThuc.getDate() != null)
+                v.setNgayKetThuc(new java.sql.Date(jdNgayKetThuc.getDate().getTime()));
+
+            // Bước 3: Kiểm tra trạng thái dựa trên ngày (Logic trong DTO)
+            String statusSelected = (String) cmbTrangThai.getSelectedItem();
+            if (!v.setTrangThaiFromText(statusSelected)) {
+                JOptionPane.showMessageDialog(this, "Không thể kích hoạt Voucher vì ngày kết thúc đã qua!", "Lỗi trạng thái", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // 2. Gọi BUS xử lý
+            // Bước 4: Gọi BUS để thực hiện Lưu (BUS sẽ tự chạy hàm validate logic ngày tháng bên trong)
             boolean success;
             if (isAdding) {
                 int soLuot = Integer.parseInt(txtSoLuotSuDung.getText().trim());
-                success = vBUS.them(v, soLuot); // Logic phân phối khách hàng nằm trong này
+                success = vBUS.them(v, soLuot);
             } else {
                 success = vBUS.capNhat(v);
             }
 
             if (success) {
-                JOptionPane.showMessageDialog(this, "Lưu thành công!");
+                JOptionPane.showMessageDialog(this, "Lưu dữ liệu thành công!");
                 loadDataToTable_Voucher(vBUS.getAll());
                 setViewMode();
                 clearForm();
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập số hợp lệ!");
+            JOptionPane.showMessageDialog(this, "Giá trị voucher, Đơn tối thiểu hoặc Số lượt phải là số hợp lệ!", "Lỗi định dạng", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + e.getMessage());
         }
     }
 
     private void setViewMode() {
         isAdding = isUpdating = false;
-        txtTenVoucher.setEditable(false); txtGiaTriVoucher.setEditable(false);
-        txtDonToiThieu.setEditable(false); txtSoLuotSuDung.setEditable(false);
-        jdNgayBatDau.setEnabled(false); jdNgayKetThuc.setEnabled(false);
-        cmbLoaiVoucher.setEnabled(false); cmbTrangThai.setEnabled(false);
-        btnLuu.setVisible(false); btnHuy.setVisible(false);
-        btnThem.setEnabled(true); btnCapNhat.setEnabled(true);
+        txtTenVoucher.setEditable(false);
+        txtGiaTriVoucher.setEditable(false);
+        txtDonToiThieu.setEditable(false);
+        txtSoLuotSuDung.setEditable(false);
+        jdNgayBatDau.setEnabled(false);
+        jdNgayKetThuc.setEnabled(false);
+        cmbLoaiVoucher.setEnabled(false);
+        cmbTrangThai.setEnabled(false);
+
+        btnLuu.setVisible(false);
+        btnHuy.setVisible(false);
+        btnThem.setEnabled(true);
+        btnCapNhat.setEnabled(true);
         tableVoucher.setEnabled(true);
     }
 
     private void setAddMode() {
-        isAdding = true; isUpdating = false;
+        isAdding = true;
+        isUpdating = false;
         clearForm();
-        txtTenVoucher.setEditable(true); txtGiaTriVoucher.setEditable(true);
-        txtDonToiThieu.setEditable(true); txtSoLuotSuDung.setEditable(true);
-        jdNgayBatDau.setEnabled(true); jdNgayKetThuc.setEnabled(true);
-        cmbLoaiVoucher.setEnabled(true); cmbTrangThai.setEnabled(true);
+
+        txtTenVoucher.setEditable(true);
+        txtGiaTriVoucher.setEditable(true);
+        txtDonToiThieu.setEditable(true);
+
+        // --- CHO PHÉP NHẬP KHI THÊM MỚI ---
+        txtSoLuotSuDung.setEditable(true);
+        txtSoLuotSuDung.setText("1"); // Mặc định là 1 lượt
+
+        jdNgayBatDau.setEnabled(true);
+        jdNgayKetThuc.setEnabled(true);
+        cmbLoaiVoucher.setEnabled(true);
+        cmbTrangThai.setEnabled(true);
         txtMaVoucher.setText(vBUS.getNextId());
         txtMaVoucher.setEditable(false);
-        cmbTrangThai.setEnabled(false);
-        btnLuu.setVisible(true); btnHuy.setVisible(true);
-        btnThem.setEnabled(false); btnCapNhat.setEnabled(false);
+
+        btnLuu.setVisible(true);
+        btnHuy.setVisible(true);
+        btnThem.setEnabled(false);
+        btnCapNhat.setEnabled(false);
         tableVoucher.setEnabled(false);
     }
 
     private void setUpdateMode() {
         if (tableVoucher.getSelectedRow() < 0) return;
-        isAdding = false; isUpdating = true;
-        txtTenVoucher.setEditable(true); txtGiaTriVoucher.setEditable(true);
-        txtDonToiThieu.setEditable(true); txtSoLuotSuDung.setEditable(true);
-        jdNgayBatDau.setEnabled(true); jdNgayKetThuc.setEnabled(true);
-        cmbLoaiVoucher.setEnabled(true); cmbTrangThai.setEnabled(true);
+        isAdding = false;
+        isUpdating = true;
+
+        txtTenVoucher.setEditable(true);
+        txtGiaTriVoucher.setEditable(true);
+        txtDonToiThieu.setEditable(true);
+        txtSoLuotSuDung.setEditable(false);
+        jdNgayBatDau.setEnabled(true);
+        jdNgayKetThuc.setEnabled(true);
+        cmbLoaiVoucher.setEnabled(true);
+        cmbTrangThai.setEnabled(true);
         txtMaVoucher.setEditable(false);
-        txtSoLuotSuDung.setEditable(false); // Không cho sửa lượt sau khi đã phát
-        btnLuu.setVisible(true); btnHuy.setVisible(true);
-        btnThem.setEnabled(false); btnCapNhat.setEnabled(false);
+
+        btnLuu.setVisible(true);
+        btnHuy.setVisible(true);
+        btnThem.setEnabled(false);
+        btnCapNhat.setEnabled(false);
         tableVoucher.setEnabled(false);
     }
     private void clearForm() {
@@ -349,14 +486,16 @@ public class QuanLyVoucher_GUI extends JPanel {
         txtTenVoucher.setText("");
         txtGiaTriVoucher.setText("");
         txtDonToiThieu.setText("");
-        txtSoLuotSuDung.setText("1");
+        txtSoLuotSuDung.setText("");
         jdNgayBatDau.setDate(null);
         jdNgayKetThuc.setDate(null);
     }
     private boolean validateForm() {
-        if (txtTenVoucher.getText().isEmpty()) return false;
-        if (jdNgayBatDau.getDate() == null || jdNgayKetThuc.getDate() == null) return false;
-        if (jdNgayBatDau.getDate().after(jdNgayKetThuc.getDate())) return false;
-        return true;
+        return !txtTenVoucher.getText().trim().isEmpty() &&
+                !txtGiaTriVoucher.getText().trim().isEmpty() &&
+                !txtDonToiThieu.getText().trim().isEmpty() &&
+                jdNgayBatDau.getDate() != null &&
+                jdNgayKetThuc.getDate() != null &&
+                (isAdding ? !txtSoLuotSuDung.getText().trim().isEmpty() : true);
     }
 }

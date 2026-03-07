@@ -133,21 +133,24 @@ public class KhuyenMai_BUS {
         }
         return true;
     }
+
+    /**
+     * 1. Lấy danh sách Khuyến mãi áp dụng được cho SP (Dùng cho hóa đơn)
+     */
     public ArrayList<KhuyenMai_DTO> getDSKMTheoSP(String maSP, String maDanhMuc) {
         ArrayList<KhuyenMai_DTO> result = new ArrayList<>();
         ChuongTrinhKM_BUS ctkmBus = ChuongTrinhKM_BUS.getInstance();
 
         for (KhuyenMai_DTO km : getAll()) {
-            // Bước 1: Kiểm tra chương trình cha có đang chạy hay không
             ChuongTrinhKM_DTO ct = ctkmBus.getById(km.getMaChuongTrinh());
-            if (ct == null || !ct.getTrangThaiText().equals(ChuongTrinhKM_DTO.DANG_AP_DUNG)) {
-                continue; // Chương trình cha ngưng hoặc hết hạn -> bỏ qua
+
+            // KIỂM TRA LOGIC NHƯ YÊU CẦU:
+            // Phải thỏa mãn trạng thái thực tế (Cha bật + Con bật)
+            if (!km.getTrangThaiThucTe(ct).equals(KhuyenMai_DTO.DANG_AP_DUNG)) {
+                continue;
             }
 
-            // Bước 2: Kiểm tra trạng thái của riêng mã KM đó
-            if (km.getTrangThai() != KhuyenMai_DTO.TT_DANG_AP_DUNG) continue;
-
-            // Bước 3: Kiểm tra đối tượng áp dụng
+            // Kiểm tra đối tượng áp dụng
             if (km.getDoiTuongApDung() == KhuyenMai_DTO.DT_SAN_PHAM) {
                 if (km.getMaSanPham().equals(maSP)) result.add(km);
             } else if (km.getDoiTuongApDung() == KhuyenMai_DTO.DT_DANH_MUC) {
@@ -174,8 +177,6 @@ public class KhuyenMai_BUS {
         return list;
     }
 
-
-
     /**
      * 5. Tìm KM theo tên
      */
@@ -185,7 +186,6 @@ public class KhuyenMai_BUS {
         }
         return null;
     }
-
 
     /**
      * 7. Hàm tính toán số tiền được giảm của 1 mã KM (Helper)
