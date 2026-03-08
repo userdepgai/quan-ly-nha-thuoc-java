@@ -14,7 +14,6 @@ public class KhachHang_DTO extends Nguoi_DTO {
     }
 
 
-
     // Constructor đầy đủ
     public KhachHang_DTO(
             String ma,

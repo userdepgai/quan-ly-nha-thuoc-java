@@ -93,7 +93,6 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         return maHD;
     }
-
     // =====================================================
     // NHÂN VIÊN DUYỆT ĐƠN
     // =====================================================

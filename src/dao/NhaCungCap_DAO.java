@@ -7,6 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class NhaCungCap_DAO {
+
     public ArrayList<NhaCungCap_DTO> getAll() {
         ArrayList<NhaCungCap_DTO> list = new ArrayList<>();
         String sql = "SELECT * FROM NHACUNGCAP";
@@ -25,13 +26,16 @@ public class NhaCungCap_DAO {
                 ncc.setTrangThai(rs.getInt("TrangThai"));
 
                 String maDC = rs.getString("Ma_DC");
-                DIACHI_DTO dc = new DIACHI_DTO();
-                dc.setMaDiaChi(maDC);
-                ncc.setDiaChi(dc);
+                if (maDC != null) {
+                    DIACHI_DTO dc = new DIACHI_DTO();
+                    dc.setMaDiaChi(maDC);
+                    ncc.setDiaChi(dc);
+                }
+
                 list.add(ncc);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi lấy danh sách NCC: " + e.getMessage());
+            e.printStackTrace();
         }
         return list;
     }
@@ -40,6 +44,7 @@ public class NhaCungCap_DAO {
         String sql = "INSERT INTO NHACUNGCAP (Ma_NCC, Ten_NCC, MaSoThue, SDT, NguoiLienHe, TrangThai, Ma_DC) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, ncc.getMaNCC());
             ps.setString(2, ncc.getTenNCC());
             ps.setString(3, ncc.getMaSoThue());
@@ -47,8 +52,9 @@ public class NhaCungCap_DAO {
             ps.setString(5, ncc.getNguoiLienHe());
             ps.setInt(6, ncc.getTrangThai());
             ps.setString(7, ncc.getDiaChi() != null ? ncc.getDiaChi().getMaDiaChi() : null);
+
             return ps.executeUpdate() > 0;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
@@ -58,6 +64,7 @@ public class NhaCungCap_DAO {
         String sql = "UPDATE NHACUNGCAP SET Ten_NCC=?, MaSoThue=?, SDT=?, NguoiLienHe=?, TrangThai=?, Ma_DC=? WHERE Ma_NCC=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, ncc.getTenNCC());
             ps.setString(2, ncc.getMaSoThue());
             ps.setString(3, ncc.getSdt());
@@ -65,47 +72,45 @@ public class NhaCungCap_DAO {
             ps.setInt(5, ncc.getTrangThai());
             ps.setString(6, ncc.getDiaChi() != null ? ncc.getDiaChi().getMaDiaChi() : null);
             ps.setString(7, ncc.getMaNCC());
+
             return ps.executeUpdate() > 0;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
 
     public boolean updateTrangThai(String maNCC, int trangThaiMoi) {
-        String sql = "UPDATE NHACUNGCAP SET trangThai = ? WHERE Ma_NCC = ?";
+        String sql = "UPDATE NHACUNGCAP SET TrangThai = ? WHERE Ma_NCC = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, trangThaiMoi);
             ps.setString(2, maNCC);
+
             return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            System.out.println("Lỗi cập nhật trạng thái NCC: " + e.getMessage());
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return false;
     }
+
+
     public String getNextId() {
-        String sql = "SELECT Ma_NCC FROM NHACUNGCAP";
-        int max = 0;
+        String sql = "SELECT MAX(CAST(REPLACE(Ma_NCC, 'NCC', '') AS INT)) FROM NHACUNGCAP";
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            while(rs.next()) {
-                String ma = rs.getString(1);
-                if (ma != null) {
-                    String numStr = ma.replaceAll("[^\\d]", "");
-                    if (!numStr.isEmpty()) {
-                        int num = Integer.parseInt(numStr);
-                        if (num > max) {
-                            max = num;
-                        }
-                    }
-                }
+
+            if (rs.next()) {
+                int maxId = rs.getInt(1);
+                if (rs.wasNull()) return "NCC001";
+                return String.format("NCC%03d", maxId + 1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return String.format("NCC%03d", max + 1);
+        return "NCC001";
     }
-
 }

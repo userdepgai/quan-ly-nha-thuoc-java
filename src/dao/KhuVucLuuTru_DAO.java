@@ -25,17 +25,21 @@ public class KhuVucLuuTru_DAO {
                 kv.setSucChua(rs.getInt("SucChua"));
                 kv.setHienCo(rs.getInt("HienCo"));
                 kv.setTrangThai(rs.getInt("TrangThai"));
-                DIACHI_DTO dc = new DIACHI_DTO();
-                dc.setMaDiaChi(rs.getString("Ma_DC"));
-                kv.setDiaChi(dc);
+                String maDC = rs.getString("Ma_DC");
+                if (maDC != null) {
+                    DIACHI_DTO dc = new DIACHI_DTO();
+                    dc.setMaDiaChi(maDC);
+                    kv.setDiaChi(dc);
+                }
 
                 list.add(kv);
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return list;
     }
+
     public boolean insert(KhuVucLuuTru_DTO kv) {
         String sql = "INSERT INTO KHUVUCLUUTRU (Ma_KVLT, Ten_KVLT, SucChua, HienCo, NgayLapKho, TrangThai, Ma_DC) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -50,11 +54,12 @@ public class KhuVucLuuTru_DAO {
             ps.setString(7, kv.getDiaChi() != null ? kv.getDiaChi().getMaDiaChi() : null);
 
             return ps.executeUpdate() > 0;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
+//capnhat
     public boolean update(KhuVucLuuTru_DTO kv) {
         String sql = "UPDATE KHUVUCLUUTRU SET Ten_KVLT=?, SucChua=?, HienCo=?, NgayLapKho=?, TrangThai=?, Ma_DC=? WHERE Ma_KVLT=?";
 
@@ -70,11 +75,12 @@ public class KhuVucLuuTru_DAO {
             ps.setString(7, kv.getMaKVLT());
 
             return ps.executeUpdate() > 0;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
+//capnhattrangthai
     public boolean updateTrangThai(String maKVLT, int trangThaiMoi) {
         String sql = "UPDATE KHUVUCLUUTRU SET TrangThai=? WHERE Ma_KVLT=?";
         try (Connection conn = DBConnection.getConnection();
@@ -82,13 +88,15 @@ public class KhuVucLuuTru_DAO {
             ps.setInt(1, trangThaiMoi);
             ps.setString(2, maKVLT);
             return ps.executeUpdate() > 0;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
+
+
     public String getNextId() {
-        String sql = "SELECT MAX(CAST(SUBSTRING(Ma_KVLT, 3, 4) AS INT)) FROM KHUVUCLUUTRU";
+        String sql = "SELECT MAX(CAST(REPLACE(Ma_KVLT, 'KV', '') AS INT)) FROM KHUVUCLUUTRU";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
