@@ -452,7 +452,6 @@ public class ThanhToan_GUI extends JPanel {
                 return;
             }
 
-            System.out.println("Đã tạo hóa đơn: " + maHoaDonVuaTao);
 
             int phuongThuc = comboBoxPthucTt.getSelectedIndex();
 
