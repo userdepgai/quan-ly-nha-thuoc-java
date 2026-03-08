@@ -35,47 +35,91 @@ public class Menu extends JFrame {
         menuModel = new DefaultListModel<>();
 
         if(Session.isLoggedIn()) {
-            menuModel.addElement(new MenuItem(getNameUser(Session.getCurrentUser().getSdt()), "thongTinCaNhanFrame", icon("account.png"), false));
-        } else {
-            menuModel.addElement(new MenuItem("Nguyễn Gia Thịnh", "thongTinCaNhanFrame", icon("account.png"), false));
+            menuModel.addElement(new MenuItem(
+                    getNameUser(Session.getCurrentUser().getSdt()),
+                    "thongTinCaNhanFrame",
+                    icon("account.png"),
+                    false
+            ));
         }
 
-        menuModel.addElement(new MenuItem("TỔNG QUAN & ĐIỀU HÀNH", null, null, true));
-        menuModel.addElement(new MenuItem("Dashboard", "dashboard", icon("dashboard.png"), false));
-        menuModel.addElement(new MenuItem("Thống kê", "thongke", icon("thongKe.png"), false));
-        menuModel.addElement(new MenuItem("Báo cáo", "baocao", icon("baoCao.png"),false));
+        /* ================= TỔNG QUAN ================= */
 
-        menuModel.addElement(new MenuItem("BÁN HÀNG & HÓA ĐƠN", null, null,true));
-        menuModel.addElement(new MenuItem("Bán hàng", "banhang", icon("banHang.png"),false));
-        menuModel.addElement(new MenuItem("Duyệt hóa đơn online", "duyethd", icon("duyetHoaDon.png"),false));
-        menuModel.addElement(new MenuItem("Quản lý hóa đơn", "hoadon", icon("hoaDon.png"),false));
+        if(hasAny("DASHBOARD","THONGKE","BAOCAO")) {
 
-        menuModel.addElement(new MenuItem("QUẢN LÝ CON NGƯỜI", null, null,true));
-        menuModel.addElement(new MenuItem("Khách hàng", "khachhang", icon("khachHang.png"),false));
-        menuModel.addElement(new MenuItem("Nhân viên", "nhanvien", icon("nhanVien.png"),false));
-        menuModel.addElement(new MenuItem("Nhà cung cấp", "nhacungcap", icon("nhaCungCap.png"),false));
+            menuModel.addElement(new MenuItem("TỔNG QUAN & ĐIỀU HÀNH", null, null, true));
 
-        menuModel.addElement(new MenuItem("DANH MỤC & SẢN PHẨM", null, null,true));
-        menuModel.addElement(new MenuItem("Danh mục", "danhMuc", icon("danhMuc.png"),false));
-        menuModel.addElement(new MenuItem("Thuộc tính", "thuocTinhDanhMuc", icon("thuocTinhDanhMuc.png"),false));
-        menuModel.addElement(new MenuItem("Quản lý sản phẩm", "sanPham", icon("sanPham.png"),false));
+            addMenu("Dashboard","dashboard","dashboard.png","DASHBOARD");
+            addMenu("Thống kê","thongke","thongKe.png","THONGKE");
+            addMenu("Báo cáo","baocao","baoCao.png","BAOCAO");
+        }
 
-        menuModel.addElement(new MenuItem("KHO & LƯU TRỮ", null, null,true));
-        menuModel.addElement(new MenuItem("Khu vực lưu trữ", "luutru", icon("khuVucLuuTru.png"),false));
-        menuModel.addElement(new MenuItem("Lô hàng", "lohang", icon("loHang.png"),false));
-        menuModel.addElement(new MenuItem("Phiếu nhập", "phieunhap", icon("phieuNhap.png"),false));
+        /* ================= BÁN HÀNG ================= */
 
-        menuModel.addElement(new MenuItem("KHUYẾN MÃI", null, null,true));
-        menuModel.addElement(new MenuItem("Chương trình", "chuongTrinhKhuyenMai", icon("chuongTrinhKhuyenMai.png"),false));
-        menuModel.addElement(new MenuItem("Khuyến mãi", "khuyenMai", icon("khuyenMai.png"),false));
-        menuModel.addElement(new MenuItem("Voucher", "voucher", icon("voucher.png"),false));
+        if(hasAny("BANHANG","DUYETHD","HOADON")) {
 
-        menuModel.addElement(new MenuItem("HỆ THỐNG", null, null,true));
-        menuModel.addElement(new MenuItem("Quản lý tài khoản", "taiKhoanDangNhap", icon("taiKhoanDangNhap.png"),false));
-        menuModel.addElement(new MenuItem("Phân quyền", "phanQuyen", icon("phanQuyen.png"),false));
+            menuModel.addElement(new MenuItem("BÁN HÀNG & HÓA ĐƠN", null, null, true));
 
-        menuModel.addElement(new MenuItem("Đăng xuất", "dangXuat", icon("logout.png"), false));
+            addMenu("Bán hàng","banhang","banHang.png","BANHANG");
+            addMenu("Duyệt hóa đơn online","duyethd","duyetHoaDon.png","DUYETHD");
+            addMenu("Quản lý hóa đơn","hoadon","hoaDon.png","HOADON");
+        }
 
+        /* ================= CON NGƯỜI ================= */
+
+        if(hasAny("KHACHHANG","NHANVIEN","NHACUNGCAP")) {
+
+            menuModel.addElement(new MenuItem("QUẢN LÝ CON NGƯỜI", null, null, true));
+
+            addMenu("Khách hàng","khachhang","khachHang.png","KHACHHANG");
+            addMenu("Nhân viên","nhanvien","nhanVien.png","NHANVIEN");
+            addMenu("Nhà cung cấp","nhacungcap","nhaCungCap.png","NHACUNGCAP");
+        }
+
+        /* ================= DANH MỤC ================= */
+
+        if(hasAny("DANHMUC","THUOCTINH","SANPHAM")) {
+
+            menuModel.addElement(new MenuItem("DANH MỤC & SẢN PHẨM", null, null, true));
+
+            addMenu("Danh mục","danhMuc","danhMuc.png","DANHMUC");
+            addMenu("Thuộc tính","thuocTinhDanhMuc","thuocTinhDanhMuc.png","THUOCTINH");
+            addMenu("Quản lý sản phẩm","sanPham","sanPham.png","SANPHAM");
+        }
+
+        /* ================= KHO ================= */
+
+        if(hasAny("LUUTRU","LOHANG","PHIEUNHAP")) {
+
+            menuModel.addElement(new MenuItem("KHO & LƯU TRỮ", null, null, true));
+
+            addMenu("Khu vực lưu trữ","luutru","khuVucLuuTru.png","LUUTRU");
+            addMenu("Lô hàng","lohang","loHang.png","LOHANG");
+            addMenu("Phiếu nhập","phieunhap","phieuNhap.png","PHIEUNHAP");
+        }
+
+        /* ================= KHUYẾN MÃI ================= */
+
+        if(hasAny("CHUONGTRINHKM","KHUYENMAI","VOUCHER")) {
+
+            menuModel.addElement(new MenuItem("KHUYẾN MÃI", null, null, true));
+
+            addMenu("Chương trình","chuongTrinhKhuyenMai","chuongTrinhKhuyenMai.png","CHUONGTRINHKM");
+            addMenu("Khuyến mãi","khuyenMai","khuyenMai.png","KHUYENMAI");
+            addMenu("Voucher","voucher","voucher.png","VOUCHER");
+        }
+
+        /* ================= HỆ THỐNG ================= */
+
+        if(hasAny("TAIKHOAN","PHANQUYEN")) {
+
+            menuModel.addElement(new MenuItem("HỆ THỐNG", null, null, true));
+
+            addMenu("Quản lý tài khoản","taiKhoanDangNhap","taiKhoanDangNhap.png","TAIKHOAN");
+            addMenu("Phân quyền","phanQuyen","phanQuyen.png","PHANQUYEN");
+        }
+
+        menuModel.addElement(new MenuItem("Đăng xuất","dangXuat",icon("logout.png"),false));
         menuList = new JList<>(menuModel);
         menuList.setCellRenderer(new SidebarRenderer());
         menuList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -189,6 +233,16 @@ public class Menu extends JFrame {
             return null;
         }
     }
-
+    private void addMenu(String title, String card, String icon, String function) {
+        if (Session.hasFunction(function)) {
+            menuModel.addElement(new MenuItem(title, card, icon(icon), false));
+        }
+    }
+    private boolean hasAny(String... functions) {
+        for (String f : functions) {
+            if (Session.hasFunction(f)) return true;
+        }
+        return false;
+    }
 }
 

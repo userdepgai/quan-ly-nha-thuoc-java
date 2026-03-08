@@ -1,4 +1,5 @@
 package gui;
+import bus.PhanQuyenChucNang_BUS;
 import bus.TaiKhoan_BUS;
 import dto.TaiKhoan_DTO;
 import gui.menu.Menu;
@@ -174,7 +175,8 @@ public class DangNhapGUI extends JFrame {
     }
 
     private TaiKhoan_DTO chonTaiKhoanNeuCoNhieuQuyen(ArrayList<TaiKhoan_DTO> list) {
-        if (list.size() == 1) {
+
+        if (list.size() == 1 && !list.get(0).getMaQuyen().equals("Q002")) {
             return list.get(0);
         }
 
@@ -182,10 +184,19 @@ public class DangNhapGUI extends JFrame {
         TaiKhoan_DTO tkNhanVien = null;
 
         for (TaiKhoan_DTO tk : list) {
-            if (tk.getMaQuyen().equalsIgnoreCase("Q001")) {
+
+            if(tk.getMaQuyen().equals("Q002")) {
                 tkKhach = tk;
-            } else {
                 tkNhanVien = tk;
+            }
+            else {
+                boolean isCustomer = Session.isCustomer();
+
+                if (isCustomer) {
+                    tkKhach = tk;
+                } else {
+                    tkNhanVien = tk;
+                }
             }
         }
 
@@ -201,14 +212,18 @@ public class DangNhapGUI extends JFrame {
                 options,
                 options[0]
         );
+
         if (choice == 0) return tkKhach;
         if (choice == 1) return tkNhanVien;
 
         return null;
     }
     private void moGiaoDienTheoQuyen(TaiKhoan_DTO tk) {
-
-        if (tk.getMaQuyen().equalsIgnoreCase("Q001")) {
+        boolean isCustomer =
+                PhanQuyenChucNang_BUS
+                        .getInstance()
+                        .hasPermission(tk.getMaQuyen(),"CUAHANG");
+        if (isCustomer && !tk.getMaQuyen().equals("Q002")) {
             new MenuKhachHang_GUI().setVisible(true);
         } else {
             new Menu().setVisible(true);
