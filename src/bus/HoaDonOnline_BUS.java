@@ -28,6 +28,10 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
     public ArrayList<HoaDonOnline_DTO> getDanhSachDuyetOnline() {
         return hoaDonDAO.getDanhSachDuyetOnline();
     }
+    public ArrayList<HoaDonOnline_DTO> getDanhSachOnlineTheoKhachHang(String maKH){
+        return hoaDonDAO.getDanhSachOnlineTheoKhachHang(maKH);
+    }
+
     // =====================================================
     // KHÁCH ĐẶT ONLINE → AUTO TẠO HÓA ĐƠN
     // =====================================================
@@ -51,7 +55,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         hd.setTinhTrangThanhToan(HoaDonBan_DTO.TT_CHUA_THANH_TOAN);
         hd.setNgayLap(LocalDateTime.now());
 
-        hd.setPhiVanChuyen(50000);
+        hd.setPhiVanChuyen(15000);
         hd.setMaDiaChiGiaoHang(diaChiGiao);
 
 

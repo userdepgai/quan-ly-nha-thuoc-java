@@ -1,0 +1,83 @@
+Merge branch 'develop' into quocthinh
+
+# Conflicts:
+#	src/dto/SanPhamNCC_DTO.java
+#
+# It looks like you may be committing a merge.
+# If this is not correct, please run
+#	git update-ref -d MERGE_HEAD
+# and try again.
+
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch quocthinh
+# Your branch is up to date with 'origin/quocthinh'.
+#
+# All conflicts fixed but you are still merging.
+#
+# Changes to be committed:
+#	modified:   src/Main.java
+#	modified:   src/bus/LoHang_BUS.java
+#	modified:   src/bus/NhanVien_BUS.java
+#	modified:   src/bus/SanPham_BUS.java
+#	modified:   src/dao/KhachHang_DAO.java
+#	modified:   src/dao/SanPham_DAO.java
+#	modified:   src/dto/SanPhamNCC_DTO.java
+#	modified:   src/gui/QuanLySanPham_GUI.java
+#	modified:   src/gui/menu/MenuKhachHang_GUI.java
+#	modified:   src/gui/trangChuDatHang/ProductCard.java
+#	new file:   src/gui/trangChuDatHang/SanPhamChiTiet_GUI.java
+#	modified:   src/gui/trangChuDatHang/TrangChu_GUI.java
+#	new file:   src/gui/trangChuDatHang/WrapLayout.java
+#	new file:   src/images/alaxan.jpg
+#	new file:   src/images/amlo.jpg
+#	new file:   src/images/augmentin.jpg
+#	new file:   src/images/azi.jpg
+#	new file:   src/images/b5.jpg
+#	new file:   src/images/baothanh.jpg
+#	new file:   src/images/berberin.jpg
+#	new file:   src/images/bioderma.jpg
+#	new file:   src/images/bioflora.jpg
+#	new file:   src/images/bophe.jpg
+#	new file:   src/images/cefuroxim.jpg
+#	new file:   src/images/centrum.jpg
+#	new file:   src/images/cerave.jpg
+#	new file:   src/images/collagen.jpg
+#	new file:   src/images/con90.jpg
+#	new file:   src/images/concor.jpg
+#	new file:   src/images/d3k2.jpg
+#	new file:   src/images/ddvs.jpg
+#	new file:   src/images/decolgen.jpg
+#	new file:   src/images/dhc.jpg
+#	new file:   src/images/differin.jpg
+#	new file:   src/images/efferalgan.jpg
+#	new file:   src/images/entero.jpg
+#	new file:   src/images/fyso.jpg
+#	new file:   src/images/ginkgo.jpg
+#	new file:   src/images/gluco.jpg
+#	new file:   src/images/hapacol250.jpg
+#	new file:   src/images/kimtiem.jpg
+#	new file:   src/images/klamentin.jpg
+#	new file:   src/images/lipan.jpg
+#	new file:   src/images/losartan.jpg
+#	new file:   src/images/mask.jpg
+#	new file:   src/images/meiji.jpg
+#	new file:   src/images/moti.jpg
+#	new file:   src/images/nuocmuoi.jpg
+#	new file:   src/images/omega3.jpg
+#	new file:   src/images/omron.jpg
+#	new file:   src/images/oresol.jpg
+#	new file:   src/images/phos.jpg
+#	new file:   src/images/prospan.jpg
+#	new file:   src/images/sat.jpg
+#	new file:   src/images/strepsils.jpg
+#	new file:   src/images/sudo.jpg
+#	new file:   src/images/tiffy.jpg
+#	new file:   src/images/urgo.jpg
+#	new file:   src/images/vichy.jpg
+#	new file:   src/images/vitc.jpg
+#	new file:   src/images/vite.jpg
+#	new file:   src/images/zinnat.jpg
+#

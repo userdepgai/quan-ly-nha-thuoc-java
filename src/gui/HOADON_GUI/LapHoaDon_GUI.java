@@ -75,6 +75,7 @@ public class LapHoaDon_GUI extends JPanel{
     private SanPham_BUS spBus = SanPham_BUS.getInstance();
 
     private DefaultTableModel modelBang;
+    private JPopupMenu popupKhachHang = new JPopupMenu();
 
     public void setOnHoaDonSaved(Runnable action){
         this.onHoaDonSaved = action;
@@ -166,12 +167,13 @@ public class LapHoaDon_GUI extends JPanel{
         txtThanhTien.setEditable(false);
         txtTienThoi.setEditable(false);
         txtThueVat.setEditable(false);
+        txtTenKhachHang.setEditable(false);
 
     }
     private void khoiTaoBang() {
         modelBang = new DefaultTableModel(
                 new String[]{
-                        "STT","Mã sản phẩm","Tên sản phẩm","Thuộc tính riêng",
+                        "STT","Mã sản phẩm","Tên sản phẩm",
                         "Giá bán","Khuyến mãi","Giá sau khuyến mãi","Số lượng","Thành tiền"
                 }, 0
         ){
@@ -185,14 +187,13 @@ public class LapHoaDon_GUI extends JPanel{
 
         tableTTSP.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         tableTTSP.getColumnModel().getColumn(0).setPreferredWidth(50);
-        tableTTSP.getColumnModel().getColumn(1).setPreferredWidth(110);
-        tableTTSP.getColumnModel().getColumn(2).setPreferredWidth(200);
-        tableTTSP.getColumnModel().getColumn(3).setPreferredWidth(150);
-        tableTTSP.getColumnModel().getColumn(4).setPreferredWidth(130);
-        tableTTSP.getColumnModel().getColumn(5).setPreferredWidth(180);
-        tableTTSP.getColumnModel().getColumn(6).setPreferredWidth(130);
-        tableTTSP.getColumnModel().getColumn(7).setPreferredWidth(80);
-        tableTTSP.getColumnModel().getColumn(8).setPreferredWidth(130);
+        tableTTSP.getColumnModel().getColumn(1).setPreferredWidth(120);
+        tableTTSP.getColumnModel().getColumn(2).setPreferredWidth(220);
+        tableTTSP.getColumnModel().getColumn(3).setPreferredWidth(180);
+        tableTTSP.getColumnModel().getColumn(4).setPreferredWidth(170);
+        tableTTSP.getColumnModel().getColumn(5).setPreferredWidth(150);
+        tableTTSP.getColumnModel().getColumn(6).setPreferredWidth(100);
+        tableTTSP.getColumnModel().getColumn(7).setPreferredWidth(170);
 
 
         tableTTSP.getTableHeader().setResizingAllowed(false);
@@ -231,7 +232,7 @@ public class LapHoaDon_GUI extends JPanel{
 
         loadCBMaSP();
         loadCBTenSP();
-        //loadCBKhuyenMai();
+
     }
     private void loadCBMaSP(){
 
@@ -427,7 +428,6 @@ public class LapHoaDon_GUI extends JPanel{
                     stt++,
                     maSP,
                     bus.getTenSP(maSP),
-                    bus.getDonViTinh(maSP),
                     formatTien(ct.getGiaBan()),
                     bus.getTenKhuyenMai(ct.getMaKhuyenMai()),
                     formatTien(ct.getGiaBanSauApKM()),
@@ -744,6 +744,8 @@ public class LapHoaDon_GUI extends JPanel{
             public void keyReleased(KeyEvent e){
 
                 String sdt = txtSoDienThoai.getText().trim();
+
+                goiYSDT(sdt);
 
                 if(sdt.isEmpty()){
                     txtTenKhachHang.setText("");
@@ -1130,5 +1132,44 @@ public class LapHoaDon_GUI extends JPanel{
         nf.setMinimumFractionDigits(0);
 
         return nf.format(Math.round(tien)) + " đ";
+    }
+    private void goiYSDT(String text){
+
+        popupKhachHang.removeAll();
+
+        if(text.isEmpty()){
+            popupKhachHang.setVisible(false);
+            return;
+        }
+
+        for(KhachHang_DTO kh : KhachHang_BUS.getInstance().getAll()){
+
+            if(kh.getSdt().contains(text)){
+
+                JMenuItem item = new JMenuItem(
+                        kh.getSdt() + " - " + kh.getTen()
+                );
+
+                item.addActionListener(e -> {
+
+                    txtSoDienThoai.setText(kh.getSdt());
+                    txtTenKhachHang.setText(kh.getTen());
+
+                    bus.getHoaDon().setMaKhachHang(kh.getMa());
+
+                    loadCBVoucher();
+
+                    popupKhachHang.setVisible(false);
+                });
+
+                popupKhachHang.add(item);
+            }
+        }
+
+        if(popupKhachHang.getComponentCount() > 0){
+            popupKhachHang.show(txtSoDienThoai,0,txtSoDienThoai.getHeight());
+        }else{
+            popupKhachHang.setVisible(false);
+        }
     }
 }

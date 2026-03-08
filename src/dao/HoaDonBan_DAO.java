@@ -80,35 +80,51 @@ public class HoaDonBan_DAO {
 
         return ds;
     }
-    // ================= GET BY ID =================
-    public HoaDonBan_DTO getById(String maHD) {
+    public ArrayList<HoaDonOnline_DTO> getDanhSachOnlineTheoKhachHang(String maKH){
+
+        ArrayList<HoaDonOnline_DTO> ds = new ArrayList<>();
 
         String sql = """
-                SELECT hdb.*,
-                       kh.Ten_KH,
-                       kh.SDT
-                FROM HOADONBAN hdb
-                LEFT JOIN KHACHHANG kh
-                    ON hdb.Ma_KH = kh.Ma_KH
-                WHERE hdb.Ma_HDB=?
+            SELECT *
+            FROM HOADONBAN
+            WHERE LoaiHDB = 1
+            AND Ma_KH = ?
+            ORDER BY NgayLap DESC
             """;
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try(
+                Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ){
 
-            ps.setString(1, maHD);
+            ps.setString(1, maKH);
+
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next())
-                return mapHoaDon(rs);
+            while(rs.next()){
 
-        } catch (Exception e) {
+                HoaDonOnline_DTO hd = new HoaDonOnline_DTO();
+
+                hd.setMa(rs.getString("Ma_HDB"));
+                hd.setNgayLap(rs.getTimestamp("NgayLap").toLocalDateTime());
+                hd.setMaNhanVien(rs.getString("Ma_NV"));
+                hd.setMaKhachHang(rs.getString("Ma_KH"));
+                hd.setTrangThai(rs.getInt("TrangThai"));
+                hd.setLoaiHDB(rs.getInt("LoaiHDB"));
+                hd.setTinhTrangThanhToan(rs.getInt("TinhTrangThanhToan"));
+                hd.setThanhTien(rs.getDouble("ThanhTien"));
+                hd.setPhiVanChuyen(rs.getDouble("PhiVanChuyen"));
+                hd.setMaDiaChiGiaoHang(rs.getString("Ma_DC"));
+
+                ds.add(hd);
+            }
+
+        }catch(Exception e){
             e.printStackTrace();
         }
 
-        return null;
+        return ds;
     }
-
     // ================= NEXT ID =================
     public String getNextID() {
 
