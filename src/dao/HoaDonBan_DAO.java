@@ -148,8 +148,7 @@ public class HoaDonBan_DAO {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return "HDB00000001";
+        return "HDB000001";
     }
 
     // ================= INSERT =================
