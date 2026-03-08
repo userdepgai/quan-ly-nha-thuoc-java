@@ -26,6 +26,7 @@ public class HoaDonBan_BUS {
     private KhuyenMai_BUS kmBus = KhuyenMai_BUS.getInstance();
     private Voucher_BUS vchBus = Voucher_BUS.getInstance();
     private NhanVien_BUS nvBus = NhanVien_BUS.getInstance();
+    private DiaChi_BUS diaChiBUS = DiaChi_BUS.getInstance();
 
     protected HoaDonBan_DTO hoaDon;
     private ArrayList<HoaDonBan_DTO> listCache;
@@ -105,7 +106,15 @@ public class HoaDonBan_BUS {
 
         return vch != null ? vch.getTen() : maVoucher;
     }
+    public String getDiaChiDayDu(String maDiaChi){
 
+        DIACHI_DTO dc = diaChiBUS.getById(maDiaChi);
+
+        if(dc == null)
+            return "";
+
+        return dc.toString();
+    }
 
 
 
@@ -137,12 +146,12 @@ public class HoaDonBan_BUS {
            throw new RuntimeException("Không tìm thấy nhân viên");
 
        String maNV = nv.getMa();
-
-        hoaDon.setMa(getNextID());
-        hoaDon.setMaNhanVien(maNV);
-        hoaDon.setNgayLap(LocalDateTime.now());
-        hoaDon.setTrangThai(HoaDonBan_DTO.TT_HOAN_THANH);
-        hoaDon.setTongGiaTriKhuyenMai(0);
+       hoaDon.setLoaiHDB(0);
+       hoaDon.setMa(getNextID());
+       hoaDon.setMaNhanVien(maNV);
+       hoaDon.setNgayLap(LocalDateTime.now());
+       hoaDon.setTongGiaTriKhuyenMai(0);
+       hoaDon.setKeToa(false);
 
         dsChiTietHDB.clear();
     }
@@ -203,17 +212,12 @@ public class HoaDonBan_BUS {
         Map<LoHang_DTO,Integer> dsLoChon =
                 loBus.phanBoLoDeBan(maSP, soLuong);
 
-
 // ===== LẤY GIÁ NHẬP MAX =====
         double giaNhapMax =
                 loBus.getGiaNhapCaoNhatTrongLoChon(dsLoChon);
 
 // ===== TÍNH GIÁ BÁN =====
         double giaBan = tinhGiaBan(maSP, giaNhapMax);
-
-
-
-
 
         for(Map.Entry<LoHang_DTO,Integer> entry : dsLoChon.entrySet()){
 
@@ -223,7 +227,7 @@ public class HoaDonBan_BUS {
             ChiTietHoaDonBan_DTO ct = new ChiTietHoaDonBan_DTO();
 
             ct.setMaSP(maSP);
-            ct.setMaLo(lo.getMaLo());   // QUAN TRỌNG
+            ct.setMaLo(lo.getMaLo());
             ct.setMaKhuyenMai(maKM);
 
             ct.setSoLuong(sl);
@@ -481,7 +485,7 @@ public class HoaDonBan_BUS {
         hoaDon.setTongTienGoc(tongGoc);
         hoaDon.setTongGiaTriKhuyenMai(tongKM);
         hoaDon.setDiemThuongQuyDoi(diem);
-        hoaDon.setThueVAT(vat);
+        hoaDon.setThueVAT(VAT_RATE);
         hoaDon.setThanhTien(thanhTien);
     }
     private int tinhDiemTichLuy(){
@@ -516,36 +520,32 @@ public class HoaDonBan_BUS {
 
         tinhThanhTienSauCung();
     }
-    public boolean coTheDungDiemThuong(){
-
-        if(hoaDon.getMaKhachHang() == null)
-            return false;
-
-        KhachHang_DTO kh =
-                khBus.getById(hoaDon.getMaKhachHang());
-
-        return kh != null;
-    }
-
-
     // =====================================================
     // LƯU HÓA ĐƠN
     // =====================================================
     public boolean luuHoaDon(){
 
-        Connection conn = null;
-
         try{
-            conn = DBConnection.DBConnection.getConnection();
-            conn.setAutoCommit(false);
+            hoaDon.setNgayHoanThanh(LocalDateTime.now());
+            hoaDon.setTrangThai(HoaDonBan_DTO.TT_HOAN_THANH);
+            hoaDon.setTinhTrangThanhToan(1);
 
-            hoaDonDAO.insert(conn, hoaDon);
+            // ===== insert hóa đơn =====
+            boolean ok = hoaDonDAO.insert(hoaDon);
 
+            if(!ok)
+                throw new RuntimeException("Insert hóa đơn thất bại");
+
+            System.out.println("Insert hóa đơn: " + hoaDon.getMa());
+
+            // ===== insert chi tiết =====
             for(ChiTietHoaDonBan_DTO ct : dsChiTietHDB){
 
                 ct.setMaHDB(hoaDon.getMa());
-                ctDAO.insert(conn, ct);
 
+                ctDAO.insert(ct);
+
+                // ===== trừ tồn lô =====
                 LoHang_DTO lo = loBus.getById(ct.getMaLo());
 
                 lo.setSoLuongConLai(
@@ -554,7 +554,7 @@ public class HoaDonBan_BUS {
 
                 loBus.capNhat(lo);
 
-                // ===== trừ lượt KM =====
+                // ===== trừ lượt khuyến mãi =====
                 if(ct.getMaKhuyenMai() != null
                         && hoaDon.getMaKhachHang() != null){
 
@@ -564,8 +564,9 @@ public class HoaDonBan_BUS {
                                     hoaDon.getMaKhachHang()
                             );
                 }
-
             }
+
+            // ===== trừ lượt voucher =====
             if(hoaDon.getMaVoucher() != null
                     && hoaDon.getMaKhachHang() != null){
 
@@ -575,52 +576,35 @@ public class HoaDonBan_BUS {
                                 hoaDon.getMaKhachHang()
                         );
             }
-            // ===== trừ điểm nếu có dùng =====
+
+            // ===== trừ điểm nếu dùng =====
             if(dungDiemThuong && hoaDon.getMaKhachHang() != null){
-                int diemSuDung = (int)(hoaDon.getDiemThuongQuyDoi() / 10000) * 500;
+
+                int diemSuDung =
+                        (int)(hoaDon.getDiemThuongQuyDoi() / 10000) * 500;
+
                 KhachHang_BUS.getInstance().truDiemThuong(
                         hoaDon.getMaKhachHang(),
                         diemSuDung
                 );
             }
 
-// ===== luôn cộng điểm sau mua =====
+            // ===== cộng điểm sau mua =====
             congDiemKhach();
 
-            conn.commit();
             refreshData();
+
             return true;
 
         }catch(Exception e){
-            try{
-                if(conn!=null) conn.rollback();
-            }catch(Exception ignored){}
+
+            System.out.println("=== LỖI LƯU HÓA ĐƠN ===");
             e.printStackTrace();
         }
+
         return false;
     }
 
-    protected void truKhoFIFO(String maSP, int soLuong){
-
-        Map<LoHang_DTO, Integer> dsTru =
-                loBus.phanBoLoDeBan(maSP, soLuong);
-
-        if(dsTru.isEmpty()){
-            throw new RuntimeException("Không đủ tồn kho");
-        }
-
-        for(Map.Entry<LoHang_DTO,Integer> entry : dsTru.entrySet()){
-
-            LoHang_DTO lo = entry.getKey();
-            int soLuongTru = entry.getValue();
-
-            lo.setSoLuongConLai(
-                    lo.getSoLuongConLai() - soLuongTru
-            );
-
-            loBus.capNhat(lo);
-        }
-    }
     public void xoaSanPhamKeToa(){
 
         for(int i = dsChiTietHDB.size()-1; i >= 0; i--){
@@ -786,6 +770,14 @@ public class HoaDonBan_BUS {
         }
 
         return result;
+    }
+    public void capNhatSoLuong(String maSP, int soLuong, String tenKM, boolean coToa){
+
+        dsChiTietHDB.removeIf(ct -> ct.getMaSP().equals(maSP));
+
+        themSanPham(maSP, soLuong, tenKM, coToa);
+
+        tinhTongTien();
     }
 
     public void refreshData(){

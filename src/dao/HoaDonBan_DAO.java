@@ -123,10 +123,10 @@ public class HoaDonBan_DAO {
                 String lastID = rs.getString(1);
 
                 if (lastID == null)
-                    return "HDB00000001";
+                    return "HDB000001";
 
                 int num = Integer.parseInt(lastID.substring(3));
-                return String.format("HDB%08d", num + 1);
+                return String.format("HDB%06d", num + 1);
             }
 
         } catch (Exception e) {
@@ -139,77 +139,69 @@ public class HoaDonBan_DAO {
     // ================= INSERT =================
     public boolean insert(HoaDonBan_DTO hd) {
 
-        try (Connection conn = DBConnection.getConnection()) {
-            return insert(conn, hd);
+        String sql = """
+            INSERT INTO HOADONBAN(
+                   Ma_HDB,
+                   NgayLap,
+                   TinhTrangThanhToan,
+                   KeToa,
+                   TongTienGoc,
+                   TongGiaTri_KM,
+                   DiemThuongQuyDoi,
+                   ThanhTien,
+                   TienNhan,
+                   TienThoi,
+                   GhiChu,
+                   PhiVanChuyen,
+                   ThueVAT,
+                   TrangThai,
+                   LoaiHDB,
+                   Ma_NV,
+                   Ma_KH,
+                   MaVoucher,
+                   Ma_DC
+            )
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, hd.getMa());
+            ps.setTimestamp(2, Timestamp.valueOf(hd.getNgayLap()));
+            ps.setInt(3, hd.getTinhTrangThanhToan());
+            ps.setBoolean(4, hd.isKeToa());
+            ps.setDouble(5, hd.getTongTienGoc());
+            ps.setDouble(6, hd.getTongGiaTriKhuyenMai());
+            ps.setInt(7, hd.getDiemThuongQuyDoi());
+            ps.setDouble(8, hd.getThanhTien());
+            ps.setDouble(9, hd.getTienNhan());
+            ps.setDouble(10, hd.getTienThoi());
+            ps.setString(11, hd.getGhiChu());
+
+            if (hd instanceof HoaDonOnline_DTO online) {
+                ps.setDouble(12, online.getPhiVanChuyen());
+                ps.setString(19, online.getMaDiaChiGiaoHang());
+            } else {
+                ps.setDouble(12, 0);
+                ps.setString(19, null);
+            }
+
+            ps.setDouble(13, hd.getThueVAT());
+            ps.setInt(14, hd.getTrangThai());
+            ps.setInt(15, hd.getLoaiHDB());
+            ps.setString(16, hd.getMaNhanVien());
+            ps.setString(17, hd.getMaKhachHang());
+            ps.setString(18, hd.getMaVoucher());
+
+            return ps.executeUpdate() > 0;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return false;
     }
-
-    // ================= INSERT TRANSACTION =================
-    public boolean insert(Connection conn, HoaDonBan_DTO hd)
-            throws SQLException {
-
-        String sql = """
-                INSERT INTO HOADONBAN(
-                       Ma_HDB,
-                       NgayLap,
-                       TinhTrangThanhToan,
-                       KeToa,
-                       TongTienGoc,
-                       TongGiaTri_KM,
-                       DiemThuongQuyDoi,
-                       ThanhTien,
-                       TienNhan,
-                       TienThoi,
-                       GhiChu,
-                       PhiVanChuyen,
-                       ThueVAT,
-                       TrangThai,
-                       LoaiHDB,
-                       Ma_NV,
-                       Ma_KH,
-                       MaVoucher,
-                       Ma_DC
-                        )
-                      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-                        """;
-
-        PreparedStatement ps = conn.prepareStatement(sql);
-
-        ps.setString(1, hd.getMa());
-        ps.setTimestamp(2, Timestamp.valueOf(hd.getNgayLap()));
-        ps.setInt(3, hd.getTinhTrangThanhToan());
-        ps.setBoolean(4, hd.isKeToa());
-        ps.setDouble(5, hd.getTongTienGoc());
-        ps.setDouble(6, hd.getTongGiaTriKhuyenMai());
-        ps.setInt(7, hd.getDiemThuongQuyDoi());
-        ps.setDouble(8, hd.getThanhTien());
-        ps.setDouble(9, hd.getTienNhan());
-        ps.setDouble(10, hd.getTienThoi());
-        ps.setString(11, hd.getGhiChu());
-        if (hd instanceof HoaDonOnline_DTO online) {
-
-            ps.setDouble(12, online.getPhiVanChuyen());
-            ps.setString(19, online.getMaDiaChiGiaoHang());
-
-        } else {
-
-            ps.setDouble(12, 0);
-            ps.setString(19, null);
-        }
-        ps.setDouble(13, hd.getThueVAT());
-        ps.setInt(14, hd.getTrangThai());
-        ps.setInt(15, hd.getLoaiHDB());
-        ps.setString(16, hd.getMaNhanVien());
-        ps.setString(17, hd.getMaKhachHang());
-        ps.setString(18, hd.getMaVoucher());
-
-
-        return ps.executeUpdate() > 0;
-    }
-
     // ================= UPDATE TRANG THAI =================
     public boolean capNhatTrangThai(String maHD, int trangThai) {
 

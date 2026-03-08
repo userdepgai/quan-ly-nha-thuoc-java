@@ -47,30 +47,17 @@ public class ChiTietHoaDonBan_DAO {
 
         return list;
     }
-    // ================= INSERT (NORMAL) =================
     public boolean insert(ChiTietHoaDonBan_DTO ct) {
 
-        try (Connection conn = DBConnection.getConnection()) {
-            return insert(conn, ct);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    // ================= INSERT (TRANSACTION) =================
-    public boolean insert(Connection conn, ChiTietHoaDonBan_DTO ct)
-            throws SQLException {
-
         String sql = """
-    INSERT INTO CHITIETHOADON
-    (Ma_SP, Ma_HDB, Ma_Lo, Ma_KM,
-     SoLuong, GiaBan, GiaBanSauAp_KM, ThanhTien)
-    VALUES (?,?,?,?,?,?,?,?)
-    """;
+        INSERT INTO CHITIETHOADON
+        (Ma_SP, Ma_HDB, Ma_Lo, Ma_KM,
+         SoLuong, GiaBan, GiaBanSauAp_KM, ThanhTien)
+        VALUES (?,?,?,?,?,?,?,?)
+        """;
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, ct.getMaSP());
             ps.setString(2, ct.getMaHDB());
@@ -82,6 +69,11 @@ public class ChiTietHoaDonBan_DAO {
             ps.setDouble(8, ct.getThanhTien());
 
             return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        return false;
     }
 }

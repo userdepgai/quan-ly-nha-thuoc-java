@@ -1,7 +1,5 @@
 package dto;
 
-import dto.SANPHAM;
-
 public class SanPhamNCC_DTO {
 
     private String maSanPham;

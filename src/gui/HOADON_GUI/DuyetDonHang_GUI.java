@@ -16,8 +16,6 @@ import java.util.Locale;
 
 public class DuyetDonHang_GUI extends JPanel{
     private JPanel panel_DuyetDonHang;
-    private JButton btnXuatExcel;
-    private JButton btnNhapExcel;
     private JTextField txtHienCo;
     private JTable tableDSHDChoCN;
     private JTable tableTTCTDonDat;
@@ -82,9 +80,11 @@ public class DuyetDonHang_GUI extends JPanel{
     private DefaultTableModel modelChiTiet;
     private HoaDonOnline_BUS bus =
             HoaDonOnline_BUS.getInstance();
-    private KhachHang_BUS khBUS = KhachHang_BUS.getInstance();
-    private SanPham_BUS spBUS = SanPham_BUS.getInstance();
+    private Runnable onTrangThaiChanged;
 
+    public void setOnTrangThaiChanged(Runnable action){
+        this.onTrangThaiChanged = action;
+    }
     public DuyetDonHang_GUI() {
         setLayout(new BorderLayout());
         add(panel_DuyetDonHang, BorderLayout.CENTER);
@@ -99,7 +99,7 @@ public class DuyetDonHang_GUI extends JPanel{
         suKienBangHoaDon();
         suKienTimKiem();
         suKienReset();;
-        //suKienCapNhat();
+        suKienCapNhat();
         suKienGoiY();;
 
     }
@@ -115,7 +115,7 @@ public class DuyetDonHang_GUI extends JPanel{
         ){
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // 🔥 khóa toàn bộ bảng
+                return false; //
             }
         };
         tableDSHDChoCN.setModel(modelHoaDon);
@@ -241,7 +241,9 @@ public class DuyetDonHang_GUI extends JPanel{
         txtThueVAT.setText(percent.format(hd.getThueVAT()));
         txtThanhTien.setText(formatTien(hd.getThanhTien()));
         txtTTHienTai.setText(hd.getTrangThaiText());
-        txtDCGiaoHang.setText(hd.getMaDiaChiGiaoHang());
+        txtDCGiaoHang.setText(
+                bus.getDiaChiDayDu(hd.getMaDiaChiGiaoHang())
+        );
         txtThanhTienCT.setText(formatTien(hd.getThanhTien()));
         txtTTTT.setText(hd.getTinhTrangThanhToanText());
 
@@ -279,6 +281,7 @@ public class DuyetDonHang_GUI extends JPanel{
         txtSDT.setEditable(false);
         txtDCGiaoHang.setEditable(false);
 
+        txtHienCo.setEditable(false);
         txtTongTien.setEditable(false);
         txtVoucher.setEditable(false);
         txtDiemThuong.setEditable(false);
@@ -375,68 +378,82 @@ public class DuyetDonHang_GUI extends JPanel{
             int row = tableDSHDChoCN.getSelectedRow();
 
             if (row < 0) {
-                JOptionPane.showMessageDialog(null,
-                        "Chọn hóa đơn trước!");
+                JOptionPane.showMessageDialog(null,"Chọn hóa đơn trước!");
                 return;
             }
 
-            // ===== LẤY MÃ HD =====
-            String maHD =
-                    modelHoaDon.getValueAt(row, 1).toString();
+            String maHD = modelHoaDon.getValueAt(row,1).toString();
 
-            // ===== LẤY DTO THẬT (KHÔNG ĐỌC TỪ TABLE) =====
-            HoaDonOnline_DTO hd =
-                    bus.getHoaDonOnline(maHD);
+            HoaDonOnline_DTO hd = bus.getHoaDonOnline(maHD);
 
             if (hd == null) {
-                JOptionPane.showMessageDialog(null,
-                        "Không tìm thấy hóa đơn!");
+                JOptionPane.showMessageDialog(null,"Không tìm thấy hóa đơn!");
                 return;
             }
 
-            int trangThaiHienTai = hd.getTrangThai();
-            int trangThaiMoi;
+            Object selected = cbTrangThaiCN.getSelectedItem();
 
-            // ===== LOGIC CHUYỂN TRẠNG THÁI =====
-            switch (trangThaiHienTai) {
-
-                case HoaDonOnline_DTO.TT_CHO_DUYET ->
-                        trangThaiMoi = HoaDonOnline_DTO.TT_DA_DUYET;
-
-                case HoaDonOnline_DTO.TT_DA_DUYET ->
-                        trangThaiMoi = HoaDonOnline_DTO.TT_DANG_GIAO;
-
-                case HoaDonOnline_DTO.TT_DANG_GIAO ->
-                        trangThaiMoi = HoaDonOnline_DTO.TT_HOAN_THANH;
-
-                case HoaDonOnline_DTO.TT_YEU_CAU_HOAN ->
-                        trangThaiMoi = HoaDonOnline_DTO.TT_DA_HUY;
-
-                case HoaDonOnline_DTO.TT_HOAN_THANH,
-                     HoaDonOnline_DTO.TT_DA_HUY -> {
-
-                    JOptionPane.showMessageDialog(null,
-                            "Không thể cập nhật trạng thái này");
-                    return;
-                }
-
-                default -> {
-                    JOptionPane.showMessageDialog(null,
-                            "Trạng thái không hợp lệ");
-                    return;
-                }
+            if(selected == null){
+                JOptionPane.showMessageDialog(null,"Chọn trạng thái!");
+                return;
             }
 
-            // ===== GỌI BUS =====
-            bus.capNhatTrangThai(maHD, trangThaiMoi);
+            String chon = selected.toString();
 
-            JOptionPane.showMessageDialog(null,
-                    "Cập nhật thành công!");
+            try {
 
-            loadTableFromList(bus.getDanhSachDuyetOnline());
+                switch (chon){
+
+                    case "Duyệt" ->
+                            bus.duyetDon(maHD);
+
+                    case "Không duyệt" ->
+                            bus.khongDuyetDon(maHD);
+
+                    case "Giao hàng" ->
+                            bus.giaoHang(maHD);
+
+                    case "Hoàn thành" ->
+                            bus.hoanThanh(maHD);
+
+                    case "Ngưng giao" ->
+                            bus.huyDonHang(maHD);
+
+                    case "Duyệt hoàn" ->
+                            bus.duyetHoanHang(maHD);
+
+                    case "Không duyệt hoàn" ->
+                            bus.khongDuyetHoanHang(maHD);
+
+                    default -> {
+                        JOptionPane.showMessageDialog(null,"Trạng thái không hợp lệ");
+                        return;
+                    }
+                }
+
+                JOptionPane.showMessageDialog(null,"Cập nhật thành công!");
+
+                loadTableFromList(bus.getDanhSachDuyetOnline());
+
+                if(onTrangThaiChanged != null){
+                    onTrangThaiChanged.run();
+                }
+
+                loadTableFromList(bus.getDanhSachDuyetOnline());
+                for(int i=0;i<tableDSHDChoCN.getRowCount();i++){
+                    if(tableDSHDChoCN.getValueAt(i,1).equals(maHD)){
+                        tableDSHDChoCN.setRowSelectionInterval(i,i);
+                        break;
+                    }
+                }
+                loadChiTietHoaDon(maHD);
+
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, ex.getMessage());
+            }
         });
     }
-
 
     private void loadTrangThaiCapNhat(HoaDonOnline_DTO hd){
 
@@ -446,24 +463,29 @@ public class DuyetDonHang_GUI extends JPanel{
 
         switch (tt){
 
+            // CHỜ DUYỆT
             case HoaDonOnline_DTO.TT_CHO_DUYET -> {
-                cbTrangThaiCN.addItem("Đã duyệt");
-                cbTrangThaiCN.addItem("Hủy");
+                cbTrangThaiCN.addItem("Duyệt");
+                cbTrangThaiCN.addItem("Không duyệt");
             }
 
+            // ĐÃ DUYỆT
             case HoaDonOnline_DTO.TT_DA_DUYET -> {
-                cbTrangThaiCN.addItem("Đang giao");
+                cbTrangThaiCN.addItem("Giao hàng");
             }
 
+            // ĐANG GIAO
             case HoaDonOnline_DTO.TT_DANG_GIAO -> {
                 cbTrangThaiCN.addItem("Hoàn thành");
-                cbTrangThaiCN.addItem("Hủy");
+                cbTrangThaiCN.addItem("Ngưng giao");
             }
 
+            // YÊU CẦU HOÀN HÀNG
             case HoaDonOnline_DTO.TT_YEU_CAU_HOAN -> {
-                cbTrangThaiCN.addItem("Đã hủy");
-                cbTrangThaiCN.addItem("Hoàn thành");
+                cbTrangThaiCN.addItem("Duyệt hoàn");
+                cbTrangThaiCN.addItem("Không duyệt hoàn");
             }
+            default -> cbTrangThaiCN.addItem("Không có thao tác");
         }
     }
     private void createUIComponents() {
@@ -548,6 +570,7 @@ public class DuyetDonHang_GUI extends JPanel{
 
             JDateChooser1.setDate(null);
             JDateChooser2.setDate(null);
+            modelChiTiet.setRowCount(0);
 
             loadTableFromList(bus.getDanhSachDuyetOnline());
 

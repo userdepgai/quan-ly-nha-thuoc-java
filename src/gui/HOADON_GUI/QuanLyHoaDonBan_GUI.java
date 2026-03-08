@@ -18,8 +18,6 @@ import java.util.ArrayList;
 
 public class QuanLyHoaDonBan_GUI extends JPanel {
     private JPanel panel_QuanLyHDB;
-    private JButton btnXuatExcel;
-    private JButton btnNhapExcel;
     private JComboBox cbTimTheo;
     private JComboBox cbGia;
     private JTextField txtNhapTT;
@@ -75,8 +73,6 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
     private DefaultTableModel modelHoaDon;
     private DefaultTableModel modelChiTiet;
     private HoaDonBan_BUS hoaDonBUS = HoaDonBan_BUS.getInstance();
-    private KhachHang_BUS khBUS = KhachHang_BUS.getInstance();
-    private SanPham_BUS spBUS = SanPham_BUS.getInstance();
 
     public QuanLyHoaDonBan_GUI() {
         setLayout(new BorderLayout());
@@ -235,7 +231,8 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
                 hienThiNeuCo(
                         labelDCGiaoHang,
                         txtDCGiaoHang,
-                        online.getMaDiaChiGiaoHang()
+                        HoaDonOnline_BUS.getInstance()
+                                .getDiaChiDayDu(online.getMaDiaChiGiaoHang())
                 );
             }
 

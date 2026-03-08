@@ -106,7 +106,7 @@ public class LoHang_DAO {
     public boolean capNhat(LoHang_DTO lo) {
 
         String sql = "UPDATE LOHANG SET "
-                + "GiaNhap=?, HSD=?, NgaySanXuat=?, "
+                + "GiaNhap=?, HSD=?, "
                 + "SoLuong=?, SoLuongConLai=?, ThanhTien=?, "
                 + "TrangThai=?, TrangThaiTonKho=?, "
                 + "Ma_PNK=?, Ma_NCC=?, Ma_KVLT=?, Ma_SP=? "
@@ -118,18 +118,20 @@ public class LoHang_DAO {
             ps.setDouble(1, lo.getGiaNhap());
             ps.setDate(2, Date.valueOf(lo.getHsd()));
 
-            ps.setInt(4, lo.getSoLuongNhap());
-            ps.setInt(5, lo.getSoLuongConLai());
+            ps.setInt(3, lo.getSoLuongNhap());
+            ps.setInt(4, lo.getSoLuongConLai());
 
-            ps.setDouble(6, lo.getGiaNhap() * lo.getSoLuongNhap());
+            ps.setDouble(5, lo.getThanhTien());
 
-            ps.setInt(7, lo.getTrangThai());
-            ps.setInt(8, lo.getTrangThaiTonKho());
-            ps.setString(9, lo.getMaPnk());
-            ps.setString(10, lo.getMaNcc());
-            ps.setString(11, lo.getMaKvlt());
-            ps.setString(12, lo.getMaSp());
-            ps.setString(13, lo.getMaLo());
+            ps.setInt(6, lo.getTrangThai());
+            ps.setInt(7, lo.getTrangThaiTonKho());
+
+            ps.setString(8, lo.getMaPnk());
+            ps.setString(9, lo.getMaNcc());
+            ps.setString(10, lo.getMaKvlt());
+            ps.setString(11, lo.getMaSp());
+
+            ps.setString(12, lo.getMaLo());
 
             return ps.executeUpdate() > 0;
 
