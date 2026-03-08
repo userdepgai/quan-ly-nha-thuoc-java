@@ -204,26 +204,10 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
 
 
     // =============================
-// TEXT -> INT (GUI -> DTO)
-// =============================
-    public void setTrangThaiFromText(String text) {
-
-        if (text == null) return;
-
-        switch (text) {
-            case CHO_DUYET -> setTrangThai(TT_CHO_DUYET);
-            case DA_DUYET -> setTrangThai(TT_DA_DUYET);
-            case DANG_GIAO -> setTrangThai(TT_DANG_GIAO);
-            case HOAN_THANH -> setTrangThai(TT_HOAN_THANH);
-            case DA_HUY -> setTrangThai(TT_DA_HUY);
-            case YEU_CAU_HOAN -> setTrangThai(TT_YEU_CAU_HOAN);
-        }
-    }
-    // =============================
 // KÊ TOA
 // =============================
-    public static final String KHONG_KE_TOA = "Không ";
-    public static final String CO_KE_TOA = "Có ";
+    public static final String KHONG_KE_TOA = "Không";
+    public static final String CO_KE_TOA = "Có";
 
 
     // boolean -> text
@@ -231,10 +215,7 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
         return keToa ? CO_KE_TOA : KHONG_KE_TOA;
     }
 
-    // text -> boolean
-    public void setKeToaFromText(String text) {
-        this.keToa = CO_KE_TOA.equals(text);
-    }
+
 
     // =============================
 // TÌNH TRẠNG THANH TOÁN
@@ -274,24 +255,6 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
 
 
     // =============================
-// TEXT -> INT (GUI -> DTO)
-// =============================
-    public void setTinhTrangThanhToanFromText(String text) {
-
-        if (text == null) return;
-
-        switch (text) {
-            case CHUA_THANH_TOAN ->
-                    this.tinhTrangThanhToan = TT_CHUA_THANH_TOAN;
-
-            case DA_THANH_TOAN ->
-                    this.tinhTrangThanhToan = TT_DA_THANH_TOAN;
-
-            case DA_HOAN_TIEN ->
-                    this.tinhTrangThanhToan = TT_DA_HOAN_TIEN;
-        }
-    }
-    // =============================
 // LOẠI HÓA ĐƠN BÁN
 // =============================
 
@@ -323,19 +286,4 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     }
 
 
-    // =============================
-// TEXT -> INT (GUI -> DTO)
-// =============================
-    public void setLoaiHDBFromText(String text) {
-
-        if (text == null) return;
-
-        switch (text) {
-            case TAI_QUAY ->
-                    this.loaiHDB = LOAI_TAI_QUAY;
-
-            case TRUC_TUYEN ->
-                    this.loaiHDB = LOAI_TRUC_TUYEN;
-        }
-    }
 }

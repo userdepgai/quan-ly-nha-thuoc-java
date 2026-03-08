@@ -54,8 +54,9 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         hd.setPhiVanChuyen(50000);
         hd.setMaDiaChiGiaoHang(diaChiGiao);
 
+
         this.hoaDon = hd;
-        this.dsChiTietHDB = dsCT;
+        this.hoaDon.setDs_chiTietHDB(dsCT);
 
         tinhTongTien();
 

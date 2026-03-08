@@ -1,7 +1,6 @@
 package gui.HOADON_GUI;
 
 import bus.KhachHang_BUS;
-import bus.KhuyenMai_BUS;
 import bus.SanPham_BUS;
 
 import javax.swing.*;
@@ -11,7 +10,11 @@ import java.awt.event.*;
 
 import bus.HoaDonBan_BUS;
 import dto.*;
+import utils.PDFExporter;
 import utils.Session;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class LapHoaDon_GUI extends JPanel{
@@ -62,8 +65,10 @@ public class LapHoaDon_GUI extends JPanel{
     private JTextField txtGhiChu;
     private JScrollPane srcTTSP;
     private JButton btnXuatPDF;
+    private JButton btnTaoHoaDon;
 
     private boolean dangDongBo = false;
+    private boolean daLuuHoaDon = false;
     private Runnable onHoaDonSaved;
     private HoaDonBan_BUS bus = HoaDonBan_BUS.getInstance();
     // ===== BUS =====
@@ -84,7 +89,7 @@ public class LapHoaDon_GUI extends JPanel{
         khoiTaoBang();
         khoiTaoDuLieu();
         suKienNut();
-
+        capNhatTrangThaiNut();
         themSuKienNhapCombo();
 
 
@@ -120,7 +125,28 @@ public class LapHoaDon_GUI extends JPanel{
         snSoLuong.setEnabled(false);
 
         khoaTextField();
+    }
+    private void capNhatTrangThaiNut(){
 
+        if(daLuuHoaDon){
+
+            btnLuu.setEnabled(false);
+            btnHuy.setEnabled(false);
+
+            btnXuatPDF.setVisible(true);
+            btnTaoHoaDon.setVisible(true);
+
+            btnXuatPDF.setEnabled(true);
+            btnTaoHoaDon.setEnabled(true);
+
+        }else{
+
+            btnLuu.setEnabled(true);
+            btnHuy.setEnabled(true);
+
+            btnXuatPDF.setVisible(false);
+            btnTaoHoaDon.setVisible(false);
+        }
     }
 
     private void khoiTaoDuLieu(){
@@ -180,7 +206,13 @@ public class LapHoaDon_GUI extends JPanel{
     private void capNhatThongTinHoaDon(){
 
         HoaDonBan_DTO hd = bus.getHoaDon();
-        if(hd == null){
+        if(hd == null || bus.getDsTam().isEmpty()){
+            txtTongTien.setText("");
+            txtTongGTKM.setText("");
+            txtGTDT.setText("");
+            txtThanhTien.setText("");
+            txtThueVat.setText("");
+            txtTienThoi.setText("");
             return;
         }
 
@@ -368,26 +400,23 @@ public class LapHoaDon_GUI extends JPanel{
 
         int stt = 1;
 
-        // Map gộp số lượng theo sản phẩm
         Map<String, Integer> tongSL = new LinkedHashMap<>();
 
-        // Map lưu 1 dòng mẫu của sản phẩm
         Map<String, ChiTietHoaDonBan_DTO> ctMau = new HashMap<>();
 
         for(ChiTietHoaDonBan_DTO ct : bus.getDsTam()){
 
             String maSP = ct.getMaSP();
 
-            // cộng dồn số lượng
             tongSL.merge(maSP, ct.getSoLuong(), Integer::sum);
 
-            // lưu dòng đầu tiên làm mẫu
+
             if(!ctMau.containsKey(maSP)){
                 ctMau.put(maSP, ct);
             }
         }
 
-        // tạo dòng hiển thị
+
         for(String maSP : tongSL.keySet()){
 
             ChiTietHoaDonBan_DTO ct = ctMau.get(maSP);
@@ -412,23 +441,21 @@ public class LapHoaDon_GUI extends JPanel{
     /* ================== KHỞI TẠO BẢNG ================== */
 
 
-    private void tinhTienThoi(){
+    private void tinhTienThoi() {
 
-        try{
+        try {
 
             String sTienNhan = txtTienNhan.getText()
                     .replace(".", "")
-                    .replace("đ","")
-                    .replace(",", ".")
+                    .replace("đ", "")
                     .trim();
 
             String sThanhTien = txtThanhTien.getText()
                     .replace(".", "")
-                    .replace("đ","")
-                    .replace(",", ".")
+                    .replace("đ", "")
                     .trim();
 
-            if(sTienNhan.isEmpty() || sThanhTien.isEmpty()){
+            if (sTienNhan.isEmpty() || sThanhTien.isEmpty()) {
                 txtTienThoi.setText("");
                 return;
             }
@@ -438,13 +465,13 @@ public class LapHoaDon_GUI extends JPanel{
 
             double tienThoi = tienNhan - thanhTien;
 
-            if(tienThoi < 0){
-                txtTienThoi.setText("0 đ");
-            }else{
+            if (tienThoi < 0) {
+                txtTienThoi.setText("Không đủ");
+            } else {
                 txtTienThoi.setText(formatTien(tienThoi));
             }
 
-        }catch(Exception e){
+        } catch (Exception e) {
             txtTienThoi.setText("");
         }
     }
@@ -492,6 +519,7 @@ public class LapHoaDon_GUI extends JPanel{
             loadCBVoucher();
             txtTienNhan.setText("");
             txtTienThoi.setText("");
+            cbDaChyenKhoan.setSelected(false);
             resetFormSanPham();
         });
 
@@ -500,16 +528,43 @@ public class LapHoaDon_GUI extends JPanel{
 
         /* ===== CHECK CHUYỂN KHOẢN ===== */
         cbDaChyenKhoan.addActionListener(e -> {
-            if(cbDaChyenKhoan.isSelected()) {
+
+            if(cbDaChyenKhoan.isSelected()){
+
                 txtTienNhan.setText(txtThanhTien.getText());
-                txtTienThoi.setText("0");
+                txtTienThoi.setText("0 đ");
+
+            }else{
+
+                txtTienNhan.setText("");
+                txtTienThoi.setText("");
+
             }
         });
 
         /* ===== NHẬP TIỀN NHẬN ===== */
         txtTienNhan.addKeyListener(new KeyAdapter() {
+
+            @Override
             public void keyReleased(KeyEvent e) {
-                tinhTienThoi();
+
+                try {
+
+                    String input = txtTienNhan.getText()
+                            .replace(".", "")
+                            .replace("đ", "")
+                            .trim();
+
+                    if (input.isEmpty()) {
+                        txtTienThoi.setText("");
+                        return;
+                    }
+
+                    tinhTienThoi();
+
+                } catch (Exception ex) {
+                    txtTienThoi.setText("");
+                }
             }
         });
 
@@ -522,14 +577,12 @@ public class LapHoaDon_GUI extends JPanel{
                 double tienNhan = Double.parseDouble(
                         txtTienNhan.getText()
                                 .replace(".", "")
-                                .replace("đ", "")
-                                .replace(",", ".")
+                                .replace("đ","")
                                 .trim()
                 );
 
                 double thanhTien = bus.getHoaDon().getThanhTien();
 
-                // ⭐ set dữ liệu trước khi lưu
                 bus.getHoaDon().setTienNhan(tienNhan);
                 bus.getHoaDon().setTienThoi(tienNhan - thanhTien);
                 bus.getHoaDon().setTinhTrangThanhToan(1);
@@ -549,20 +602,27 @@ public class LapHoaDon_GUI extends JPanel{
                     onHoaDonSaved.run();
                 }
 
-                // reset giao diện
-                bus.taoHoaDonMoi();
-                modelBang.setRowCount(0);
-                txtSoDienThoai.setText("");
-                txtTenKhachHang.setText("");
-                loadCBVoucher();
-                chbDiemThuong.setSelected(false);
-                txtTienNhan.setText("");
-                txtTienThoi.setText("");
-                capNhatThongTinHoaDon();
+                daLuuHoaDon = true;
+                capNhatTrangThaiNut();
+                cbDaChyenKhoan.setSelected(false);
 
             }catch(Exception ex){
                 JOptionPane.showMessageDialog(this,"Tiền nhận không hợp lệ");
             }
+
+        });
+
+        btnTaoHoaDon.addActionListener(e -> {
+
+            bus.taoHoaDonMoi();
+
+            resetFormHoaDon();
+
+            daLuuHoaDon = false;
+            capNhatTrangThaiNut();
+
+            khoiTaoHoaDon();
+
 
         });
 
@@ -688,7 +748,7 @@ public class LapHoaDon_GUI extends JPanel{
                 if(sdt.isEmpty()){
                     txtTenKhachHang.setText("");
                     bus.getHoaDon().setMaKhachHang(null);
-                    loadCBVoucher();   // ⭐ thêm
+                    loadCBVoucher();
                     return;
                 }
 
@@ -701,13 +761,13 @@ public class LapHoaDon_GUI extends JPanel{
                     bus.getHoaDon().setMaKhachHang(kh.getMa());
                     chbDiemThuong.setSelected(false);
                     bus.setDungDiemThuong(false);
-                    loadCBVoucher();   // ⭐ thêm
+                    loadCBVoucher();
 
                 }else{
 
                     txtTenKhachHang.setText("");
                     bus.getHoaDon().setMaKhachHang(null);
-                    loadCBVoucher();   // ⭐ thêm
+                    loadCBVoucher();
                 }
             }
         });
@@ -741,7 +801,7 @@ public class LapHoaDon_GUI extends JPanel{
             capNhatThongTinHoaDon();
         });
         btnHuy.addActionListener(e -> {
-
+            if(daLuuHoaDon) return;
             int confirm = JOptionPane.showConfirmDialog(
                     this,
                     "Hủy hóa đơn đang lập?",
@@ -751,38 +811,68 @@ public class LapHoaDon_GUI extends JPanel{
 
             if(confirm != JOptionPane.YES_OPTION) return;
 
-            // tạo hóa đơn mới
             bus.taoHoaDonMoi();
 
-            // reset bảng sản phẩm
-            modelBang.setRowCount(0);
+            resetFormHoaDon();
 
-            // reset khách hàng
-            txtSoDienThoai.setText("");
-            txtTenKhachHang.setText("");
-
-            // reset voucher
-            loadCBVoucher();
-
-            // reset checkbox
-            chbDiemThuong.setSelected(false);
-            chbToaBacSi.setSelected(false);
-
-            // reset tiền
-            txtTienNhan.setText("");
-            txtTienThoi.setText("");
-
-            // reset ghi chú
-            txtGhiChu.setText("");
-
-            // reset form sản phẩm
-            resetFormSanPham();
-
-            // cập nhật lại thông tin hóa đơn
-            capNhatThongTinHoaDon();
-
-            // giữ lại NV lập + ngày lập
             khoiTaoHoaDon();
+        });
+
+        btnXuatPDF.addActionListener(e -> {
+
+            try {
+
+                JFileChooser chooser = new JFileChooser();
+                chooser.setDialogTitle("Chọn nơi lưu hóa đơn");
+
+                int option = chooser.showSaveDialog(this);
+
+                if (option == JFileChooser.APPROVE_OPTION) {
+
+                    String path = chooser.getSelectedFile().getAbsolutePath();
+
+                    if (!path.endsWith(".pdf")) {
+                        path += ".pdf";
+                    }
+
+                    String voucher = "";
+                    if (cbVoucher.getSelectedItem() != null) {
+                        voucher = cbVoucher.getSelectedItem().toString();
+                    }
+
+                    LocalDateTime ngayLap = bus.getHoaDon().getNgayLap();
+
+                    DateTimeFormatter f =
+                            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+                    String ngayLapStr = ngayLap.format(f);
+
+                    PDFExporter.exportHoaDon(
+
+                            tableTTSP,
+                            bus.getHoaDon().getMa(),
+                            bus.getTenNV(txtNhanVienLap.getText()),
+                            ngayLapStr,
+                            txtTenKhachHang.getText(),
+                            txtSoDienThoai.getText(),
+                            chbToaBacSi.isSelected(),
+                            txtTongTien.getText(),
+                            txtTongGTKM.getText(),
+                            txtGTDT.getText(),
+                            txtThanhTien.getText(),
+                            voucher,
+                            path
+                    );
+
+                    JOptionPane.showMessageDialog(this, "Xuất PDF thành công!");
+
+                }
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Xuất PDF thất bại!");
+            }
+
         });
     }
 
@@ -920,7 +1010,35 @@ public class LapHoaDon_GUI extends JPanel{
         txtThanhTien.setText(formatTien(hd.getThanhTien()));
     }
 
+    private void resetFormHoaDon(){
 
+        modelBang.setRowCount(0);
+
+        txtSoDienThoai.setText("");
+        txtTenKhachHang.setText("");
+
+        chbDiemThuong.setSelected(false);
+        chbToaBacSi.setSelected(false);
+
+        txtTienNhan.setText("");
+        txtTienThoi.setText("");
+
+        txtGhiChu.setText("");
+
+        txtTongTien.setText("");
+        txtGTDT.setText("");
+        txtTongGTKM.setText("");
+        txtThanhTien.setText("");
+        txtThueVat.setText("");
+
+        cbDaChyenKhoan.setSelected(false);
+
+        loadCBVoucher();
+
+        resetFormSanPham();
+
+        capNhatThongTinHoaDon();
+    }
     private boolean validateThongTin(){
 
         if(bus.getDsTam().isEmpty()){
@@ -928,22 +1046,40 @@ public class LapHoaDon_GUI extends JPanel{
             return false;
         }
 
-        if(txtTienNhan.getText().trim().isEmpty()){
-            JOptionPane.showMessageDialog(this,"Nhập tiền nhận");
-            return false;
-        }
+        // Nếu KHÔNG chuyển khoản thì mới kiểm tra tiền nhận
+        if(!cbDaChyenKhoan.isSelected()){
 
-        try{
-            Double.parseDouble(
-                    txtTienNhan.getText()
-                            .replace(".","")
-                            .replace(",","")
-                            .replace("đ","")
-                            .trim()
-            );
-        }catch(Exception e){
-            JOptionPane.showMessageDialog(this,"Tiền nhận không hợp lệ");
-            return false;
+            if(txtTienNhan.getText().trim().isEmpty()){
+                JOptionPane.showMessageDialog(this,"Nhập tiền nhận");
+                return false;
+            }
+
+            try{
+
+                double tienNhan = Double.parseDouble(
+                        txtTienNhan.getText()
+                                .replace(".", "")
+                                .replace("đ", "")
+                                .trim()
+                );
+
+                double thanhTien = bus.getHoaDon().getThanhTien();
+
+                // chỉ lỗi khi tiền nhận nhỏ hơn
+                if(tienNhan < thanhTien){
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Vui lòng nhập lại số tiền!"
+                    );
+                    return false;
+                }
+
+            }catch(Exception e){
+
+                JOptionPane.showMessageDialog(this,"Tiền nhận không hợp lệ");
+                return false;
+            }
+
         }
 
         return true;
@@ -990,6 +1126,9 @@ public class LapHoaDon_GUI extends JPanel{
                         new java.util.Locale("vi","VN")
                 );
 
-        return nf.format(tien) + " đ";
+        nf.setMaximumFractionDigits(0);
+        nf.setMinimumFractionDigits(0);
+
+        return nf.format(Math.round(tien)) + " đ";
     }
 }

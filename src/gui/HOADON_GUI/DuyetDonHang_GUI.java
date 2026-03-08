@@ -309,8 +309,16 @@ public class DuyetDonHang_GUI extends JPanel{
         }
     }
     private String formatTien(double tien){
-        NumberFormat nf = NumberFormat.getInstance(new Locale("vi","VN"));
-        return nf.format(tien) + " đ";
+
+        java.text.NumberFormat nf =
+                java.text.NumberFormat.getInstance(
+                        new java.util.Locale("vi","VN")
+                );
+
+        nf.setMaximumFractionDigits(0);
+        nf.setMinimumFractionDigits(0);
+
+        return nf.format(Math.round(tien)) + " đ";
     }
     private void formEdit(){
 

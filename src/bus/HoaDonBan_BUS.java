@@ -31,15 +31,12 @@ public class HoaDonBan_BUS {
     protected HoaDonBan_DTO hoaDon;
     private ArrayList<HoaDonBan_DTO> listCache;
 
-    protected ArrayList<ChiTietHoaDonBan_DTO> dsChiTietHDB = new ArrayList<>();
 
     public ArrayList<HoaDonBan_DTO> getAllHoaDon(){
         return hoaDonDAO.getAll();
     }
-
-
     public ArrayList<ChiTietHoaDonBan_DTO> getDsTam(){
-        return dsChiTietHDB;
+        return hoaDon.getDs_chiTietHDB();
     }
     public HoaDonBan_DTO getHoaDon(){
         return hoaDon;
@@ -65,10 +62,13 @@ public class HoaDonBan_BUS {
 
         tinhTongTien(); // tính lại tiền ngay
     }
-    // =====================================================
-    // LOAD KHÁCH HÀNG
-    // =====================================================
 
+    public String getTenNV(String maNV){
+
+        NhanVien_DTO nv = nvBus.getById(maNV);
+
+        return nv != null ? nv.getTen() : "";
+    }
     public String getTenKH(String maKH){
 
         KhachHang_DTO kh = khBus.getById(maKH);
@@ -153,7 +153,7 @@ public class HoaDonBan_BUS {
        hoaDon.setTongGiaTriKhuyenMai(0);
        hoaDon.setKeToa(false);
 
-        dsChiTietHDB.clear();
+       hoaDon.getDs_chiTietHDB().clear();
     }
 
 
@@ -241,7 +241,7 @@ public class HoaDonBan_BUS {
 
             ct.setThanhTien(thanhTien);
 
-            dsChiTietHDB.add(ct);
+            hoaDon.getDs_chiTietHDB().add(ct);
         }
 
         tinhTongTien();
@@ -312,8 +312,8 @@ public class HoaDonBan_BUS {
     }
 
      private boolean daTonTai(String maSP){
-            return dsChiTietHDB.stream()
-                    .anyMatch(x -> x.getMaSP().equals(maSP));
+         return hoaDon.getDs_chiTietHDB().stream()
+                 .anyMatch(x -> x.getMaSP().equals(maSP));
         }
 
     public double tinhGiaBan(String maSP, double giaNhapMax){
@@ -367,7 +367,7 @@ public class HoaDonBan_BUS {
     }
     private double tinhTongTienGoc(){
 
-        return dsChiTietHDB.stream()
+        return hoaDon.getDs_chiTietHDB().stream()
                 .mapToDouble(ct ->
                         ct.getGiaBan() * ct.getSoLuong())
                 .sum();
@@ -377,7 +377,7 @@ public class HoaDonBan_BUS {
         double tongGoc = 0;
         double tongSauKM = 0;
 
-        for(ChiTietHoaDonBan_DTO ct : dsChiTietHDB){
+        for(ChiTietHoaDonBan_DTO ct : hoaDon.getDs_chiTietHDB()){
 
             tongGoc += ct.getGiaBan() * ct.getSoLuong();
 
@@ -539,7 +539,7 @@ public class HoaDonBan_BUS {
             System.out.println("Insert hóa đơn: " + hoaDon.getMa());
 
             // ===== insert chi tiết =====
-            for(ChiTietHoaDonBan_DTO ct : dsChiTietHDB){
+            for(ChiTietHoaDonBan_DTO ct : hoaDon.getDs_chiTietHDB()){
 
                 ct.setMaHDB(hoaDon.getMa());
 
@@ -607,15 +607,15 @@ public class HoaDonBan_BUS {
 
     public void xoaSanPhamKeToa(){
 
-        for(int i = dsChiTietHDB.size()-1; i >= 0; i--){
+        for(int i = hoaDon.getDs_chiTietHDB().size()-1; i >= 0; i--){
 
-            ChiTietHoaDonBan_DTO ct = dsChiTietHDB.get(i);
+            ChiTietHoaDonBan_DTO ct = hoaDon.getDs_chiTietHDB().get(i);
 
             SanPham_DTO sp =
                     spBus.getById(ct.getMaSP());
 
             if(sp.getKeDon() == SanPham_DTO.KD_CO){
-                dsChiTietHDB.remove(i);
+                hoaDon.getDs_chiTietHDB().remove(i);
             }
 
         }
@@ -638,7 +638,7 @@ public class HoaDonBan_BUS {
     // =====================================================
 
     public void xoaSanPham(String maSP){
-        dsChiTietHDB.removeIf(x -> x.getMaSP().equals(maSP));
+        hoaDon.getDs_chiTietHDB().removeIf(x -> x.getMaSP().equals(maSP));
         tinhTongTien();
     }
 
@@ -773,7 +773,7 @@ public class HoaDonBan_BUS {
     }
     public void capNhatSoLuong(String maSP, int soLuong, String tenKM, boolean coToa){
 
-        dsChiTietHDB.removeIf(ct -> ct.getMaSP().equals(maSP));
+        hoaDon.getDs_chiTietHDB().removeIf(ct -> ct.getMaSP().equals(maSP));
 
         themSanPham(maSP, soLuong, tenKM, coToa);
 
