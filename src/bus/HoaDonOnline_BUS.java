@@ -28,6 +28,11 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
     public ArrayList<HoaDonOnline_DTO> getDanhSachDuyetOnline() {
         return hoaDonDAO.getDanhSachDuyetOnline();
     }
+
+    public ArrayList<HoaDonOnline_DTO> getDanhSachOnlineTheoKhachHang(String maKH){
+        return hoaDonDAO.getDanhSachOnlineTheoKhachHang(maKH);
+    }
+
     // =====================================================
     // KHÁCH ĐẶT ONLINE → AUTO TẠO HÓA ĐƠN
     // =====================================================
@@ -46,21 +51,40 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         hd.setMa(maHD);
         hd.setMaKhachHang(maKH);
+
         hd.setLoaiHDB(1);
         hd.setTrangThai(HoaDonBan_DTO.TT_CHO_DUYET);
         hd.setTinhTrangThanhToan(HoaDonBan_DTO.TT_CHUA_THANH_TOAN);
+
         hd.setNgayLap(LocalDateTime.now());
 
-        hd.setPhiVanChuyen(50000);
+        hd.setKeToa(false);
+        hd.setTongTienGoc(0);
+        hd.setTongGiaTriKhuyenMai(0);
+        hd.setDiemThuongQuyDoi(0);
+        hd.setTienNhan(0);
+        hd.setTienThoi(0);
+        hd.setThueVAT(0);
+        hd.setMaNhanVien(null);
+        hd.setMaVoucher(null);
+
+        hd.setPhiVanChuyen(15000);
         hd.setMaDiaChiGiaoHang(diaChiGiao);
-
-
         this.hoaDon = hd;
         this.hoaDon.setDs_chiTietHDB(dsCT);
 
         tinhTongTien();
 
-        hoaDonDAO.insert(hd);
+        hd.setThanhTien(
+                hd.getTongTienGoc()
+                        - hd.getTongGiaTriKhuyenMai()
+                        + hd.getPhiVanChuyen()
+        );
+
+        boolean ok = hoaDonDAO.insert(hd);
+
+        if(!ok)
+            throw new RuntimeException("Insert hóa đơn thất bại");
 
         for(ChiTietHoaDonBan_DTO ct : dsCT){
             ct.setMaHDB(maHD);
@@ -69,7 +93,6 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         return maHD;
     }
-
     // =====================================================
     // NHÂN VIÊN DUYỆT ĐƠN
     // =====================================================

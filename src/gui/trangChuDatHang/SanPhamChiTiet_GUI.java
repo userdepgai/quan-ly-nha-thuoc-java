@@ -20,7 +20,6 @@ public class SanPhamChiTiet_GUI extends JDialog {
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10,10));
 
-        // ===== IMAGE =====
         lblImage = new JLabel();
         lblImage.setPreferredSize(new Dimension(220,280));
         lblImage.setHorizontalAlignment(SwingConstants.CENTER);
@@ -29,7 +28,6 @@ public class SanPhamChiTiet_GUI extends JDialog {
 
         add(lblImage,BorderLayout.WEST);
 
-        // ===== INFO PANEL =====
         JPanel info = new JPanel();
         info.setLayout(new BoxLayout(info,BoxLayout.Y_AXIS));
         info.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
@@ -51,7 +49,6 @@ public class SanPhamChiTiet_GUI extends JDialog {
         info.add(new JSeparator());
         info.add(Box.createVerticalStrut(10));
 
-        // ===== THUỘC TÍNH PANEL =====
         panelThuocTinh = new JPanel();
         panelThuocTinh.setLayout(new BoxLayout(panelThuocTinh,BoxLayout.Y_AXIS));
 
@@ -69,7 +66,6 @@ public class SanPhamChiTiet_GUI extends JDialog {
         loadThuocTinh(sp.getMaSP());
     }
 
-    // ===== LOAD ẢNH =====
     private void loadImage(String path){
 
         String realPath = getRealImagePath(path);
@@ -91,7 +87,6 @@ public class SanPhamChiTiet_GUI extends JDialog {
         }
     }
 
-    // ===== LOAD THUỘC TÍNH =====
     private void loadThuocTinh(String maSP){
 
         SanPham_BUS bus = SanPham_BUS.getInstance();
@@ -123,16 +118,14 @@ public class SanPhamChiTiet_GUI extends JDialog {
 
         String realPath = path;
 
-        // sửa img -> images
         if(path.startsWith("img/")){
             realPath = path.replace("img/","images/");
         }
 
-        // kiểm tra tồn tại trong project
         File f = new File("src/" + realPath);
 
         if(f.exists()){
-            return "src/" + realPath;   // trả về path tương đối
+            return "src/" + realPath;
         }
 
         f = new File(realPath);

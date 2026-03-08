@@ -109,18 +109,18 @@ public class TaiKhoan_BUS {
         }
         return result;
     }
-public boolean capNhatSDTNhanVien(String sdtCu, String sdtMoi) {
-    for (TaiKhoan_DTO tk : listCache) {
-        if (tk.getSdt().equals(sdtCu) && !tk.getMaQuyen().equals("Q001")) {
-            boolean result = dao.capNhatSDT(tk.getMaTK(), sdtMoi);
-            if (result) {
-                tk.setSdt(sdtMoi);
-            }
+    public boolean capNhatSDTNhanVien(String sdtCu, String sdtMoi) {
+        for (TaiKhoan_DTO tk : listCache) {
+            if (tk.getSdt().equals(sdtCu) && !tk.getMaQuyen().equals("Q001")) {
+                boolean result = dao.capNhatSDT(tk.getMaTK(), sdtMoi);
+                if (result) {
+                    tk.setSdt(sdtMoi);
+                }
             return result;
+            }
         }
+        return false;
     }
-    return false;
-}
     public boolean capNhatSDTKhachHang(String sdtCu, String sdtMoi) {
         for (TaiKhoan_DTO tk : listCache) {
             if (tk.getSdt().equals(sdtCu) && tk.getMaQuyen().equals("Q001")) {

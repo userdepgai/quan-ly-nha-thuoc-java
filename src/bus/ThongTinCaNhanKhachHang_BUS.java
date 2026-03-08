@@ -43,8 +43,5 @@ public class ThongTinCaNhanKhachHang_BUS {
         }
         return false;
     }
-//    public ArrayList<KhachHang_DiaChi_DTO> getKH_DC() {
-//        KhachHang_DTO kh = getKhachHangDangNhap();
-//        for(KhachHang_DiaChi_DTO khdc : )
-//    }
+
 }

@@ -35,15 +35,10 @@ public class DashBoard_GUI extends JPanel {
         chartPanel.setBackground(Color.WHITE);
         chartPanel.setBorder(BorderFactory.createTitledBorder("Doanh thu theo tháng"));
 
-//        chartPanel.add(new BarChartPanel(), BorderLayout.CENTER);
 
         centerPanel.add(chartPanel, BorderLayout.CENTER);
 
-        JLabel chartText = new JLabel("Khu vực biểu đồ (Chart)", SwingConstants.CENTER);
-        chartText.setFont(new Font("Segoe UI", Font.ITALIC, 16));
-        chartPanel.setLayout(new BorderLayout());
-        chartPanel.add(chartText, BorderLayout.CENTER);
-
+        chartPanel.add(new ModernBarChart(), BorderLayout.CENTER);
         centerPanel.add(chartPanel, BorderLayout.CENTER);
     }
     private JPanel createStatCard(String icon, String title, String value) {

@@ -23,37 +23,34 @@ public class KhachHang_BUS {
         }
         return instance;
     }
+
     private int getHeSoDiem(String hang) {
         switch (hang) {
             case "Bạc": return 2;
             case "Vàng": return 3;
             case "Kim cương": return 5;
-            default: return 1; // Đồng
+            default: return 1;
         }
     }
 
-    // ================= GET ALL =================
     public ArrayList<KhachHang_DTO> getAll() {
         return listCache;
     }
 
-    // ================= NEXT ID =================
     public String getNextId() {
         return khDao.getNextId();
     }
 
-    // ================= THÊM =================
     public boolean them(KhachHang_DTO kh) {
 
-        kh.setDiemThuong(0);      // mặc định
-        kh.setDiemHang(0);        // mặc định
+        kh.setDiemThuong(0);
+        kh.setDiemHang(0);
 
         boolean result = khDao.them(kh);
         if(result) refreshData();
         return result;
     }
 
-    // ================= CẬP NHẬT =================
     public boolean capNhat(KhachHang_DTO kh) {
 
         boolean result = khDao.capNhat(kh);
@@ -61,7 +58,6 @@ public class KhachHang_BUS {
         return result;
     }
 
-    // ================= VALIDATE =================
     public boolean kiemTraHopLe(KhachHang_DTO kh) {
 
         if (kh.getTen().trim().isEmpty()) {
@@ -102,7 +98,6 @@ public class KhachHang_BUS {
         return true;
     }
 
-    // ================= TÌM KIẾM =================
     public ArrayList<KhachHang_DTO> timKiem(String keyword, String loai) {
 
         ArrayList<KhachHang_DTO> result = new ArrayList<>();
@@ -128,7 +123,7 @@ public class KhachHang_BUS {
                         result.add(kh);
                     break;
 
-                default: // Tất cả
+                default:
                     if (kh.getMa().toLowerCase().contains(keyword)
                             || kh.getTen().toLowerCase().contains(keyword)
                             || kh.getSdt().contains(keyword))
@@ -139,7 +134,6 @@ public class KhachHang_BUS {
         return result;
     }
 
-    // ================= GET BY ID =================
     public KhachHang_DTO getById(String maKH) {
 
         for (KhachHang_DTO kh : listCache) {
@@ -148,7 +142,7 @@ public class KhachHang_BUS {
         }
         return null;
     }
-    // ================= GET BY SDT =================
+
     public KhachHang_DTO getBysdt(String sdt) {
 
         for (KhachHang_DTO kh : listCache) {
@@ -157,16 +151,18 @@ public class KhachHang_BUS {
         }
         return null;
     }
-    // ================= REFRESH =================
+
     public void refreshData() {
         listCache = khDao.getAll();
     }
+
     private String tinhHang(int diemHang) {
         if (diemHang >= 3000) return "Kim cương";
         if (diemHang >= 1000) return "Vàng";
         if (diemHang >= 300) return "Bạc";
         return "Đồng";
     }
+
     public void congDiemMuaHang(String maKH, int diemCong) {
 
         KhachHang_DTO kh = getById(maKH);
@@ -181,6 +177,7 @@ public class KhachHang_BUS {
         khDao.capNhat(kh);
         refreshData();
     }
+
     public boolean truDiemThuong(String maKH, int diemCanTru) {
 
         KhachHang_DTO kh = getById(maKH);
@@ -193,17 +190,14 @@ public class KhachHang_BUS {
             return false;
         }
 
-        // Trừ điểm thưởng
         kh.setDiemThuong(kh.getDiemThuong() - diemCanTru);
-
-        // ❌ KHÔNG trừ điểm hạng
-        // Điểm hạng là tích lũy vĩnh viễn
 
         khDao.capNhat(kh);
         refreshData();
 
         return true;
     }
+
     public double quyDoiTien(double diemThuong) {
         return (diemThuong / 500) * 10000;
     }

@@ -37,7 +37,6 @@ public class LapHoaDon_GUI extends JPanel{
     private JComboBox cbVoucher;
     private JTextField txtTienNhan;
     private JTextField txtTienThoi;
-    private JButton btnChuyenKhoan;
     private JCheckBox cbDaChyenKhoan;
     private JTable tableTTSP;
     private JButton btnLuu;
@@ -75,6 +74,7 @@ public class LapHoaDon_GUI extends JPanel{
     private SanPham_BUS spBus = SanPham_BUS.getInstance();
 
     private DefaultTableModel modelBang;
+    private JPopupMenu popupKhachHang = new JPopupMenu();
 
     public void setOnHoaDonSaved(Runnable action){
         this.onHoaDonSaved = action;
@@ -166,12 +166,13 @@ public class LapHoaDon_GUI extends JPanel{
         txtThanhTien.setEditable(false);
         txtTienThoi.setEditable(false);
         txtThueVat.setEditable(false);
+        txtTenKhachHang.setEditable(false);
 
     }
     private void khoiTaoBang() {
         modelBang = new DefaultTableModel(
                 new String[]{
-                        "STT","Mã sản phẩm","Tên sản phẩm","Thuộc tính riêng",
+                        "STT","Mã sản phẩm","Tên sản phẩm",
                         "Giá bán","Khuyến mãi","Giá sau khuyến mãi","Số lượng","Thành tiền"
                 }, 0
         ){
@@ -185,14 +186,13 @@ public class LapHoaDon_GUI extends JPanel{
 
         tableTTSP.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         tableTTSP.getColumnModel().getColumn(0).setPreferredWidth(50);
-        tableTTSP.getColumnModel().getColumn(1).setPreferredWidth(110);
-        tableTTSP.getColumnModel().getColumn(2).setPreferredWidth(200);
-        tableTTSP.getColumnModel().getColumn(3).setPreferredWidth(150);
-        tableTTSP.getColumnModel().getColumn(4).setPreferredWidth(130);
-        tableTTSP.getColumnModel().getColumn(5).setPreferredWidth(180);
-        tableTTSP.getColumnModel().getColumn(6).setPreferredWidth(130);
-        tableTTSP.getColumnModel().getColumn(7).setPreferredWidth(80);
-        tableTTSP.getColumnModel().getColumn(8).setPreferredWidth(130);
+        tableTTSP.getColumnModel().getColumn(1).setPreferredWidth(120);
+        tableTTSP.getColumnModel().getColumn(2).setPreferredWidth(220);
+        tableTTSP.getColumnModel().getColumn(3).setPreferredWidth(180);
+        tableTTSP.getColumnModel().getColumn(4).setPreferredWidth(170);
+        tableTTSP.getColumnModel().getColumn(5).setPreferredWidth(150);
+        tableTTSP.getColumnModel().getColumn(6).setPreferredWidth(100);
+        tableTTSP.getColumnModel().getColumn(7).setPreferredWidth(170);
 
 
         tableTTSP.getTableHeader().setResizingAllowed(false);
@@ -224,14 +224,11 @@ public class LapHoaDon_GUI extends JPanel{
 
         tinhTienThoi();
     }
-    // ===============================
-// LOAD DATA COMBOBOX
-// ===============================
     private void loadComboBox(){
 
         loadCBMaSP();
         loadCBTenSP();
-        //loadCBKhuyenMai();
+
     }
     private void loadCBMaSP(){
 
@@ -427,7 +424,6 @@ public class LapHoaDon_GUI extends JPanel{
                     stt++,
                     maSP,
                     bus.getTenSP(maSP),
-                    bus.getDonViTinh(maSP),
                     formatTien(ct.getGiaBan()),
                     bus.getTenKhuyenMai(ct.getMaKhuyenMai()),
                     formatTien(ct.getGiaBanSauApKM()),
@@ -438,9 +434,6 @@ public class LapHoaDon_GUI extends JPanel{
 
         capNhatThongTinHoaDon();
     }
-    /* ================== KHỞI TẠO BẢNG ================== */
-
-
     private void tinhTienThoi() {
 
         try {
@@ -475,14 +468,10 @@ public class LapHoaDon_GUI extends JPanel{
             txtTienThoi.setText("");
         }
     }
-    /* ================== SỰ KIỆN NÚT ================== */
-
     private void suKienNut() {
 
-        /* ===== THÊM ===== */
         btnThem.addActionListener(e -> themSanPham());
 
-        /* ===== CLICK BẢNG ĐỔ DỮ LIỆU ===== */
         tableTTSP.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int dong = tableTTSP.getSelectedRow();
@@ -504,7 +493,6 @@ public class LapHoaDon_GUI extends JPanel{
             }
         });
 
-        /* ===== XOÁ ===== */
         btnXoa.addActionListener(e -> {
 
             int row = tableTTSP.getSelectedRow();
@@ -523,10 +511,7 @@ public class LapHoaDon_GUI extends JPanel{
             resetFormSanPham();
         });
 
-        /* ===== SỬA ===== */
         btnSua.addActionListener(e -> suaSanPham());
-
-        /* ===== CHECK CHUYỂN KHOẢN ===== */
         cbDaChyenKhoan.addActionListener(e -> {
 
             if(cbDaChyenKhoan.isSelected()){
@@ -541,8 +526,6 @@ public class LapHoaDon_GUI extends JPanel{
 
             }
         });
-
-        /* ===== NHẬP TIỀN NHẬN ===== */
         txtTienNhan.addKeyListener(new KeyAdapter() {
 
             @Override
@@ -745,6 +728,8 @@ public class LapHoaDon_GUI extends JPanel{
 
                 String sdt = txtSoDienThoai.getText().trim();
 
+                goiYSDT(sdt);
+
                 if(sdt.isEmpty()){
                     txtTenKhachHang.setText("");
                     bus.getHoaDon().setMaKhachHang(null);
@@ -772,11 +757,7 @@ public class LapHoaDon_GUI extends JPanel{
             }
         });
         chbDiemThuong.addActionListener(e -> {
-
-            // nếu người dùng tick dùng điểm
             if(chbDiemThuong.isSelected()){
-
-                // kiểm tra hóa đơn có khách hàng chưa
                 if(bus.getHoaDon().getMaKhachHang() == null){
 
                     JOptionPane.showMessageDialog(
@@ -875,11 +856,6 @@ public class LapHoaDon_GUI extends JPanel{
 
         });
     }
-
-
-
-    /* ================== HÀM THÊM ================== */
-
     private void themSanPham() {
         String maSP =
                 ((JTextField) cbMaSP.getEditor()
@@ -893,13 +869,8 @@ public class LapHoaDon_GUI extends JPanel{
                     "Vui lòng chọn sản phẩm ");
             return;
         }
-
         try{
-
-
             int soLuong = (int) snSoLuong.getValue();
-
-            // ===== lấy KM user chọn =====
             String tenKM = null;
 
             if(cbKhuyenMai.getSelectedIndex() > 0){
@@ -908,7 +879,6 @@ public class LapHoaDon_GUI extends JPanel{
 
             }
 
-            // ⭐ gọi đúng BUS
             boolean coToa = chbToaBacSi.isSelected();
 
             bus.themSanPham(maSP, soLuong, tenKM, coToa);
@@ -944,8 +914,6 @@ public class LapHoaDon_GUI extends JPanel{
         snSoLuong.setEnabled(false);
         btnThem.setEnabled(false);
     }
-    /* ================== SỬA ================== */
-
     private void suaSanPham() {
 
         int dong = tableTTSP.getSelectedRow();
@@ -960,7 +928,6 @@ public class LapHoaDon_GUI extends JPanel{
 
         if(cbKhuyenMai.getSelectedIndex() > 0){
 
-            // ⭐ kiểm tra SĐT trước khi cho sửa KM
             String sdt = txtSoDienThoai.getText().trim();
 
             if(sdt.isEmpty()){
@@ -1045,8 +1012,6 @@ public class LapHoaDon_GUI extends JPanel{
             JOptionPane.showMessageDialog(this,"Chưa có sản phẩm");
             return false;
         }
-
-        // Nếu KHÔNG chuyển khoản thì mới kiểm tra tiền nhận
         if(!cbDaChyenKhoan.isSelected()){
 
             if(txtTienNhan.getText().trim().isEmpty()){
@@ -1064,8 +1029,6 @@ public class LapHoaDon_GUI extends JPanel{
                 );
 
                 double thanhTien = bus.getHoaDon().getThanhTien();
-
-                // chỉ lỗi khi tiền nhận nhỏ hơn
                 if(tienNhan < thanhTien){
                     JOptionPane.showMessageDialog(
                             this,
@@ -1130,5 +1093,44 @@ public class LapHoaDon_GUI extends JPanel{
         nf.setMinimumFractionDigits(0);
 
         return nf.format(Math.round(tien)) + " đ";
+    }
+    private void goiYSDT(String text){
+
+        popupKhachHang.removeAll();
+
+        if(text.isEmpty()){
+            popupKhachHang.setVisible(false);
+            return;
+        }
+
+        for(KhachHang_DTO kh : KhachHang_BUS.getInstance().getAll()){
+
+            if(kh.getSdt().contains(text)){
+
+                JMenuItem item = new JMenuItem(
+                        kh.getSdt() + " - " + kh.getTen()
+                );
+
+                item.addActionListener(e -> {
+
+                    txtSoDienThoai.setText(kh.getSdt());
+                    txtTenKhachHang.setText(kh.getTen());
+
+                    bus.getHoaDon().setMaKhachHang(kh.getMa());
+
+                    loadCBVoucher();
+
+                    popupKhachHang.setVisible(false);
+                });
+
+                popupKhachHang.add(item);
+            }
+        }
+
+        if(popupKhachHang.getComponentCount() > 0){
+            popupKhachHang.show(txtSoDienThoai,0,txtSoDienThoai.getHeight());
+        }else{
+            popupKhachHang.setVisible(false);
+        }
     }
 }
