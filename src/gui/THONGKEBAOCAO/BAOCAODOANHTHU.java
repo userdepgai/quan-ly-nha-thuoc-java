@@ -166,7 +166,7 @@ public class BAOCAODOANHTHU extends JPanel {
     }
 
     private void loadDataToTable(List<BaoCaoDoanhThu_DTO> list) {
-        tableModel.setRowCount(0); // Xóa dữ liệu cũ
+        tableModel.setRowCount(0);
 
         if (list == null || list.isEmpty()) {
             if (textTBD != null) textTBD.setText("0");

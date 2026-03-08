@@ -2,9 +2,9 @@ package gui;
 
 import bus.ThanhToan_BUS;
 import bus.Voucher_BUS;
-import dto.ProductItem;
 import dto.ThanhToan_DTO;
 import dto.Voucher_DTO;
+import dto.ChiTietGioHang_DTO; // Đã đổi import chuẩn
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,8 +30,8 @@ public class ThanhToan_GUI extends JPanel {
     private JButton btnThemDC;
 
     private Runnable onDatHangThanhCongCallback;
-    private List<ProductItem> danhSachMua;
-    private double tienHangGoc;
+    private List<ChiTietGioHang_DTO> danhSachMua; // Đã đổi thành DTO chuẩn
+    private double tienHangTruocVoucher;
     private Voucher_DTO voucherApDung;
     private final double PHI_VAN_CHUYEN = 15000;
 
@@ -91,18 +91,22 @@ public class ThanhToan_GUI extends JPanel {
         tuDongDienThongTin();
     }
 
-    private JPanel taoDongSanPham(ProductItem item) {
+    private JPanel taoDongSanPham(ChiTietGioHang_DTO item) {
         JPanel row = new JPanel(new BorderLayout(10, 0));
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
         row.setPreferredSize(new Dimension(0, 60));
         row.setBackground(Color.WHITE);
         row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
 
-        JLabel lblInfo = new JLabel("<html><b>" + item.ten + "</b><br><font color='gray'>Mã: " + item.ma + "</font></html>");
+        // Lấy tên và giá từ Database (thông qua BUS)
+        String tenSP = getTenSanPham(item.getMaSP());
+        double donGia = getGiaSanPham(item.getMaSP());
+
+        JLabel lblInfo = new JLabel("<html><b>" + tenSP + "</b><br><font color='gray'>Mã: " + item.getMaSP() + "</font></html>");
         lblInfo.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
-        double thanhTien = item.giaSale * item.soLuong;
-        JLabel lblPrice = new JLabel("<html>x" + item.soLuong + "<br>Thành tiền: <font color='red'><b>" + String.format("%,.0fđ", thanhTien) + "</b></font></html>");
+        double thanhTienGoc = donGia * item.getSoLuong();
+        JLabel lblPrice = new JLabel("<html>x" + item.getSoLuong() + "<br>Thành tiền: <font color='red'><b>" + String.format("%,.0fđ", thanhTienGoc) + "</b></font></html>");
         lblPrice.setHorizontalAlignment(SwingConstants.RIGHT);
         lblPrice.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
 
@@ -112,14 +116,14 @@ public class ThanhToan_GUI extends JPanel {
         return row;
     }
 
-    public void setDuLieuThanhToan(List<ProductItem> dsMua, double tongTien, Voucher_DTO voucher) {
+    public void setDuLieuThanhToan(List<ChiTietGioHang_DTO> dsMua, double tongTienSauKhuyenMaiSP, Voucher_DTO voucher) {
         this.danhSachMua = dsMua;
-        this.tienHangGoc = tongTien;
+        this.tienHangTruocVoucher = tongTienSauKhuyenMaiSP;
         this.voucherApDung = voucher;
 
         if (pnlDanhSachMua != null) {
             pnlDanhSachMua.removeAll();
-            for (ProductItem item : dsMua) {
+            for (ChiTietGioHang_DTO item : dsMua) {
                 pnlDanhSachMua.add(taoDongSanPham(item));
                 pnlDanhSachMua.add(Box.createVerticalStrut(5));
             }
@@ -132,24 +136,25 @@ public class ThanhToan_GUI extends JPanel {
 
     private void tinhToanVaHienThi() {
         double tongTienHangGocToanBo = 0;
-        double tongGiamGiaSanPham = 0;
 
+        // 1. Tính tổng tiền nguyên giá chưa áp dụng bất kỳ mã nào
         if (danhSachMua != null) {
-            for (ProductItem item : danhSachMua) {
-                tongTienHangGocToanBo += (item.gia * item.soLuong);
-
-                if (item.giaSale < item.gia) {
-                    tongGiamGiaSanPham += (item.gia - item.giaSale) * item.soLuong;
-                }
+            for (ChiTietGioHang_DTO item : danhSachMua) {
+                tongTienHangGocToanBo += (getGiaSanPham(item.getMaSP()) * item.getSoLuong());
             }
         }
 
+        // 2. Tính số tiền được giảm nhờ Khuyến Mãi Sản Phẩm bên Giỏ Hàng truyền sang
+        double tongGiamGiaSanPham = tongTienHangGocToanBo - this.tienHangTruocVoucher;
+        if (tongGiamGiaSanPham < 0) tongGiamGiaSanPham = 0;
+
+        // 3. Tính tiền giảm nhờ Voucher của toàn đơn hàng
         double tienGiamVoucher = 0;
         if (voucherApDung != null) {
             if (voucherApDung.getLoaiVoucher() == 0) {
                 double phanTram = voucherApDung.getGiaTriVoucher();
                 if (phanTram > 1.0) phanTram = phanTram / 100.0;
-                tienGiamVoucher = tienHangGoc * phanTram;
+                tienGiamVoucher = this.tienHangTruocVoucher * phanTram;
             } else {
                 tienGiamVoucher = voucherApDung.getGiaTriVoucher();
             }
@@ -159,12 +164,15 @@ public class ThanhToan_GUI extends JPanel {
             voucherButton.setText("Chọn Voucher");
             voucherButton.setForeground(Color.BLACK);
         }
+
         textTienHang.setText(String.format("%,.0f VNĐ", tongTienHangGocToanBo));
         textPhiVanChuyen.setText(String.format("%,.0f VNĐ", PHI_VAN_CHUYEN));
 
+        // 4. Tổng hợp tất cả tiền được giảm
         double tongTatCaGiamGia = tongGiamGiaSanPham + tienGiamVoucher;
         textTongGiamGia.setText(String.format("- %,.0f VNĐ", tongTatCaGiamGia));
 
+        // 5. Chốt sổ cuối cùng
         double tongThanhToan = tongTienHangGocToanBo + PHI_VAN_CHUYEN - tongTatCaGiamGia;
         if (tongThanhToan < 0) tongThanhToan = 0;
 
@@ -225,7 +233,7 @@ public class ThanhToan_GUI extends JPanel {
 
         JButton btnApDung = new JButton("Dùng");
         btnApDung.addActionListener(e -> {
-            if (tienHangGoc < v.getDonToiThieu()) {
+            if (this.tienHangTruocVoucher < v.getDonToiThieu()) {
                 JOptionPane.showMessageDialog(dialog, "Đơn hàng chưa đủ giá trị tối thiểu!", "Thông báo", JOptionPane.WARNING_MESSAGE);
                 return;
             }
@@ -353,5 +361,21 @@ public class ThanhToan_GUI extends JPanel {
 
     public void setOnDatHangThanhCong(Runnable callback) {
         this.onDatHangThanhCongCallback = callback;
+    }
+
+    private String getTenSanPham(String maSP) {
+        dto.SanPham_DTO sp = bus.SanPham_BUS.getInstance().getById(maSP);
+        if (sp != null) {
+            return sp.getTenSP();
+        }
+        return "Sản phẩm không tồn tại";
+    }
+
+    private double getGiaSanPham(String maSP) {
+        dto.SanPham_DTO sp = bus.SanPham_BUS.getInstance().getById(maSP);
+        if (sp != null) {
+            return sp.getLoiNhuan();
+        }
+        return 0;
     }
 }

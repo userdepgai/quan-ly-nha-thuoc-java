@@ -1,16 +1,20 @@
 package gui;
 
+import bus.ChiTietGioHang_BUS;
+import bus.GioHang_BUS;
 import bus.KhuyenMai_BUS;
 import bus.Voucher_BUS;
+import dto.ChiTietGioHang_DTO;
+import dto.GioHang_DTO;
 import dto.KhuyenMai_DTO;
-import dto.ProductItem;
-import bus.GioHangManager;
 import dto.Voucher_DTO;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GIOHANG extends JPanel {
 
@@ -20,16 +24,18 @@ public class GIOHANG extends JPanel {
     private JScrollPane scrollGioHang;
     private JButton btnMuaHang;
     private JTextField textTtien;
-
-    private JButton btnChonVoucher;
-
-    private JPanel promoPanel;
-    private JScrollPane scrollVoucher;
     private JPanel ItemPanel;
-
+    private JButton btnChonVoucher;
     private Voucher_DTO voucherDangApDung = null;
-
     private List<JCheckBox> listCbxSanPham = new ArrayList<>();
+
+    private Map<ChiTietGioHang_DTO, Double> mapGiaSale = new HashMap<>();
+
+    private ChiTietGioHang_BUS ctBus = new ChiTietGioHang_BUS();
+    private GioHang_BUS ghBus = GioHang_BUS.getInstance();
+    private List<ChiTietGioHang_DTO> danhSachGioHang = new ArrayList<>();
+
+    private String maGH_HienTai = null;
 
     public GIOHANG() {
         this.setLayout(new BorderLayout());
@@ -74,7 +80,6 @@ public class GIOHANG extends JPanel {
             btnChonVoucher.setForeground(Color.decode("#EE4D2D"));
             btnChonVoucher.setContentAreaFilled(false);
             btnChonVoucher.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
             btnChonVoucher.addActionListener(e -> hienThiDialogVoucher());
         }
 
@@ -88,14 +93,14 @@ public class GIOHANG extends JPanel {
             btnMuaHang.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
             btnMuaHang.addActionListener(e -> {
-                if (GioHangManager.danhSachGioHang.isEmpty()) {
+                if (danhSachGioHang == null || danhSachGioHang.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Giỏ hàng đang trống!");
                     return;
                 }
-                List<ProductItem> danhSachMua = new ArrayList<>();
+                List<ChiTietGioHang_DTO> danhSachMua = new ArrayList<>();
                 for (int i = 0; i < listCbxSanPham.size(); i++) {
                     if (listCbxSanPham.get(i).isSelected()) {
-                        danhSachMua.add(GioHangManager.danhSachGioHang.get(i));
+                        danhSachMua.add(danhSachGioHang.get(i));
                     }
                 }
 
@@ -105,17 +110,15 @@ public class GIOHANG extends JPanel {
                 }
 
                 Window parentWindow = SwingUtilities.getWindowAncestor(this);
-
                 JDialog popupThanhToan = new JDialog(parentWindow instanceof Frame ? (Frame) parentWindow : null, "Xác nhận Thanh Toán", true);
-
                 ThanhToan_GUI pnlThanhToan = new ThanhToan_GUI();
-
 
                 double tongTienHang = layTongTienHang();
                 pnlThanhToan.setDuLieuThanhToan(danhSachMua, tongTienHang, voucherDangApDung);
                 pnlThanhToan.setOnDatHangThanhCong(() -> {
-                    GioHangManager.danhSachGioHang.removeAll(danhSachMua);
-
+                    for (ChiTietGioHang_DTO muaItem : danhSachMua) {
+                        ctBus.xoa(muaItem.getMaGH(), muaItem.getMaSP());
+                    }
                     loadData();
                     kiemTraChonTatCa();
                 });
@@ -134,10 +137,12 @@ public class GIOHANG extends JPanel {
 
     private double layTongTienHang() {
         double tongTien = 0;
-        for (int i = 0; i < GioHangManager.danhSachGioHang.size(); i++) {
+        for (int i = 0; i < danhSachGioHang.size(); i++) {
             if (i < listCbxSanPham.size() && listCbxSanPham.get(i).isSelected()) {
-                ProductItem item = GioHangManager.danhSachGioHang.get(i);
-                tongTien += (item.giaSale * item.soLuong);
+                ChiTietGioHang_DTO item = danhSachGioHang.get(i);
+                double donGiaGoc = getGiaSanPham(item.getMaSP());
+                double giaThucTe = mapGiaSale.getOrDefault(item, donGiaGoc);
+                tongTien += (giaThucTe * item.getSoLuong());
             }
         }
         return tongTien;
@@ -161,11 +166,10 @@ public class GIOHANG extends JPanel {
                 } else {
                     tienGiam = voucherDangApDung.getGiaTriVoucher();
                 }
-
             } else {
                 voucherDangApDung = null;
                 if (btnChonVoucher != null) btnChonVoucher.setText("🏷️ Chọn Voucher");
-                JOptionPane.showMessageDialog(this, "Tổng tiền không đủ điều kiện dùng voucher này nữa. Đã tự động gỡ voucher!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Tổng tiền không đủ điều kiện dùng voucher này nữa. Đã gỡ voucher!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             }
         }
 
@@ -175,9 +179,38 @@ public class GIOHANG extends JPanel {
         textTtien.setText(String.format("%,.0f VNĐ", tongThanhToan));
     }
 
+
     public void loadData() {
         voucherDangApDung = null;
+        danhSachGioHang = new ArrayList<>();
+
+        if (!utils.Session.isLoggedIn() || !utils.Session.isCustomer()) {
+            renderGioHang();
+            return;
+        }
+        String sdt = utils.Session.getCurrentUser().getSdt();
+        dto.KhachHang_DTO kh = bus.KhachHang_BUS.getInstance().getBysdt(sdt);
+
+        if (kh != null) {
+            String maKH = kh.getMa();
+            GioHang_DTO gh = ghBus.getByMaKH(maKH);
+
+            if (gh != null) {
+                maGH_HienTai = gh.getMaGH();
+                List<ChiTietGioHang_DTO> listTuDB = ctBus.getByMaGH(maGH_HienTai);
+                if (listTuDB != null) {
+                    danhSachGioHang = listTuDB;
+                }
+            }
+        }
+        loadData();
         renderGioHang();
+        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                loadData();
+            }
+        });
     }
 
     private void renderGioHang() {
@@ -185,7 +218,12 @@ public class GIOHANG extends JPanel {
         pnlDanhSachSP.removeAll();
         listCbxSanPham.clear();
 
-        for (ProductItem item : GioHangManager.danhSachGioHang) {
+        mapGiaSale.keySet().retainAll(danhSachGioHang);
+
+        for (ChiTietGioHang_DTO item : danhSachGioHang) {
+            if(!mapGiaSale.containsKey(item)) {
+                mapGiaSale.put(item, getGiaSanPham(item.getMaSP()));
+            }
             JPanel cardSP = taoTheSanPham(item);
             pnlDanhSachSP.add(cardSP);
             pnlDanhSachSP.add(Box.createVerticalStrut(10));
@@ -245,7 +283,6 @@ public class GIOHANG extends JPanel {
 
         if (listVoucher != null && !listVoucher.isEmpty()) {
             long now = System.currentTimeMillis();
-
             for (Voucher_DTO v : listVoucher) {
                 if (v.getTrangThai() == 1 && v.getNgayBatDau().getTime() <= now && v.getNgayKetThuc().getTime() >= now) {
                     pnlList.add(taoTheVoucherDialog(v, dialog));
@@ -310,20 +347,15 @@ public class GIOHANG extends JPanel {
 
         btnApDung.addActionListener(e -> {
             double tongTienHienTai = layTongTienHang();
-
             if (tongTienHienTai < v.getDonToiThieu()) {
                 JOptionPane.showMessageDialog(dialog,
-                        "Bạn chưa đủ điều kiện! Tổng đơn hàng tối thiểu để dùng mã này là " + String.format("%,.0fđ", v.getDonToiThieu()),
+                        "Bạn chưa đủ điều kiện! Tổng đơn hàng tối thiểu là " + String.format("%,.0fđ", v.getDonToiThieu()),
                         "Không thể áp dụng", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             voucherDangApDung = v;
             tinhTongTien();
-
-            if (btnChonVoucher != null) {
-                btnChonVoucher.setText("🏷️ Đã áp dụng: " + v.getMa());
-            }
-
+            if (btnChonVoucher != null) btnChonVoucher.setText("🏷️ Đã áp dụng: " + v.getMa());
             dialog.dispose();
             JOptionPane.showMessageDialog(this, "Đã áp dụng mã " + v.getMa() + " thành công!");
         });
@@ -337,7 +369,11 @@ public class GIOHANG extends JPanel {
         return marginWrapper;
     }
 
-    private JPanel taoTheSanPham(ProductItem item) {
+    private JPanel taoTheSanPham(ChiTietGioHang_DTO item) {
+        String tenSP = getTenSanPham(item.getMaSP());
+        double donGia = getGiaSanPham(item.getMaSP());
+        double giaSale = mapGiaSale.get(item);
+
         JPanel cardWrapper = new JPanel(new BorderLayout());
         cardWrapper.setBackground(Color.WHITE);
         cardWrapper.setBorder(BorderFactory.createCompoundBorder(
@@ -375,11 +411,11 @@ public class GIOHANG extends JPanel {
         pnlInfo.setOpaque(false);
         pnlInfo.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        JLabel lblMa = new JLabel("Mã SP: " + item.ma);
+        JLabel lblMa = new JLabel("Mã SP: " + item.getMaSP());
         lblMa.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblMa.setForeground(Color.decode("#888888"));
 
-        JLabel lblTen = new JLabel(item.ten);
+        JLabel lblTen = new JLabel(tenSP);
         lblTen.setFont(new Font("Segoe UI", Font.BOLD, 15));
 
         JLabel lblGiaGoc = new JLabel();
@@ -389,11 +425,11 @@ public class GIOHANG extends JPanel {
         lblGiaSale.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblGiaSale.setForeground(Color.decode("#EE4D2D"));
 
-        if (item.giaSale < item.gia) {
-            lblGiaGoc.setText("<html><font color='#999999'>Giá gốc: <strike>" + String.format("%,.0fđ", item.gia) + "</strike></font></html>");
-            lblGiaSale.setText("Sale: " + String.format("%,.0fđ", item.giaSale));
+        if (giaSale < donGia) {
+            lblGiaGoc.setText("<html><font color='#999999'>Giá gốc: <strike>" + String.format("%,.0fđ", donGia) + "</strike></font></html>");
+            lblGiaSale.setText("Sale: " + String.format("%,.0fđ", giaSale));
         } else {
-            lblGiaGoc.setText("<html><font color='#555555'>Đơn giá: " + String.format("%,.0fđ", item.gia) + "</font></html>");
+            lblGiaGoc.setText("<html><font color='#555555'>Đơn giá: " + String.format("%,.0fđ", donGia) + "</font></html>");
             lblGiaSale.setText(" ");
         }
 
@@ -410,7 +446,7 @@ public class GIOHANG extends JPanel {
         JPanel pnlRightTop = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         pnlRightTop.setOpaque(false);
 
-        JSpinner spinSL = new JSpinner(new SpinnerNumberModel(item.soLuong, 1, 100, 1));
+        JSpinner spinSL = new JSpinner(new SpinnerNumberModel(item.getSoLuong(), 1, 100, 1));
         spinSL.setPreferredSize(new Dimension(50, 25));
 
         JButton btnXoa = new JButton("Xóa");
@@ -421,9 +457,17 @@ public class GIOHANG extends JPanel {
         btnXoa.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         btnXoa.addActionListener(e -> {
-            GioHangManager.danhSachGioHang.remove(item);
-            kiemTraChonTatCa();
-            renderGioHang();
+            // XÓA DƯỚI DATABASE TRƯỚC
+            boolean success = ctBus.xoa(item.getMaGH(), item.getMaSP());
+            if (success) {
+                // Xóa DB thành công thì mới bỏ khỏi giao diện
+                danhSachGioHang.remove(item);
+                mapGiaSale.remove(item);
+                kiemTraChonTatCa();
+                renderGioHang();
+            } else {
+                JOptionPane.showMessageDialog(this, "Lỗi: Không thể xóa sản phẩm khỏi cơ sở dữ liệu!");
+            }
         });
 
         pnlRightTop.add(spinSL);
@@ -433,13 +477,19 @@ public class GIOHANG extends JPanel {
         pnlRightBottom.setLayout(new BoxLayout(pnlRightBottom, BoxLayout.Y_AXIS));
         pnlRightBottom.setOpaque(false);
 
-        JLabel lblThanhTienMoiMon = new JLabel("Thành Tiền: " + String.format("%,.0fđ", item.giaSale * item.soLuong));
+        JLabel lblThanhTienMoiMon = new JLabel("Thành Tiền: " + String.format("%,.0fđ", giaSale * item.getSoLuong()));
         lblThanhTienMoiMon.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lblThanhTienMoiMon.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         spinSL.addChangeListener(e -> {
-            item.soLuong = (int) spinSL.getValue();
-            lblThanhTienMoiMon.setText("Thành Tiền: " + String.format("%,.0fđ", item.giaSale * item.soLuong));
+            int newSL = (int) spinSL.getValue();
+            item.setSoLuong(newSL);
+
+            // CẬP NHẬT SỐ LƯỢNG MỚI XUỐNG DATABASE
+            ctBus.capNhatSoLuong(item);
+
+            double currentSalePrice = mapGiaSale.get(item);
+            lblThanhTienMoiMon.setText("Thành Tiền: " + String.format("%,.0fđ", currentSalePrice * item.getSoLuong()));
             tinhTongTien();
         });
 
@@ -467,33 +517,17 @@ public class GIOHANG extends JPanel {
         pnlKhuyenMaiCollapse.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
         ArrayList<KhuyenMai_DTO> listKM = KhuyenMai_BUS.getInstance().getAll();
-        boolean coKhuyenMaiPhuHop = false;
 
         if (listKM != null) {
             for (KhuyenMai_DTO km : listKM) {
-                boolean isKhuyenMaiHopLe = false;
-
-                if (km.getTrangThai() == 1) {
-                    if (km.getDoiTuongApDung() == 1) {
-                        if (km.getMaSanPham() != null && item.ma != null &&
-                                km.getMaSanPham().trim().equalsIgnoreCase(item.ma.trim())) {
-                            isKhuyenMaiHopLe = true;
-                        }
-
-                    } else if (km.getDoiTuongApDung() == 0) {
-                        if (km.getMaDanhMuc() != null && item.maDM != null &&
-                                km.getMaDanhMuc().trim().equalsIgnoreCase(item.maDM.trim())) {
-                            isKhuyenMaiHopLe = true;
-                        }
+                if (km.getTrangThai() == 1 && km.getDoiTuongApDung() == 1) {
+                    if (km.getMaSanPham() != null && item.getMaSP() != null &&
+                            km.getMaSanPham().trim().equalsIgnoreCase(item.getMaSP().trim())) {
+                        pnlKhuyenMaiCollapse.add(taoTheKhuyenMaiSP(
+                                km, item, lblGiaGoc, lblGiaSale, lblThanhTienMoiMon, pnlKhuyenMaiCollapse, btnKhuyenMaiSP, donGia, tenSP
+                        ));
+                        pnlKhuyenMaiCollapse.add(Box.createVerticalStrut(5));
                     }
-                }
-
-                if (isKhuyenMaiHopLe) {
-                    pnlKhuyenMaiCollapse.add(taoTheKhuyenMaiSP(
-                            km, item, lblGiaGoc, lblGiaSale, lblThanhTienMoiMon, pnlKhuyenMaiCollapse, btnKhuyenMaiSP
-                    ));
-                    pnlKhuyenMaiCollapse.add(Box.createVerticalStrut(5));
-                    coKhuyenMaiPhuHop = true;
                 }
             }
         }
@@ -502,7 +536,6 @@ public class GIOHANG extends JPanel {
             boolean isVis = pnlKhuyenMaiCollapse.isVisible();
             pnlKhuyenMaiCollapse.setVisible(!isVis);
             btnKhuyenMaiSP.setText(isVis ? "Khuyến mãi SP ▼" : "Khuyến mãi SP ▲");
-
             pnlDanhSachSP.revalidate();
             pnlDanhSachSP.repaint();
         });
@@ -513,8 +546,8 @@ public class GIOHANG extends JPanel {
         return cardWrapper;
     }
 
-    private JPanel taoTheKhuyenMaiSP(KhuyenMai_DTO km, ProductItem item, JLabel lblGiaGoc, JLabel lblGiaSale,
-                                     JLabel lblThanhTienMoiMon, JPanel pnlCollapse, JButton btnToggle) {
+    private JPanel taoTheKhuyenMaiSP(KhuyenMai_DTO km, ChiTietGioHang_DTO item, JLabel lblGiaGoc, JLabel lblGiaSale,
+                                     JLabel lblThanhTienMoiMon, JPanel pnlCollapse, JButton btnToggle, double donGia, String tenSP) {
 
         JPanel card = new JPanel(new BorderLayout(5, 5));
         card.setBorder(BorderFactory.createCompoundBorder(
@@ -534,28 +567,29 @@ public class GIOHANG extends JPanel {
 
         btnApDung.addActionListener(e -> {
             double tienGiam = 0;
-
             if (km.getLoaiKhuyenMai() == 0) {
                 double phanTram = km.getGiaTriKhuyenMai();
                 if(phanTram <= 1.0) phanTram = phanTram * 100;
-
-                tienGiam = item.gia * phanTram / 100;
+                tienGiam = donGia * phanTram / 100;
             } else {
                 tienGiam = km.getGiaTriKhuyenMai();
             }
 
-            item.giaSale = item.gia - tienGiam;
-            if(item.giaSale < 0) item.giaSale = 0;
-            lblGiaSale.setText("Sale: " + String.format("%,.0fđ", item.giaSale));
-            lblGiaGoc.setText("<html><font color='#999999'>Giá gốc: <strike>" + String.format("%,.0fđ", item.gia) + "</strike></font></html>");
-            lblThanhTienMoiMon.setText("Thành Tiền: " + String.format("%,.0fđ", item.giaSale * item.soLuong));
+            double giaSaleMoi = donGia - tienGiam;
+            if(giaSaleMoi < 0) giaSaleMoi = 0.0;
+
+            mapGiaSale.put(item, giaSaleMoi);
+
+            lblGiaSale.setText("Sale: " + String.format("%,.0fđ", giaSaleMoi));
+            lblGiaGoc.setText("<html><font color='#999999'>Giá gốc: <strike>" + String.format("%,.0fđ", donGia) + "</strike></font></html>");
+            lblThanhTienMoiMon.setText("Thành Tiền: " + String.format("%,.0fđ", giaSaleMoi * item.getSoLuong()));
 
             tinhTongTien();
 
             pnlCollapse.setVisible(false);
             btnToggle.setText("🏷️ Đã chọn: " + km.getMaKM());
 
-            JOptionPane.showMessageDialog(this, "Đã áp dụng " + km.getMaKM() + " cho SP: " + item.ten);
+            JOptionPane.showMessageDialog(this, "Đã áp dụng " + km.getMaKM() + " cho SP: " + tenSP);
         });
 
         card.add(lblInfo, BorderLayout.CENTER);
@@ -563,5 +597,22 @@ public class GIOHANG extends JPanel {
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
 
         return card;
+    }
+
+
+    private String getTenSanPham(String maSP) {
+        dto.SanPham_DTO sp = bus.SanPham_BUS.getInstance().getById(maSP);
+        if (sp != null) {
+            return sp.getTenSP();
+        }
+        return "Sản phẩm không tồn tại";
+    }
+
+    private double getGiaSanPham(String maSP) {
+        dto.SanPham_DTO sp = bus.SanPham_BUS.getInstance().getById(maSP);
+        if (sp != null) {
+            return sp.getLoiNhuan();
+        }
+        return 0;
     }
 }

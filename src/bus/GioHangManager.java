@@ -1,19 +1,22 @@
 package bus;
 
-import dto.ProductItem;
+import dto.ChiTietGioHang_DTO;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GioHangManager {
-    public static List<ProductItem> danhSachGioHang = new ArrayList<>();
-
-    public static void themVaoGioHang(ProductItem spMoi) {
-        for (ProductItem item : danhSachGioHang) {
-            if (item.ma.equals(spMoi.ma)) {
-                item.soLuong += spMoi.soLuong;
-                return;
+    public static List<ChiTietGioHang_DTO> danhSachGioHang = new ArrayList<>();
+    public static void themGioHang(ChiTietGioHang_DTO spMoi) {
+        boolean daTonTai = false;
+        for (ChiTietGioHang_DTO item : danhSachGioHang) {
+            if (item.getMaSP().equals(spMoi.getMaSP())) {
+                item.setSoLuong(item.getSoLuong() + spMoi.getSoLuong());
+                daTonTai = true;
+                break;
             }
         }
-        danhSachGioHang.add(spMoi);
+        if (!daTonTai) {
+            danhSachGioHang.add(spMoi);
+        }
     }
 }
