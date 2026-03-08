@@ -28,6 +28,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
     public ArrayList<HoaDonOnline_DTO> getDanhSachDuyetOnline() {
         return hoaDonDAO.getDanhSachDuyetOnline();
     }
+
     public ArrayList<HoaDonOnline_DTO> getDanhSachOnlineTheoKhachHang(String maKH){
         return hoaDonDAO.getDanhSachOnlineTheoKhachHang(maKH);
     }
@@ -69,12 +70,16 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         hd.setPhiVanChuyen(15000);
         hd.setMaDiaChiGiaoHang(diaChiGiao);
-
         this.hoaDon = hd;
         this.hoaDon.setDs_chiTietHDB(dsCT);
 
         tinhTongTien();
 
+        hd.setThanhTien(
+                hd.getTongTienGoc()
+                        - hd.getTongGiaTriKhuyenMai()
+                        + hd.getPhiVanChuyen()
+        );
 
         boolean ok = hoaDonDAO.insert(hd);
 
