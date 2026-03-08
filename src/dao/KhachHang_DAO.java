@@ -81,9 +81,10 @@ public class KhachHang_DAO {
 
             ps.setString(1, kh.getMa());
             ps.setString(2, kh.getTen());
-            ps.setString(3, kh.getSdt());
+            ps.setBoolean(3, kh.isGioiTinh());
             ps.setDate(4, Date.valueOf(kh.getNgaySinh()));
-            ps.setBoolean(5, kh.isGioiTinh());
+            ps.setString(5, kh.getSdt());
+            ps.setBoolean(3, kh.isGioiTinh());
             ps.setDouble(6, kh.getDiemThuong());
             ps.setDouble(7, kh.getDiemHang());
             ps.setString(8, kh.getHang());

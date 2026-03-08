@@ -131,7 +131,6 @@ public class NhanVien_BUS {
         return result;
     }
     public NhanVien_DTO getById(String maNV) {
-
         for (NhanVien_DTO nv : listCache) {
             if (nv.getMa().equals(maNV))
                 return nv;

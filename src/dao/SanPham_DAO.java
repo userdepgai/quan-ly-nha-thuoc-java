@@ -90,4 +90,31 @@ public class SanPham_DAO {
         }
         return false;
     }
+
+    public ArrayList<String[]> getThuocTinhSP(String maSP) {
+        ArrayList<String[]> list = new ArrayList<>();
+        String sql = """
+        SELECT TT.Ten_TT, GT.NoiDungGiaTri
+        FROM GIATRITHUOCTINHSP SP
+        JOIN THUOCTINHDANHMUC TT 
+            ON SP.MaThuocTinh = TT.MaThuocTinh
+        JOIN GIATRITHUOCTINH GT 
+            ON SP.Ma_GTTT = GT.Ma_GTTT
+        WHERE SP.Ma_SP = ?
+        """;
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maSP);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String tenThuocTinh = rs.getString("Ten_TT");
+                    String giaTri = rs.getString("NoiDungGiaTri");
+                    list.add(new String[]{tenThuocTinh, giaTri});
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

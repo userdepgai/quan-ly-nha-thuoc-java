@@ -1,15 +1,14 @@
 package gui.trangChuDatHang;
 
+import bus.*;
 import dto.SanPham_DTO;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 import utils.Session;
 import utils.GuestCart;
-import bus.GioHang_BUS;
-import bus.ChiTietGioHang_BUS;
-import bus.KhachHang_BUS;
 import dto.*;
 
 public class ProductCard extends JPanel {
@@ -19,16 +18,22 @@ public class ProductCard extends JPanel {
         this.sp = sp;
 
         setLayout(new BorderLayout(2,2));
-        setPreferredSize(new Dimension(230,260));
+        setPreferredSize(new Dimension(250,280));
         setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 
         JLabel img = new JLabel();
         img.setHorizontalAlignment(SwingConstants.CENTER);
-        img.setPreferredSize(new Dimension(230,130));
+        img.setPreferredSize(new Dimension(250,140));
 
-        ImageIcon icon = new ImageIcon(getClass().getResource("/images/logo.jpg"));
-        Image image = icon.getImage().getScaledInstance(180,120,Image.SCALE_SMOOTH);
-        img.setIcon(new ImageIcon(image));
+        String realPath = getRealImagePath(sp.getHinhAnh());
+
+        if(realPath != null){
+            ImageIcon icon = new ImageIcon(realPath);
+            Image image = icon.getImage().getScaledInstance(180,130,Image.SCALE_SMOOTH);
+            img.setIcon(new ImageIcon(image));
+        }else{
+            img.setText("No Image");
+        }
 
         JPanel info = new JPanel(new GridBagLayout());
         info.setBorder(BorderFactory.createEmptyBorder(3,10,3,10));
@@ -47,7 +52,7 @@ public class ProductCard extends JPanel {
 
         JTextField ma = new JTextField(sp.getMaSP());
         JTextField ten = new JTextField(sp.getTenSP());
-        JTextField gia = new JTextField(String.format("%,.0f VND", sp.getLoiNhuan()));
+        JTextField gia = new JTextField(String.format("%,.0f VND", getGiaBan(sp.getMaSP())));
 
         ma.setEditable(false);
         ten.setEditable(false);
@@ -95,6 +100,13 @@ public class ProductCard extends JPanel {
 
         });
         btnThem.addActionListener(e -> xuLyThemGiaHang());
+        btnChiTiet.addActionListener(e -> {
+
+            JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+
+            new SanPhamChiTiet_GUI(parent, sp).setVisible(true);
+
+        });
     }
     private void xuLyThemGiaHang() {
         String maSP = sp.getMaSP();
@@ -141,4 +153,36 @@ public class ProductCard extends JPanel {
                 "Đã thêm vào giỏ");
 
     }
+    private String getRealImagePath(String path){
+
+        if(path == null || path.trim().isEmpty())
+            return null;
+
+        String realPath = path;
+
+        // sửa img -> images
+        if(path.startsWith("img/")){
+            realPath = path.replace("img/","images/");
+        }
+
+        // kiểm tra tồn tại trong project
+        File f = new File("src/" + realPath);
+
+        if(f.exists()){
+            return "src/" + realPath;   // trả về path tương đối
+        }
+
+        f = new File(realPath);
+
+        if(f.exists()){
+            return realPath;
+        }
+
+        return null;
+    }
+    private double getGiaBan(String maSP) {
+        double giaNhap = LoHang_BUS.getInstance().getGiaNhapThapNhatByMaSP(maSP);
+        return SanPham_BUS.getInstance().tinhGiaBan(maSP,giaNhap);
+    }
+
 }

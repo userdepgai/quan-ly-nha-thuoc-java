@@ -97,7 +97,7 @@ public class QuanLySanPham_GUI extends JPanel {
         initComboBoxData();
         loadDataToTable(spBUS.getAll());
         addEvents();
-        setViewMode(); // Mặc định khóa form
+        setViewMode();
     }
 
     private void initTable() {
@@ -109,8 +109,6 @@ public class QuanLySanPham_GUI extends JPanel {
             }
         };
         tableSanPham.setModel(modelSanPham);
-
-        // Cấu hình độ rộng cột nếu cần...
     }
 
     private void initComboBoxData() {
@@ -563,7 +561,6 @@ public class QuanLySanPham_GUI extends JPanel {
     }
 
     private void updateImagePreview(String path) {
-        // Kích thước hiển thị
         int w = labelHinhAnh.getWidth();
         int h = labelHinhAnh.getHeight();
         if (w == 0 || h == 0) { w = 180; h = 180; }
@@ -571,39 +568,26 @@ public class QuanLySanPham_GUI extends JPanel {
         labelHinhAnh.setText("");
         labelHinhAnh.setIcon(null);
 
-        // 1. Kiểm tra path null
         if (path == null || path.trim().isEmpty()) {
             labelHinhAnh.setText("Chưa có ảnh");
             return;
         }
 
         try {
-            // 2. XỬ LÝ ĐƯỜNG DẪN (Quan trọng)
-            // Vì DB lưu "img/..." nhưng thư mục là "images", ta có thể fix cứng hoặc xử lý linh hoạt
-            // Cách tốt nhất: Path đầu vào nên là "images/panadol.jpg" cho khớp.
-            // Nhưng nếu DB lỡ lưu "img/" thì ta replace:
             String realPath = path;
             if (path.startsWith("img/")) {
                 realPath = path.replace("img/", "images/");
             }
-
-            // 3. Tìm file trong dự án
-            // "src" dùng khi chạy trong IDE. Nếu build ra JAR thì cần xử lý khác, nhưng ở đây ta làm cho IDE trước.
             java.io.File f = new java.io.File("src/" + realPath);
 
-            // Nếu không tìm thấy trong src, thử tìm ở thư mục gốc (trường hợp build xong)
             if (!f.exists()) {
                 f = new java.io.File(realPath);
             }
 
-            // 4. Kiểm tra tồn tại
             if (!f.exists()) {
                 labelHinhAnh.setText("Chưa có ảnh");
-                // Có thể load ảnh mặc định ở đây nếu muốn
                 return;
             }
-
-            // 5. Load và hiển thị
             ImageIcon icon = new ImageIcon(f.getAbsolutePath());
             Image img = icon.getImage();
             Image scaledImg = img.getScaledInstance(w, h, Image.SCALE_SMOOTH);
