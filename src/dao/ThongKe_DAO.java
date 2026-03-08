@@ -1,6 +1,7 @@
 package dao;
 
 import DBConnection.DBConnection;
+import bus.HoaDonBan_BUS;
 import dto.ThongKeKhachHang_DTO;
 import dto.ThongKe_DTO;
 //import bus.HoaDon_BUS;
@@ -57,13 +58,13 @@ public class ThongKe_DAO {
                 String maSP = rs.getString("Ma_SP");
                 double giaNhapDonVi = rs.getDouble("GiaNhapGoc") / rs.getInt("QuyCach");
                 int slBanLe = rs.getInt("TongSLBan");
-                //double giaBanNiemYet = HoaDon_BUS.getInstance().getGiaSanPham(maSP);
+                double giaBanNiemYet = HoaDonBan_BUS.getInstance().getGiaBanSP(maSP,1);
                 double tienLoiNhuan = (giaBanNiemYet - giaNhapDonVi) * slBanLe;
 
                 ThongKe_DTO dto = new ThongKe_DTO();
                 dto.setMaSanPham(maSP);
                 dto.setGiaNhap(giaNhapDonVi);
-                //dto.setGiaBan(giaBanNiemYet);
+                dto.setGiaBan(giaBanNiemYet);
                 dto.setSoLuongBan(slBanLe);
                 dto.setLoiNhuan(tienLoiNhuan);
 

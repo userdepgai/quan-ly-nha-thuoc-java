@@ -1,9 +1,6 @@
 package gui;
 
-import bus.ChiTietGioHang_BUS;
-import bus.GioHang_BUS;
-import bus.KhuyenMai_BUS;
-import bus.Voucher_BUS;
+import bus.*;
 import dto.ChiTietGioHang_DTO;
 import dto.GioHang_DTO;
 import dto.KhuyenMai_DTO;
@@ -612,6 +609,6 @@ public class GIOHANG extends JPanel {
     }
 
     private double getGiaSanPham(String maSP) {
-        return HoaDon_BUS.getInstance().getGiaBanSanPham(maSP);
+        return HoaDonBan_BUS.getInstance().getGiaBanSP(maSP, 1);
     }
 }

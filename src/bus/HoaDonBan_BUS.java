@@ -783,5 +783,6 @@ public class HoaDonBan_BUS {
     public void refreshData(){
         listCache = hoaDonDAO.getAll();
     }
+
 }
 

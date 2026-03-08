@@ -1,5 +1,4 @@
 package gui;
-
 import bus.ThanhToan_BUS;
 import bus.Voucher_BUS;
 import dto.*;
@@ -10,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ThanhToan_GUI extends JPanel {
-
+    private String maDiaChiGiaoHang;
     private JPanel mainPanel;
     private JTextField textTen;
     private JTextField textDiaChi;
@@ -26,7 +25,7 @@ public class ThanhToan_GUI extends JPanel {
 
     private JScrollPane scrollDanhSachMua;
     private JPanel pnlDanhSachMua;
-
+    private String maHoaDonVuaTao;
     private JButton btnSua;
     private JButton btnThemDC;
 
@@ -105,13 +104,15 @@ public class ThanhToan_GUI extends JPanel {
         row.setPreferredSize(new Dimension(0, 60));
         row.setBackground(Color.WHITE);
         row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-        String tenSP = getTenSanPham(item.getMaSP());
-        double donGia = getGiaSanPham(item.getMaSP());
+
+        String tenSP = thanhToanBUS.getTenSanPham(item.getMaSP());
+        double donGia = thanhToanBUS.getGiaSanPham(item.getMaSP());
 
         JLabel lblInfo = new JLabel("<html><b>" + tenSP + "</b><br><font color='gray'>Mã: " + item.getMaSP() + "</font></html>");
         lblInfo.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
         double thanhTienGoc = donGia * item.getSoLuong();
+
         JLabel lblPrice = new JLabel("<html>x" + item.getSoLuong() + "<br>Thành tiền: <font color='red'><b>" + String.format("%,.0fđ", thanhTienGoc) + "</b></font></html>");
         lblPrice.setHorizontalAlignment(SwingConstants.RIGHT);
         lblPrice.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
@@ -145,7 +146,8 @@ public class ThanhToan_GUI extends JPanel {
 
         if (danhSachMua != null) {
             for (ChiTietGioHang_DTO item : danhSachMua) {
-                tongTienHangGocToanBo += (getGiaSanPham(item.getMaSP()) * item.getSoLuong());
+                tongTienHangGocToanBo +=
+                        (thanhToanBUS.getGiaSanPham(item.getMaSP()) * item.getSoLuong());
             }
         }
 
@@ -260,10 +262,10 @@ public class ThanhToan_GUI extends JPanel {
             onDatHangThanhCongCallback.run();
         }
     }
-
     private void hienThiDialogQR(String phuongThuc, String tenKhachHang) {
         Window parentWindow = SwingUtilities.getWindowAncestor(this);
-        JDialog dialog = new JDialog(parentWindow instanceof Frame ? (Frame) parentWindow : null, "Thanh toán bằng " + phuongThuc, JDialog.ModalityType.APPLICATION_MODAL);
+        JDialog dialog = new JDialog(parentWindow instanceof Frame ? (Frame) parentWindow : null,
+                "Thanh toán bằng " + phuongThuc, JDialog.ModalityType.APPLICATION_MODAL);
         dialog.setSize(400, 500);
         dialog.setLocationRelativeTo(this);
         dialog.setLayout(new BorderLayout());
@@ -273,16 +275,44 @@ public class ThanhToan_GUI extends JPanel {
         pnlCenter.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         String soTien = textTongThanhToan.getText();
-        JLabel lblTitle = new JLabel("<html><center><h2>" + phuongThuc + "</h2>Vui lòng quét mã QR bên dưới để thanh toán<br>Số tiền: <font color='red'><b>" + soTien + "</b></font></center></html>");
+        JLabel lblTitle = new JLabel("<html><center><h2>" + phuongThuc + "</h2>"
+                + "Vui lòng quét mã QR bên dưới để thanh toán<br>"
+                + "Số tiền: <font color='red'><b>" + soTien + "</b></font></center></html>");
         lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel lblQR = new JLabel("<html><center><font color='gray'>[ĐẶT ẢNH MÃ QR Ở ĐÂY]</font></center></html>", SwingConstants.CENTER);
-        lblQR.setPreferredSize(new Dimension(250, 250));
-        lblQR.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        JLabel lblQR = new JLabel();
+        int qrSize = 250;
+        lblQR.setPreferredSize(new Dimension(qrSize, qrSize));
+        lblQR.setHorizontalAlignment(SwingConstants.CENTER);
+        lblQR.setVerticalAlignment(SwingConstants.CENTER);
+        lblQR.setBackground(Color.WHITE);
+        lblQR.setOpaque(true);
+        lblQR.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(230, 230, 230), 2, true),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+
+        try {
+            java.net.URL imgURL = getClass().getResource("/images/qr.jpg");
+
+            if (imgURL != null) {
+                ImageIcon icon = new ImageIcon(imgURL);
+                Image img = icon.getImage();
+                Image scaledImg = img.getScaledInstance(qrSize, qrSize, Image.SCALE_SMOOTH);
+
+                lblQR.setIcon(new ImageIcon(scaledImg));
+                lblQR.setText("");
+            } else {
+                lblQR.setText("Lỗi: Không tìm thấy file qr.jpg");
+                System.err.println("Đường dẫn /images/qr.jpg không tồn tại trong resources!");
+            }
+        } catch (Exception e) {
+            lblQR.setText("Lỗi tải ảnh!");
+            e.printStackTrace();
+        }
 
         pnlCenter.add(lblTitle, BorderLayout.NORTH);
         pnlCenter.add(lblQR, BorderLayout.CENTER);
-
         JPanel pnlBottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         pnlBottom.setBackground(Color.WHITE);
 
@@ -295,7 +325,6 @@ public class ThanhToan_GUI extends JPanel {
         btnXacNhan.setForeground(Color.WHITE);
         btnXacNhan.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnXacNhan.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
         btnHuy.addActionListener(e -> dialog.dispose());
 
         btnXacNhan.addActionListener(e -> {
@@ -308,15 +337,18 @@ public class ThanhToan_GUI extends JPanel {
 
         dialog.add(pnlCenter, BorderLayout.CENTER);
         dialog.add(pnlBottom, BorderLayout.SOUTH);
+
         dialog.setVisible(true);
     }
-
     private void ganSuKien() {
+
         if (voucherButton != null) {
             voucherButton.addActionListener(e -> hienThiDialogVoucher());
         }
+
         if (btnSua != null) {
             btnSua.addActionListener(e -> {
+
                 boolean dangKhoa = !textTen.isEditable();
 
                 if (dangKhoa) {
@@ -333,37 +365,8 @@ public class ThanhToan_GUI extends JPanel {
                 }
             });
         }
-        btnDatHang.addActionListener(e -> {
 
-            String ten = textTen.getText().trim();
-            String sdt = textSDT.getText().trim();
-            String diaChi = textDiaChi.getText().trim();
-
-            if (ten.isEmpty() || sdt.isEmpty() || diaChi.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
-                return;
-            }
-
-            if (!sdt.matches("\\d{10,11}")) {
-                JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ!");
-                return;
-            }
-            ThanhToan_DTO donHang = layDuLieuDonHang();
-            //boolean thanhCong = HoaDonOnline_BUS.taoHoaDonOnline(donHang);
-            //if (!thanhCong) {
-               // JOptionPane.showMessageDialog(this, "Đặt hàng thất bại!");
-               // return;
-            //}
-
-            int phuongThuc = comboBoxPthucTt.getSelectedIndex();
-
-            if (phuongThuc == 1 || phuongThuc == 2) {
-                String tenPhuongThuc = (String) comboBoxPthucTt.getSelectedItem();
-                hienThiDialogQR(tenPhuongThuc, ten);
-            } else {
-                xuLyDatHangThanhCong(ten);
-            }
-        });
+        btnDatHang.addActionListener(e -> xuLyDatHang());
     }
 
     public void setOnDatHangThanhCong(Runnable callback) {
@@ -372,9 +375,11 @@ public class ThanhToan_GUI extends JPanel {
     public ThanhToan_DTO layDuLieuDonHang() {
 
         ThanhToan_DTO dto = new ThanhToan_DTO();
+
         dto.setTenKH(textTen.getText().trim());
         dto.setSdt(textSDT.getText().trim());
         dto.setDiaChiChiTiet(textDiaChi.getText().trim());
+        dto.setGhiChu(textGhiChu.getText().trim());
 
         if (voucherApDung != null) {
             dto.setMaVoucher(voucherApDung.getMa());
@@ -387,31 +392,94 @@ public class ThanhToan_GUI extends JPanel {
 
         List<ChiTietHoaDonBan_DTO> list = new ArrayList<>();
 
-        if (danhSachMua != null) {
+        if (danhSachMua != null && !danhSachMua.isEmpty()) {
+
             for (ChiTietGioHang_DTO item : danhSachMua) {
+
                 ChiTietHoaDonBan_DTO ct = new ChiTietHoaDonBan_DTO();
+
+                ct.setMaSP(item.getMaSP());
                 ct.setMaLo(item.getMaLo());
                 ct.setSoLuong(item.getSoLuong());
-                double gia = getGiaSanPham(item.getMaSP());
+                double gia = thanhToanBUS.getGiaSanPham(item.getMaSP());
                 ct.setGiaBan(gia);
                 ct.setGiaBanSauApKM(gia);
                 ct.setThanhTien(gia * item.getSoLuong());
+
                 list.add(ct);
             }
         }
 
         dto.setDanhSachSanPham(list);
+
         return dto;
     }
-    private String getTenSanPham(String maSP) {
-        dto.SanPham_DTO sp = bus.SanPham_BUS.getInstance().getById(maSP);
-        if (sp != null) {
-            return sp.getTenSP();
-        }
-        return "Sản phẩm không tồn tại";
-    }
 
-    private double getGiaSanPham(String maSP) {
-        return HoaDon_BUS.getInstance().getGiaBanSanPham(maSP);
+    private void xuLyDatHang() {
+
+        try {
+            ThanhToan_DTO donHang = layDuLieuDonHang();
+
+            if (donHang.getDanhSachSanPham() == null ||
+                    donHang.getDanhSachSanPham().isEmpty()) {
+
+                JOptionPane.showMessageDialog(this, "Giỏ hàng trống!");
+                return;
+            }
+
+            if (utils.Session.getCurrentUser() == null) {
+
+                JOptionPane.showMessageDialog(this,
+                        "Phiên đăng nhập hết hạn!");
+                return;
+            }
+
+            String sdtTK = utils.Session.getCurrentUser().getSdt();
+
+            ArrayList<ChiTietHoaDonBan_DTO> dsCT =
+                    new ArrayList<>(donHang.getDanhSachSanPham());
+
+            maHoaDonVuaTao =
+                    thanhToanBUS.taoDonOnline(
+                            sdtTK,
+                            this.maDiaChiGiaoHang,
+                            dsCT
+                    );
+
+            if (maHoaDonVuaTao == null) {
+                JOptionPane.showMessageDialog(this,
+                        "Không tìm thấy khách hàng!");
+                return;
+            }
+
+            System.out.println("Đã tạo hóa đơn: " + maHoaDonVuaTao);
+
+            int phuongThuc = comboBoxPthucTt.getSelectedIndex();
+
+            // COD
+            if (phuongThuc == 0) {
+
+                xuLyDatHangThanhCong(donHang.getTenKH());
+
+            }
+            else {
+
+                String tenPT =
+                        (String) comboBoxPthucTt.getSelectedItem();
+
+                hienThiDialogQR(tenPT, donHang.getTenKH());
+            }
+
+        } catch (Exception ex) {
+
+            ex.printStackTrace();
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Đặt hàng thất bại\n" + ex.getMessage(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 }
