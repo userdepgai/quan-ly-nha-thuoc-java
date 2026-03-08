@@ -13,10 +13,7 @@ public class KhachHang_DTO extends Nguoi_DTO {
         super();
     }
 
-    // Constructor rỗng
-    public KhachHang_DTO() {
-        super();
-    }
+
 
     // Constructor đầy đủ
     public KhachHang_DTO(
