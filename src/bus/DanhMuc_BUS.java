@@ -40,14 +40,22 @@ public class DanhMuc_BUS {
         return null;
     }
 
-    // --- BỔ SUNG THÊM HÀM TÌM KIẾM (Nếu GUI cần dùng) ---
-    public ArrayList<DanhMuc_DTO> timKiem(String keyword, Integer trangThai) {
+    public ArrayList<DanhMuc_DTO> timKiemNangCao(String keyword, String timTheo, Integer trangThai) {
         ArrayList<DanhMuc_DTO> result = new ArrayList<>();
         String key = (keyword == null) ? "" : keyword.toLowerCase().trim();
 
         for (DanhMuc_DTO dm : listCache) {
-            boolean matchKey = dm.getTenDM().toLowerCase().contains(key) ||
-                    dm.getMaDM().toLowerCase().contains(key);
+            // 1. Lọc theo tiêu chí tìm kiếm
+            boolean matchKey = false;
+            if (timTheo.equals("Tất cả")) {
+                matchKey = dm.getMaDM().toLowerCase().contains(key) || dm.getTenDM().toLowerCase().contains(key);
+            } else if (timTheo.equals("Mã danh mục")) {
+                matchKey = dm.getMaDM().toLowerCase().contains(key);
+            } else { // Tên danh mục
+                matchKey = dm.getTenDM().toLowerCase().contains(key);
+            }
+
+            // 2. Lọc theo trạng thái
             boolean matchTT = (trangThai == null || dm.getTrangThai() == trangThai);
 
             if (matchKey && matchTT) {
@@ -94,4 +102,5 @@ public class DanhMuc_BUS {
     public void refreshData() {
         listCache = dmDao.getAll();
     }
+
 }

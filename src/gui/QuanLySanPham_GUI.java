@@ -570,7 +570,7 @@ public class QuanLySanPham_GUI extends JPanel {
 
         labelHinhAnh.setText("");
         labelHinhAnh.setIcon(null);
-        
+
 
         // 1. Kiểm tra path null
         if (path == null || path.trim().isEmpty()) {
