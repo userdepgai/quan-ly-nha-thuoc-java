@@ -1,7 +1,9 @@
 package gui;
 
+import bus.ChucNang_BUS;
+import bus.PhanQuyenChucNang_BUS;
 import bus.PhanQuyen_BUS;
-import dto.PhanQuyen_DTO;
+import dto.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -39,7 +41,16 @@ public class PhanQuyen_GUI extends JPanel{
     private JScrollPane src_moTa;
     private JPanel panel_thongTinChiTiet;
     private JButton btn_huy;
+    private JPanel panelChucNang;
     private DefaultTableModel model_dsQuyen;
+
+    private JTable tableChucNang;
+    private DefaultTableModel modelChucNang;
+
+    private ChucNang_BUS chucNangBus = ChucNang_BUS.getInstance();
+    private PhanQuyenChucNang_BUS pqcnBus = PhanQuyenChucNang_BUS.getInstance();
+
+    private JPanel panelChucNangDefault;
 
     private boolean isAdding = false;
     private boolean isUpdating = false;
@@ -51,6 +62,15 @@ public class PhanQuyen_GUI extends JPanel{
     public PhanQuyen_GUI(){
         this.setLayout(new BorderLayout());
         this.add(panelPhanQuyen, BorderLayout.CENTER);
+
+        panelChucNangDefault = new JPanel(new BorderLayout());
+        panelChucNangDefault.add(new JLabel("Chọn quyền để xem chức năng", SwingConstants.CENTER));
+        panelChucNang.setPreferredSize(new Dimension(420, 220));
+        panelChucNang.setMinimumSize(new Dimension(420, 220));
+        panelChucNang.setMaximumSize(new Dimension(420, 220));
+
+        panelChucNang.setLayout(new BorderLayout());
+        panelChucNang.add(panelChucNangDefault, BorderLayout.CENTER);
 
         formEdit();
         initTable();
@@ -108,6 +128,69 @@ public class PhanQuyen_GUI extends JPanel{
 
         src_dsQuyen.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         src_dsQuyen.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
+    }
+
+    private void hienPanelChucNang(String maQuyen) {
+        panelChucNang.removeAll();
+        String[] columns = {"Tên chức năng", "Chọn"};
+        modelChucNang = new DefaultTableModel(columns,0){
+            @Override
+            public Class<?> getColumnClass(int column) {
+                if(column == 1) return Boolean.class;
+                return String.class;
+            }
+            @Override
+            public boolean isCellEditable(int row,int column){
+                return column == 1;
+            }
+        };
+        tableChucNang = new JTable(modelChucNang);
+
+        tableChucNang.setRowHeight(22);
+        tableChucNang.getColumnModel().getColumn(0).setPreferredWidth(250);
+        tableChucNang.getColumnModel().getColumn(1).setPreferredWidth(60);
+        tableChucNang.getColumnModel().getColumn(1).setMaxWidth(60);
+        tableChucNang.getColumnModel().getColumn(1).setMinWidth(60);
+        ArrayList<ChucNang_DTO> listCN = chucNangBus.getAll();
+        for(ChucNang_DTO cn : listCN){
+            boolean checked = false;
+            if(maQuyen != null){
+                checked = pqcnBus.hasPermission(maQuyen, cn.getMaCN());
+            }
+            modelChucNang.addRow(new Object[]{
+                    cn.getTenCN(),
+                    checked
+            });
+        }
+
+        JScrollPane scroll = new JScrollPane(tableChucNang);
+        scroll.setPreferredSize(new Dimension(420, 220));
+
+        panelChucNang.removeAll();
+        panelChucNang.add(scroll, BorderLayout.CENTER);
+        panelChucNang.revalidate();
+        panelChucNang.repaint();;
+    }
+    private ArrayList<String> getChucNangDuocChon(){
+
+        ArrayList<String> list = new ArrayList<>();
+
+        for(int i=0;i<modelChucNang.getRowCount();i++){
+
+            Boolean checked = (Boolean) modelChucNang.getValueAt(i,1);
+
+            if(Boolean.TRUE.equals(checked)){
+
+                String ten = modelChucNang.getValueAt(i,0).toString();
+
+                ChucNang_DTO cn = chucNangBus.getByName(ten);
+
+                if(cn!=null)
+                    list.add(cn.getMaCN());
+            }
+        }
+
+        return list;
     }
 
     private void xuLySuKien() {
@@ -184,6 +267,8 @@ public class PhanQuyen_GUI extends JPanel{
         cmb_trangThai.setSelectedItem(PhanQuyen_DTO.HOAT_DONG);
         cmb_trangThai.setEnabled(false);
 
+        hienPanelChucNang(null);
+
         btn_luu.setVisible(true);
         btn_huy.setVisible(true);
 
@@ -203,6 +288,8 @@ public class PhanQuyen_GUI extends JPanel{
 
         cmb_trangThai.setEnabled(true);
 
+        hienPanelChucNang(txt_maQuyen.getText());
+
         btn_luu.setVisible(true);
         btn_huy.setVisible(true);
 
@@ -217,6 +304,9 @@ public class PhanQuyen_GUI extends JPanel{
         boolean result = pqBus.them(quyen);
 
         if (result) {
+            ArrayList<String> listCN = getChucNangDuocChon();
+            pqcnBus.updatePermissions(quyen.getMaQuyen(), listCN);
+
             JOptionPane.showMessageDialog(this, "Thêm thành công");
             loadTableFromList(pqBus.getAll());
             clearForm();
@@ -233,6 +323,9 @@ public class PhanQuyen_GUI extends JPanel{
         boolean result = pqBus.capNhat(quyen);
 
         if (result) {
+            ArrayList<String> listCN = getChucNangDuocChon();
+            pqcnBus.updatePermissions(quyen.getMaQuyen(), listCN);
+
             JOptionPane.showMessageDialog(this, "Cập nhật thành công");
             loadTableFromList(pqBus.getAll());
             clearForm();
@@ -381,6 +474,11 @@ public class PhanQuyen_GUI extends JPanel{
 
         btn_them.setEnabled(true);
         btn_capNhat.setEnabled(true);
+
+        panelChucNang.removeAll();
+        panelChucNang.add(panelChucNangDefault, BorderLayout.CENTER);
+        panelChucNang.revalidate();
+        panelChucNang.repaint();
 
         isAdding = false;
         isUpdating = false;

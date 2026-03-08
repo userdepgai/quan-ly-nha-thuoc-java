@@ -36,6 +36,15 @@ public class PhanQuyenChucNang_BUS {
         return dao.add(dto);
     }
 
+    public void updatePermissions(String maQuyen, ArrayList<String> listMaChucNang){
+
+        dao.deleteByMaQuyen(maQuyen);
+
+        for(String maCN : listMaChucNang){
+            dao.insert(maQuyen, maCN);
+        }
+    }
+
     public boolean delete(String maQuyen, String maCN) {
         return dao.delete(maQuyen, maCN);
     }

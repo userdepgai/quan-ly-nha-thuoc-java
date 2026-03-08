@@ -92,4 +92,34 @@ public class PhanQuyenChucNang_DAO {
 
         return false;
     }
+    public void deleteByMaQuyen(String maQuyen){
+
+        String sql = "DELETE FROM PHANQUYENCHUCNANG WHERE MaQuyen=?";
+
+        try(Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql)){
+
+            ps.setString(1, maQuyen);
+            ps.executeUpdate();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+    public void insert(String maQuyen, String maChucNang){
+
+        String sql = "INSERT INTO PHANQUYENCHUCNANG VALUES (?,?)";
+
+        try(Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql)){
+
+            ps.setString(1, maQuyen);
+            ps.setString(2, maChucNang);
+
+            ps.executeUpdate();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
 }

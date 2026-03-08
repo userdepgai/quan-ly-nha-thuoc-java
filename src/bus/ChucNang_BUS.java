@@ -21,6 +21,27 @@ public class ChucNang_BUS {
         return instance;
     }
 
+    public ChucNang_DTO getByName(String ten){
+
+        for(ChucNang_DTO cn : list){
+            if(cn.getTenCN().equalsIgnoreCase(ten)){
+                return cn;
+            }
+        }
+
+        return null;
+    }
+
+    public ChucNang_DTO getById(String ma){
+
+        for(ChucNang_DTO cn : list){
+            if(cn.getMaCN().equalsIgnoreCase(ma)){
+                return cn;
+            }
+        }
+
+        return null;
+    }
     public ArrayList<ChucNang_DTO> getAll() {
         return list;
     }
