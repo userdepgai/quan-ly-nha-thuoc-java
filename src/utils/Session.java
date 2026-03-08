@@ -16,4 +16,8 @@ public class Session {
     public static boolean isLoggedIn() {
         return currentUser != null;
     }
+    public static boolean isCustomer() {
+        return currentUser != null &&
+                currentUser.getMaQuyen().equals("Q001");
+    }
 }

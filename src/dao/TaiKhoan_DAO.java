@@ -93,4 +93,33 @@ public class TaiKhoan_DAO {
         }
         return false;
     }
+    public boolean capNhatSDT(String maTK, String sdtMoi) {
+        String sql = "UPDATE TAIKHOAN SET SDT = ? WHERE Ma_TK = ?";
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, sdtMoi);
+            ps.setString(2, maTK);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public boolean doiMatKhau(String sdt, String maQuyen, String mkMoi) {
+        String sql = "UPDATE taikhoan SET matkhau = ? WHERE sdt = ? AND maquyen = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, mkMoi);
+            ps.setString(2, sdt);
+            ps.setString(3, maQuyen);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 }

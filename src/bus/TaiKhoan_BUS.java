@@ -2,6 +2,7 @@ package bus;
 
 import dao.*;
 import dto.*;
+import utils.Session;
 
 import javax.swing.*;
 import java.util.*;
@@ -105,6 +106,51 @@ public class TaiKhoan_BUS {
                     && tk.getTrangThai() == 1) {
                 result.add(tk);
             }
+        }
+        return result;
+    }
+public boolean capNhatSDTNhanVien(String sdtCu, String sdtMoi) {
+    for (TaiKhoan_DTO tk : listCache) {
+        if (tk.getSdt().equals(sdtCu) && !tk.getMaQuyen().equals("Q001")) {
+            boolean result = dao.capNhatSDT(tk.getMaTK(), sdtMoi);
+            if (result) {
+                tk.setSdt(sdtMoi);
+            }
+            return result;
+        }
+    }
+    return false;
+}
+    public boolean capNhatSDTKhachHang(String sdtCu, String sdtMoi) {
+        for (TaiKhoan_DTO tk : listCache) {
+            if (tk.getSdt().equals(sdtCu) && tk.getMaQuyen().equals("Q001")) {
+                boolean result = dao.capNhatSDT(tk.getMaTK(), sdtMoi);
+                if (result) {
+                    tk.setSdt(sdtMoi);
+                }
+                return result;
+            }
+        }
+        return false;
+    }
+    public boolean tonTaiSDTNhanVien(String sdt) {
+        for (TaiKhoan_DTO tk : listCache) {
+            if (tk.getSdt().equals(sdt) && !tk.getMaQuyen().equals("Q001")) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean doiMatKhau(String mkHienTai, String mkMoi) {
+        TaiKhoan_DTO tk = Session.getCurrentUser();
+        if (tk == null)
+            return false;
+        if (!tk.getMatKhau().equals(mkHienTai))
+            return false;
+        boolean result = dao.doiMatKhau(tk.getSdt(), tk.getMaQuyen(), mkMoi);
+
+        if (result) {
+            tk.setMatKhau(mkMoi);
         }
         return result;
     }

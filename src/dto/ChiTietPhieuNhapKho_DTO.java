@@ -1,16 +1,19 @@
 package dto;
 
 public class ChiTietPhieuNhapKho_DTO {
+
     private String maPNK;
-    private String maLoHang;
-    private int soLuongDat;
+    private String maSP;
+    private int soLuong;
+    private String maLo;
 
-    public ChiTietPhieuNhapKho_DTO(){}
+    public ChiTietPhieuNhapKho_DTO() {}
 
-    public ChiTietPhieuNhapKho_DTO(String maPNK, String maLoHang, int soLuongDat) {
+    public ChiTietPhieuNhapKho_DTO(String maPNK, String maSP, int soLuong, String maLo) {
         this.maPNK = maPNK;
-        this.maLoHang = maLoHang;
-        this.soLuongDat = soLuongDat;
+        this.maSP = maSP;
+        this.soLuong = soLuong;
+        this.maLo = maLo;
     }
 
     public String getMaPNK() {
@@ -21,19 +24,27 @@ public class ChiTietPhieuNhapKho_DTO {
         this.maPNK = maPNK;
     }
 
-    public String getMaLoHang() {
-        return maLoHang;
+    public String getMaSP() {
+        return maSP;
     }
 
-    public void setMaLoHang(String maLoHang) {
-        this.maLoHang = maLoHang;
+    public void setMaSP(String maSP) {
+        this.maSP = maSP;
     }
 
-    public int getSoLuongDat() {
-        return soLuongDat;
+    public int getSoLuong() {
+        return soLuong;
     }
 
-    public void setSoLuongDat(int soLuongDat) {
-        this.soLuongDat = soLuongDat;
+    public void setSoLuong(int soLuong) {
+        this.soLuong = soLuong;
+    }
+
+    public String getMaLo() {
+        return maLo;
+    }
+
+    public void setMaLo(String maLo) {
+        this.maLo = maLo;
     }
 }
