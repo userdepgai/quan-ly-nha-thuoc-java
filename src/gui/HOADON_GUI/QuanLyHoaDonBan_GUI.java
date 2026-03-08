@@ -209,9 +209,7 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
                 .orElse(null);
 
         if(hd == null) return;
-
-        // ===== HIỆN / ẨN PHÍ VẬN CHUYỂN + ĐỊA CHỈ =====
-        if(hd.getLoaiHDB() == 1){ // ONLINE
+        if(hd.getLoaiHDB() == 1){
 
             hienPhiVanChuyen(true);
             hienDiaChi(true);
@@ -236,7 +234,7 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
                 );
             }
 
-        }else{ // OFFLINE
+        }else{
 
             hienPhiVanChuyen(false);
             hienDiaChi(false);
@@ -265,8 +263,6 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
 
         DateTimeFormatter fmt =
                 DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
-        // ===== THÔNG TIN HÓA ĐƠN =====
         txtTenKH.setText(
                 hoaDonBUS.getTenKH(hd.getMaKhachHang())
         );
@@ -587,7 +583,7 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
                     ketQua.add(hd);
             }
 
-            if(ketQua.size() == 8) break; // chỉ hiện tối đa 8 gợi ý
+            if(ketQua.size() == 8) break;
         }
 
         return ketQua;

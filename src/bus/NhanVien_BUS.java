@@ -66,13 +66,9 @@ public class NhanVien_BUS {
             JOptionPane.showMessageDialog(null, "SĐT phải 10 số");
             return false;
         }
-
-        // ===== KIỂM TRA TRÙNG SĐT =====
         for (NhanVien_DTO item : listCache) {
 
             if (item.getSdt().equals(nv.getSdt())) {
-
-                // Nếu là cập nhật và là chính nó thì bỏ qua
                 if (isUpdate && item.getMa().equals(nv.getMa())) {
                     continue;
                 }
@@ -89,8 +85,6 @@ public class NhanVien_BUS {
 
         return true;
     }
-    // ================= TÌM KIẾM =================
-
     public ArrayList<NhanVien_DTO> timKiem(String keyword,
                                            String chucVu,
                                            Integer trangThai){

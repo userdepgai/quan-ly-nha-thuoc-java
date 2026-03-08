@@ -138,10 +138,6 @@ public class TrangChu_GUI extends JPanel {
 
         for (int i = start; i < end; i++) {
             ProductCard card = new ProductCard(filteredProducts.get(i));
-//            card.setPreferredSize(new Dimension(230,260));
-//            card.setMaximumSize(new Dimension(230,260));
-//            card.setMinimumSize(new Dimension(230,260));
-
             productPanel.add(card);
         }
         productPanel.revalidate();

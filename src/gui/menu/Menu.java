@@ -46,9 +46,6 @@ public class Menu extends JFrame {
                     false
             ));
         }
-
-        /* ================= TỔNG QUAN ================= */
-
         if(hasAny("DASHBOARD","THONGKE","BAOCAO")) {
 
             menuModel.addElement(new MenuItem("TỔNG QUAN & ĐIỀU HÀNH", null, null, true));
@@ -57,27 +54,13 @@ public class Menu extends JFrame {
             addMenu("Thống kê","thongke","thongKe.png","THONGKE");
             addMenu("Báo cáo","baocao","baoCao.png","BAOCAO");
         }
-
-        /* ================= BÁN HÀNG ================= */
-
         if(hasAny("BANHANG","DUYETHD","HOADON")) {
-
-<<<<<<< HEAD
             menuModel.addElement(new MenuItem("BÁN HÀNG & HÓA ĐƠN", null, null, true));
 
             addMenu("Bán hàng","banhang","banHang.png","BANHANG");
             addMenu("Duyệt hóa đơn online","duyethd","duyetHoaDon.png","DUYETHD");
             addMenu("Quản lý hóa đơn","hoadon","hoaDon.png","HOADON");
         }
-=======
-        menuModel.addElement(new MenuItem("HỆ THỐNG", null, null,true));
-        menuModel.addElement(new MenuItem("Quản lý tài khoản", "taiKhoanDangNhap", icon("taiKhoanDangNhap.png"),false));
-        menuModel.addElement(new MenuItem("Phân quyền", "phanQuyen", icon("phanQuyen.png"),false));
-        menuModel.addElement(new MenuItem("Đăng xuất", "dangXuat", icon("logout.png"), false));
->>>>>>> ThanhTuyen
-
-        /* ================= CON NGƯỜI ================= */
-
         if(hasAny("KHACHHANG","NHANVIEN","NHACUNGCAP")) {
 
             menuModel.addElement(new MenuItem("QUẢN LÝ CON NGƯỜI", null, null, true));
@@ -86,9 +69,6 @@ public class Menu extends JFrame {
             addMenu("Nhân viên","nhanvien","nhanVien.png","NHANVIEN");
             addMenu("Nhà cung cấp","nhacungcap","nhaCungCap.png","NHACUNGCAP");
         }
-
-        /* ================= DANH MỤC ================= */
-
         if(hasAny("DANHMUC","THUOCTINH","SANPHAM")) {
 
             menuModel.addElement(new MenuItem("DANH MỤC & SẢN PHẨM", null, null, true));
@@ -97,9 +77,6 @@ public class Menu extends JFrame {
             addMenu("Thuộc tính","thuocTinhDanhMuc","thuocTinhDanhMuc.png","THUOCTINH");
             addMenu("Quản lý sản phẩm","sanPham","sanPham.png","SANPHAM");
         }
-
-        /* ================= KHO ================= */
-
         if(hasAny("LUUTRU","LOHANG","PHIEUNHAP")) {
 
             menuModel.addElement(new MenuItem("KHO & LƯU TRỮ", null, null, true));
@@ -108,9 +85,6 @@ public class Menu extends JFrame {
             addMenu("Lô hàng","lohang","loHang.png","LOHANG");
             addMenu("Phiếu nhập","phieunhap","phieuNhap.png","PHIEUNHAP");
         }
-
-        /* ================= KHUYẾN MÃI ================= */
-
         if(hasAny("CHUONGTRINHKM","KHUYENMAI","VOUCHER")) {
 
             menuModel.addElement(new MenuItem("KHUYẾN MÃI", null, null, true));
@@ -119,9 +93,6 @@ public class Menu extends JFrame {
             addMenu("Khuyến mãi","khuyenMai","khuyenMai.png","KHUYENMAI");
             addMenu("Voucher","voucher","voucher.png","VOUCHER");
         }
-
-        /* ================= HỆ THỐNG ================= */
-
         if(hasAny("TAIKHOAN","PHANQUYEN")) {
 
             menuModel.addElement(new MenuItem("HỆ THỐNG", null, null, true));
@@ -283,7 +254,6 @@ public class Menu extends JFrame {
             return null;
         }
     }
-<<<<<<< HEAD
     private void addMenu(String title, String card, String icon, String function) {
         if (Session.hasFunction(function)) {
             menuModel.addElement(new MenuItem(title, card, icon(icon), false));
@@ -294,8 +264,7 @@ public class Menu extends JFrame {
             if (Session.hasFunction(f)) return true;
         }
         return false;
-=======
-    // Hàm dùng chung để tạo Popup Menu xịn xò
+    }
     private JPopupMenu createSubMenu(String[][] items) {
         JPopupMenu popup = new JPopupMenu();
         popup.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1));
@@ -303,8 +272,8 @@ public class Menu extends JFrame {
         Font popupFont = new Font("Segoe UI", Font.PLAIN, 14);
 
         for (String[] itemData : items) {
-            JMenuItem item = new JMenuItem(itemData[0]); // itemData[0] là Tên hiển thị
-            String cardName = itemData[1];               // itemData[1] là Tên thẻ CardLayout để chuyển trang
+            JMenuItem item = new JMenuItem(itemData[0]);
+            String cardName = itemData[1];
 
             item.setFont(popupFont);
             item.setBackground(Color.WHITE);
@@ -312,7 +281,6 @@ public class Menu extends JFrame {
             item.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
             item.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-            // Hiệu ứng Hover
             item.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
                 public void mouseEntered(java.awt.event.MouseEvent e) {
@@ -323,13 +291,10 @@ public class Menu extends JFrame {
                     item.setBackground(Color.WHITE);
                 }
             });
-
-            // Sự kiện click chuyển trang
             item.addActionListener(e -> cardLayout.show(contentPanel, cardName));
             popup.add(item);
         }
         return popup;
->>>>>>> ThanhTuyen
     }
 }
 

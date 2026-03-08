@@ -224,9 +224,6 @@ public class LapHoaDon_GUI extends JPanel{
 
         tinhTienThoi();
     }
-    // ===============================
-// LOAD DATA COMBOBOX
-// ===============================
     private void loadComboBox(){
 
         loadCBMaSP();
@@ -437,9 +434,6 @@ public class LapHoaDon_GUI extends JPanel{
 
         capNhatThongTinHoaDon();
     }
-    /* ================== KHỞI TẠO BẢNG ================== */
-
-
     private void tinhTienThoi() {
 
         try {
@@ -474,14 +468,10 @@ public class LapHoaDon_GUI extends JPanel{
             txtTienThoi.setText("");
         }
     }
-    /* ================== SỰ KIỆN NÚT ================== */
-
     private void suKienNut() {
 
-        /* ===== THÊM ===== */
         btnThem.addActionListener(e -> themSanPham());
 
-        /* ===== CLICK BẢNG ĐỔ DỮ LIỆU ===== */
         tableTTSP.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int dong = tableTTSP.getSelectedRow();
@@ -503,7 +493,6 @@ public class LapHoaDon_GUI extends JPanel{
             }
         });
 
-        /* ===== XOÁ ===== */
         btnXoa.addActionListener(e -> {
 
             int row = tableTTSP.getSelectedRow();
@@ -522,10 +511,7 @@ public class LapHoaDon_GUI extends JPanel{
             resetFormSanPham();
         });
 
-        /* ===== SỬA ===== */
         btnSua.addActionListener(e -> suaSanPham());
-
-        /* ===== CHECK CHUYỂN KHOẢN ===== */
         cbDaChyenKhoan.addActionListener(e -> {
 
             if(cbDaChyenKhoan.isSelected()){
@@ -540,8 +526,6 @@ public class LapHoaDon_GUI extends JPanel{
 
             }
         });
-
-        /* ===== NHẬP TIỀN NHẬN ===== */
         txtTienNhan.addKeyListener(new KeyAdapter() {
 
             @Override
@@ -773,11 +757,7 @@ public class LapHoaDon_GUI extends JPanel{
             }
         });
         chbDiemThuong.addActionListener(e -> {
-
-            // nếu người dùng tick dùng điểm
             if(chbDiemThuong.isSelected()){
-
-                // kiểm tra hóa đơn có khách hàng chưa
                 if(bus.getHoaDon().getMaKhachHang() == null){
 
                     JOptionPane.showMessageDialog(
@@ -876,11 +856,6 @@ public class LapHoaDon_GUI extends JPanel{
 
         });
     }
-
-
-
-    /* ================== HÀM THÊM ================== */
-
     private void themSanPham() {
         String maSP =
                 ((JTextField) cbMaSP.getEditor()
@@ -894,13 +869,8 @@ public class LapHoaDon_GUI extends JPanel{
                     "Vui lòng chọn sản phẩm ");
             return;
         }
-
         try{
-
-
             int soLuong = (int) snSoLuong.getValue();
-
-            // ===== lấy KM user chọn =====
             String tenKM = null;
 
             if(cbKhuyenMai.getSelectedIndex() > 0){
@@ -909,7 +879,6 @@ public class LapHoaDon_GUI extends JPanel{
 
             }
 
-            // ⭐ gọi đúng BUS
             boolean coToa = chbToaBacSi.isSelected();
 
             bus.themSanPham(maSP, soLuong, tenKM, coToa);
@@ -945,8 +914,6 @@ public class LapHoaDon_GUI extends JPanel{
         snSoLuong.setEnabled(false);
         btnThem.setEnabled(false);
     }
-    /* ================== SỬA ================== */
-
     private void suaSanPham() {
 
         int dong = tableTTSP.getSelectedRow();
@@ -961,7 +928,6 @@ public class LapHoaDon_GUI extends JPanel{
 
         if(cbKhuyenMai.getSelectedIndex() > 0){
 
-            // ⭐ kiểm tra SĐT trước khi cho sửa KM
             String sdt = txtSoDienThoai.getText().trim();
 
             if(sdt.isEmpty()){
@@ -1046,8 +1012,6 @@ public class LapHoaDon_GUI extends JPanel{
             JOptionPane.showMessageDialog(this,"Chưa có sản phẩm");
             return false;
         }
-
-        // Nếu KHÔNG chuyển khoản thì mới kiểm tra tiền nhận
         if(!cbDaChyenKhoan.isSelected()){
 
             if(txtTienNhan.getText().trim().isEmpty()){
@@ -1065,8 +1029,6 @@ public class LapHoaDon_GUI extends JPanel{
                 );
 
                 double thanhTien = bus.getHoaDon().getThanhTien();
-
-                // chỉ lỗi khi tiền nhận nhỏ hơn
                 if(tienNhan < thanhTien){
                     JOptionPane.showMessageDialog(
                             this,

@@ -159,25 +159,19 @@ public class ProductCard extends JPanel {
             return null;
 
         String realPath = path;
-
-        // sửa img -> images
         if(path.startsWith("img/")){
             realPath = path.replace("img/","images/");
         }
-
-        // kiểm tra tồn tại trong project
         File f = new File("src/" + realPath);
 
         if(f.exists()){
-            return "src/" + realPath;   // trả về path tương đối
+            return "src/" + realPath;
         }
-
         f = new File(realPath);
 
         if(f.exists()){
             return realPath;
         }
-
         return null;
     }
     private double getGiaBan(String maSP) {

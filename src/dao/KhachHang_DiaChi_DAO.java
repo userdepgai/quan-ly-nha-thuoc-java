@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 public class KhachHang_DiaChi_DAO {
 
-    // ================== LẤY THEO MÃ KH ==================
     public ArrayList<KhachHang_DiaChi_DTO> getByMaKH(String maKH) {
 
         ArrayList<KhachHang_DiaChi_DTO> list = new ArrayList<>();
@@ -41,7 +40,6 @@ public class KhachHang_DiaChi_DAO {
         return list;
     }
 
-    // ================== THÊM ==================
     public boolean them(KhachHang_DiaChi_DTO dto) {
 
         String sqlInsert =
@@ -49,7 +47,6 @@ public class KhachHang_DiaChi_DAO {
 
         try (Connection conn = DBConnection.getConnection()) {
 
-            // Nếu là mặc định -> reset tất cả về 0
             if (dto.getTrangThai() == 1) {
 
                 String sqlReset =
@@ -77,7 +74,6 @@ public class KhachHang_DiaChi_DAO {
         return false;
     }
 
-    // ================== XOÁ ==================
     public boolean xoa(String maKH, String maDC) {
 
         String sql =
@@ -98,12 +94,10 @@ public class KhachHang_DiaChi_DAO {
         return false;
     }
 
-    // ================== ĐẶT MẶC ĐỊNH ==================
     public boolean datMacDinh(String maKH, String maDC) {
 
         try (Connection conn = DBConnection.getConnection()) {
 
-            // reset về 0
             String sqlReset =
                     "UPDATE KHACHHANGDIACHI SET TrangThai = 0 WHERE Ma_KH = ?";
 
@@ -112,7 +106,6 @@ public class KhachHang_DiaChi_DAO {
                 ps1.executeUpdate();
             }
 
-            // set = 1
             String sqlSet =
                     "UPDATE KHACHHANGDIACHI SET TrangThai = 1 WHERE Ma_KH = ? AND Ma_DC = ?";
 

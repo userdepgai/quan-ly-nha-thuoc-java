@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 public class KhachHang_DAO {
 
-    // ================== GET ALL ==================
     public ArrayList<KhachHang_DTO> getAll() {
 
         ArrayList<KhachHang_DTO> list = new ArrayList<>();
@@ -43,7 +42,6 @@ public class KhachHang_DAO {
         return list;
     }
 
-    // ================== TỰ SINH MÃ ==================
     public String getNextId() {
 
         String sql = "SELECT MAX(CAST(SUBSTRING(Ma_KH,3,6) AS INT)) FROM KHACHHANG";
@@ -71,7 +69,6 @@ public class KhachHang_DAO {
         return "KH000001";
     }
 
-    // ================== THÊM ==================
     public boolean them(KhachHang_DTO kh) {
 
         String sql = "INSERT INTO KHACHHANG VALUES (?,?,?,?,?,?,?,?,?)";
@@ -99,7 +96,6 @@ public class KhachHang_DAO {
         return false;
     }
 
-    // ================== CẬP NHẬT ==================
     public boolean capNhat(KhachHang_DTO kh) {
 
         String sql = """

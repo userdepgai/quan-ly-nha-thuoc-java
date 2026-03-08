@@ -12,9 +12,6 @@ public class KhachHang_DTO extends Nguoi_DTO {
     public KhachHang_DTO(){
         super();
     }
-
-
-    // Constructor đầy đủ
     public KhachHang_DTO(
             String ma,
             String ten,
@@ -32,8 +29,6 @@ public class KhachHang_DTO extends Nguoi_DTO {
         this.hang = hang;
         this.ngayDKThanhVien = ngayDKThanhVien;
     }
-
-    // ===== Getter & Setter =====
 
     public int getDiemThuong() {
         return diemThuong;
