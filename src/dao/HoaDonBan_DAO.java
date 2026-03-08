@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 public class HoaDonBan_DAO {
 
-    // ================= GET ALL =================
     public ArrayList<HoaDonBan_DTO> getAll() {
 
         ArrayList<HoaDonBan_DTO> list = new ArrayList<>();
@@ -125,7 +124,6 @@ public class HoaDonBan_DAO {
 
         return ds;
     }
-    // ================= NEXT ID =================
     public String getNextID() {
 
         String sql = "SELECT MAX(Ma_HDB) FROM HOADONBAN";
@@ -151,7 +149,6 @@ public class HoaDonBan_DAO {
         return "HDB000001";
     }
 
-    // ================= INSERT =================
     public boolean insert(HoaDonBan_DTO hd) {
 
         String sql = """
@@ -217,7 +214,6 @@ public class HoaDonBan_DAO {
 
         return false;
     }
-    // ================= UPDATE TRANG THAI =================
     public boolean capNhatTrangThai(String maHD, int trangThai) {
 
         String sql = """
@@ -244,8 +240,6 @@ public class HoaDonBan_DAO {
 
         return false;
     }
-
-    // ================= MAP RESULTSET =================
     private HoaDonBan_DTO mapHoaDon(ResultSet rs) throws SQLException {
 
         int loai = rs.getInt("LoaiHDB");
@@ -283,7 +277,7 @@ public class HoaDonBan_DAO {
         hd.setMaVoucher(rs.getString("MaVoucher"));
         hd.setKeToa(rs.getBoolean("KeToa"));
 
-        // nếu là hóa đơn online
+
         if(hd instanceof HoaDonOnline_DTO online){
             online.setPhiVanChuyen(rs.getDouble("PhiVanChuyen"));
             online.setMaDiaChiGiaoHang(rs.getString("Ma_DC"));

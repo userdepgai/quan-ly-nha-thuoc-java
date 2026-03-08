@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-
-// HOA DON ONLINE BUS
-// kế thừa HoaDonBan_BUS
 public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
     private static HoaDonOnline_BUS instance;
@@ -33,9 +30,6 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         return hoaDonDAO.getDanhSachOnlineTheoKhachHang(maKH);
     }
 
-    // =====================================================
-    // KHÁCH ĐẶT ONLINE → AUTO TẠO HÓA ĐƠN
-    // =====================================================
     public String taoDonOnline(
             String maKH,
             String diaChiGiao,
@@ -93,9 +87,6 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         return maHD;
     }
-    // =====================================================
-    // NHÂN VIÊN DUYỆT ĐƠN
-    // =====================================================
     public void duyetDon(String maHD) {
 
         HoaDonBan_DTO hd = getById(maHD);
@@ -136,9 +127,6 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 HoaDonBan_DTO.TT_DA_HUY);
     }
 
-    // =====================================================
-    // GIAO HÀNG
-    // =====================================================
     public void giaoHang(String maHD) {
 
         HoaDonBan_DTO hd = getById(maHD);
@@ -174,10 +162,6 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         );
     }
 
-
-    // =====================================================
-    // HOÀN THÀNH
-    // =====================================================
     public void hoanThanh(String maHD) {
 
         HoaDonBan_DTO hd = getById(maHD);
@@ -193,9 +177,6 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         congDiem(hd);
     }
 
-    // =====================================================
-    // TỪ CHỐI ĐƠN
-    // =====================================================
     public void huyDonHang(String maHD) {
 
         HoaDonBan_DTO hd = getById(maHD);
@@ -235,9 +216,6 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 HoaDonBan_DTO.TT_DA_HUY
         );
     }
-    // =====================================================
-    // HOÀN HÀNG (<=7 NGÀY)
-    // =====================================================
     public void hoanHang(String maHD) {
 
         HoaDonBan_DTO hd = getById(maHD);
@@ -301,9 +279,6 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 HoaDonBan_DTO.TT_HOAN_THANH
         );
     }
-    // =====================================================
-    // CỘNG ĐIỂM
-    // =====================================================
     private void congDiem(HoaDonBan_DTO hd) {
 
         int diem = (int)(hd.getThanhTien() / 10000);
