@@ -37,7 +37,6 @@ public class LapHoaDon_GUI extends JPanel{
     private JComboBox cbVoucher;
     private JTextField txtTienNhan;
     private JTextField txtTienThoi;
-    private JButton btnChuyenKhoan;
     private JCheckBox cbDaChyenKhoan;
     private JTable tableTTSP;
     private JButton btnLuu;

@@ -50,21 +50,36 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         hd.setMa(maHD);
         hd.setMaKhachHang(maKH);
+
         hd.setLoaiHDB(1);
         hd.setTrangThai(HoaDonBan_DTO.TT_CHO_DUYET);
         hd.setTinhTrangThanhToan(HoaDonBan_DTO.TT_CHUA_THANH_TOAN);
+
         hd.setNgayLap(LocalDateTime.now());
+
+        hd.setKeToa(false);
+        hd.setTongTienGoc(0);
+        hd.setTongGiaTriKhuyenMai(0);
+        hd.setDiemThuongQuyDoi(0);
+        hd.setTienNhan(0);
+        hd.setTienThoi(0);
+        hd.setThueVAT(0);
+        hd.setMaNhanVien(null);
+        hd.setMaVoucher(null);
 
         hd.setPhiVanChuyen(15000);
         hd.setMaDiaChiGiaoHang(diaChiGiao);
-
 
         this.hoaDon = hd;
         this.hoaDon.setDs_chiTietHDB(dsCT);
 
         tinhTongTien();
 
-        hoaDonDAO.insert(hd);
+
+        boolean ok = hoaDonDAO.insert(hd);
+
+        if(!ok)
+            throw new RuntimeException("Insert hóa đơn thất bại");
 
         for(ChiTietHoaDonBan_DTO ct : dsCT){
             ct.setMaHDB(maHD);
