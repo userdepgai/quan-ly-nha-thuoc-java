@@ -177,10 +177,8 @@ public class BAOCAODOANHTHU extends JPanel {
         int stt = 1;
         long tongSoHoaDon = 0;
         double tongDoanhThuThuan = 0;
-
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         DecimalFormat df = new DecimalFormat("#,###");
-
         for (BaoCaoDoanhThu_DTO dto : list) {
             Object[] row = {
                     stt++,

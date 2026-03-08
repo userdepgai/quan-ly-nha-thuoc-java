@@ -253,7 +253,8 @@ public class QuanLySanPham_GUI extends JPanel {
         if (cmbLocTrangThai.getSelectedIndex() == 1) trangThai = 1;
         if (cmbLocTrangThai.getSelectedIndex() == 2) trangThai = 0;
 
-        ArrayList<SanPham_DTO> dsLoc = spBUS.timKiem(keyword, maDM, trangThai);
+        // Giả sử hàm của bạn có thứ tự là: (keyword, maDM, maNCC, xuatXu, trangThai, mucGia)
+        ArrayList<SanPham_DTO> dsLoc = spBUS.timKiemNangCao(keyword, maDM, null, null, null);
         loadDataToTable(dsLoc);
     }
 

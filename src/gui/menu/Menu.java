@@ -77,7 +77,6 @@ public class Menu extends JFrame {
         menuModel.addElement(new MenuItem("HỆ THỐNG", null, null,true));
         menuModel.addElement(new MenuItem("Quản lý tài khoản", "taiKhoanDangNhap", icon("taiKhoanDangNhap.png"),false));
         menuModel.addElement(new MenuItem("Phân quyền", "phanQuyen", icon("phanQuyen.png"),false));
-
         menuModel.addElement(new MenuItem("Đăng xuất", "dangXuat", icon("logout.png"), false));
 
         menuList = new JList<>(menuModel);

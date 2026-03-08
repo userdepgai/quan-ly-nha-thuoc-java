@@ -19,7 +19,6 @@ public class THONGKEDOANHTHU extends JPanel {
     private JPanel panelMain;
     private JButton btnXuat;
     private JButton btnNhap;
-
     private JPanel pnlNgayBatDau;
     private JPanel pnlNgayKetThuc;
 

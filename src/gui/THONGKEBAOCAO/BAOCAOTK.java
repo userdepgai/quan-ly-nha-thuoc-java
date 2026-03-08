@@ -17,7 +17,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
 public class BAOCAOTK extends JPanel {
     private JPanel panelMain;
     private JButton btnXuat;

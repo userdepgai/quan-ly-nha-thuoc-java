@@ -28,7 +28,6 @@ public class ThanhToan_DAO {
             if (rs.next()) {
                 String ten = rs.getString("Ten_KH");
                 String sdt = rs.getString("SDT");
-
                 String soNha = rs.getString("SoNha") != null ? rs.getString("SoNha") + " " : "";
                 String duong = rs.getString("Duong") != null ? rs.getString("Duong") + ", " : "";
                 String phuong = rs.getString("Phuong") != null ? rs.getString("Phuong") + ", " : "";

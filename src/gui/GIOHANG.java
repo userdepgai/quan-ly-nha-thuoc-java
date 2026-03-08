@@ -607,7 +607,6 @@ public class GIOHANG extends JPanel {
         }
         return "Sản phẩm không tồn tại";
     }
-
     private double getGiaSanPham(String maSP) {
         return HoaDonBan_BUS.getInstance().getGiaBanSP(maSP, 1);
     }

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ThanhToan_BUS {
-
     private ThanhToan_DAO thanhToanDAO;
 
     public ThanhToan_BUS() {

@@ -16,14 +16,12 @@ public class THONGKEKHACHHANG extends JPanel {
     private JPanel panelMain;
     private JButton btnXuat;
     private JButton btnNhap;
-
     private JPanel pnlNgayBatDau;
     private JPanel pnlNgayKetThuc;
 
     private JDateChooser jdBatDau;
     private JDateChooser jdKetThuc;
 
-    // comboBoxDM dùng cho Hạng Thành Viên
     private JComboBox<String> comboBoxDM;
     private JButton btnThoat;
     private JButton btnTimKiem;

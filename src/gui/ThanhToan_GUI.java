@@ -414,7 +414,6 @@ public class ThanhToan_GUI extends JPanel {
 
         return dto;
     }
-
     private void xuLyDatHang() {
 
         try {
