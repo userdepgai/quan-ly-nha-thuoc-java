@@ -163,7 +163,7 @@ public class THONGKEDOANHTHU extends JPanel {
             jdBatDau.setDate(startDate);
             List<ThongKe_DTO> danhSachMacDinh = thongKeBUS.thongKeDoanhThu(startDate, today, "ALL");
             if (danhSachMacDinh != null) {
-                loadDataToTable(danhSachMacDinh); // Dùng lại hàm loadDataToTable cho gọn
+                loadDataToTable(danhSachMacDinh);
             }
         } catch (Exception e) {
             e.printStackTrace();

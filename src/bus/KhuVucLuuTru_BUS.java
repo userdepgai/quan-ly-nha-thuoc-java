@@ -27,7 +27,7 @@ public class KhuVucLuuTru_BUS {
         return listCache;
     }
 
-    //capnhat
+
     public void refreshData() {
         listCache = dao.getAll();
         DiaChi_BUS diaChiBUS = DiaChi_BUS.getInstance();
@@ -42,7 +42,6 @@ public class KhuVucLuuTru_BUS {
         }
     }
 
-    //tim kim
     public ArrayList<KhuVucLuuTru_DTO> timKiem(String keyword, Integer trangThai) {
         ArrayList<KhuVucLuuTru_DTO> result = new ArrayList<>();
         String k = (keyword == null) ? "" : keyword.toLowerCase().trim();

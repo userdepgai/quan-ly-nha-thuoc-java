@@ -453,8 +453,6 @@ public class ThanhToan_GUI extends JPanel {
 
 
             int phuongThuc = comboBoxPthucTt.getSelectedIndex();
-
-            // COD
             if (phuongThuc == 0) {
 
                 xuLyDatHangThanhCong(donHang.getTenKH());
