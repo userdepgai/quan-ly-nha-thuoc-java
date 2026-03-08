@@ -9,53 +9,53 @@ import java.awt.event.*;
 import java.util.ArrayList;
 
 public class ThuocTinh_GUI extends JPanel {
-        private JButton btnCapNhat;
-        private JButton btnThem;
-        private JPanel panelDanhSachThuocTinh;
-        private JTable tableThuocTinh;
-        private JPanel panelTieuDe;
-        private JLabel label_tieuDe;
-        private JPanel panelCapNhat;
-        private JPanel panelThongTinChiTiet;
-        private JPanel panelThuocTinh;
-        private JLabel labelMaThuocTinh;
-        private JLabel labelTenThuocTinh;
-        private JTextField txtMaDanhMuc;
-        private JTextField txtTenDanhMuc;
-        private JPanel panelGiaTriThuocTinh;
-        private JTable tableGiaTriThuocTinh;
-        private JLabel labelTrangThai;
-        private JComboBox cmbTrangThai;
-        private JPanel panelQuanLyThuocTinh;
-        private JPanel panelBoLoc;
-        private JLabel labelTimTheo;
-        private JComboBox cmbLocDanhMuc;
-        private JComboBox cmbTimTheo;
-        private JLabel labelLocDanhMuc;
-        private JLabel labelLocTrangThai;
-        private JComboBox cmbLocTrangThai;
-        private JLabel labelMaGiaTri;
-        private JLabel labelNoiDungGiaTri;
-        private JTextField txtMaGiaTri;
-        private JTextField txtNDGiaTri;
-        private JButton btnSuaGiaTri;
-        private JButton btnThoat;
-        private JButton btnTimKiem;
-        private JTextField txtNhapThongTin;
-        private JLabel labelNhapThongTin;
-        private JTextField txtThuocTinhHienCo;
-        private JLabel labelThuocTinhHienCo;
-        private JLabel labelDanhMuc;
-        private JComboBox cmbDanhMuc;
-        private JTextField txtSanPham;
-        private JLabel labelSanPham;
-        private JLabel labelTrangThaiGiaTri;
-        private JComboBox cmbTrangThaiGiaTri;
-        private JButton btnLuu;
-        private JButton btnHuy;
-        private JButton btnHuyGiaTri;
-        private JButton btnThemGiaTri;
-        private JScrollPane tableDanhSachGiaTriThuocTinh;
+    private JButton btnCapNhat;
+    private JButton btnThem;
+    private JPanel panelDanhSachThuocTinh;
+    private JTable tableThuocTinh;
+    private JPanel panelTieuDe;
+    private JLabel label_tieuDe;
+    private JPanel panelCapNhat;
+    private JPanel panelThongTinChiTiet;
+    private JPanel panelThuocTinh;
+    private JLabel labelMaThuocTinh;
+    private JLabel labelTenThuocTinh;
+    private JTextField txtMaDanhMuc;
+    private JTextField txtTenDanhMuc;
+    private JPanel panelGiaTriThuocTinh;
+    private JTable tableGiaTriThuocTinh;
+    private JLabel labelTrangThai;
+    private JComboBox cmbTrangThai;
+    private JPanel panelQuanLyThuocTinh;
+    private JPanel panelBoLoc;
+    private JLabel labelTimTheo;
+    private JComboBox cmbLocDanhMuc;
+    private JComboBox cmbTimTheo;
+    private JLabel labelLocDanhMuc;
+    private JLabel labelLocTrangThai;
+    private JComboBox cmbLocTrangThai;
+    private JLabel labelMaGiaTri;
+    private JLabel labelNoiDungGiaTri;
+    private JTextField txtMaGiaTri;
+    private JTextField txtNDGiaTri;
+    private JButton btnSuaGiaTri;
+    private JButton btnThoat;
+    private JButton btnTimKiem;
+    private JTextField txtNhapThongTin;
+    private JLabel labelNhapThongTin;
+    private JTextField txtThuocTinhHienCo;
+    private JLabel labelThuocTinhHienCo;
+    private JLabel labelDanhMuc;
+    private JComboBox cmbDanhMuc;
+    private JTextField txtSanPham;
+    private JLabel labelSanPham;
+    private JLabel labelTrangThaiGiaTri;
+    private JComboBox cmbTrangThaiGiaTri;
+    private JButton btnLuu;
+    private JButton btnHuy;
+    private JButton btnHuyGiaTri;
+    private JButton btnThemGiaTri;
+    private JScrollPane tableDanhSachGiaTriThuocTinh;
 
     private DefaultTableModel modelThuocTinh, modelGiaTriThuocTinh;
     private JPopupMenu popupGoiY = new JPopupMenu();
@@ -82,7 +82,6 @@ public class ThuocTinh_GUI extends JPanel {
         initTable_GiaTriThuocTinh();
         initComboBox();
 
-        // Đổ dữ liệu ban đầu
         loadDataToTable_ThuocTinh(ttBUS.getAll());
         addEvents();
         setViewMode();
@@ -107,13 +106,8 @@ public class ThuocTinh_GUI extends JPanel {
     }
 
     private void initComboBox() {
-        // Chi tiết Thuộc tính
         cmbTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{ThuocTinhDanhMuc_DTO.HOAT_DONG, ThuocTinhDanhMuc_DTO.NGUNG_HOAT_DONG}));
-
-        // Chi tiết Giá trị SP
         cmbTrangThaiGiaTri.setModel(new DefaultComboBoxModel<>(new String[]{GiaTriThuocTinh_SP_DTO.DANG_SU_DUNG, GiaTriThuocTinh_SP_DTO.NGUNG_SU_DUNG}));
-
-        // Bộ lọc
         cmbTimTheo.setModel(new DefaultComboBoxModel<>(new String[]{"Tất cả", "Mã Thuộc Tính", "Tên Thuộc Tính"}));
         cmbLocTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{"Tất cả", ThuocTinhDanhMuc_DTO.HOAT_DONG, ThuocTinhDanhMuc_DTO.NGUNG_HOAT_DONG}));
 
@@ -140,19 +134,13 @@ public class ThuocTinh_GUI extends JPanel {
         txtThuocTinhHienCo.setText(String.valueOf(list.size()));
     }
 
-    // --- HÀM FIX LỖI ĐỔ DỮ LIỆU BẢNG DƯỚI ---
     private void loadDataToTable_GiaTriThuocTinh(String maThuocTinh) {
         modelGiaTriThuocTinh.setRowCount(0);
-
-        // 1. Lấy danh sách liên kết từ BUS (Bảng trung gian GIATRITHUOCTINHSP)
         ArrayList<GiaTriThuocTinh_SP_DTO> dsLienKet = gtSpBUS.getByMaTT(maThuocTinh);
 
         int stt = 1;
         for (GiaTriThuocTinh_SP_DTO lienKet : dsLienKet) {
-            // 2. Lấy nội dung chữ (Ví dụ: "Viên nén") từ BUS master
             GiaTriThuocTinh_DTO gtDef = gtBUS.getById(lienKet.getMaGiaTri());
-
-            // 3. Lấy tên sản phẩm từ BUS Sản phẩm
             SanPham_DTO sp = spBUS.getById(lienKet.getMaSP());
 
             modelGiaTriThuocTinh.addRow(new Object[]{
@@ -161,13 +149,12 @@ public class ThuocTinh_GUI extends JPanel {
                     (gtDef != null) ? gtDef.getNdGiaTri() : "N/A",
                     lienKet.getMaThuocTinh(),
                     (sp != null) ? sp.getTenSP() : lienKet.getMaSP(),
-                    lienKet.getTrangThaiText() // Logic trạng thái từ bảng liên kết
+                    lienKet.getTrangThaiText()
             });
         }
     }
 
     private void addEvents() {
-        // Click bảng trên
         tableThuocTinh.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -177,7 +164,6 @@ public class ThuocTinh_GUI extends JPanel {
             }
         });
 
-        // Click bảng dưới
         tableGiaTriThuocTinh.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -198,7 +184,6 @@ public class ThuocTinh_GUI extends JPanel {
         btnLuu.addActionListener(e -> xuLyLuu());
         btnHuy.addActionListener(e -> { setViewMode(); resetFields(); });
 
-        // Lọc và gợi ý
         txtNhapThongTin.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -247,7 +232,6 @@ public class ThuocTinh_GUI extends JPanel {
 
         btnHuyGiaTri.addActionListener(e -> {
             setGiaTriViewMode();
-            // Fill lại data nếu đang chọn
             int row = tableGiaTriThuocTinh.getSelectedRow();
             if (row >= 0) fillGiaTriFromTable(row);
         });
@@ -258,14 +242,13 @@ public class ThuocTinh_GUI extends JPanel {
         ThuocTinhDanhMuc_DTO tt = ttBUS.getById(maTT);
         if (tt == null) return;
 
-        txtMaDanhMuc.setText(tt.getMaThuocTinh()); // txtMaDanhMuc của bạn chứa MaThuocTinh
+        txtMaDanhMuc.setText(tt.getMaThuocTinh());
         txtTenDanhMuc.setText(tt.getTenThuocTinh());
         cmbTrangThai.setSelectedItem(tt.getTrangThaiText());
 
         DanhMuc_DTO dm = dmBUS.getById(tt.getMaDM());
         if (dm != null) cmbDanhMuc.setSelectedItem(dm.getTenDM());
 
-        // KÍCH HOẠT ĐỔ DỮ LIỆU BẢNG DƯỚI
         loadDataToTable_GiaTriThuocTinh(maTT);
     }
 
@@ -289,7 +272,6 @@ public class ThuocTinh_GUI extends JPanel {
         String ttStr = (String) cmbLocTrangThai.getSelectedItem();
         Integer trangThai = ttStr.equals("Tất cả") ? null : ThuocTinhDanhMuc_DTO.parseTrangThaiFromText(ttStr);
 
-        // Gọi hàm tìm kiếm nâng cao từ BUS
         ArrayList<ThuocTinhDanhMuc_DTO> dsLoc = ttBUS.timKiemNangCao(keyword, timTheo, maDM, trangThai);
         loadDataToTable_ThuocTinh(dsLoc);
     }
@@ -327,7 +309,6 @@ public class ThuocTinh_GUI extends JPanel {
         tt.setMaThuocTinh(txtMaDanhMuc.getText());
         tt.setTenThuocTinh(txtTenDanhMuc.getText().trim());
 
-        // Lấy mã Danh mục
         String tenDM = (String) cmbDanhMuc.getSelectedItem();
         for(DanhMuc_DTO dm : dmBUS.getAll()) {
             if(dm.getTenDM().equals(tenDM)) { tt.setMaDM(dm.getMaDM()); break; }
@@ -378,7 +359,6 @@ public class ThuocTinh_GUI extends JPanel {
         txtMaGiaTri.setText(""); txtNDGiaTri.setText(""); txtSanPham.setText("");
         modelGiaTriThuocTinh.setRowCount(0);
     }
-    // --- HÀM ĐIỀU KHIỂN GIAO DIỆN GIÁ TRỊ ---
 
     private void setGiaTriViewMode() {
         isAddingGiaTri = false;
@@ -386,14 +366,12 @@ public class ThuocTinh_GUI extends JPanel {
 
         lockGiaTriForm(true);
 
-        // Chế độ xem: Hiện Thêm & Sửa, ẨN Hủy
         btnThemGiaTri.setVisible(true);
         btnSuaGiaTri.setVisible(true);
         btnHuyGiaTri.setVisible(false);
 
         tableGiaTriThuocTinh.setEnabled(true);
 
-        // Làm mới giao diện để nút Hủy biến mất ngay lập tức
         this.revalidate();
         this.repaint();
     }
@@ -409,7 +387,6 @@ public class ThuocTinh_GUI extends JPanel {
 
         lockGiaTriForm(false);
 
-        // Chế độ Thêm: Hiện Thêm (để Lưu) & Hủy, ẨN Sửa
         btnThemGiaTri.setVisible(true);
         btnSuaGiaTri.setVisible(false);
         btnHuyGiaTri.setVisible(true);
@@ -429,7 +406,6 @@ public class ThuocTinh_GUI extends JPanel {
         txtNDGiaTri.setEditable(false);
         txtSanPham.setEditable(false);
 
-        // Chế độ Sửa: Hiện Sửa (để Lưu) & Hủy, ẨN Thêm
         btnThemGiaTri.setVisible(false);
         btnSuaGiaTri.setVisible(true);
         btnHuyGiaTri.setVisible(true);
@@ -447,10 +423,8 @@ public class ThuocTinh_GUI extends JPanel {
         cmbTrangThaiGiaTri.setEnabled(!lock);
     }
 
-    // --- LOGIC LƯU GIÁ TRỊ (GỌI BUS) ---
-
     private void xuLyLuuGiaTri(boolean isNew) {
-        String maTT = txtMaDanhMuc.getText(); // Mã thuộc tính cha
+        String maTT = txtMaDanhMuc.getText();
         String ndGiaTri = txtNDGiaTri.getText().trim();
         String tenSP = txtSanPham.getText().trim();
         int trangThai = GiaTriThuocTinh_SP_DTO.parseTrangThaiFromText(cmbTrangThaiGiaTri.getSelectedItem().toString());
@@ -460,23 +434,18 @@ public class ThuocTinh_GUI extends JPanel {
             return;
         }
 
-        // 1. Tìm sản phẩm theo tên
         SanPham_DTO sp = spBUS.getByTenSP(tenSP);
         if (sp == null) {
             JOptionPane.showMessageDialog(this, "Sản phẩm không tồn tại!");
             return;
         }
 
-        // 2. Xử lý logic tại BUS
-        // Kiểm tra xem nội dung giá trị này đã có trong từ điển chưa
         String maGT = gtBUS.getMaByNoiDung(maTT, ndGiaTri);
         if (maGT == null) {
-            // Nếu chưa có -> Thêm mới vào bảng GIATRITHUOCTINH
             maGT = gtBUS.getNextId();
             gtBUS.them(new GiaTriThuocTinh_DTO(maGT, ndGiaTri, maTT));
         }
 
-        // 3. Lưu liên kết SP
         boolean res;
         if (isNew) {
             res = gtSpBUS.themLienKetSP(sp.getMaSP(), maTT, maGT, trangThai);
