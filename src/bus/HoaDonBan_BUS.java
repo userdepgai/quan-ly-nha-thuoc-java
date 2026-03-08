@@ -116,23 +116,13 @@ public class HoaDonBan_BUS {
         return dc.toString();
     }
 
-
-
-    // =====================================================
-    // SINH MÃ
-    // =====================================================
     public String getNextID(){
         return hoaDonDAO.getNextID();
     }
 
-    // =====================================================
-    // TẠO HÓA ĐƠN
-    // =====================================================
    public void taoHoaDonMoi(){
 
         hoaDon = new HoaDonBan_DTO();
-
-        // ===== lấy user đang login =====
         TaiKhoan_DTO tk = Session.getCurrentUser();
 
         if(tk == null)
@@ -156,10 +146,6 @@ public class HoaDonBan_BUS {
        hoaDon.getDs_chiTietHDB().clear();
     }
 
-
-    // =====================================================
-    // THÊM SẢN PHẨM FIFO
-    // =====================================================
     public void themSanPham(String maSP, int soLuong,String tenKM,boolean coToa){
         // ===== BUS tự tìm mã KM =====
         SanPham_DTO sp = spBus.getById(maSP);
@@ -186,8 +172,6 @@ public class HoaDonBan_BUS {
                             "Vui lòng nhập số điện thoại khách hàng để kiểm tra lượt sử dụng"
                     );
                 }
-
-                // ===== kiểm tra lượt KM =====
                 boolean conLuot =
                         KhachHang_KM_BUS.getInstance()
                                 .conLuotSuDung(maKM, hoaDon.getMaKhachHang());
@@ -211,12 +195,8 @@ public class HoaDonBan_BUS {
 
         Map<LoHang_DTO,Integer> dsLoChon =
                 loBus.phanBoLoDeBan(maSP, soLuong);
-
-// ===== LẤY GIÁ NHẬP MAX =====
         double giaNhapMax =
                 loBus.getGiaNhapCaoNhatTrongLoChon(dsLoChon);
-
-// ===== TÍNH GIÁ BÁN =====
         double giaBan = tinhGiaBan(maSP, giaNhapMax);
 
         for(Map.Entry<LoHang_DTO,Integer> entry : dsLoChon.entrySet()){
@@ -399,12 +379,10 @@ public class HoaDonBan_BUS {
         KhuyenMai_DTO km = kmBus.getById(maKM);
         if(km == null) return 0;
 
-        // ===== KM %
         if(km.getLoaiKhuyenMai() == 0){
             return giaBan * km.getGiaTriKhuyenMai() ;
         }
 
-        // ===== KM tiền
         if(km.getLoaiKhuyenMai() == 1){
             return Math.min(km.getGiaTriKhuyenMai(), giaBan);
         }
@@ -500,10 +478,9 @@ public class HoaDonBan_BUS {
 
         double thanhTien = hoaDon.getThanhTien();
 
-        // số mốc 10k
         int moc10k = (int)(thanhTien / 10000);
 
-        int heSo = 1; // Đồng mặc định
+        int heSo = 1;
 
         switch (kh.getHang()){
             case "BAC": heSo = 2; break;
@@ -513,16 +490,12 @@ public class HoaDonBan_BUS {
 
         return moc10k * heSo;
     }
-    // =====================================================
-    // TÍNH TIỀN
-    // =====================================================
+
     protected void tinhTongTien(){
 
         tinhThanhTienSauCung();
     }
-    // =====================================================
-    // LƯU HÓA ĐƠN
-    // =====================================================
+
     public boolean luuHoaDon(){
 
         try{
@@ -530,22 +503,17 @@ public class HoaDonBan_BUS {
             hoaDon.setTrangThai(HoaDonBan_DTO.TT_HOAN_THANH);
             hoaDon.setTinhTrangThanhToan(1);
 
-            // ===== insert hóa đơn =====
             boolean ok = hoaDonDAO.insert(hoaDon);
 
             if(!ok)
                 throw new RuntimeException("Insert hóa đơn thất bại");
 
             System.out.println("Insert hóa đơn: " + hoaDon.getMa());
-
-            // ===== insert chi tiết =====
             for(ChiTietHoaDonBan_DTO ct : hoaDon.getDs_chiTietHDB()){
 
                 ct.setMaHDB(hoaDon.getMa());
 
                 ctDAO.insert(ct);
-
-                // ===== trừ tồn lô =====
                 LoHang_DTO lo = loBus.getById(ct.getMaLo());
 
                 lo.setSoLuongConLai(
@@ -553,8 +521,6 @@ public class HoaDonBan_BUS {
                 );
 
                 loBus.capNhat(lo);
-
-                // ===== trừ lượt khuyến mãi =====
                 if(ct.getMaKhuyenMai() != null
                         && hoaDon.getMaKhachHang() != null){
 
@@ -565,8 +531,6 @@ public class HoaDonBan_BUS {
                             );
                 }
             }
-
-            // ===== trừ lượt voucher =====
             if(hoaDon.getMaVoucher() != null
                     && hoaDon.getMaKhachHang() != null){
 
@@ -577,7 +541,6 @@ public class HoaDonBan_BUS {
                         );
             }
 
-            // ===== trừ điểm nếu dùng =====
             if(dungDiemThuong && hoaDon.getMaKhachHang() != null){
 
                 int diemSuDung =
@@ -588,8 +551,6 @@ public class HoaDonBan_BUS {
                         diemSuDung
                 );
             }
-
-            // ===== cộng điểm sau mua =====
             congDiemKhach();
 
             refreshData();
@@ -633,10 +594,6 @@ public class HoaDonBan_BUS {
                 diem
         );
     }
-
-
-    // =====================================================
-
     public void xoaSanPham(String maSP){
         hoaDon.getDs_chiTietHDB().removeIf(x -> x.getMaSP().equals(maSP));
         tinhTongTien();
@@ -659,10 +616,6 @@ public class HoaDonBan_BUS {
             keyword = keyword.toLowerCase();
 
         for(HoaDonBan_DTO hd : listCache){
-
-            // =====================
-            // keyword
-            // =====================
             boolean matchKeyword = true;
 
             if(keyword != null && !keyword.isBlank()){
@@ -694,30 +647,15 @@ public class HoaDonBan_BUS {
                 }
             }
 
-            // =====================
-            // trạng thái
-            // =====================
             boolean matchTrangThai =
                     (trangThai == null ||
                             hd.getTrangThai() == trangThai);
-
-            // =====================
-            // thanh toán
-            // =====================
             boolean matchThanhToan =
                     (tinhTrangThanhToan == null ||
                             hd.getTinhTrangThanhToan() == tinhTrangThanhToan);
-
-            // =====================
-            // loại hóa đơn
-            // =====================
             boolean matchLoai =
                     (loaiHD == null ||
                             hd.getLoaiHDB() == loaiHD);
-
-            // =====================
-            // ngày
-            // =====================
             boolean matchNgay = true;
 
             if(tuNgay != null && denNgay != null){
@@ -728,10 +666,6 @@ public class HoaDonBan_BUS {
                         !ngayLap.isBefore(tuNgay) &&
                                 !ngayLap.isAfter(denNgay);
             }
-
-            // =====================
-            // giá
-            // =====================
             boolean matchGia = true;
 
             if(mucGia != null){
@@ -740,19 +674,19 @@ public class HoaDonBan_BUS {
 
                 switch (mucGia){
 
-                    case 0: // <500k
+                    case 0:
                         matchGia = gia < 500000;
                         break;
 
-                    case 1: // 500k - 1tr
+                    case 1:
                         matchGia = gia >= 500000 && gia <= 1000000;
                         break;
 
-                    case 2: // 1tr - 3tr
+                    case 2:
                         matchGia = gia > 1000000 && gia <= 3000000;
                         break;
 
-                    case 3: // >3tr
+                    case 3:
                         matchGia = gia > 3000000;
                         break;
                 }
