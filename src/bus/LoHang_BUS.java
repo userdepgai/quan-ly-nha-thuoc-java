@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class LoHang_BUS {
-
     private static LoHang_BUS instance;
     private LoHang_DAO dao = new LoHang_DAO();
     private ArrayList<LoHang_DTO> listCache;
@@ -16,14 +15,12 @@ public class LoHang_BUS {
     private LoHang_BUS() {
         refreshData();
     }
-
     public static LoHang_BUS getInstance() {
         if (instance == null) {
             instance = new LoHang_BUS();
         }
         return instance;
     }
-
     public ArrayList<LoHang_DTO> getAll() {
         return new ArrayList<>(listCache);
     }
@@ -263,13 +260,13 @@ public class LoHang_BUS {
 
         if (dsLo == null || dsLo.isEmpty()) return -1;
 
-        double max = Double.MIN_VALUE;
+        double maxGiaNhap = Double.MIN_VALUE;
 
         for (LoHang_DTO lo : dsLo.keySet()) {
-            max = Math.max(max, lo.getGiaNhap());
+            maxGiaNhap = Math.max(maxGiaNhap, lo.getGiaNhap());
         }
 
-        return max;
+        return maxGiaNhap;
     }
 
     public void congTonKhiHuy(Map<LoHang_DTO, Integer> dsLo) {
@@ -288,33 +285,46 @@ public class LoHang_BUS {
     }
 
     public int getTongTonByMaSP(String maSp) {
-
+        // Tong theo thung
+        ArrayList<LoHang_DTO> list = getByMaSP(maSp);
         int tong = 0;
-        LocalDate today = LocalDate.now();
-
-        for (LoHang_DTO lo : listCache) {
-
-            if (lo.getMaSp().equals(maSp)
-                    && lo.getSoLuongConLai() > 0
-                    && lo.getTrangThai() == 1
-                    && !lo.getHsd().isBefore(today)) {
-
-                tong += lo.getSoLuongConLai();
+        for (LoHang_DTO lo : list) {
+            tong += lo.getSoLuongConLai();
+        }
+        return tong;
+    }
+    public int getTongSPTonByMaSP(String maSp) {
+        // Tong theo sp
+        ArrayList<LoHang_DTO> list = getByMaSP(maSp);
+        int tong = 0;
+        for (LoHang_DTO lo : list) {
+            tong += lo.getSoLuongConLai()
+                    * QuyCach_BUS.getInstance().getById(
+                            SanPham_BUS.getInstance().getById(maSp).getMaQC()
+                        ).getSlspThung();
+        }
+        return tong;
+    }
+    public double getGiaNhapThapNhatByMaSP(String maSP) {
+        ArrayList<LoHang_DTO> list = getByMaSP(maSP);
+        double min = Double.MAX_VALUE;
+        for (LoHang_DTO lo : list) {
+            if (lo.getGiaNhap() < min) {
+                min = lo.getGiaNhap();
             }
         }
-
-        return tong;
+        return min == Double.MAX_VALUE ? 0 : min;
     }
 
     public ArrayList<LoHang_DTO> getByMaSP(String maSp) {
-
         ArrayList<LoHang_DTO> result = new ArrayList<>();
-
         for (LoHang_DTO lo : listCache) {
             if (lo.getMaSp().equals(maSp))
+                if(lo.getTrangThai() == LoHang_DTO.TT_HOAN_THANH
+                        && lo.getTrangThaiTonKho() != LoHang_DTO.TK_HET_HANG
+                        && lo.getTrangThaiTonKho() != LoHang_DTO.TK_HET_HAN)
                 result.add(lo);
         }
-
         return result;
     }
     public ArrayList<LoHang_DTO> timKiem(
@@ -464,7 +474,6 @@ public class LoHang_BUS {
 
         return result;
     }
-
 
     public void refreshData() {
         listCache = dao.getAll();

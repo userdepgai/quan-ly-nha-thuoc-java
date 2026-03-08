@@ -1,6 +1,6 @@
 package dto;
 
-import dto.SANPHAM;
+import dto.*;
 
 public class SanPhamNCC_DTO {
 

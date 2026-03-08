@@ -11,7 +11,6 @@ import gui.trangChuDatHang.TrangChu_GUI;
 import utils.Session;
 
 public class MenuKhachHang_GUI extends JFrame{
-
     private JList<MenuItem> menuList;
     private DefaultListModel<MenuItem> menuModel;
     private JPanel contentPanel;
