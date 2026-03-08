@@ -34,7 +34,6 @@ public class QuanLySanPham_GUI extends JPanel {
     private JLabel labelLoiNhuan;
     private JTextField txtLoiNhuan;
     private JLabel labelDanhMuc;
-    private JLabel labelApDungDanhMuc;
     private JLabel labelQuyCach;
     private JComboBox cmbDanhMuc;
     private JButton btnCapNhat;
@@ -72,6 +71,7 @@ public class QuanLySanPham_GUI extends JPanel {
     private JComboBox cmbKeDon;
     private JButton btnHuy;
     private JButton btnLuu;
+    private JLabel labelApDungDanhMuc;
     private DefaultTableModel modelSanPham;
 
     private JPopupMenu popupGoiY = new JPopupMenu();
@@ -109,8 +109,6 @@ public class QuanLySanPham_GUI extends JPanel {
             }
         };
         tableSanPham.setModel(modelSanPham);
-
-        // Cấu hình độ rộng cột nếu cần...
     }
 
     private void initComboBoxData() {
@@ -147,7 +145,6 @@ public class QuanLySanPham_GUI extends JPanel {
                 "Giảm dần"
         }));
 
-        // 4. Load Trạng thái (Sử dụng hằng số từ DTO)
         cmbTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{
                 SanPham_DTO.DANG_BAN,
                 SanPham_DTO.NGUNG_BAN
@@ -262,7 +259,6 @@ public class QuanLySanPham_GUI extends JPanel {
 
                 try {
                     // 1. Xác định thư mục đích (src/images)
-                    // Lấy thư mục gốc dự án + src/images
                     String destFolder = "src/images";
                     File folder = new File(destFolder);
                     if (!folder.exists()) folder.mkdirs(); // Tạo thư mục nếu chưa có
@@ -275,8 +271,7 @@ public class QuanLySanPham_GUI extends JPanel {
                     Files.copy(sourceFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
                     // 4. Lưu đường dẫn TƯƠNG ĐỐI để đưa vào Database
-                    // Lưu ý: DB bạn đang dùng tiền tố "img/" hay "images/" thì sửa ở đây cho khớp
-                    String relativePath = "img/" + fileName;
+                    String relativePath = "images/" + fileName;
 
                     // 5. Hiển thị lên giao diện
                     txtLinkHinhAnh.setText(relativePath);
@@ -401,11 +396,18 @@ public class QuanLySanPham_GUI extends JPanel {
         // Thuộc tính riêng
         StringBuilder sb = new StringBuilder();
         ArrayList<GiaTriThuocTinh_SP_DTO> listGTSP = gtspBus.getByMaSP(sp.getMaSP());
+
         for (GiaTriThuocTinh_SP_DTO gtsp : listGTSP) {
-            ThuocTinhDanhMuc_DTO tt = ttBus.getById(gtsp.getMaThuocTinh());
-            GiaTriThuocTinh_DTO gt = gtBus.getById(gtsp.getMaGiaTri());
-            if (tt != null && gt != null) {
-                sb.append("• ").append(tt.getTenThuocTinh()).append(": ").append(gt.getNdGiaTri()).append("\n");
+            // CHỈ HIỂN THỊ NẾU TRẠNG THÁI LÀ "ĐANG SỬ DỤNG" (1)
+            if (gtsp.getTrangThai() == GiaTriThuocTinh_SP_DTO.TT_DANG_SU_DUNG) {
+                ThuocTinhDanhMuc_DTO tt = ttBus.getById(gtsp.getMaThuocTinh());
+                GiaTriThuocTinh_DTO gt = gtBus.getById(gtsp.getMaGiaTri());
+
+                if (tt != null && gt != null) {
+                    // Sử dụng getTen_TT() vì bạn đã đổi tên biến trong DTO/SQL
+                    sb.append("• ").append(tt.getTenThuocTinh()).append(": ")
+                            .append(gt.getNdGiaTri()).append("\n");
+                }
             }
         }
         txtAreaThuocTinhRieng.setText(sb.toString());
@@ -566,47 +568,40 @@ public class QuanLySanPham_GUI extends JPanel {
         // Kích thước hiển thị
         int w = labelHinhAnh.getWidth();
         int h = labelHinhAnh.getHeight();
-        if (w == 0 || h == 0) { w = 180; h = 180; }
+        if (w == 0 || h == 0) {
+            w = 180;
+            h = 180;
+        }
 
         labelHinhAnh.setText("");
         labelHinhAnh.setIcon(null);
 
-
-        // 1. Kiểm tra path null
+        // 1. Kiểm tra path
         if (path == null || path.trim().isEmpty()) {
             labelHinhAnh.setText("Chưa có ảnh");
             return;
         }
 
         try {
-            // 2. XỬ LÝ ĐƯỜNG DẪN (Quan trọng)
-            // Vì DB lưu "img/..." nhưng thư mục là "images", ta có thể fix cứng hoặc xử lý linh hoạt
-            // Cách tốt nhất: Path đầu vào nên là "images/panadol.jpg" cho khớp.
-            // Nhưng nếu DB lỡ lưu "img/" thì ta replace:
-            String realPath = path;
-            if (path.startsWith("img/")) {
-                realPath = path.replace("img/", "images/");
+            // 2. Đường dẫn thật tới file ảnh
+            File f = new File("src/" + path);
+
+            // Nếu không tồn tại trong src thì thử ở thư mục gốc
+            if (!f.exists()) {
+                f = new File(path);
             }
 
-            // 3. Tìm file trong dự án
-            // "src" dùng khi chạy trong IDE. Nếu build ra JAR thì cần xử lý khác, nhưng ở đây ta làm cho IDE trước.
-            java.io.File f = new java.io.File("src/" + realPath);
-
-            // Nếu không tìm thấy trong src, thử tìm ở thư mục gốc (trường hợp build xong)
+            // 3. Nếu vẫn không tồn tại
             if (!f.exists()) {
-                f = new java.io.File(realPath);
-            }
-
-            // 4. Kiểm tra tồn tại
-            if (!f.exists()) {
-                labelHinhAnh.setText("Chưa có ảnh");
-                // Có thể load ảnh mặc định ở đây nếu muốn
+                labelHinhAnh.setText("Không tìm thấy ảnh");
                 return;
             }
 
-            // 5. Load và hiển thị
+            // 4. Load ảnh
             ImageIcon icon = new ImageIcon(f.getAbsolutePath());
             Image img = icon.getImage();
+
+            // 5. Scale ảnh cho vừa label
             Image scaledImg = img.getScaledInstance(w, h, Image.SCALE_SMOOTH);
             labelHinhAnh.setIcon(new ImageIcon(scaledImg));
 
