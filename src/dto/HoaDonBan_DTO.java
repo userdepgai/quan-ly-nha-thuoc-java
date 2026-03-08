@@ -14,9 +14,8 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     private double tienThoi;
     private double thueVAT;
     private boolean keToa;
-    private String tenBacSi;
-    private String maToa;
-    private String ngayKeToa;
+    private int loaiHDB;
+
 
     private String maKhachHang;
     private String maVoucher;
@@ -44,9 +43,7 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
             double tienThoi,
             double thueVAT,
             boolean keToa,
-            String tenBacSi,
-            String maToa,
-            String ngayKeToa,
+            int loaiHDB,
             String maKhachHang,
             String maVoucher,
             ArrayList<ChiTietHoaDonBan_DTO> ds
@@ -62,9 +59,7 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
         this.tienThoi = tienThoi;
         this.thueVAT = thueVAT;
         this.keToa = keToa;
-        this.tenBacSi = tenBacSi;
-        this.maToa = maToa;
-        this.ngayKeToa = ngayKeToa;
+        this.loaiHDB = loaiHDB;
         this.maKhachHang = maKhachHang;
         this.maVoucher = maVoucher;
         this.ds_chiTietHDB = ds != null ? ds : new ArrayList<>();
@@ -141,30 +136,9 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     public void setKeToa(boolean keToa) {
         this.keToa = keToa;
     }
+    public int getLoaiHDB() {return loaiHDB;}
 
-    public String getTenBacSi() {
-        return tenBacSi;
-    }
-
-    public void setTenBacSi(String tenBacSi) {
-        this.tenBacSi = tenBacSi;
-    }
-
-    public String getMaToa() {
-        return maToa;
-    }
-
-    public void setMaToa(String maToa) {
-        this.maToa = maToa;
-    }
-
-    public String getNgayKeToa() {
-        return ngayKeToa;
-    }
-
-    public void setNgayKeToa(String ngayKeToa) {
-        this.ngayKeToa = ngayKeToa;
-    }
+    public void setLoaiHDB(int loaiHDB) {this.loaiHDB = loaiHDB;}
 
     public String getMaKhachHang() {
         return maKhachHang;
@@ -189,4 +163,127 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     public void setDs_chiTietHDB(ArrayList<ChiTietHoaDonBan_DTO> ds_chiTietHDB) {
         this.ds_chiTietHDB = ds_chiTietHDB;
     }
+
+    // =============================
+// TRẠNG THÁI HÓA ĐƠN
+// =============================
+
+    // ===== VALUE (dùng cho DB + BUS) =====
+    public static final int TT_CHO_DUYET = 0;
+    public static final int TT_DA_DUYET = 1;
+    public static final int TT_DANG_GIAO = 2;
+    public static final int TT_HOAN_THANH = 3;
+    public static final int TT_DA_HUY = 4;
+    public static final int TT_YEU_CAU_HOAN = 5;
+
+
+    // ===== TEXT (dùng cho GUI) =====
+    public static final String CHO_DUYET = "Chờ duyệt";
+    public static final String DA_DUYET = "Đã duyệt";
+    public static final String DANG_GIAO = "Đang giao";
+    public static final String HOAN_THANH = "Đã hoàn thành";
+    public static final String DA_HUY = "Hủy";
+    public static final String YEU_CAU_HOAN = "Yêu cầu hoàn hàng";
+
+
+    // =============================
+// INT -> TEXT (hiển thị GUI)
+// =============================
+    public String getTrangThaiText() {
+
+        switch (getTrangThai()) {
+            case TT_CHO_DUYET: return CHO_DUYET;
+            case TT_DA_DUYET: return DA_DUYET;
+            case TT_DANG_GIAO: return DANG_GIAO;
+            case TT_HOAN_THANH: return HOAN_THANH;
+            case TT_DA_HUY: return DA_HUY;
+            case TT_YEU_CAU_HOAN: return YEU_CAU_HOAN;
+            default: return "Không xác định";
+        }
+    }
+
+
+    // =============================
+// KÊ TOA
+// =============================
+    public static final String KHONG_KE_TOA = "Không";
+    public static final String CO_KE_TOA = "Có";
+
+
+    // boolean -> text
+    public String getKeToaText() {
+        return keToa ? CO_KE_TOA : KHONG_KE_TOA;
+    }
+
+
+
+    // =============================
+// TÌNH TRẠNG THANH TOÁN
+// =============================
+
+    // ===== VALUE (dùng cho DB + BUS) =====
+    public static final int TT_CHUA_THANH_TOAN = 0;
+    public static final int TT_DA_THANH_TOAN = 1;
+    public static final int TT_DA_HOAN_TIEN = 2;
+
+
+    // ===== TEXT (dùng cho GUI) =====
+    public static final String CHUA_THANH_TOAN = "Chưa thanh toán";
+    public static final String DA_THANH_TOAN = "Đã thanh toán";
+    public static final String DA_HOAN_TIEN = "Đã hoàn tiền";
+
+
+    // =============================
+// INT -> TEXT (DTO -> GUI)
+// =============================
+    public String getTinhTrangThanhToanText() {
+
+        switch (tinhTrangThanhToan) {
+            case TT_CHUA_THANH_TOAN:
+                return CHUA_THANH_TOAN;
+
+            case TT_DA_THANH_TOAN:
+                return DA_THANH_TOAN;
+
+            case TT_DA_HOAN_TIEN:
+                return DA_HOAN_TIEN;
+
+            default:
+                return "Không xác định";
+        }
+    }
+
+
+    // =============================
+// LOẠI HÓA ĐƠN BÁN
+// =============================
+
+    // ===== VALUE (dùng cho DB + BUS) =====
+    public static final int LOAI_TAI_QUAY = 0;
+    public static final int LOAI_TRUC_TUYEN = 1;
+
+
+    // ===== TEXT (dùng cho GUI) =====
+    public static final String TAI_QUAY = "Tại quầy";
+    public static final String TRUC_TUYEN = "Trực tuyến";
+
+
+    // =============================
+// INT -> TEXT (DTO -> GUI)
+// =============================
+    public String getLoaiHDBText() {
+
+        switch (loaiHDB) {
+            case LOAI_TAI_QUAY:
+                return TAI_QUAY;
+
+            case LOAI_TRUC_TUYEN:
+                return TRUC_TUYEN;
+
+            default:
+                return "Không xác định";
+        }
+    }
+
+
 }

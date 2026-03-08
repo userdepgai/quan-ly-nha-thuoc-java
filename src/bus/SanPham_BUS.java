@@ -157,4 +157,14 @@ public class SanPham_BUS {
         if (sp.getLoiNhuan() < 0) return false;
         return true;
     }
+    public ArrayList<String[]> getThuocTinhSP(String maSP){
+        return spDao.getThuocTinhSP(maSP);
+    }
+    public double tinhGiaBan(String maSP, double giaNhap){
+        SanPham_DTO sp = getById(maSP);
+        QuyCach_DTO qc = qcBus.getById(sp.getMaQC());
+        double giaMotSP = giaNhap / qc.getSlspThung();
+        return giaMotSP *  sp.getLoiNhuan();
+    }
+
 }

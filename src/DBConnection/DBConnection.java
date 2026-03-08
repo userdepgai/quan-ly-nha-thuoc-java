@@ -12,6 +12,8 @@ public class DBConnection {
         try {
             if (connection == null || connection.isClosed()) {
 
+                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+
                 Properties props = new Properties();
                 InputStream input = DBConnection.class
                         .getClassLoader()

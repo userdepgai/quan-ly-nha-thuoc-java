@@ -4,6 +4,24 @@ import java.time.LocalDate;
 
 public class LoHang_DTO {
 
+    public static final int TT_CHO = 0;
+    public static final int TT_HOAN_THANH = 1;
+    public static final int TT_HUY = 2;
+
+    public static final String CHO = "Chờ";
+    public static final String HOAN_THANH = "Hoàn thành";
+    public static final String HUY = "Hủy";
+
+    public static final int TK_BINH_THUONG = 0;
+    public static final int TK_SAP_HET_HAN = 1;
+    public static final int TK_HET_HAN = 2;
+    public static final int TK_HET_HANG = 3;
+
+    public static final String BINH_THUONG = "Bình thường";
+    public static final String SAP_HET_HAN = "Sắp hết hạn";
+    public static final String HET_HAN = "Hết hạn";
+    public static final String HET_HANG = "Hết hàng";
+
     private String maLo;
     private double giaNhap;
     private LocalDate hsd;
@@ -98,4 +116,60 @@ public class LoHang_DTO {
     public double tinhThanhTien() {
         return giaNhap * soLuongNhap;
     }
+
+    public String getTrangThaiText() {
+        return switch (trangThai) {
+            case TT_CHO -> CHO;
+            case TT_HOAN_THANH -> HOAN_THANH;
+            case TT_HUY -> HUY;
+            default -> "Không xác định";
+        };
+    }
+    public String getTrangThaiTonKhoText() {
+        return switch (trangThaiTonKho) {
+            case TK_BINH_THUONG -> BINH_THUONG;
+            case TK_SAP_HET_HAN -> SAP_HET_HAN;
+            case TK_HET_HAN -> HET_HAN;
+            case TK_HET_HANG -> HET_HANG;
+            default -> "Không xác định";
+        };
+    }
+    public void setTrangThaiFromText(String text) {
+        if (text == null) return;
+        switch (text) {
+            case CHO -> this.trangThai = TT_CHO;
+            case HOAN_THANH -> this.trangThai = TT_HOAN_THANH;
+            case HUY -> this.trangThai = TT_HUY;
+        }
+    }
+    public void setTrangThaiTonKhoFromText(String text) {
+        if (text == null) return;
+        switch (text) {
+            case BINH_THUONG -> this.trangThaiTonKho = TK_BINH_THUONG;
+            case SAP_HET_HAN -> this.trangThaiTonKho = TK_SAP_HET_HAN;
+            case HET_HAN -> this.trangThaiTonKho = TK_HET_HAN;
+            case HET_HANG -> this.trangThaiTonKho = TK_HET_HANG;
+        }
+    }
+
+    public static int parseTrangThaiFromText(String text) {
+        if (text == null) return -1;
+        return switch (text) {
+            case CHO -> TT_CHO;
+            case HOAN_THANH -> TT_HOAN_THANH;
+            case HUY -> TT_HUY;
+            default -> -1;
+        };
+    }
+    public static int parseTrangThaiTonKhoFromText(String text) {
+        if (text == null) return -1;
+        return switch (text) {
+            case BINH_THUONG -> TK_BINH_THUONG;
+            case SAP_HET_HAN -> TK_SAP_HET_HAN;
+            case HET_HAN -> TK_HET_HAN;
+            case HET_HANG -> TK_HET_HANG;
+            default -> -1;
+        };
+    }
+
 }

@@ -1,19 +1,19 @@
 package dto;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 public class KhachHang_DTO extends Nguoi_DTO {
 
-    private double diemThuong;
-    private double diemHang;
+    private int diemThuong;
+    private int diemHang;
     private String hang;
     private LocalDate ngayDKThanhVien;
 
-    // Constructor rỗng
-    public KhachHang_DTO(String ma, String ten, String ngaySinh, String diaChi, String gioiTinh, String sdt, int diemHang, int diemThuong, String hang, String ngayDK) {
+    public KhachHang_DTO(){
         super();
     }
+
+
 
     // Constructor đầy đủ
     public KhachHang_DTO(
@@ -22,8 +22,8 @@ public class KhachHang_DTO extends Nguoi_DTO {
             String sdt,
             LocalDate ngaySinh,
             boolean gioiTinh,
-            double diemThuong,
-            double diemHang,
+            int diemThuong,
+            int diemHang,
             String hang,
             LocalDate ngayDKThanhVien
     ) {
@@ -35,19 +35,20 @@ public class KhachHang_DTO extends Nguoi_DTO {
     }
 
     // ===== Getter & Setter =====
-    public double getDiemThuong() {
+
+    public int getDiemThuong() {
         return diemThuong;
     }
 
-    public void setDiemThuong(double diemThuong) {
+    public void setDiemThuong(int diemThuong) {
         this.diemThuong = diemThuong;
     }
 
-    public double getDiemHang() {
+    public int getDiemHang() {
         return diemHang;
     }
 
-    public void setDiemHang(double diemHang) {
+    public void setDiemHang(int diemHang) {
         this.diemHang = diemHang;
     }
 
