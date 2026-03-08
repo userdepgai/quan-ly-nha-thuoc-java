@@ -3,6 +3,8 @@ package dao;
 import DBConnection.DBConnection;
 import dto.ThongKeKhachHang_DTO;
 import dto.ThongKe_DTO;
+//import bus.HoaDon_BUS;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,7 +42,6 @@ public class ThongKe_DAO {
             if (maDanhMuc != null && !maDanhMuc.equalsIgnoreCase("ALL")) {
                 sql.append("AND sp.Ma_DM = ? ");
             }
-
             sql.append("GROUP BY sp.Ma_SP, sp.LoiNhuan");
 
             ps = conn.prepareStatement(sql.toString());
@@ -53,18 +54,16 @@ public class ThongKe_DAO {
 
             rs = ps.executeQuery();
             while (rs.next()) {
+                String maSP = rs.getString("Ma_SP");
                 double giaNhapDonVi = rs.getDouble("GiaNhapGoc") / rs.getInt("QuyCach");
-                double tiLeLoiNhuan = rs.getDouble("LoiNhuan");
                 int slBanLe = rs.getInt("TongSLBan");
-
-                double giaBanNiemYet = giaNhapDonVi * tiLeLoiNhuan;
-
+                //double giaBanNiemYet = HoaDon_BUS.getInstance().getGiaSanPham(maSP);
                 double tienLoiNhuan = (giaBanNiemYet - giaNhapDonVi) * slBanLe;
 
                 ThongKe_DTO dto = new ThongKe_DTO();
-                dto.setMaSanPham(rs.getString("Ma_SP"));
+                dto.setMaSanPham(maSP);
                 dto.setGiaNhap(giaNhapDonVi);
-                dto.setGiaBan(giaBanNiemYet);
+                //dto.setGiaBan(giaBanNiemYet);
                 dto.setSoLuongBan(slBanLe);
                 dto.setLoiNhuan(tienLoiNhuan);
 
@@ -83,6 +82,7 @@ public class ThongKe_DAO {
         }
         return list;
     }
+
     public List<ThongKeKhachHang_DTO> thongKeKhachHangVIP(Date tuNgay, Date denNgay, String hangThanhVien) {
         List<ThongKeKhachHang_DTO> list = new ArrayList<>();
         Connection conn = null;

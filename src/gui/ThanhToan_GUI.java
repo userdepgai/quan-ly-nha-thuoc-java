@@ -2,9 +2,7 @@ package gui;
 
 import bus.ThanhToan_BUS;
 import bus.Voucher_BUS;
-import dto.ThanhToan_DTO;
-import dto.Voucher_DTO;
-import dto.ChiTietGioHang_DTO; // Đã đổi import chuẩn
+import dto.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,13 +22,16 @@ public class ThanhToan_GUI extends JPanel {
     private JTextField textPhiVanChuyen;
     private JTextField textTongGiamGia;
     private JTextField textTongThanhToan;
-    private JButton đặtHàngButton;
+    private JButton btnDatHang;
+
+    private JScrollPane scrollDanhSachMua;
     private JPanel pnlDanhSachMua;
+
     private JButton btnSua;
     private JButton btnThemDC;
 
     private Runnable onDatHangThanhCongCallback;
-    private List<ChiTietGioHang_DTO> danhSachMua; // Đã đổi thành DTO chuẩn
+    private List<ChiTietGioHang_DTO> danhSachMua;
     private double tienHangTruocVoucher;
     private Voucher_DTO voucherApDung;
     private final double PHI_VAN_CHUYEN = 15000;
@@ -68,10 +69,17 @@ public class ThanhToan_GUI extends JPanel {
     }
 
     private void caiDatGiaoDienBanDau() {
-        if (pnlDanhSachMua != null) {
-            pnlDanhSachMua.setLayout(new BoxLayout(pnlDanhSachMua, BoxLayout.Y_AXIS));
-            pnlDanhSachMua.setBackground(Color.WHITE);
-        }
+            if (scrollDanhSachMua != null) {
+                pnlDanhSachMua = new JPanel();
+                pnlDanhSachMua.setLayout(new BoxLayout(pnlDanhSachMua, BoxLayout.Y_AXIS));
+                pnlDanhSachMua.setBackground(Color.WHITE);
+                scrollDanhSachMua.setViewportView(pnlDanhSachMua);
+
+                scrollDanhSachMua.getVerticalScrollBar().setUnitIncrement(16);
+                scrollDanhSachMua.setBorder(BorderFactory.createEmptyBorder());
+                scrollDanhSachMua.getViewport().setBackground(Color.WHITE);
+            }
+
         textTen.setEditable(false);
         textSDT.setEditable(false);
         textDiaChi.setEditable(false);
@@ -97,8 +105,6 @@ public class ThanhToan_GUI extends JPanel {
         row.setPreferredSize(new Dimension(0, 60));
         row.setBackground(Color.WHITE);
         row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-
-        // Lấy tên và giá từ Database (thông qua BUS)
         String tenSP = getTenSanPham(item.getMaSP());
         double donGia = getGiaSanPham(item.getMaSP());
 
@@ -137,18 +143,15 @@ public class ThanhToan_GUI extends JPanel {
     private void tinhToanVaHienThi() {
         double tongTienHangGocToanBo = 0;
 
-        // 1. Tính tổng tiền nguyên giá chưa áp dụng bất kỳ mã nào
         if (danhSachMua != null) {
             for (ChiTietGioHang_DTO item : danhSachMua) {
                 tongTienHangGocToanBo += (getGiaSanPham(item.getMaSP()) * item.getSoLuong());
             }
         }
 
-        // 2. Tính số tiền được giảm nhờ Khuyến Mãi Sản Phẩm bên Giỏ Hàng truyền sang
         double tongGiamGiaSanPham = tongTienHangGocToanBo - this.tienHangTruocVoucher;
         if (tongGiamGiaSanPham < 0) tongGiamGiaSanPham = 0;
 
-        // 3. Tính tiền giảm nhờ Voucher của toàn đơn hàng
         double tienGiamVoucher = 0;
         if (voucherApDung != null) {
             if (voucherApDung.getLoaiVoucher() == 0) {
@@ -168,11 +171,9 @@ public class ThanhToan_GUI extends JPanel {
         textTienHang.setText(String.format("%,.0f VNĐ", tongTienHangGocToanBo));
         textPhiVanChuyen.setText(String.format("%,.0f VNĐ", PHI_VAN_CHUYEN));
 
-        // 4. Tổng hợp tất cả tiền được giảm
         double tongTatCaGiamGia = tongGiamGiaSanPham + tienGiamVoucher;
         textTongGiamGia.setText(String.format("- %,.0f VNĐ", tongTatCaGiamGia));
 
-        // 5. Chốt sổ cuối cùng
         double tongThanhToan = tongTienHangGocToanBo + PHI_VAN_CHUYEN - tongTatCaGiamGia;
         if (tongThanhToan < 0) tongThanhToan = 0;
 
@@ -279,7 +280,6 @@ public class ThanhToan_GUI extends JPanel {
         lblQR.setPreferredSize(new Dimension(250, 250));
         lblQR.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-
         pnlCenter.add(lblTitle, BorderLayout.NORTH);
         pnlCenter.add(lblQR, BorderLayout.CENTER);
 
@@ -333,36 +333,76 @@ public class ThanhToan_GUI extends JPanel {
                 }
             });
         }
-        if (đặtHàngButton != null) {
-            đặtHàngButton.addActionListener(e -> {
-                String ten = textTen.getText().trim();
-                String sdt = textSDT.getText().trim();
-                String diaChi = textDiaChi.getText().trim();
+        btnDatHang.addActionListener(e -> {
 
-                if (ten.isEmpty() || sdt.isEmpty() || diaChi.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ Tên, Số điện thoại và Địa chỉ!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
+            String ten = textTen.getText().trim();
+            String sdt = textSDT.getText().trim();
+            String diaChi = textDiaChi.getText().trim();
 
-                if (!sdt.matches("\\d{10,11}")) {
-                    JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                int phuongThuc = comboBoxPthucTt.getSelectedIndex();
-                if (phuongThuc == 1 || phuongThuc == 2) {
-                    String tenPhuongThuc = (String) comboBoxPthucTt.getSelectedItem();
-                    hienThiDialogQR(tenPhuongThuc, ten);
-                } else {
-                    xuLyDatHangThanhCong(ten);
-                }
-            });
-        }
+            if (ten.isEmpty() || sdt.isEmpty() || diaChi.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+
+            if (!sdt.matches("\\d{10,11}")) {
+                JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ!");
+                return;
+            }
+            ThanhToan_DTO donHang = layDuLieuDonHang();
+            //boolean thanhCong = HoaDonOnline_BUS.taoHoaDonOnline(donHang);
+            //if (!thanhCong) {
+               // JOptionPane.showMessageDialog(this, "Đặt hàng thất bại!");
+               // return;
+            //}
+
+            int phuongThuc = comboBoxPthucTt.getSelectedIndex();
+
+            if (phuongThuc == 1 || phuongThuc == 2) {
+                String tenPhuongThuc = (String) comboBoxPthucTt.getSelectedItem();
+                hienThiDialogQR(tenPhuongThuc, ten);
+            } else {
+                xuLyDatHangThanhCong(ten);
+            }
+        });
     }
 
     public void setOnDatHangThanhCong(Runnable callback) {
         this.onDatHangThanhCongCallback = callback;
     }
+    public ThanhToan_DTO layDuLieuDonHang() {
 
+        ThanhToan_DTO dto = new ThanhToan_DTO();
+        dto.setTenKH(textTen.getText().trim());
+        dto.setSdt(textSDT.getText().trim());
+        dto.setDiaChiChiTiet(textDiaChi.getText().trim());
+
+        if (voucherApDung != null) {
+            dto.setMaVoucher(voucherApDung.getMa());
+        }
+
+        String tong = textTongThanhToan.getText().replaceAll("[^0-9]", "");
+        if (!tong.isEmpty()) {
+            dto.setTongThanhToan(Double.parseDouble(tong));
+        }
+
+        List<ChiTietHoaDonBan_DTO> list = new ArrayList<>();
+
+        if (danhSachMua != null) {
+            for (ChiTietGioHang_DTO item : danhSachMua) {
+                ChiTietHoaDonBan_DTO ct = new ChiTietHoaDonBan_DTO();
+                ct.setMaLo(item.getMaLo());
+                ct.setSoLuong(item.getSoLuong());
+                double gia = getGiaSanPham(item.getMaSP());
+                ct.setGiaBan(gia);
+                ct.setGiaBanSauApKM(gia);
+                ct.setThanhTien(gia * item.getSoLuong());
+                list.add(ct);
+            }
+        }
+
+        dto.setDanhSachSanPham(list);
+        return dto;
+    }
     private String getTenSanPham(String maSP) {
         dto.SanPham_DTO sp = bus.SanPham_BUS.getInstance().getById(maSP);
         if (sp != null) {
@@ -372,10 +412,6 @@ public class ThanhToan_GUI extends JPanel {
     }
 
     private double getGiaSanPham(String maSP) {
-        dto.SanPham_DTO sp = bus.SanPham_BUS.getInstance().getById(maSP);
-        if (sp != null) {
-            return sp.getLoiNhuan();
-        }
-        return 0;
+        return HoaDon_BUS.getInstance().getGiaBanSanPham(maSP);
     }
 }

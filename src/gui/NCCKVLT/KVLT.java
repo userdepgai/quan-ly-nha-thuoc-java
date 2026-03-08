@@ -20,8 +20,6 @@ import java.util.ArrayList;
 
 public class KVLT extends JPanel {
 
-    private JButton btnXuat;
-    private JButton btnNhap;
     private JTextField textLoc;
     private JComboBox comboBoxTrangThai;
     private JButton btnTimKiem;
@@ -56,6 +54,12 @@ public class KVLT extends JPanel {
             this.add(panelMain, BorderLayout.CENTER);
         }
 
+        if (comboBoxTrangThai != null) {
+            comboBoxTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{"Tất cả", "Còn trống", "Đã đầy", "Bảo trì"}));
+        }
+        if (comboBoxTthai != null) {
+            comboBoxTthai.setModel(new DefaultComboBoxModel<>(new String[]{"-- Chọn trạng thái --", "Còn trống", "Đã đầy", "Bảo trì"}));
+        }
         setupTableData();
         loadDataToTableKVLT();
         bus.refreshData();
@@ -200,9 +204,6 @@ public class KVLT extends JPanel {
             fixColumnWidth(table, 7, 120);
         }
 
-        comboBoxTthai.setModel(new DefaultComboBoxModel<>(new String[]{
-                "Còn trống", "Đã đầy", "Bảo trì"
-        }));
     }
 
     private void setupTableChiTietProperties(JTable table) {
@@ -266,7 +267,7 @@ public class KVLT extends JPanel {
         setKhoaForm(false);
         textMa.setEditable(false);
         textHienCo.setEditable(false);
-
+        textSucChua.setEditable(false);
         btnThemKV.setEnabled(false);
         btnCapNhat.setEnabled(false);
 
@@ -309,10 +310,10 @@ public class KVLT extends JPanel {
             } else {
                 textDCHI.setText("");
             }
+
             String trangThai = modelKVLT.getValueAt(modelRow, 7).toString();
-            if (trangThai.equals("Còn trống")) comboBoxTthai.setSelectedIndex(0);
-            else if (trangThai.equals("Đã đầy")) comboBoxTthai.setSelectedIndex(1);
-            else comboBoxTthai.setSelectedIndex(2);
+            comboBoxTthai.setSelectedItem(trangThai);
+
             loadChiTietSanPham(maKV);
             setViewMode();
 
@@ -329,13 +330,10 @@ public class KVLT extends JPanel {
             kv.setHienCo(0);
             kv.setNgayLapKho(new Date(System.currentTimeMillis()));
             int trangThaiValue = 0;
-            if (comboBoxTthai.getSelectedIndex() == 0) {
-                trangThaiValue = 1;
-            } else if (comboBoxTthai.getSelectedIndex() == 1) {
-                trangThaiValue = 2;
-            } else if (comboBoxTthai.getSelectedIndex() == 2) {
-                trangThaiValue = 0;
-            }
+            String selectedStatus = comboBoxTthai.getSelectedItem() != null ? comboBoxTthai.getSelectedItem().toString() : "";
+            if (selectedStatus.equals("Còn trống")) trangThaiValue = 1;
+            else if (selectedStatus.equals("Đã đầy")) trangThaiValue = 2;
+            else if (selectedStatus.equals("Bảo trì")) trangThaiValue = 0;
             kv.setTrangThai(trangThaiValue);
 
             String diaChiNhapVao = textDCHI.getText().trim();
@@ -383,14 +381,12 @@ public class KVLT extends JPanel {
             }
             kv.setTenKVLT(textTen.getText().trim());
             kv.setSucChua(Integer.parseInt(textSucChua.getText().trim()));
+
             int trangThaiValue = 0;
-            if (comboBoxTthai.getSelectedIndex() == 0) {
-                trangThaiValue = 1;
-            } else if (comboBoxTthai.getSelectedIndex() == 1) {
-                trangThaiValue = 2;
-            } else if (comboBoxTthai.getSelectedIndex() == 2) {
-                trangThaiValue = 0;
-            }
+            String selectedStatus = comboBoxTthai.getSelectedItem() != null ? comboBoxTthai.getSelectedItem().toString() : "";
+            if (selectedStatus.equals("Còn trống")) trangThaiValue = 1;
+            else if (selectedStatus.equals("Đã đầy")) trangThaiValue = 2;
+            else if (selectedStatus.equals("Bảo trì")) trangThaiValue = 0;
             kv.setTrangThai(trangThaiValue);
 
             String diaChiNhapVao = textDCHI.getText().trim();
@@ -515,9 +511,9 @@ public class KVLT extends JPanel {
             trangThaiLoc = comboBoxTrangThai.getSelectedItem().toString();
         }
 
-        if (trangThaiLoc.equals("Còn trống")) trangThaiLoc = "Còn trống";
-        else if (trangThaiLoc.equals("Đã đầy")) trangThaiLoc = "Đã đầy";
-        else if (trangThaiLoc.equals("Bảo trì")) trangThaiLoc = "Bảo trì";
+        if (trangThaiLoc.equals("Tất cả")) {
+            trangThaiLoc = "";
+        }
 
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(modelKVLT);
         tableDanhSach.setRowSorter(sorter);

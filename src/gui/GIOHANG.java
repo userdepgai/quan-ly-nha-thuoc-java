@@ -38,6 +38,7 @@ public class GIOHANG extends JPanel {
     private String maGH_HienTai = null;
 
     public GIOHANG() {
+        loadData();
         this.setLayout(new BorderLayout());
         if (MainPanel != null) {
             this.add(MainPanel, BorderLayout.CENTER);
@@ -203,7 +204,7 @@ public class GIOHANG extends JPanel {
                 }
             }
         }
-        loadData();
+
         renderGioHang();
         this.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
@@ -309,58 +310,63 @@ public class GIOHANG extends JPanel {
         JPanel card = new JPanel(new BorderLayout());
         card.setBorder(BorderFactory.createLineBorder(Color.decode("#E8B4B0"), 1));
         card.setBackground(Color.WHITE);
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
-        card.setPreferredSize(new Dimension(0, 80));
-
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
+        card.setPreferredSize(new Dimension(0, 90));
         JPanel pnlLeft = new JPanel(new GridBagLayout());
         pnlLeft.setBackground(Color.decode("#D4847D"));
-        pnlLeft.setPreferredSize(new Dimension(110, 80));
+        pnlLeft.setPreferredSize(new Dimension(110, 90));
 
         JLabel lblMa = new JLabel("<html><center><b>" + v.getMa() + "</b></center></html>");
         lblMa.setForeground(Color.WHITE);
         lblMa.setFont(new Font("Segoe UI", Font.BOLD, 14));
         pnlLeft.add(lblMa);
-
         JPanel pnlCenter = new JPanel(new BorderLayout());
         pnlCenter.setOpaque(false);
         pnlCenter.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        StringBuilder moTaBuilder = new StringBuilder("<html><b>" + v.getTen() + "</b><br>");
+        if (v.getLoaiVoucher() == 0) {
+            moTaBuilder.append("<font color='#EE4D2D'>Giảm ").append(v.getGiaTriVoucher()).append("%</font><br>");
+        } else {
+            moTaBuilder.append("<font color='#EE4D2D'>Giảm thẳng ").append(String.format("%,.0fđ", v.getGiaTriVoucher())).append("</font><br>");
+        }
 
-        String textMoTa = "<html><b>" + v.getTen() + "</b><br>"
-                + "<i><font color='#888888'>Đơn tối thiểu: " + String.format("%,.0fđ", v.getDonToiThieu()) + "</font></i></html>";
-        JLabel lblMoTa = new JLabel(textMoTa);
+        moTaBuilder.append("<i><font color='#888888'>Đơn tối thiểu: ").append(String.format("%,.0fđ", v.getDonToiThieu())).append("</font></i></html>");
+
+        JLabel lblMoTa = new JLabel(moTaBuilder.toString());
         lblMoTa.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         lblMoTa.setForeground(Color.decode("#4A4A4A"));
         pnlCenter.add(lblMoTa, BorderLayout.CENTER);
-
         JPanel pnlRight = new JPanel(new GridBagLayout());
         pnlRight.setOpaque(false);
         pnlRight.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 10));
 
         JButton btnApDung = new JButton("Dùng");
         btnApDung.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnApDung.setBackground(Color.decode("#D4847D"));
-        btnApDung.setForeground(Color.WHITE);
-        btnApDung.setFocusPainted(false);
-        btnApDung.setBorderPainted(false);
-        btnApDung.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnApDung.setPreferredSize(new Dimension(70, 35));
 
-        btnApDung.addActionListener(e -> {
-            double tongTienHienTai = layTongTienHang();
-            if (tongTienHienTai < v.getDonToiThieu()) {
-                JOptionPane.showMessageDialog(dialog,
-                        "Bạn chưa đủ điều kiện! Tổng đơn hàng tối thiểu là " + String.format("%,.0fđ", v.getDonToiThieu()),
-                        "Không thể áp dụng", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            voucherDangApDung = v;
-            tinhTongTien();
-            if (btnChonVoucher != null) btnChonVoucher.setText("🏷️ Đã áp dụng: " + v.getMa());
-            dialog.dispose();
-            JOptionPane.showMessageDialog(this, "Đã áp dụng mã " + v.getMa() + " thành công!");
-        });
+        double tongTienHienTai = layTongTienHang();
+        if (tongTienHienTai < v.getDonToiThieu() /* || v.getSoLuong() <= 0 */) {
+            btnApDung.setBackground(Color.decode("#E0E0E0"));
+            btnApDung.setForeground(Color.GRAY);
+            btnApDung.setText("Chưa đạt");
+            btnApDung.setEnabled(false);
+        } else {
+            btnApDung.setBackground(Color.decode("#D4847D"));
+            btnApDung.setForeground(Color.WHITE);
+            btnApDung.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            btnApDung.addActionListener(e -> {
+                voucherDangApDung = v;
+                tinhTongTien();
+                if (btnChonVoucher != null) {
+                    btnChonVoucher.setText("🏷️ Đã áp dụng: " + v.getMa());
+                }
+                dialog.dispose();
+                JOptionPane.showMessageDialog(pnlCenter, "Đã áp dụng mã " + v.getMa() + " thành công!");
+            });
+        }
 
+        btnApDung.setPreferredSize(new Dimension(85, 35));
         pnlRight.add(btnApDung);
+
         card.add(pnlLeft, BorderLayout.WEST);
         card.add(pnlCenter, BorderLayout.CENTER);
         card.add(pnlRight, BorderLayout.EAST);
@@ -457,10 +463,9 @@ public class GIOHANG extends JPanel {
         btnXoa.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         btnXoa.addActionListener(e -> {
-            // XÓA DƯỚI DATABASE TRƯỚC
             boolean success = ctBus.xoa(item.getMaGH(), item.getMaSP());
             if (success) {
-                // Xóa DB thành công thì mới bỏ khỏi giao diện
+
                 danhSachGioHang.remove(item);
                 mapGiaSale.remove(item);
                 kiemTraChonTatCa();
@@ -484,8 +489,6 @@ public class GIOHANG extends JPanel {
         spinSL.addChangeListener(e -> {
             int newSL = (int) spinSL.getValue();
             item.setSoLuong(newSL);
-
-            // CẬP NHẬT SỐ LƯỢNG MỚI XUỐNG DATABASE
             ctBus.capNhatSoLuong(item);
 
             double currentSalePrice = mapGiaSale.get(item);
@@ -609,10 +612,6 @@ public class GIOHANG extends JPanel {
     }
 
     private double getGiaSanPham(String maSP) {
-        dto.SanPham_DTO sp = bus.SanPham_BUS.getInstance().getById(maSP);
-        if (sp != null) {
-            return sp.getLoiNhuan();
-        }
-        return 0;
+        return HoaDon_BUS.getInstance().getGiaBanSanPham(maSP);
     }
 }

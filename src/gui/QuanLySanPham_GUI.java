@@ -12,6 +12,7 @@ import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -297,5 +298,31 @@ public class QuanLySanPham_GUI extends JPanel {
         txtAreaThuocTinhRieng.setText("");
         txtLinkHinhAnh.setText("");
     }
+    private String getRealImagePath(String path){
 
+        if(path == null || path.trim().isEmpty())
+            return null;
+
+        String realPath = path;
+
+        // sửa img -> images
+        if(path.startsWith("img/")){
+            realPath = path.replace("img/","images/");
+        }
+
+        // kiểm tra tồn tại trong project
+        File f = new File("src/" + realPath);
+
+        if(f.exists()){
+            return "src/" + realPath;   // trả về path tương đối
+        }
+
+        f = new File(realPath);
+
+        if(f.exists()){
+            return realPath;
+        }
+
+        return null;
+    }
 }

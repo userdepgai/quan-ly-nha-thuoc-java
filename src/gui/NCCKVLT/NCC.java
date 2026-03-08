@@ -69,6 +69,14 @@ public class NCC extends JPanel {
             System.out.println("Lỗi: panelMain chưa được khởi tạo!");
         }
 
+        // Khởi tạo model cho ComboBox Trạng thái đồng bộ với DTO
+        if (comboBoxTrangThai != null) {
+            comboBoxTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{"Tất cả", NhaCungCap_DTO.DANG_GIAO_DICH, NhaCungCap_DTO.NGUNG_HOP_TAC}));
+        }
+        if (comboBoxTthai != null) {
+            comboBoxTthai.setModel(new DefaultComboBoxModel<>(new String[]{"-- Chọn trạng thái --", NhaCungCap_DTO.DANG_GIAO_DICH, NhaCungCap_DTO.NGUNG_HOP_TAC}));
+        }
+
         setupTableData();
         loadDataToTable();
         setKhoaForm(true);
@@ -138,7 +146,7 @@ public class NCC extends JPanel {
         int stt = 1;
 
         for (NhaCungCap_DTO ncc : listNCC) {
-            String trangThaiText = (ncc.getTrangThai() == 1) ? "Đang Giao Dịch" : "Ngừng Hợp Tác";
+            String trangThaiText = ncc.getTrangThaiText();
             String diaChiHienThi = "";
 
             if (ncc.getDiaChi() != null && ncc.getDiaChi().getMaDiaChi() != null) {
@@ -279,7 +287,6 @@ public class NCC extends JPanel {
         btn_Luu.setVisible(true);
         btn_Huy.setVisible(true);
     }
-    // nút thêm
     private void xuLyThem() {
 
         try {
@@ -309,7 +316,8 @@ public class NCC extends JPanel {
                 ncc.setDiaChi(dc);
             }
 
-            ncc.setTrangThai(comboBoxTthai.getSelectedIndex() == 0 ? 1 : 0);
+            String selectedStatus = comboBoxTthai.getSelectedItem() != null ? comboBoxTthai.getSelectedItem().toString() : "";
+            ncc.setTrangThai(NhaCungCap_DTO.parseTrangThaiFromText(selectedStatus));
 
             if (bus.insert(ncc)) {
                 JOptionPane.showMessageDialog(this, "Thêm thành công!");
@@ -365,8 +373,8 @@ public class NCC extends JPanel {
                     ncc.setDiaChi(dc);
                 }
             }
-
-            ncc.setTrangThai(comboBoxTthai.getSelectedIndex() == 0 ? 1 : 0);
+            String selectedStatus = comboBoxTthai.getSelectedItem() != null ? comboBoxTthai.getSelectedItem().toString() : "";
+            ncc.setTrangThai(NhaCungCap_DTO.parseTrangThaiFromText(selectedStatus));
 
             if (bus.update(ncc)) {
                 JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
@@ -380,7 +388,7 @@ public class NCC extends JPanel {
             JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
         }
     }
-    // hàm gọi sự kiện
+
     private void addEvents() {
         tableDanhSach.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
@@ -529,9 +537,8 @@ public class NCC extends JPanel {
 
         Object objDC = modelNCC.getValueAt(modelRow, 6);
         textDCHI.setText(objDC != null ? objDC.toString() : "");
-
         String trangThai = modelNCC.getValueAt(modelRow, 7).toString();
-        comboBoxTthai.setSelectedIndex(trangThai.equals("Đang Giao Dịch") ? 0 : 1);
+        comboBoxTthai.setSelectedItem(trangThai);
 
         modelSP.setRowCount(0);
         lamMoiFormSanPham();
@@ -555,6 +562,11 @@ public class NCC extends JPanel {
 
         if (comboBoxTrangThai.getSelectedItem() != null) {
             trangThaiLoc = comboBoxTrangThai.getSelectedItem().toString();
+        }
+
+        // Sửa Lọc: Loại trừ việc lọc theo chuỗi "Tất cả"
+        if (trangThaiLoc.equals("Tất cả")) {
+            trangThaiLoc = "";
         }
 
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(modelNCC);
@@ -779,6 +791,5 @@ public class NCC extends JPanel {
     }
 
     private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 }
