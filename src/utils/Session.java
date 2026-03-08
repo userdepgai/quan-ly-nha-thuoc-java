@@ -1,4 +1,5 @@
 package utils;
+import bus.PhanQuyenChucNang_BUS;
 import dto.TaiKhoan_DTO;
 public class Session {
     private static TaiKhoan_DTO currentUser;
@@ -16,7 +17,15 @@ public class Session {
         return currentUser != null;
     }
     public static boolean isCustomer() {
-        return currentUser != null &&
-                currentUser.getMaQuyen().equals("Q001");
+        if(currentUser == null) return false;
+        return PhanQuyenChucNang_BUS
+                .getInstance()
+                .hasPermission(currentUser.getMaQuyen(),"CUAHANG") && currentUser.getMaQuyen().equalsIgnoreCase("Q001");
+    }
+    public static boolean hasFunction(String maCN) {
+        if(currentUser == null) return false;
+        return PhanQuyenChucNang_BUS
+                .getInstance()
+                .hasPermission(currentUser.getMaQuyen(), maCN);
     }
 }
