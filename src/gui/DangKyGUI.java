@@ -3,13 +3,25 @@ package gui;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import com.toedter.calendar.JDateChooser;
+
+import java.time.LocalDate;
+import java.util.Date;
+import java.time.ZoneId;
+
+import dto.*;
+import bus.*;
 
 public class DangKyGUI extends JFrame {
     private JButton btnTaoTK;
     private JButton btnBack;
     private JTextField txtSDT;
     private JTextField txtHoTen;
-    private JTextField txtNgaySinh;
+    private JDateChooser dateNgaySinh;
+    private JPasswordField txtMatKhau;
+    private JPasswordField txtXacNhan;
+    private JRadioButton rdoNam;
+    private JRadioButton rdoNu;
 
     public DangKyGUI() {
         setTitle("Đăng ký - Nhà Thuốc Xì Trum");
@@ -34,12 +46,14 @@ public class DangKyGUI extends JFrame {
         txtSDT = createField("Số điện thoại");
         txtHoTen = createField("Họ và tên");
 
-        txtNgaySinh = new JTextField();
-        txtNgaySinh.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        txtNgaySinh.setBorder(BorderFactory.createTitledBorder("Ngày sinh (dd/MM/yy)"));
+        dateNgaySinh = new JDateChooser();
+        dateNgaySinh.setDateFormatString("dd/MM/yyyy");
+        dateNgaySinh.setBorder(BorderFactory.createTitledBorder("Ngày sinh"));
+        dateNgaySinh.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        JRadioButton rdoNam = new JRadioButton("Nam");
-        JRadioButton rdoNu = new JRadioButton("Nữ");
+        rdoNam = new JRadioButton("Nam");
+        rdoNu = new JRadioButton("Nữ");
+
         rdoNam.setBackground(Color.WHITE);
         rdoNu.setBackground(Color.WHITE);
 
@@ -54,11 +68,11 @@ public class DangKyGUI extends JFrame {
         genderPanel.add(rdoNam);
         genderPanel.add(rdoNu);
 
-        JPasswordField txtMatKhau = new JPasswordField();
+        txtMatKhau = new JPasswordField();
         txtMatKhau.setBorder(BorderFactory.createTitledBorder("Mật khẩu"));
         txtMatKhau.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        JPasswordField txtXacNhan = new JPasswordField();
+        txtXacNhan = new JPasswordField();
         txtXacNhan.setBorder(BorderFactory.createTitledBorder("Nhập lại mật khẩu"));
         txtXacNhan.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
@@ -84,7 +98,7 @@ public class DangKyGUI extends JFrame {
         panel.add(Box.createVerticalStrut(10));
         panel.add(txtHoTen);
         panel.add(Box.createVerticalStrut(10));
-        panel.add(txtNgaySinh);
+        panel.add(dateNgaySinh);
         panel.add(Box.createVerticalStrut(10));
         panel.add(genderPanel);
         panel.add(Box.createVerticalStrut(10));
@@ -112,6 +126,91 @@ public class DangKyGUI extends JFrame {
             new DangNhapGUI().setVisible(true);
             dispose();
         });
+        btnTaoTK.addActionListener(e -> dangKy());
+    }
+    private void dangKy() {
+        if (!kiemTraDuLieu()) return;
+        KhachHang_BUS khBus = KhachHang_BUS.getInstance();
+        TaiKhoan_BUS tkBus = TaiKhoan_BUS.getInstance();
+
+        String sdt = txtSDT.getText().trim();
+        String ten = txtHoTen.getText().trim();
+        String matKhau = new String(txtMatKhau.getPassword());
+
+        TaiKhoan_DTO tkTonTai = tkBus.getBySDT(sdt);
+
+        if (tkTonTai != null && tkTonTai.getMaQuyen().equals("Q001")) {
+            JOptionPane.showMessageDialog(this, "Số điện thoại đã đăng ký tài khoản khách hàng");
+            return;
+        }
+
+        KhachHang_DTO kh = khBus.getBysdt(sdt);
+        if (kh == null) {
+            Date date = dateNgaySinh.getDate();
+            LocalDate ngaySinh = date.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            kh = new KhachHang_DTO();
+            kh.setMa(khBus.getNextId());
+            kh.setTen(ten);
+            kh.setSdt(sdt);
+            kh.setNgaySinh(ngaySinh);
+            kh.setGioiTinh(rdoNam.isSelected());
+            kh.setNgayDKThanhVien(LocalDate.now());
+            kh.setDiemHang(0);
+            kh.setDiemThuong(0);
+            kh.setHang("DONG");
+            if (!khBus.kiemTraHopLe(kh))
+                return;
+            if (!khBus.them(kh)) {
+                JOptionPane.showMessageDialog(this, "Tạo khách hàng thất bại");
+                return;
+            }
+        }
+
+        TaiKhoan_DTO tk = new TaiKhoan_DTO();
+
+        tk.setMaTK(tkBus.getNextID());
+        tk.setSdt(sdt);
+        tk.setMatKhau(matKhau);
+        tk.setMaQuyen("Q001");
+        tk.setNgayKichHoat(LocalDate.now());
+        tk.setTrangThai(TaiKhoan_DTO.TT_MO);
+        if (!tkBus.them(tk)) {
+            JOptionPane.showMessageDialog(this,"Tạo tài khoản thất bại");
+            return;
+        }
+        JOptionPane.showMessageDialog(this,"Đăng ký thành công");
+        new DangNhapGUI().setVisible(true);
+        dispose();
+    }
+    private boolean kiemTraDuLieu() {
+        String sdt = txtSDT.getText().trim();
+        String ten = txtHoTen.getText().trim();
+        Date ngaySinh = dateNgaySinh.getDate();
+        String matKhau = new String(txtMatKhau.getPassword());
+        String xacNhan = new String(txtXacNhan.getPassword());
+        if (sdt.isEmpty() || ten.isEmpty() ||  matKhau.isEmpty() || xacNhan.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin");
+            return false;
+        }
+        if (!sdt.matches("^0\\d{9}$")) {
+            JOptionPane.showMessageDialog(this, "Số điện thoại phải 10 số và bắt đầu bằng 0");
+            return false;
+        }
+        if (ngaySinh == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày sinh");
+            return false;
+        }
+        if (!rdoNam.isSelected() && !rdoNu.isSelected()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn giới tính");
+            return false;
+        }
+        if (!matKhau.equals(xacNhan)) {
+            JOptionPane.showMessageDialog(this, "Mật khẩu xác nhận không đúng");
+            return false;
+        }
+        return true;
     }
 
     public static void main(String[] args) {

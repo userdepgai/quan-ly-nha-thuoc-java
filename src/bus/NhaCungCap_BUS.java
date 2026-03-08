@@ -138,6 +138,14 @@ public class NhaCungCap_BUS {
         }
         return null;
     }
+    public NhaCungCap_DTO getByName(String tenNCC) {
+        for (NhaCungCap_DTO ncc : listCache) {
+            if (ncc.getTenNCC().equals(tenNCC)) {
+                return ncc;
+            }
+        }
+        return null;
+    }
     public String getNextId() {
         return dao.getNextId();
     }

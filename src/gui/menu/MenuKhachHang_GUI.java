@@ -2,14 +2,21 @@ package gui.menu;
 
 import javax.swing.*;
 import java.awt.*;
+
+import bus.TaiKhoan_BUS;
 import dto.MenuItem;
+import dto.TaiKhoan_DTO;
 import gui.*;
+import gui.trangChuDatHang.TrangChu_GUI;
+import utils.Session;
+
 public class MenuKhachHang_GUI extends JFrame{
 
     private JList<MenuItem> menuList;
     private DefaultListModel<MenuItem> menuModel;
     private JPanel contentPanel;
     private CardLayout cardLayout;
+    private TaiKhoan_BUS taiKhoanBus = TaiKhoan_BUS.getInstance();
     public MenuKhachHang_GUI() {
         setTitle("Trang chủ khách hàng");
         setSize(800,700);
@@ -22,17 +29,21 @@ public class MenuKhachHang_GUI extends JFrame{
     private void intitUI() {
         menuModel = new DefaultListModel<>();
 
-        menuModel.addElement(new MenuItem("Nguyễn Gia Thịnh", null, icon("account.png"), false));
+        if(Session.isLoggedIn()) {
+            menuModel.addElement(new MenuItem(getNameUser(Session.getCurrentUser().getSdt()), null, icon("account.png"), false));
+        } else {
+            menuModel.addElement(new MenuItem("Nguyễn Gia Thịnh", null, icon("account.png"), false));
+        }
+
         menuModel.addElement(new MenuItem("HỆ THỐNG", null,null,true));
         menuModel.addElement(new MenuItem("Trang chủ","trangChu",icon("dashboard.png"),false));
-        menuModel.addElement(new MenuItem("Giỏ hàng","gioHang",icon("dashboard.png"),false));
-        menuModel.addElement(new MenuItem("Chờ giao hàng","choGiaoHang",icon("dashboard.png"),false));
-        menuModel.addElement(new MenuItem("Lịch sử mua hàng","lichSuMuaHang",icon("dashboard.png"),false));
+        menuModel.addElement(new MenuItem("Giỏ hàng","gioHang",icon("gioHang.png"),false));
+        menuModel.addElement(new MenuItem("Chờ giao hàng","choGiaoHang",icon("choGiaoHang.png"),false));
+        menuModel.addElement(new MenuItem("Lịch sử mua hàng","lichSuMuaHang",icon("lichSuMuaHang.png"),false));
 
         menuModel.addElement(new MenuItem("HỒ SƠ", null, null,true));
-        menuModel.addElement(new MenuItem("Thông tin cá nhân", "thongTinCaNhan", icon("khachHang.png"),false));
-        menuModel.addElement(new MenuItem("Địa chỉ", "diaChi", icon("nhanVien.png"),false));
-        menuModel.addElement(new MenuItem("Đổi mật khẩu", "doiMatKhau", icon("nhaCungCap.png"),false));
+        menuModel.addElement(new MenuItem("Thông tin cá nhân", "thongTinCaNhan", icon("nhanVien.png"),false));
+        menuModel.addElement(new MenuItem("Đổi mật khẩu", "doiMatKhau", icon("doiMatKhau.png"),false));
 
         menuModel.addElement(new MenuItem("Đăng xuất", "dangXuat", icon("logout.png"), false));
 
@@ -51,13 +62,13 @@ public class MenuKhachHang_GUI extends JFrame{
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
-        contentPanel.add(createContent("Gio hang"), "gioHang");
+        contentPanel.add(new TrangChu_GUI(),"trangChu");
+        contentPanel.add(new GIOHANG().getMainPanel(), "gioHang");
         contentPanel.add(createContent("Cho giao hang"),"choGiaoHang");
         contentPanel.add(createContent("Lich su mua hang"),"lichSuMuaHang");
 
         contentPanel.add(new ThongTinCaNhanKhachHang_GUI(),"thongTinCaNhan");
-        contentPanel.add(createContent("Dia chi"),"diaChi");
-        contentPanel.add(createContent("Doi mat khau"),"doiMatKhau");
+        contentPanel.add(new DoiMatKhau_GUI(),"doiMatKhau");
 
         menuList.addListSelectionListener(e -> {
             if(!e.getValueIsAdjusting()) {
@@ -74,6 +85,7 @@ public class MenuKhachHang_GUI extends JFrame{
                             dispose();
                             new DangNhapGUI().setVisible(true);
                         }
+                        Session.clear();
                         return;
                     }
                     cardLayout.show(contentPanel, item.cardName);
@@ -103,6 +115,10 @@ public class MenuKhachHang_GUI extends JFrame{
 
     private Icon icon(String name) {
          return new ImageIcon(getClass().getResource("/icons/" + name));
+    }
+
+    private String getNameUser(String sdt) {
+        return taiKhoanBus.getNameKhachHang(sdt);
     }
 
     public static void main(String[] args) {

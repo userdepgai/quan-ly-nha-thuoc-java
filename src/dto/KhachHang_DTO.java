@@ -9,6 +9,10 @@ public class KhachHang_DTO extends Nguoi_DTO {
     private String hang;
     private LocalDate ngayDKThanhVien;
 
+    public KhachHang_DTO(){
+        super();
+    }
+
     // Constructor rỗng
     public KhachHang_DTO() {
         super();

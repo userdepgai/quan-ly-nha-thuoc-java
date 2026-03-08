@@ -133,7 +133,6 @@ public class NhanVien_BUS {
         return dao.getDiaChiByMaDC(maDC);
     }
     public NhanVien_DTO getBysdt(String sdt) {
-
         for (NhanVien_DTO nv : listCache) {
             if (nv.getSdt().equals(sdt)) {
                 return nv;
