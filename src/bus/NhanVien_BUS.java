@@ -58,35 +58,37 @@ public class NhanVien_BUS {
     public boolean kiemTraHopLe(NhanVien_DTO nv, boolean isUpdate) {
 
         if (nv.getTen().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null,"Tên không được để trống");
+            JOptionPane.showMessageDialog(null, "Tên không được để trống");
             return false;
         }
 
         if (!nv.getSdt().matches("\\d{10}")) {
-            JOptionPane.showMessageDialog(null,"SĐT phải 10 số");
+            JOptionPane.showMessageDialog(null, "SĐT phải 10 số");
             return false;
         }
 
+        // ===== KIỂM TRA TRÙNG SĐT =====
         for (NhanVien_DTO item : listCache) {
 
             if (item.getSdt().equals(nv.getSdt())) {
 
-                if (isUpdate && item.getMa().equals(nv.getMa()))
+                // Nếu là cập nhật và là chính nó thì bỏ qua
+                if (isUpdate && item.getMa().equals(nv.getMa())) {
                     continue;
+                }
 
-                JOptionPane.showMessageDialog(null,"SĐT đã tồn tại");
+                JOptionPane.showMessageDialog(null, "SĐT đã tồn tại");
                 return false;
             }
         }
 
         if (nv.getLuongCoBan() < 0) {
-            JOptionPane.showMessageDialog(null,"Lương không hợp lệ");
+            JOptionPane.showMessageDialog(null, "Lương không hợp lệ");
             return false;
         }
 
         return true;
     }
-
     // ================= TÌM KIẾM =================
 
     public ArrayList<NhanVien_DTO> timKiem(String keyword,
@@ -128,7 +130,14 @@ public class NhanVien_BUS {
 
         return result;
     }
+    public NhanVien_DTO getById(String maNV) {
 
+        for (NhanVien_DTO nv : listCache) {
+            if (nv.getMa().equals(maNV))
+                return nv;
+        }
+        return null;
+    }
     public String getDiaChiByMaDC(String maDC) {
         return dao.getDiaChiByMaDC(maDC);
     }

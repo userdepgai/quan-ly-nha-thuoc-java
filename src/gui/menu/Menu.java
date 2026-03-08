@@ -6,7 +6,9 @@ import java.awt.*;
 import bus.TaiKhoan_BUS;
 import dto.MenuItem;
 import gui.*;
+import gui.HOADON_GUI.DuyetDonHang_GUI;
 import gui.HOADON_GUI.LapHoaDon_GUI;
+import gui.HOADON_GUI.QuanLyHoaDonBan_GUI;
 import gui.HOADON_GUI.XuatHoaDon_GUI;
 import gui.NCCKVLT.KVLT;
 import gui.NCCKVLT.NCC;
@@ -58,8 +60,8 @@ public class Menu extends JFrame {
         menuModel.addElement(new MenuItem("Nhà cung cấp", "nhacungcap", icon("nhaCungCap.png"),false));
 
         menuModel.addElement(new MenuItem("DANH MỤC & SẢN PHẨM", null, null,true));
-        menuModel.addElement(new MenuItem("Danh mục sản phẩm", "danhMuc", icon("danhMuc.png"),false));
-        menuModel.addElement(new MenuItem("Thuộc tính danh mục", "thuocTinhDanhMuc", icon("thuocTinhDanhMuc.png"),false));
+        menuModel.addElement(new MenuItem("Danh mục", "danhMuc", icon("danhMuc.png"),false));
+        menuModel.addElement(new MenuItem("Thuộc tính", "thuocTinhDanhMuc", icon("thuocTinhDanhMuc.png"),false));
         menuModel.addElement(new MenuItem("Quản lý sản phẩm", "sanPham", icon("sanPham.png"),false));
 
         menuModel.addElement(new MenuItem("KHO & LƯU TRỮ", null, null,true));
@@ -136,12 +138,23 @@ public class Menu extends JFrame {
         contentPanel.add(new BAOCAOTK(), "baocao_tonkho");
         contentPanel.add(new BAOCAODOANHTHU(), "baocao_doanhthu");
 
-        contentPanel.add(new LapHoaDon_GUI(), "banhang");
-        contentPanel.add(createContent("Duyệt hóa đơn online"), "duyethd");
-        contentPanel.add(new XuatHoaDon_GUI(), "hoadon");
+
+        QuanLyHoaDonBan_GUI qlHoaDonGUI = new QuanLyHoaDonBan_GUI();
+        LapHoaDon_GUI lapHoaDonGUI = new LapHoaDon_GUI();
+        DuyetDonHang_GUI duyetDonGUI = new DuyetDonHang_GUI();
+        lapHoaDonGUI.setOnHoaDonSaved(() -> {
+            qlHoaDonGUI.reloadDanhSach();
+        });
+        duyetDonGUI.setOnTrangThaiChanged(() -> {
+            qlHoaDonGUI.reloadDanhSach();
+        });
+
+        contentPanel.add(lapHoaDonGUI, "banhang");
+        contentPanel.add(duyetDonGUI, "duyethd");
+        contentPanel.add(qlHoaDonGUI, "hoadon");
 
         contentPanel.add(new DanhMuc_GUI(), "danhMuc");
-        contentPanel.add(new ThuocTinhDanhMuc_GUI(), "thuocTinhDanhMuc");
+        contentPanel.add(new ThuocTinh_GUI(), "thuocTinhDanhMuc");
         contentPanel.add(new QuanLySanPham_GUI(), "sanPham");
 
         contentPanel.add(new KhachHang_GUI(), "khachhang");
