@@ -37,7 +37,7 @@ public class DangNhapGUI extends JFrame {
         panel.setBorder(new EmptyBorder(30, 40, 30, 40));
         panel.setBackground(Color.WHITE);
 
-        JLabel lblTitle = new JLabel("Cái Động Bán Thuốc");
+        JLabel lblTitle = new JLabel("Nhà Thuốc Xì Trum");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -176,7 +176,7 @@ public class DangNhapGUI extends JFrame {
 
     private TaiKhoan_DTO chonTaiKhoanNeuCoNhieuQuyen(ArrayList<TaiKhoan_DTO> list) {
 
-        if (list.size() == 1 && !list.get(0).getMaQuyen().equals("Q002")) {
+        if (list.size() == 1) {
             return list.get(0);
         }
 
@@ -184,12 +184,6 @@ public class DangNhapGUI extends JFrame {
         TaiKhoan_DTO tkNhanVien = null;
 
         for (TaiKhoan_DTO tk : list) {
-
-            if(tk.getMaQuyen().equals("Q002")) {
-                tkKhach = tk;
-                tkNhanVien = tk;
-            }
-            else {
                 boolean isCustomer = Session.isCustomer();
 
                 if (isCustomer) {
@@ -197,7 +191,6 @@ public class DangNhapGUI extends JFrame {
                 } else {
                     tkNhanVien = tk;
                 }
-            }
         }
 
         String[] options = {"Đăng nhập Khách hàng", "Đăng nhập Nhân viên"};
@@ -223,7 +216,7 @@ public class DangNhapGUI extends JFrame {
                 PhanQuyenChucNang_BUS
                         .getInstance()
                         .hasPermission(tk.getMaQuyen(),"CUAHANG");
-        if (isCustomer && !tk.getMaQuyen().equals("Q002")) {
+        if (isCustomer) {
             new MenuKhachHang_GUI().setVisible(true);
         } else {
             new Menu().setVisible(true);

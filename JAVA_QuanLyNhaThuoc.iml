@@ -10,5 +10,8 @@
     <orderEntry type="library" exported="" name="jcalendar-1.4" level="project" />
     <orderEntry type="library" exported="" name="mssql-jdbc-13.2.1.jre11" level="project" />
     <orderEntry type="library" exported="" name="itextpdf-5.5.13.4" level="project" />
+    <orderEntry type="library" exported="" name="poi-5.2.3" level="project" />
+    <orderEntry type="library" exported="" name="lib" level="project" />
+    <orderEntry type="library" exported="" name="commons-compress-1.21" level="project" />
   </component>
 </module>
