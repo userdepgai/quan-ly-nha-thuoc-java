@@ -33,7 +33,7 @@ public class QuanLyVoucher_GUI extends JPanel {
     private JTextField txtNgayBatDau;
     private JTextField txtNgayKetThuc;
     private JLabel labelNgayKetThuc;
-    private JComboBox cmbTrangThai; // ComboBox lọc trạng thái (theo thiết kế form của bạn)
+    private JComboBox cmbTrangThai;
     private JLabel labelTimKiem;
     private JComboBox cmbTimTheo;
     private JLabel labelLocTrangThai;
@@ -70,7 +70,6 @@ public class QuanLyVoucher_GUI extends JPanel {
     private JPopupMenu popupGoiY = new JPopupMenu();
 
 
-    // KHAI BÁO BUS VÀ ĐỊNH DẠNG
     private final Voucher_BUS vBUS = Voucher_BUS.getInstance();
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     private final DecimalFormat df = new DecimalFormat("#,###");
@@ -86,10 +85,8 @@ public class QuanLyVoucher_GUI extends JPanel {
         initTable_Voucher();
         initComboBox_Voucher();
 
-        // Đổ dữ liệu lên bảng
         loadDataToTable_Voucher(vBUS.getAll());
 
-        // Gắn sự kiện
         addEvents();
         setViewMode();
     }
@@ -101,21 +98,18 @@ public class QuanLyVoucher_GUI extends JPanel {
     }
 
     private void initComboBox_Voucher() {
-        // 1. Nạp dữ liệu cho ô Loại Voucher (Chi tiết) - Dùng hằng số DTO
         if (cmbLoaiVoucher != null) {
             cmbLoaiVoucher.removeAllItems();
             cmbLoaiVoucher.addItem(Voucher_DTO.PHAN_TRAM);
             cmbLoaiVoucher.addItem(Voucher_DTO.TIEN_MAT);
         }
 
-        // 2. Nạp dữ liệu cho ô Trạng thái (Chi tiết) - Dùng hằng số DTO
         if (cmbTrangThai != null) {
             cmbTrangThai.removeAllItems();
             cmbTrangThai.addItem(Voucher_DTO.DANG_AP_DUNG);
             cmbTrangThai.addItem(Voucher_DTO.NGUNG_AP_DUNG);
         }
 
-        // 3. Nạp dữ liệu cho ô Tìm theo (Bộ lọc)
         if (cmbTimTheo != null) {
             cmbTimTheo.removeAllItems();
             cmbTimTheo.addItem("Tất cả");
@@ -123,31 +117,24 @@ public class QuanLyVoucher_GUI extends JPanel {
             cmbTimTheo.addItem("Tên Voucher");
         }
 
-        // 4. Nạp dữ liệu cho ô Lọc Trạng thái (Bộ lọc phía trên)
         if (cmbLocTrangThai != null) {
             cmbLocTrangThai.removeAllItems();
             cmbLocTrangThai.addItem("Tất cả");
             cmbLocTrangThai.addItem(Voucher_DTO.DANG_AP_DUNG);
             cmbLocTrangThai.addItem(Voucher_DTO.NGUNG_AP_DUNG);
-            cmbLocTrangThai.addItem("Chưa diễn ra"); // Thêm trạng thái thông minh từ DTO
+            cmbLocTrangThai.addItem("Chưa diễn ra");
         }
 
-         //5. Nếu bạn có ComboBox Lọc Loại Voucher ở bộ lọc phía trên
-         if (cmbLocLoaiVoucher != null) {
-             cmbLocLoaiVoucher.removeAllItems();
-             cmbLocLoaiVoucher.addItem("Tất cả");
-             cmbLocLoaiVoucher.addItem(Voucher_DTO.PHAN_TRAM);
-             cmbLocLoaiVoucher.addItem(Voucher_DTO.TIEN_MAT);
-         }
+        if (cmbLocLoaiVoucher != null) {
+            cmbLocLoaiVoucher.removeAllItems();
+            cmbLocLoaiVoucher.addItem("Tất cả");
+            cmbLocLoaiVoucher.addItem(Voucher_DTO.PHAN_TRAM);
+            cmbLocLoaiVoucher.addItem(Voucher_DTO.TIEN_MAT);
+        }
     }
 
-    // ==============================================================
-    // HÀM ĐỔ DỮ LIỆU LÊN BẢNG
-    // ==============================================================
-    // Sửa: Thêm tham số ArrayList<Voucher_DTO> list vào đây
     private void loadDataToTable_Voucher(ArrayList<Voucher_DTO> list) {
         modelVoucher.setRowCount(0);
-        // Không gọi vBUS.getAll() ở đây nữa, mà dùng trực tiếp tham số 'list' truyền vào
         int stt = 1;
         for (Voucher_DTO v : list) {
             String loaiStr = v.getLoaiVoucherText();
@@ -169,15 +156,11 @@ public class QuanLyVoucher_GUI extends JPanel {
         }
     }
 
-    // ==============================================================
-    // HÀM BẮT SỰ KIỆN CLICK CHUỘT
-    // ==============================================================
 
     private void addEvents() {
         tableVoucher.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                // Không fill lại data khi đang chế độ Thêm hoặc Sửa để tránh mất dữ liệu đang nhập
                 if (isAdding || isUpdating) return;
 
                 int row = tableVoucher.getSelectedRow();
@@ -187,7 +170,6 @@ public class QuanLyVoucher_GUI extends JPanel {
             }
         });
 
-        // Các sự kiện nút bấm
         btnThem.addActionListener(e -> setAddMode());
         btnCapNhat.addActionListener(e -> {
             if (tableVoucher.getSelectedRow() < 0) {
@@ -206,7 +188,7 @@ public class QuanLyVoucher_GUI extends JPanel {
                         e.getKeyCode() != java.awt.event.KeyEvent.VK_DOWN &&
                         e.getKeyCode() != java.awt.event.KeyEvent.VK_ENTER) {
 
-                    thucHienLoc(); // Tự động lọc khi gõ
+                    thucHienLoc();
                     hienThiGoiY(vBUS.timKiemNangCao(txtNhapThongTin.getText(),
                             (String)cmbTimTheo.getSelectedItem(), "Tất cả", "Tất cả", null, null));
                 }
@@ -217,7 +199,6 @@ public class QuanLyVoucher_GUI extends JPanel {
             java.util.Date bd = jdLocNgayBatDau.getDate();
             java.util.Date kt = jdLocNgayKetThuc.getDate();
 
-            // Truyền true vào tham số cuối vì đang đổi ô StartDate
             if (!vBUS.kiemTraLogicLocNgay(bd, kt, true)) {
                 jdLocNgayBatDau.setDate(null);
             } else {
@@ -229,7 +210,6 @@ public class QuanLyVoucher_GUI extends JPanel {
             java.util.Date bd = jdLocNgayBatDau.getDate();
             java.util.Date kt = jdLocNgayKetThuc.getDate();
 
-            // Truyền false vào tham số cuối vì đang đổi ô EndDate
             if (!vBUS.kiemTraLogicLocNgay(bd, kt, false)) {
                 jdLocNgayKetThuc.setDate(null);
             } else {
@@ -237,7 +217,6 @@ public class QuanLyVoucher_GUI extends JPanel {
             }
         });
 
-        // Tự động lọc khi thay đổi các điều kiện khác
         ActionListener locAction = e -> thucHienLoc();
         cmbTimTheo.addActionListener(locAction);
         cmbLocTrangThai.addActionListener(locAction);
@@ -260,19 +239,17 @@ public class QuanLyVoucher_GUI extends JPanel {
         popupGoiY.removeAll();
         if (list.isEmpty() || txtNhapThongTin.getText().trim().isEmpty()) return;
 
-        // 1. Lấy tiêu chí tìm kiếm hiện tại từ ComboBox
         String timTheo = (String) cmbTimTheo.getSelectedItem();
 
         for (int i = 0; i < Math.min(list.size(), 5); i++) {
             Voucher_DTO v = list.get(i);
-            // Gợi ý vẫn hiện "Mã - Tên" cho người dùng dễ nhìn
             JMenuItem item = new JMenuItem(v.getMa() + " - " + v.getTen());
 
             item.addActionListener(e -> {
                 if (timTheo.equals("Tên Voucher")) {
-                    txtNhapThongTin.setText(v.getTen()); // Nếu tìm theo tên, điền Tên vào ô tìm kiếm
+                    txtNhapThongTin.setText(v.getTen());
                 } else {
-                    txtNhapThongTin.setText(v.getMa());  // Nếu tìm theo mã (hoặc Tất cả), điền Mã
+                    txtNhapThongTin.setText(v.getMa());
                 }
 
                 thucHienLoc();
@@ -284,28 +261,21 @@ public class QuanLyVoucher_GUI extends JPanel {
         txtNhapThongTin.requestFocus();
     }
 
-    // ==============================================================
-    // HÀM ĐỔ DỮ LIỆU LÊN FORM CHI TIẾT (Đã sửa lỗi hiển thị)
-    // ==============================================================
     private void fillDataFromTable(int row) {
         String ma = modelVoucher.getValueAt(row, 1).toString();
         Voucher_DTO v = vBUS.getById(ma);
         if (v == null) return;
 
-        // 1. Đổ dữ liệu text cơ bản
         txtMaVoucher.setText(v.getMa());
         txtTenVoucher.setText(v.getTen());
         txtGiaTriVoucher.setText(String.valueOf(v.getGiaTriVoucher()));
         txtDonToiThieu.setText(String.valueOf((long)v.getDonToiThieu()));
 
-        // 2. FIX LỖI HIỂN THỊ NGÀY: Đổ vào JDateChooser
         if (v.getNgayBatDau() != null) jdNgayBatDau.setDate(v.getNgayBatDau());
         if (v.getNgayKetThuc() != null) jdNgayKetThuc.setDate(v.getNgayKetThuc());
 
-        // 3. Đổ ComboBox dựa trên Text từ DTO
         cmbLoaiVoucher.setSelectedItem(v.getLoaiVoucherText());
 
-        // Xử lý Trạng thái: Nếu DTO trả về "Chưa diễn ra" -> Chọn "Đang áp dụng" trên Combo
         String ttText = v.getTrangThaiText();
         if (ttText.equals("Chưa diễn ra")) {
             cmbTrangThai.setSelectedItem(Voucher_DTO.DANG_AP_DUNG);
@@ -313,28 +283,23 @@ public class QuanLyVoucher_GUI extends JPanel {
             cmbTrangThai.setSelectedItem(ttText);
         }
 
-        // 4. HIỂN THỊ SỐ LƯỢT SỬ DỤNG
         int soLuotMax = bus.KhachHang_Voucher_BUS.getInstance().getSoLuotToiDa(v.getMa(), "KH000001");
         txtSoLuotSuDung.setText(String.valueOf(soLuotMax));
 
-        // Khóa ô mã
         txtMaVoucher.setEditable(false);
     }
     private void createUIComponents() {
-        // Khởi tạo 4 bộ chọn ngày
         jdLocNgayBatDau = new JDateChooser();
         jdLocNgayKetThuc = new JDateChooser();
         jdNgayBatDau = new JDateChooser();
         jdNgayKetThuc = new JDateChooser();
 
-        // Định dạng chung
         String format = "dd/MM/yyyy";
         jdLocNgayBatDau.setDateFormatString(format);
         jdLocNgayKetThuc.setDateFormatString(format);
         jdNgayBatDau.setDateFormatString(format);
         jdNgayKetThuc.setDateFormatString(format);
 
-        // Gắn vào các Panel (Nhớ tích chọn "Custom Create" trong .form cho 4 JPanel này)
         LocNgayBatDau = new JPanel(new BorderLayout());
         LocNgayBatDau.add(jdLocNgayBatDau);
 
@@ -353,13 +318,11 @@ public class QuanLyVoucher_GUI extends JPanel {
         String timTheo = (String) cmbTimTheo.getSelectedItem();
         String locTrangThai = (String) cmbLocTrangThai.getSelectedItem();
 
-        // Sử dụng biến mới đã đổi tên
         String locLoai = (cmbLocLoaiVoucher != null) ? (String) cmbLocLoaiVoucher.getSelectedItem() : "Tất cả";
 
         java.util.Date filterBD = jdLocNgayBatDau.getDate();
         java.util.Date filterKT = jdLocNgayKetThuc.getDate();
 
-        // Gọi BUS xử lý lọc
         ArrayList<Voucher_DTO> dsLoc = vBUS.timKiemNangCao(keyword, timTheo, locLoai, locTrangThai, filterBD, filterKT);
         loadDataToTable_Voucher(dsLoc);
         return dsLoc;
@@ -367,7 +330,6 @@ public class QuanLyVoucher_GUI extends JPanel {
 
     private void saveVoucher() {
         try {
-            // Bước 1: Kiểm tra nhập liệu thô (Check rỗng các ô bắt buộc)
             if (!validateForm()) {
                 JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ các thông tin bắt buộc!", "Thông báo", JOptionPane.WARNING_MESSAGE);
                 return;
@@ -380,20 +342,17 @@ public class QuanLyVoucher_GUI extends JPanel {
             v.setGiaTriVoucher(Double.parseDouble(txtGiaTriVoucher.getText().trim()));
             v.setDonToiThieu(Double.parseDouble(txtDonToiThieu.getText().trim()));
 
-            // Lấy ngày từ JDateChooser
             if (jdNgayBatDau.getDate() != null)
                 v.setNgayBatDau(new java.sql.Date(jdNgayBatDau.getDate().getTime()));
             if (jdNgayKetThuc.getDate() != null)
                 v.setNgayKetThuc(new java.sql.Date(jdNgayKetThuc.getDate().getTime()));
 
-            // Bước 3: Kiểm tra trạng thái dựa trên ngày (Logic trong DTO)
             String statusSelected = (String) cmbTrangThai.getSelectedItem();
             if (!v.setTrangThaiFromText(statusSelected)) {
                 JOptionPane.showMessageDialog(this, "Không thể kích hoạt Voucher vì ngày kết thúc đã qua!", "Lỗi trạng thái", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // Bước 4: Gọi BUS để thực hiện Lưu (BUS sẽ tự chạy hàm validate logic ngày tháng bên trong)
             boolean success;
             if (isAdding) {
                 int soLuot = Integer.parseInt(txtSoLuotSuDung.getText().trim());
@@ -442,9 +401,8 @@ public class QuanLyVoucher_GUI extends JPanel {
         txtGiaTriVoucher.setEditable(true);
         txtDonToiThieu.setEditable(true);
 
-        // --- CHO PHÉP NHẬP KHI THÊM MỚI ---
         txtSoLuotSuDung.setEditable(true);
-        txtSoLuotSuDung.setText("1"); // Mặc định là 1 lượt
+        txtSoLuotSuDung.setText("1");
 
         jdNgayBatDau.setEnabled(true);
         jdNgayKetThuc.setEnabled(true);

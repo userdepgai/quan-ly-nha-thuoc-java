@@ -15,8 +15,6 @@ public class KhachHang_Voucher_DAO {
         return instance;
     }
 
-    // 1. Phân phối Voucher cho TẤT CẢ khách hàng đang hoạt động (TrangThai = 1)
-    // Cập nhật theo tên bảng VOUCHERKHACHHANG và cột Ma_KH
     public boolean phanPhoiVoucherToanHeThong(String maVoucher, int soLuot) {
         String sql = "INSERT INTO VOUCHERKHACHHANG (MaVoucher, Ma_KH, SoLuongToiDa, SoLuongConLai) " +
                 "SELECT ?, Ma_KH, ?, ? FROM KHACHHANG WHERE TrangThai = 1";
@@ -36,7 +34,6 @@ public class KhachHang_Voucher_DAO {
         return false;
     }
 
-    // 2. Thêm thủ công cho 1 khách hàng
     public boolean them(KhachHang_Voucher_DTO dto) {
         String sql = "INSERT INTO VOUCHERKHACHHANG (MaVoucher, Ma_KH, SoLuongToiDa, SoLuongConLai) VALUES (?, ?, ?, ?)";
 
@@ -56,7 +53,6 @@ public class KhachHang_Voucher_DAO {
         return false;
     }
 
-    // 3. Cập nhật số lượt còn lại khi sử dụng
     public boolean capNhatLuotDung(String maVoucher, String maKH, int soLuotMoi) {
         String sql = "UPDATE VOUCHERKHACHHANG SET SoLuongConLai = ? WHERE MaVoucher = ? AND Ma_KH = ?";
 
@@ -75,7 +71,6 @@ public class KhachHang_Voucher_DAO {
         return false;
     }
 
-    // 4. Lấy danh sách Voucher của 1 khách hàng
     public ArrayList<KhachHang_Voucher_DTO> getByMaKH(String maKH) {
         ArrayList<KhachHang_Voucher_DTO> list = new ArrayList<>();
         String sql = "SELECT * FROM VOUCHERKHACHHANG WHERE Ma_KH = ?";

@@ -26,6 +26,9 @@ public class GioHang_BUS {
     public ArrayList<GioHang_DTO> getAll(){
         return listCache;
     }
+    public String getNextId(){
+        return ghDAO.getNextId();
+    }
 
     public GioHang_DTO getByMaKH(String maKH){
         for(GioHang_DTO gh : listCache){

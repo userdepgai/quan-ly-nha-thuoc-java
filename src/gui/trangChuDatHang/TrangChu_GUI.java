@@ -118,7 +118,7 @@ public class TrangChu_GUI extends JPanel {
             @Override
             protected Void doInBackground() {
                 SanPham_BUS bus = SanPham_BUS.getInstance();
-                allProducts = bus.getAll();
+                allProducts = getSPHopLe();
                 filteredProducts = new ArrayList<>(allProducts);
                 return null;
             }
@@ -138,10 +138,6 @@ public class TrangChu_GUI extends JPanel {
 
         for (int i = start; i < end; i++) {
             ProductCard card = new ProductCard(filteredProducts.get(i));
-//            card.setPreferredSize(new Dimension(230,260));
-//            card.setMaximumSize(new Dimension(230,260));
-//            card.setMinimumSize(new Dimension(230,260));
-
             productPanel.add(card);
         }
         productPanel.revalidate();
@@ -317,5 +313,21 @@ public class TrangChu_GUI extends JPanel {
 
         hienThiGoiYSanPham(list);
     }
+    private double getGiaBan(String maSP) {
+        double giaNhap = LoHang_BUS.getInstance().getGiaNhapThapNhatByMaSP(maSP);
+        return SanPham_BUS.getInstance().tinhGiaBan(maSP,giaNhap);
+    }
+    private int getSoLuongTon(String maSP) {
+        return LoHang_BUS.getInstance().getTongSPTonByMaSP(maSP);
+    }
+    private  ArrayList<SanPham_DTO> getSPHopLe() {
+        ArrayList<SanPham_DTO> list = new ArrayList<>();
 
+        ArrayList<SanPham_DTO> ds = SanPham_BUS.getInstance().getAll();
+        for (SanPham_DTO sp : ds){
+            if(getSoLuongTon(sp.getMaSP()) > 0)
+                list.add(sp);
+        }
+        return list;
+    }
 }

@@ -23,13 +23,11 @@ public class KhachHang_DiaChi_BUS {
         return instance;
     }
 
-    // ================= GET THEO KH =================
     public ArrayList<KhachHang_DiaChi_DTO> getByMaKH(String maKH) {
         listCache = khdcDao.getByMaKH(maKH);
         return listCache;
     }
 
-    // ================= THÊM =================
     public boolean them(KhachHang_DiaChi_DTO dto) {
 
         if (dto.getMaKhachHang() == null || dto.getMaKhachHang().trim().isEmpty()) {
@@ -42,7 +40,6 @@ public class KhachHang_DiaChi_BUS {
             return false;
         }
 
-        // Nếu là địa chỉ đầu tiên → tự động mặc định
         ArrayList<KhachHang_DiaChi_DTO> ds = khdcDao.getByMaKH(dto.getMaKhachHang());
         if (ds.isEmpty()) {
             dto.setTrangThai(1);
@@ -56,10 +53,8 @@ public class KhachHang_DiaChi_BUS {
         return result;
     }
 
-    // ================= XOÁ =================
     public boolean xoa(String maKH, String maDC) {
 
-        // Không cho xoá nếu là mặc định
         for (KhachHang_DiaChi_DTO dto : listCache) {
             if (dto.getMaDiaChi().equals(maDC) && dto.getTrangThai() == 1) {
                 JOptionPane.showMessageDialog(null,
@@ -76,7 +71,6 @@ public class KhachHang_DiaChi_BUS {
         return result;
     }
 
-    // ================= ĐẶT MẶC ĐỊNH =================
     public boolean datMacDinh(String maKH, String maDC) {
 
         boolean result = khdcDao.datMacDinh(maKH, maDC);
@@ -87,7 +81,6 @@ public class KhachHang_DiaChi_BUS {
         return result;
     }
 
-    // ================= GET MẶC ĐỊNH =================
     public KhachHang_DiaChi_DTO getMacDinh(String maKH) {
 
         ArrayList<KhachHang_DiaChi_DTO> ds = khdcDao.getByMaKH(maKH);
@@ -101,7 +94,6 @@ public class KhachHang_DiaChi_BUS {
         return null;
     }
 
-    // ================= REFRESH =================
     public void refreshData(String maKH) {
         listCache = khdcDao.getByMaKH(maKH);
     }

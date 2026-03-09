@@ -4,13 +4,11 @@ import java.sql.Date;
 import java.time.LocalDate;
 
 public class Voucher_DTO extends UuDai_DTO {
-    // --- HẰNG SỐ TRẠNG THÁI ---
     public static final int TT_NGUNG_AP_DUNG = 0;
     public static final int TT_DANG_AP_DUNG = 1;
     public static final String NGUNG_AP_DUNG = "Ngưng áp dụng";
     public static final String DANG_AP_DUNG = "Đang áp dụng";
 
-    // --- HẰNG SỐ LOẠI VOUCHER ---
     public static final int LOAI_PHAN_TRAM = 0;
     public static final int LOAI_TIEN_MAT = 1;
     public static final String PHAN_TRAM = "Phần trăm";
@@ -24,7 +22,6 @@ public class Voucher_DTO extends UuDai_DTO {
         super();
     }
 
-    // Constructor chuẩn hóa thứ tự để khớp với logic DAO/GUI
     public Voucher_DTO(String ma, String ten, Date ngayBatDau, Date ngayKetThuc, int trangThai,
                        int loaiVoucher, double giaTriVoucher, double donToiThieu) {
         super(ma, ten, ngayBatDau, ngayKetThuc, trangThai);
@@ -42,9 +39,6 @@ public class Voucher_DTO extends UuDai_DTO {
     public double getDonToiThieu() { return donToiThieu; }
     public void setDonToiThieu(double donToiThieu) { this.donToiThieu = donToiThieu; }
 
-    // =========================================================
-    // LOGIC TRẠNG THÁI THÔNG MINH
-    // =========================================================
     public String getTrangThaiText() {
         if (this.getTrangThai() == TT_NGUNG_AP_DUNG) return NGUNG_AP_DUNG;
 

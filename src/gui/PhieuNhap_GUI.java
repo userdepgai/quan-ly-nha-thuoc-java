@@ -5,7 +5,6 @@ import com.toedter.calendar.JDateChooser;
 import dto.ChiTietPhieuNhapKho_DTO;
 import dto.LoHang_DTO;
 import dto.PhieuNhapKho_DTO;
-import utils.Session;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -17,8 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class PhieuNhap_GUI extends JPanel {
-    private JButton button1;
-    private JButton button2;
+    private JButton btnXuatPDF;
     private JTextField txtLocMaPNK;
     private JTextField txtHienCo;
     private JComboBox cmbLocNV;

@@ -15,7 +15,6 @@ public class KhachHang_KM_DAO {
         return instance;
     }
 
-    // 1. Phân phối Khuyến mãi cho TẤT CẢ khách hàng (Dùng khi tạo mã KM mới)
     public boolean phanPhoiKMToanHeThong(String maKM, int soLuot) {
         String sql = "INSERT INTO KHUYENMAIKHACHHANG (Ma_KM, Ma_KH, SoLuongToiDa, SoLuongConLai) " +
                 "SELECT ?, Ma_KH, ?, ? FROM KHACHHANG WHERE TrangThai = 1";
@@ -35,7 +34,6 @@ public class KhachHang_KM_DAO {
         return false;
     }
 
-    // 2. Thêm thủ công cho 1 khách hàng cụ thể
     public boolean them(KhachHang_KM_DTO dto) {
         String sql = "INSERT INTO KHUYENMAIKHACHHANG (Ma_KM, Ma_KH, SoLuongToiDa, SoLuongConLai) VALUES (?, ?, ?, ?)";
 
@@ -55,7 +53,6 @@ public class KhachHang_KM_DAO {
         return false;
     }
 
-    // 3. Cập nhật số lượt còn lại (Dùng khi khách hàng thanh toán hóa đơn)
     public boolean capNhatLuotDung(String maKM, String maKH, int soLuotMoi) {
         String sql = "UPDATE KHUYENMAIKHACHHANG SET SoLuongConLai = ? WHERE Ma_KM = ? AND Ma_KH = ?";
 
@@ -74,7 +71,6 @@ public class KhachHang_KM_DAO {
         return false;
     }
 
-    // 4. Lấy danh sách khuyến mãi của 1 khách hàng (Để kiểm tra lượt dùng)
     public ArrayList<KhachHang_KM_DTO> getByMaKH(String maKH) {
         ArrayList<KhachHang_KM_DTO> list = new ArrayList<>();
         String sql = "SELECT * FROM KHUYENMAIKHACHHANG WHERE Ma_KH = ?";

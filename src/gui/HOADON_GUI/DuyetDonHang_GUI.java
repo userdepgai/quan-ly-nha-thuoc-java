@@ -323,7 +323,6 @@ public class DuyetDonHang_GUI extends JPanel{
     private void formEdit(){
 
         cbTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{
-                "Tất cả",
                 HoaDonOnline_DTO.CHO_DUYET,
                 HoaDonOnline_DTO.DA_DUYET,
                 HoaDonOnline_DTO.DANG_GIAO,
@@ -332,12 +331,15 @@ public class DuyetDonHang_GUI extends JPanel{
                 HoaDonOnline_DTO.YEU_CAU_HOAN
         }));
 
+        cbTrangThai.setSelectedIndex(-1); // để trống ban đầu
+
         cbTTTT.setModel(new DefaultComboBoxModel<>(new String[]{
-                "Tất cả",
                 HoaDonOnline_DTO.CHUA_THANH_TOAN,
                 HoaDonOnline_DTO.DA_THANH_TOAN,
                 HoaDonOnline_DTO.DA_HOAN_TIEN
         }));
+
+        cbTTTT.setSelectedIndex(-1);
 
         loadCBTimTheo();
         loadCBGia();
@@ -441,7 +443,6 @@ public class DuyetDonHang_GUI extends JPanel{
 
                 JOptionPane.showMessageDialog(null,"Cập nhật thành công!");
 
-                loadTableFromList(bus.getDanhSachDuyetOnline());
 
                 if(onTrangThaiChanged != null){
                     onTrangThaiChanged.run();
@@ -508,13 +509,32 @@ public class DuyetDonHang_GUI extends JPanel{
         String kieuTim = cbTimTheo.getSelectedItem().toString();
         String keyword = txtNhapTT.getText().trim();
 
-        Integer trangThai =
-                cbTrangThai.getSelectedIndex()==0 ? null :
-                        cbTrangThai.getSelectedIndex()-1;
+        Integer trangThai = null;
 
-        Integer thanhToan =
-                cbTTTT.getSelectedIndex()==0 ? null :
-                        cbTTTT.getSelectedIndex()-1;
+        if(cbTrangThai.getSelectedIndex() >= 0){
+
+            switch (cbTrangThai.getSelectedIndex()) {
+                case 0 -> trangThai = HoaDonOnline_DTO.TT_CHO_DUYET;
+                case 1 -> trangThai = HoaDonOnline_DTO.TT_DA_DUYET;
+                case 2 -> trangThai = HoaDonOnline_DTO.TT_DANG_GIAO;
+                case 3 -> trangThai = HoaDonOnline_DTO.TT_HOAN_THANH;
+                case 4 -> trangThai = HoaDonOnline_DTO.TT_DA_HUY;
+                case 5 -> trangThai = HoaDonOnline_DTO.TT_YEU_CAU_HOAN;
+            }
+
+        }
+
+        Integer thanhToan = null;
+
+        if(cbTTTT.getSelectedIndex() >= 0){
+
+            switch (cbTTTT.getSelectedIndex()) {
+                case 0 -> thanhToan = HoaDonOnline_DTO.TT_CHUA_THANH_TOAN;
+                case 1 -> thanhToan = HoaDonOnline_DTO.TT_DA_THANH_TOAN;
+                case 2 -> thanhToan = HoaDonOnline_DTO.TT_DA_HOAN_TIEN;
+            }
+
+        }
 
         Integer mucGia =
                 cbGia.getSelectedIndex()==0 ? null :
@@ -572,12 +592,13 @@ public class DuyetDonHang_GUI extends JPanel{
             txtNhapTT.setText("");
 
             cbTimTheo.setSelectedIndex(0);
-            cbTrangThai.setSelectedIndex(0);
-            cbTTTT.setSelectedIndex(0);
+            cbTrangThai.setSelectedIndex(-1);
+            cbTTTT.setSelectedIndex(-1);
             cbGia.setSelectedIndex(0);
 
             JDateChooser1.setDate(null);
             JDateChooser2.setDate(null);
+            popupGoiY.setVisible(false);
             modelChiTiet.setRowCount(0);
 
             loadTableFromList(bus.getDanhSachDuyetOnline());

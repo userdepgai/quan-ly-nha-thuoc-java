@@ -11,19 +11,19 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Locale;
 
 public class DanhMuc_GUI extends JPanel {
-    // --- KHAI BÁO BIẾN GIAO DIỆN ---
     private JPanel panelDanhMucSanPham;
     private JLabel labelDanhMucSanPham;
     private JTable tableDanhMuc;
     private JButton btnCapNhat;
     private JButton btnThem;
-    private JTable tableThuocTinh; // Đã sửa tên biến cho khớp logic
+    private JTable tableThuocTinh;
     private JLabel labelMaDanhMuc;
     private JLabel labelTenDanhMuc;
     private JLabel labelTrangThai;
@@ -31,7 +31,7 @@ public class DanhMuc_GUI extends JPanel {
     private JTextField txtTenDanhMuc;
     private JPanel panelBoLoc;
     private JLabel labelTimKiem;
-    private JComboBox<String> cmbTimTheo; // Không dùng nhưng giữ lại theo thiết kế
+    private JComboBox<String> cmbTimTheo;
     private JPanel panelTieuDe;
     private JPanel panelDanhSachDanhMuc;
     private JPanel panelThongTinChiTiet;
@@ -39,12 +39,12 @@ public class DanhMuc_GUI extends JPanel {
     private JPanel panelDanhSachThuocTinh;
     private JPanel panelCapNhat;
     private JLabel labelLocTrangThai;
-    private JComboBox<String> cmbTrangThai; // Combo nhập liệu
+    private JComboBox<String> cmbTrangThai;
     private JLabel labelDanhMucHienCo;
     private JTextField txtDanhMucHienCo;
-    private JComboBox<String> cmbLocTrangThai; // Combo lọc
+    private JComboBox<String> cmbLocTrangThai;
     private JLabel labelNhapThongTin;
-    private JTextField txtNhapThongTin; // Ô tìm kiếm
+    private JTextField txtNhapThongTin;
     private JButton btnTimKiem;
     private JButton btnThoat;
     private JButton btnHuy;
@@ -52,11 +52,12 @@ public class DanhMuc_GUI extends JPanel {
 
     private DefaultTableModel modelDanhMuc;
     private DefaultTableModel modelThuocTinh;
+    private JPopupMenu popupGoiY = new JPopupMenu();
 
-    // --- BIẾN LOGIC ---
     private DanhMuc_BUS dmBUS = DanhMuc_BUS.getInstance();
     private final ThuocTinhDanhMuc_BUS ttBUS = ThuocTinhDanhMuc_BUS.getInstance();
-    private String chucNangHienTai = ""; // "THEM" hoặc "SUA"
+    private boolean isAdding = false;
+    private boolean isUpdating = false;
 
     public DanhMuc_GUI() {
         this.setLayout(new BorderLayout());
@@ -64,28 +65,19 @@ public class DanhMuc_GUI extends JPanel {
             this.add(panelDanhMucSanPham, BorderLayout.CENTER);
         }
 
-        // 1. Khởi tạo bảng
         initTable_DanhMuc();
         initTable_ThuocTinh();
-
-        // 2. Khởi tạo dữ liệu cho ComboBox
         initComboBoxData();
-
-        // 3. Load dữ liệu ban đầu lên bảng
         loadDataToTable(dmBUS.getAll());
-
-        // 4. Gắn sự kiện cho các nút
         addEvents();
 
-        // 5. Khóa form ban đầu (Chỉ cho xem, không cho sửa)
-        lockForm(true);
+        setViewMode();
     }
 
-    // --- KHỞI TẠO ---
     private void initTable_DanhMuc() {
         String[] headers = {"STT", "Mã Danh Mục", "Tên Danh Mục", "Trạng Thái"};
         modelDanhMuc = new DefaultTableModel(headers, 0) {
-            @Override // Ghi đè để chặn sửa trực tiếp trên ô
+            @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
@@ -106,46 +98,43 @@ public class DanhMuc_GUI extends JPanel {
     }
 
     private void initComboBoxData() {
-        // Combo cho form nhập liệu
-        cmbTrangThai.removeAllItems();
-        cmbTrangThai.addItem("Đang hoạt động");
-        cmbTrangThai.addItem("Ngừng hoạt động");
+        cmbTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{
+                DanhMuc_DTO.HOAT_DONG,
+                DanhMuc_DTO.NGUNG_HOAT_DONG
+        }));
 
-        // Combo cho bộ lọc
-        cmbLocTrangThai.removeAllItems();
-        cmbLocTrangThai.addItem("Tất cả");
-        cmbLocTrangThai.addItem("Đang hoạt động");
-        cmbLocTrangThai.addItem("Ngừng hoạt động");
+        cmbLocTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Tất cả",
+                DanhMuc_DTO.HOAT_DONG,
+                DanhMuc_DTO.NGUNG_HOAT_DONG
+        }));
+
+        cmbTimTheo.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Tất cả", "Mã danh mục", "Tên danh mục"
+        }));
     }
 
-    // --- LOAD DỮ LIỆU ---
     private void loadDataToTable(ArrayList<DanhMuc_DTO> list) {
-        modelDanhMuc.setRowCount(0); // Xóa hết dữ liệu cũ
+        modelDanhMuc.setRowCount(0);
         int stt = 1;
         for (DanhMuc_DTO dm : list) {
             modelDanhMuc.addRow(new Object[]{
                     stt++,
                     dm.getMaDM(),
                     dm.getTenDM(),
-                    dm.getTrangThai() == 1 ? "Đang hoạt động" : "Ngừng hoạt động"
+                    dm.getTrangThaiText()
             });
         }
-        // Cập nhật số lượng hiển thị
-        if (txtDanhMucHienCo != null) {
-            txtDanhMucHienCo.setText(String.valueOf(list.size()));
-        }
+        if (txtDanhMucHienCo != null) txtDanhMucHienCo.setText(String.valueOf(list.size()));
     }
 
-    // --- LOAD DỮ LIỆU THUỘC TÍNH THEO DANH MỤC ---
     private void loadDataToTable_ThuocTinh(String maDM) {
-        modelThuocTinh.setRowCount(0); // Xóa dữ liệu cũ trên bảng thuộc tính
+        modelThuocTinh.setRowCount(0);
 
-        // Lấy danh sách thuộc tính thuộc danh mục này từ BUS
         ArrayList<ThuocTinhDanhMuc_DTO> dsTT = dmBUS.getThuocTinhByMaDM(maDM);
 
         int stt = 1;
         for (ThuocTinhDanhMuc_DTO tt : dsTT) {
-            // Chuyển đổi kiểu thuộc tính (0 -> Combobox, 1 -> Nhập giá trị)
 
             modelThuocTinh.addRow(new Object[]{
                     stt++,
@@ -156,111 +145,158 @@ public class DanhMuc_GUI extends JPanel {
         }
     }
 
-    // --- XỬ LÝ SỰ KIỆN ---
     private void addEvents() {
-        // 1. Sự kiện Click vào bảng Danh Mục
         tableDanhMuc.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                if (isAdding || isUpdating) return;
+
                 int row = tableDanhMuc.getSelectedRow();
                 if (row == -1) return;
-
                 String maDM = tableDanhMuc.getValueAt(row, 1).toString();
-
                 DanhMuc_DTO dm = dmBUS.getById(maDM);
                 if (dm != null) {
                     fillForm(dm);
-                    lockForm(true);
-
-                    // --- GỌI HÀM ĐỔ DỮ LIỆU LÊN BẢNG THUỘC TÍNH BÊN PHẢI ---
                     loadDataToTable_ThuocTinh(maDM);
                 }
             }
         });
 
-        // 2. Nút THÊM
-        btnThem.addActionListener(e -> {
-            xoaTrangForm();
-            // Tự động sinh mã mới
-            txtMaDanhMuc.setText(dmBUS.getNextId());
+        btnThem.addActionListener(e -> setAddMode());
 
-            chucNangHienTai = "THEM";
-            lockForm(false); // Mở khóa để nhập
-            txtTenDanhMuc.requestFocus();
-        });
-
-        // 3. Nút CẬP NHẬT
         btnCapNhat.addActionListener(e -> {
-            if (txtMaDanhMuc.getText().isEmpty()) {
+            if (tableDanhMuc.getSelectedRow() < 0) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn danh mục cần sửa!");
                 return;
             }
-            chucNangHienTai = "SUA";
-            lockForm(false); // Mở khóa để sửa
-            txtTenDanhMuc.requestFocus();
+            setUpdateMode();
         });
 
-        // 4. Nút LƯU
         btnLuu.addActionListener(e -> xuLyLuu());
 
-        // 5. Nút HỦY
         btnHuy.addActionListener(e -> {
-            xoaTrangForm();
-            lockForm(true);
-            chucNangHienTai = "";
+            setViewMode();
+            int row = tableDanhMuc.getSelectedRow();
+            if (row >= 0) fillForm(dmBUS.getById(tableDanhMuc.getValueAt(row, 1).toString()));
+            else xoaTrangForm();
         });
 
-        // 6. Nút TÌM KIẾM
-        btnTimKiem.addActionListener(e -> {
-            String keyword = txtNhapThongTin.getText();
-            Integer trangThai = null;
-
-            // Index 0: Tất cả, 1: Hoạt động, 2: Ngừng
-            if (cmbLocTrangThai.getSelectedIndex() == 1) trangThai = 1;
-            if (cmbLocTrangThai.getSelectedIndex() == 2) trangThai = 0;
-
-            ArrayList<DanhMuc_DTO> ketQua = dmBUS.timKiem(keyword, trangThai);
-            loadDataToTable(ketQua);
+        txtNhapThongTin.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+                if (e.getKeyCode() != java.awt.event.KeyEvent.VK_UP && e.getKeyCode() != java.awt.event.KeyEvent.VK_DOWN) {
+                    thucHienLoc();
+                    hienThiGoiY();
+                }
+            }
         });
 
-        // 7. Nút THOÁT (Hoặc Reset bộ lọc)
+        ActionListener locAction = e -> thucHienLoc();
+        cmbTimTheo.addActionListener(locAction);
+        cmbLocTrangThai.addActionListener(locAction);
+        btnTimKiem.addActionListener(locAction);
+
         btnThoat.addActionListener(e -> {
             txtNhapThongTin.setText("");
+            cmbTimTheo.setSelectedIndex(0);
             cmbLocTrangThai.setSelectedIndex(0);
             loadDataToTable(dmBUS.getAll());
         });
     }
 
-    // --- LOGIC NGHIỆP VỤ ---
+    private void setViewMode() {
+        isAdding = false;
+        isUpdating = false;
+        lockForm(true);
+    }
+
+    private void setAddMode() {
+        isAdding = true;
+        isUpdating = false;
+        xoaTrangForm();
+        txtMaDanhMuc.setText(dmBUS.getNextId());
+        lockForm(false);
+        txtTenDanhMuc.requestFocus();
+    }
+
+    private void setUpdateMode() {
+        isAdding = false;
+        isUpdating = true;
+        lockForm(false);
+        txtTenDanhMuc.requestFocus();
+    }
+
+    private void thucHienLoc() {
+        String keyword = txtNhapThongTin.getText();
+        String timTheo = (String) cmbTimTheo.getSelectedItem();
+
+        String ttStr = (String) cmbLocTrangThai.getSelectedItem();
+        Integer trangThai = ttStr.equals("Tất cả") ? null : DanhMuc_DTO.parseTrangThaiFromText(ttStr);
+
+        ArrayList<DanhMuc_DTO> dsLoc = dmBUS.timKiemNangCao(keyword, timTheo, trangThai);
+        loadDataToTable(dsLoc);
+    }
+
+    private void hienThiGoiY() {
+        popupGoiY.setVisible(false);
+        popupGoiY.removeAll();
+        String textInput = txtNhapThongTin.getText().trim();
+        if (textInput.isEmpty()) return;
+
+        String timTheo = (String) cmbTimTheo.getSelectedItem();
+        ArrayList<DanhMuc_DTO> dsGoiY = dmBUS.timKiemNangCao(textInput, timTheo, null);
+
+        if (dsGoiY.isEmpty()) return;
+
+        for (int i = 0; i < Math.min(dsGoiY.size(), 5); i++) {
+            DanhMuc_DTO dm = dsGoiY.get(i);
+            JMenuItem item = new JMenuItem(dm.getMaDM() + " - " + dm.getTenDM());
+            item.addActionListener(e -> {
+                if (timTheo.equals("Tên danh mục")) {
+                    txtNhapThongTin.setText(dm.getTenDM());
+                } else {
+                    txtNhapThongTin.setText(dm.getMaDM());
+                }
+                thucHienLoc();
+                popupGoiY.setVisible(false);
+            });
+            popupGoiY.add(item);
+        }
+        popupGoiY.show(txtNhapThongTin, 0, txtNhapThongTin.getHeight());
+        txtNhapThongTin.requestFocus();
+    }
+
     private void xuLyLuu() {
-        // Thu thập dữ liệu
+        if (txtTenDanhMuc.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên danh mục không được để trống!");
+            return;
+        }
+
         DanhMuc_DTO dm = new DanhMuc_DTO();
         dm.setMaDM(txtMaDanhMuc.getText());
         dm.setTenDM(txtTenDanhMuc.getText());
-        // Combo: 0 là "Đang hoạt động" (1), 1 là "Ngừng" (0)
-        dm.setTrangThai(cmbTrangThai.getSelectedIndex() == 0 ? 1 : 0);
+        dm.setTrangThai(DanhMuc_DTO.parseTrangThaiFromText((String) cmbTrangThai.getSelectedItem()));
 
         boolean result = false;
-        if (chucNangHienTai.equals("THEM")) {
+        if (isAdding) {
             result = dmBUS.them(dm);
-        } else if (chucNangHienTai.equals("SUA")) {
+        } else if (isUpdating) {
             result = dmBUS.capNhat(dm);
         }
 
         if (result) {
             JOptionPane.showMessageDialog(this, "Thao tác thành công!");
-            loadDataToTable(dmBUS.getAll()); // Load lại bảng
-            xoaTrangForm();
-            lockForm(true);
+            loadDataToTable(dmBUS.getAll());
+            setViewMode();
+        } else {
+            JOptionPane.showMessageDialog(this, "Thao tác thất bại!");
         }
     }
 
-    // --- HÀM HỖ TRỢ ---
     private void fillForm(DanhMuc_DTO dm) {
         txtMaDanhMuc.setText(dm.getMaDM());
         txtTenDanhMuc.setText(dm.getTenDM());
-        // 1 -> index 0, 0 -> index 1
-        cmbTrangThai.setSelectedIndex(dm.getTrangThai() == 1 ? 0 : 1);
+        cmbTrangThai.setSelectedItem(dm.getTrangThaiText());
     }
 
     private void xoaTrangForm() {
@@ -269,22 +305,16 @@ public class DanhMuc_GUI extends JPanel {
         cmbTrangThai.setSelectedIndex(0);
     }
 
-    // Hàm khóa/mở khóa các component
     private void lockForm(boolean lock) {
-        // Nếu lock = true (chế độ xem): Không cho sửa, ẩn nút Lưu/Hủy, hiện nút Thêm/Sửa
         txtTenDanhMuc.setEditable(!lock);
         cmbTrangThai.setEnabled(!lock);
-
-        // Mã luôn luôn khóa (readonly)
         txtMaDanhMuc.setEditable(false);
+
+        btnLuu.setVisible(!lock);
+        btnHuy.setVisible(!lock);
 
         btnThem.setEnabled(lock);
         btnCapNhat.setEnabled(lock);
-
-        btnLuu.setEnabled(!lock);
-        btnHuy.setEnabled(!lock);
-
-        // Khóa bảng khi đang sửa để tránh click lung tung
         tableDanhMuc.setEnabled(lock);
     }
 

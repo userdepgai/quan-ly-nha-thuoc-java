@@ -34,7 +34,6 @@ public class QuanLySanPham_GUI extends JPanel {
     private JLabel labelLoiNhuan;
     private JTextField txtLoiNhuan;
     private JLabel labelDanhMuc;
-    private JLabel labelApDungDanhMuc;
     private JLabel labelQuyCach;
     private JComboBox cmbDanhMuc;
     private JButton btnCapNhat;
@@ -72,6 +71,7 @@ public class QuanLySanPham_GUI extends JPanel {
     private JComboBox cmbKeDon;
     private JButton btnHuy;
     private JButton btnLuu;
+    private JLabel labelApDungDanhMuc;
     private DefaultTableModel modelSanPham;
 
     private JPopupMenu popupGoiY = new JPopupMenu();
@@ -112,7 +112,6 @@ public class QuanLySanPham_GUI extends JPanel {
     }
 
     private void initComboBoxData() {
-        // 1. Load Danh mục
         cmbDanhMuc.removeAllItems();
         cmbLocDanhMuc.removeAllItems();
         cmbLocDanhMuc.addItem("Tất cả");
@@ -122,11 +121,9 @@ public class QuanLySanPham_GUI extends JPanel {
             cmbLocDanhMuc.addItem(dm.getTenDM());
         }
 
-        // 2. Load ĐVT
         String[] dvt = {"Viên", "Vỉ", "Hộp", "Chai", "Tuýp", "Lọ"};
         cmbDonViTinh.setModel(new DefaultComboBoxModel<>(dvt));
 
-        // 3. Load Kê đơn (Sử dụng hằng số từ DTO)
         cmbKeDon.setModel(new DefaultComboBoxModel<>(new String[]{
                 SanPham_DTO.CO_KE_DON,
                 SanPham_DTO.KHONG_KE_DON
@@ -138,20 +135,17 @@ public class QuanLySanPham_GUI extends JPanel {
                 "Mã sản phẩm"
         }));
 
-        // Cấu hình: Lọc Lợi nhuận (Sắp xếp)
         cmbLocLoiNhuan.setModel(new DefaultComboBoxModel<>(new String[]{
                 "Không sắp xếp",
                 "Tăng dần",
                 "Giảm dần"
         }));
 
-        // 4. Load Trạng thái (Sử dụng hằng số từ DTO)
         cmbTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{
                 SanPham_DTO.DANG_BAN,
                 SanPham_DTO.NGUNG_BAN
         }));
 
-        // 5. Load Lọc trạng thái
         if (cmbLocTrangThai != null) {
             cmbLocTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{
                     "Tất cả",
@@ -224,22 +218,18 @@ public class QuanLySanPham_GUI extends JPanel {
             }
         });
 
-        // Sự kiện khi chọn các ComboBox lọc -> Tự động lọc ngay không cần bấm nút (Optional)
         cmbLocDanhMuc.addActionListener(e -> thucHienLoc());
         cmbLocTrangThai.addActionListener(e -> thucHienLoc());
         cmbLocLoiNhuan.addActionListener(e -> thucHienLoc());
 
-        // Nút Tìm kiếm
         btnTimKiem.addActionListener(e -> thucHienLoc());
 
-        // 2. Tự động lọc khi thay đổi các ComboBox
         ActionListener al = e -> thucHienLoc();
         cmbTimTheo.addActionListener(al);
         cmbLocDanhMuc.addActionListener(al);
         cmbLocTrangThai.addActionListener(al);
         cmbLocLoiNhuan.addActionListener(al);
 
-        // 3. Nút Làm mới (Thoát lọc)
         btnThoat.addActionListener(e -> {
             txtNhapThongTin.setText("");
             cmbTimTheo.setSelectedIndex(0);
@@ -249,7 +239,6 @@ public class QuanLySanPham_GUI extends JPanel {
             loadDataToTable(spBUS.getAll());
         });
 
-        // --- SỰ KIỆN COPY ẢNH VÀO PROJECT ---
         btnThemHinhAnh.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Hình ảnh", "jpg", "png", "gif"));
@@ -259,24 +248,17 @@ public class QuanLySanPham_GUI extends JPanel {
                 File sourceFile = fileChooser.getSelectedFile();
 
                 try {
-                    // 1. Xác định thư mục đích (src/images)
-                    // Lấy thư mục gốc dự án + src/images
                     String destFolder = "src/images";
                     File folder = new File(destFolder);
-                    if (!folder.exists()) folder.mkdirs(); // Tạo thư mục nếu chưa có
+                    if (!folder.exists()) folder.mkdirs();
 
-                    // 2. Tạo file đích (Giữ nguyên tên file gốc)
                     String fileName = sourceFile.getName();
                     File destFile = new File(destFolder + "/" + fileName);
 
-                    // 3. Copy file (Nếu trùng tên thì ghi đè - REPLACE_EXISTING)
                     Files.copy(sourceFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-                    // 4. Lưu đường dẫn TƯƠNG ĐỐI để đưa vào Database
-                    // Lưu ý: DB bạn đang dùng tiền tố "img/" hay "images/" thì sửa ở đây cho khớp
-                    String relativePath = "img/" + fileName;
+                    String relativePath = "images/" + fileName;
 
-                    // 5. Hiển thị lên giao diện
                     txtLinkHinhAnh.setText(relativePath);
                     updateImagePreview(relativePath);
 
@@ -291,12 +273,10 @@ public class QuanLySanPham_GUI extends JPanel {
     }
 
 
-    // 4. HÀM THỰC HIỆN LỌC NÂNG CAO (KẾT HỢP TẤT CẢ TIÊU CHÍ)
     private void thucHienLoc() {
         String keyword = txtNhapThongTin.getText().trim();
         String timTheo = (String) cmbTimTheo.getSelectedItem();
 
-        // Lấy mã Danh mục từ tên được chọn
         String tenDM = (String) cmbLocDanhMuc.getSelectedItem();
         String maDM = "Tất cả";
         if (!tenDM.equals("Tất cả")) {
@@ -308,7 +288,6 @@ public class QuanLySanPham_GUI extends JPanel {
             }
         }
 
-        // Lấy trạng thái
         String ttStr = (String) cmbLocTrangThai.getSelectedItem();
         Integer trangThai = null;
         if (!ttStr.equals("Tất cả")) {
@@ -317,10 +296,8 @@ public class QuanLySanPham_GUI extends JPanel {
 
         String sortLN = (String) cmbLocLoiNhuan.getSelectedItem();
 
-        // GỌI BUS XỬ LÝ
         ArrayList<SanPham_DTO> dsLoc = spBUS.timKiemNangCao(keyword, timTheo, maDM, trangThai, sortLN);
 
-        // Đổ dữ liệu lên bảng (Hàm này bạn đã viết ở bước trước)
         loadDataToTable(dsLoc);
     }
 
@@ -333,7 +310,6 @@ public class QuanLySanPham_GUI extends JPanel {
 
         String timTheo = (String) cmbTimTheo.getSelectedItem();
 
-        // Tận dụng hàm lọc của BUS để lấy danh sách gợi ý (bỏ qua lọc DM, TT và Sắp xếp)
         ArrayList<SanPham_DTO> dsGoiY = spBUS.timKiemNangCao(textInput, timTheo, "Tất cả", null, "Không sắp xếp");
 
         if (dsGoiY.isEmpty()) return;
@@ -348,10 +324,8 @@ public class QuanLySanPham_GUI extends JPanel {
 
             String hienThi = sp.getMaSP() + " - " + sp.getTenSP();
             JButton btnItem = new JButton(hienThi);
-            // ... (Phần Style Button và Hover effect giữ nguyên như code của bạn) ...
 
             btnItem.addActionListener(e -> {
-                // Nếu tìm theo "Tất cả" hoặc "Mã", điền Mã. Nếu tìm theo "Tên", điền Tên.
                 if (timTheo.equals("Tên sản phẩm")) {
                     txtNhapThongTin.setText(sp.getTenSP());
                 } else {
@@ -381,29 +355,30 @@ public class QuanLySanPham_GUI extends JPanel {
         txtLinkHinhAnh.setText(sp.getHinhAnh());
         updateImagePreview(sp.getHinhAnh());
 
-        // Set ComboBox dựa trên Text từ DTO (Rất gọn)
         cmbKeDon.setSelectedItem(sp.getKeDonText());
         cmbTrangThai.setSelectedItem(sp.getTrangThaiText());
 
-        // Danh mục
         DanhMuc_DTO dm = dmBUS.getById(sp.getMaDM());
         if (dm != null) cmbDanhMuc.setSelectedItem(dm.getTenDM());
 
-        // Quy cách
         QuyCach_DTO qc = qcBUS.getById(sp.getMaQC());
         if (qc != null) {
             txtSPTrongHop.setText(String.valueOf(qc.getSlTrongHop()));
             txtHopTrongThung.setText(String.valueOf(qc.getSlHopTrongThung()));
         }
 
-        // Thuộc tính riêng
         StringBuilder sb = new StringBuilder();
         ArrayList<GiaTriThuocTinh_SP_DTO> listGTSP = gtspBus.getByMaSP(sp.getMaSP());
+
         for (GiaTriThuocTinh_SP_DTO gtsp : listGTSP) {
-            ThuocTinhDanhMuc_DTO tt = ttBus.getById(gtsp.getMaThuocTinh());
-            GiaTriThuocTinh_DTO gt = gtBus.getById(gtsp.getMaGiaTri());
-            if (tt != null && gt != null) {
-                sb.append("• ").append(tt.getTenThuocTinh()).append(": ").append(gt.getNdGiaTri()).append("\n");
+            if (gtsp.getTrangThai() == GiaTriThuocTinh_SP_DTO.TT_DANG_SU_DUNG) {
+                ThuocTinhDanhMuc_DTO tt = ttBus.getById(gtsp.getMaThuocTinh());
+                GiaTriThuocTinh_DTO gt = gtBus.getById(gtsp.getMaGiaTri());
+
+                if (tt != null && gt != null) {
+                    sb.append("• ").append(tt.getTenThuocTinh()).append(": ")
+                            .append(gt.getNdGiaTri()).append("\n");
+                }
             }
         }
         txtAreaThuocTinhRieng.setText(sb.toString());
@@ -414,18 +389,15 @@ public class QuanLySanPham_GUI extends JPanel {
     private void saveSanPham() {
         if (!validateForm()) return;
 
-        // 1. Lấy dữ liệu từ form
         String maSP = txtMaSanPham.getText();
         String tenSP = txtTenSanPham.getText();
         String donViTinh = (String) cmbDonViTinh.getSelectedItem();
         double loiNhuan = Double.parseDouble(txtLoiNhuan.getText());
         String hinhAnh = txtLinkHinhAnh.getText();
 
-        // CHUYỂN ĐỔI COMBOBOX TEXT -> INT (Dùng hàm parse của DTO)
         int keDon = SanPham_DTO.parseKeDonFromText((String) cmbKeDon.getSelectedItem());
         int trangThai = SanPham_DTO.parseTrangThaiFromText((String) cmbTrangThai.getSelectedItem());
 
-        // --- LẤY THÔNG TIN QUY CÁCH TỪ GUI ---
         int slTrongHop = 0;
         int slHopTrongThung = 0;
         try {
@@ -436,7 +408,6 @@ public class QuanLySanPham_GUI extends JPanel {
             return;
         }
 
-        // Lấy mã danh mục
         String tenDM = (String) cmbDanhMuc.getSelectedItem();
         String maDM = "";
         for (DanhMuc_DTO d : dmBUS.getAll()) {
@@ -446,20 +417,15 @@ public class QuanLySanPham_GUI extends JPanel {
             }
         }
 
-        // Lưu ý: maQC để null hoặc rỗng ở đây, BUS sẽ tự tính toán dựa trên 2 số liệu kia
         SanPham_DTO sp = new SanPham_DTO(maSP, tenSP, donViTinh, loiNhuan, hinhAnh, keDon, trangThai, maDM, null);
 
-        // 2. Gọi BUS (Truyền thêm 2 tham số quy cách)
         boolean result = false;
         if (isAdding) {
-            // GỌI HÀM MỚI VỚI 3 THAM SỐ
             result = spBUS.them(sp, slTrongHop, slHopTrongThung);
         } else if (isUpdating) {
-            // GỌI HÀM MỚI VỚI 3 THAM SỐ
             result = spBUS.capNhat(sp, slTrongHop, slHopTrongThung);
         }
 
-        // 3. Phản hồi
         if (result) {
             JOptionPane.showMessageDialog(this, (isAdding ? "Thêm" : "Cập nhật") + " thành công!");
             loadDataToTable(spBUS.getAll());
@@ -521,7 +487,7 @@ public class QuanLySanPham_GUI extends JPanel {
         isUpdating = true;
         lockForm(false);
 
-        txtMaSanPham.setEditable(false); // Không sửa mã
+        txtMaSanPham.setEditable(false);
 
         tableSanPham.setEnabled(false);
         btnThem.setEnabled(false);
@@ -540,7 +506,7 @@ public class QuanLySanPham_GUI extends JPanel {
         cmbDonViTinh.setEnabled(!lock);
         cmbDanhMuc.setEnabled(!lock);
         cmbKeDon.setEnabled(!lock);
-        cmbTrangThai.setEnabled(!lock); // Cẩn thận: AddMode sẽ override cái này
+        cmbTrangThai.setEnabled(!lock);
         btnThemHinhAnh.setEnabled(!lock);
         txtAreaThuocTinhRieng.setEditable(!lock);
         txtLinkHinhAnh.setEditable(!lock);
@@ -563,7 +529,10 @@ public class QuanLySanPham_GUI extends JPanel {
     private void updateImagePreview(String path) {
         int w = labelHinhAnh.getWidth();
         int h = labelHinhAnh.getHeight();
-        if (w == 0 || h == 0) { w = 180; h = 180; }
+        if (w == 0 || h == 0) {
+            w = 180;
+            h = 180;
+        }
 
         labelHinhAnh.setText("");
         labelHinhAnh.setIcon(null);
@@ -574,22 +543,20 @@ public class QuanLySanPham_GUI extends JPanel {
         }
 
         try {
-            String realPath = path;
-            if (path.startsWith("img/")) {
-                realPath = path.replace("img/", "images/");
-            }
-            java.io.File f = new java.io.File("src/" + realPath);
+            File f = new File("src/" + path);
 
             if (!f.exists()) {
-                f = new java.io.File(realPath);
+                f = new File(path);
             }
 
             if (!f.exists()) {
-                labelHinhAnh.setText("Chưa có ảnh");
+                labelHinhAnh.setText("Không tìm thấy ảnh");
                 return;
             }
+
             ImageIcon icon = new ImageIcon(f.getAbsolutePath());
             Image img = icon.getImage();
+
             Image scaledImg = img.getScaledInstance(w, h, Image.SCALE_SMOOTH);
             labelHinhAnh.setIcon(new ImageIcon(scaledImg));
 

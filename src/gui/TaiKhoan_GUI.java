@@ -6,10 +6,7 @@ import dto.TaiKhoan_DTO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -172,6 +169,13 @@ public class TaiKhoan_GUI extends JPanel{
         btn_huy.addActionListener(e -> {
             clearForm();
             setViewMode();
+        });
+
+        btnXuatExcel.addActionListener(evt -> btnXuat(evt));
+        btnNhapExcel.addActionListener(evt -> {
+            btnNhapExcel(evt);
+            loadTableFromList(bus.getAll());
+
         });
     }
 
@@ -448,5 +452,34 @@ public class TaiKhoan_GUI extends JPanel{
     private void unlockTable() {
         table_dsTaiKhoan.setRowSelectionAllowed(true);
         table_dsTaiKhoan.setEnabled(true);
+    }
+
+    private void btnXuat(ActionEvent evt) {
+
+        JFileChooser chooser = new JFileChooser();
+        int result = chooser.showSaveDialog(this);
+
+        if(result == JFileChooser.APPROVE_OPTION){
+            String path = chooser.getSelectedFile().getAbsolutePath() + ".xlsx";
+            boolean ok = TaiKhoan_BUS.getInstance().exportExcel(path);
+
+            if(ok)
+                JOptionPane.showMessageDialog(this,"Xuất Excel thành công");
+            else
+                JOptionPane.showMessageDialog(this,"Xuất Excel thất bại");
+        }
+    }
+    private void btnNhapExcel(ActionEvent evt) {
+        JFileChooser chooser = new JFileChooser();
+        int result = chooser.showOpenDialog(this);
+        if(result == JFileChooser.APPROVE_OPTION){
+            String path = chooser.getSelectedFile().getAbsolutePath();
+            boolean ok = TaiKhoan_BUS.getInstance().importExcel(path);
+            if(ok)
+                JOptionPane.showMessageDialog(this,"Nhập Excel thành công");
+            else
+                JOptionPane.showMessageDialog(this,"Nhập Excel thất bại ( có thể do tài khoảng trùng )");
+        }
+
     }
 }

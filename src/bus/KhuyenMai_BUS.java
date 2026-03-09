@@ -57,37 +57,26 @@ public class KhuyenMai_BUS {
         return result;
     }
 
-    /**
-     * HÀM THÊM MỚI KHUYẾN MÃI (Cập nhật logic phân phối cho Khách hàng)
-     * @param km Đối tượng khuyến mãi
-     * @param soLuotSuDung Số lượt tối đa cho MỖI khách hàng (Lấy từ txtSoLuotSuDung trên GUI)
-     */
     public boolean them(KhuyenMai_DTO km, int soLuotSuDung) {
-        // 1. Kiểm tra tính hợp lệ của thông tin khuyến mãi
         if (!kiemTraHopLe(km)) return false;
 
-        // 2. Kiểm tra tính hợp lệ của số lượt sử dụng
         if (soLuotSuDung <= 0) {
             JOptionPane.showMessageDialog(null, "Số lượt sử dụng cho khách hàng phải lớn hơn 0!");
             return false;
         }
 
-        // 3. Thực hiện thêm vào bảng KHUYENMAI
         boolean resultKM = kmDao.them(km);
 
         if (resultKM) {
-            // 4. Nếu thêm KM thành công, thực hiện phân phối cho TẤT CẢ khách hàng
-            // Gọi lớp BUS KhachHang_KM đã viết ở bước trước
             boolean resultDistribute = KhachHang_KM_BUS.getInstance()
                     .phanPhoiToanHeThong(km.getMaKM(), soLuotSuDung);
 
             if (resultDistribute) {
-                refreshData(); // Cập nhật lại danh sách cache
+                refreshData();
                 return true;
             } else {
                 JOptionPane.showMessageDialog(null, "Lỗi khi phân phối lượt dùng cho khách hàng!");
-                // Vẫn return true hoặc false tùy vào việc bạn có muốn hoàn tác (rollback) KM hay không.
-                // Ở đây ta refreshData để đảm bảo UI đồng bộ.
+
                 refreshData();
                 return false;
             }
@@ -134,9 +123,6 @@ public class KhuyenMai_BUS {
         return true;
     }
 
-    /**
-     * 1. Lấy danh sách Khuyến mãi áp dụng được cho SP (Dùng cho hóa đơn)
-     */
     public ArrayList<KhuyenMai_DTO> getDSKMTheoSP(String maSP, String maDanhMuc) {
         ArrayList<KhuyenMai_DTO> result = new ArrayList<>();
         ChuongTrinhKM_BUS ctkmBus = ChuongTrinhKM_BUS.getInstance();
@@ -144,13 +130,10 @@ public class KhuyenMai_BUS {
         for (KhuyenMai_DTO km : getAll()) {
             ChuongTrinhKM_DTO ct = ctkmBus.getById(km.getMaChuongTrinh());
 
-            // KIỂM TRA LOGIC NHƯ YÊU CẦU:
-            // Phải thỏa mãn trạng thái thực tế (Cha bật + Con bật)
             if (!km.getTrangThaiThucTe(ct).equals(KhuyenMai_DTO.DANG_AP_DUNG)) {
                 continue;
             }
 
-            // Kiểm tra đối tượng áp dụng
             if (km.getDoiTuongApDung() == KhuyenMai_DTO.DT_SAN_PHAM) {
                 if (km.getMaSanPham().equals(maSP)) result.add(km);
             } else if (km.getDoiTuongApDung() == KhuyenMai_DTO.DT_DANH_MUC) {
@@ -160,14 +143,9 @@ public class KhuyenMai_BUS {
         return result;
     }
 
-
-    /**
-     * 3. Lấy danh sách KM áp dụng cho SP, sắp xếp cái nào giảm nhiều nhất lên đầu
-     */
     public ArrayList<KhuyenMai_DTO> getDSKMSapXepTotNhat(String maSP, String maDanhMuc, double giaBan) {
         ArrayList<KhuyenMai_DTO> list = getDSKMTheoSP(maSP, maDanhMuc);
 
-        // Sắp xếp giảm dần theo số tiền được giảm
         list.sort((km1, km2) -> {
             double giam1 = tinhTienGiam(km1, giaBan);
             double giam2 = tinhTienGiam(km2, giaBan);
@@ -177,9 +155,6 @@ public class KhuyenMai_BUS {
         return list;
     }
 
-    /**
-     * 5. Tìm KM theo tên
-     */
     public KhuyenMai_DTO getByTen(String tenKM) {
         for (KhuyenMai_DTO km : getAll()) {
             if (km.getTenKM().equalsIgnoreCase(tenKM)) return km;
@@ -187,14 +162,11 @@ public class KhuyenMai_BUS {
         return null;
     }
 
-    /**
-     * 7. Hàm tính toán số tiền được giảm của 1 mã KM (Helper)
-     */
     public double tinhTienGiam(KhuyenMai_DTO km, double giaBan) {
         if (km.getLoaiKhuyenMai() == KhuyenMai_DTO.LOAI_PHAN_TRAM) {
-            return giaBan * km.getGiaTriKhuyenMai(); // Ví dụ: 100k * 0.05 = 5k
+            return giaBan * km.getGiaTriKhuyenMai();
         } else {
-            return km.getGiaTriKhuyenMai(); // Giảm thẳng tiền mặt
+            return km.getGiaTriKhuyenMai();
         }
     }
 

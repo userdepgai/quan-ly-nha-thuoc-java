@@ -10,14 +10,9 @@ import java.util.ArrayList;
 
 public class UuDai_DAO {
 
-    /**
-     * Lấy toàn bộ danh sách ưu đãi (Gộp cả CTKM và Voucher)
-     * Sử dụng UNION ALL để nối 2 bảng lại với nhau
-     */
     public ArrayList<UuDai_DTO> getAll() {
         ArrayList<UuDai_DTO> list = new ArrayList<>();
 
-        // Câu lệnh SQL nối dữ liệu từ 2 bảng
         String sql = "SELECT Ma_CTKM AS Ma, Ten_CTKM AS Ten, NgayBatDau, NgayKetThuc, TrangThai FROM CHUONGTRINHKHUYENMAI " +
                 "UNION ALL " +
                 "SELECT MaVoucher AS Ma, TenVoucher AS Ten, NgayBatDau, NgayKetThuc, TrangThai FROM VOUCHER";
@@ -42,7 +37,6 @@ public class UuDai_DAO {
         return list;
     }
 
-    // Tìm ưu đãi theo mã (Tìm trong cả 2 bảng)
     public UuDai_DTO getById(String ma) {
         UuDai_DTO ud = null;
         String sql = "SELECT Ma_CTKM AS Ma, Ten_CTKM AS Ten, NgayBatDau, NgayKetThuc, TrangThai FROM CHUONGTRINHKHUYENMAI WHERE Ma_CTKM = ? " +

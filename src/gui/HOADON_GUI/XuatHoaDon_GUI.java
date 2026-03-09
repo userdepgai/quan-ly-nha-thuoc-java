@@ -34,7 +34,7 @@ public class XuatHoaDon_GUI extends JDialog{
     private JButton btnXuatBDF;
 
     public XuatHoaDon_GUI(JFrame parent) {
-        super(parent, "Xuất hóa đơn", true); // modal dialog
+        super(parent, "Xuất hóa đơn", true);
 
         setContentPane(panel_XuatHoaDon);
         setSize(500, 600);

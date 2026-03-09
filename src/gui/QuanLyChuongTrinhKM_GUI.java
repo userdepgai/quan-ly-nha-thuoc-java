@@ -65,13 +65,11 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
     private JPanel panelNgayKetThuc;
     private JButton btnHuy;
     private JButton btnLuu;
-    // ------------------------------------------
 
     private DefaultTableModel modelChuongTrinhKhuyenMai;
     private DefaultTableModel modelKhuyenMai;
     private JPopupMenu popupGoiY = new JPopupMenu();
 
-    // KHAI BÁO BUS
     private final ChuongTrinhKM_BUS ctkmBUS = ChuongTrinhKM_BUS.getInstance();
     private final KhuyenMai_BUS kmBUS = KhuyenMai_BUS.getInstance();
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -88,10 +86,8 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
         initTable_KhuyenMai();
         initComboBox();
 
-        // Đổ dữ liệu ban đầu lên bảng cha
         loadDataToTable_CTKM(ctkmBUS.getAll());
 
-        // Gắn sự kiện (Click chuột, Tìm kiếm...)
         addEvents();
         setViewMode();
     }
@@ -109,19 +105,16 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
     }
 
     private void initComboBox() {
-        // ComboBox nhập liệu: Chỉ có 2 trạng thái cơ bản để Admin chọn "Chủ đích"
         cmbTrangThai.removeAllItems();
         cmbTrangThai.addItem(ChuongTrinhKM_DTO.DANG_AP_DUNG);
         cmbTrangThai.addItem(ChuongTrinhKM_DTO.NGUNG_AP_DUNG);
 
-        // Khởi tạo ComboBox Tìm theo
         if (cmbTimTheo != null) {
             cmbTimTheo.setModel(new DefaultComboBoxModel<>(new String[]{
                     "Tất cả", "Mã chương trình", "Tên chương trình"
             }));
         }
 
-        // Cấu hình ComboBox bộ lọc Trạng thái
         if (cmbLocTrangThai != null) {
             cmbLocTrangThai.removeAllItems();
             cmbLocTrangThai.addItem("Tất cả");
@@ -131,9 +124,6 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
         }
     }
 
-    // ==========================================================
-    // HÀM 1: ĐỔ DỮ LIỆU LÊN BẢNG CHƯƠNG TRÌNH (BẢNG TRÊN)
-    // ==========================================================
     private void loadDataToTable_CTKM(ArrayList<ChuongTrinhKM_DTO> list) {
         modelChuongTrinhKhuyenMai.setRowCount(0);
         int stt = 1;
@@ -152,48 +142,37 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
         }
     }
 
-    // ==========================================================
-    // HÀM 2: ĐỔ DỮ LIỆU LÊN BẢNG CHI TIẾT KHUYẾN MÃI (BẢNG DƯỚI)
-    // ==========================================================
     private void loadDataToTable_KhuyenMai(String maCTKM) {
         modelKhuyenMai.setRowCount(0);
         ArrayList<KhuyenMai_DTO> list = kmBUS.getByMaCTKM(maCTKM);
 
         int stt = 1;
         for (KhuyenMai_DTO km : list) {
-            String trangThai = (km.getTrangThai() == 1) ? "Đang áp dụng" : "Ngưng áp dụng";
-            // Dịch thuật: 0 là Phần trăm, 1 là Tiền mặt (dựa theo logic INT đã sửa ở SQL trước đó)
-            String loaiKMStr = (km.getLoaiKhuyenMai() == 0) ? "Phần trăm" : "Tiền mặt";
 
             modelKhuyenMai.addRow(new Object[]{
                     stt++,
                     km.getMaKM(),
                     km.getTenKM(),
-                    loaiKMStr,
-                    trangThai
+                    km.getLoaiKMText(),
+                    km.getTrangThaiText()
             });
         }
     }
 
     private void addEvents() {
-        // Sự kiện click bảng Chương Trình KM
         tableChuongTrinhKhuyenMai.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int row = tableChuongTrinhKhuyenMai.getSelectedRow();
                 if (row >= 0) {
-                    // 1. Lấy mã chương trình từ cột số 1 của bảng
                     String maCT = modelChuongTrinhKhuyenMai.getValueAt(row, 1).toString();
 
-                    // 2. Gọi BUS để lấy đối tượng DTO đầy đủ (vì bảng không chứa Mô tả)
                     ChuongTrinhKM_DTO ctkmFull = ctkmBUS.getById(maCT);
 
                     if (ctkmFull != null) {
-                        // 3. Đổ dữ liệu lên các ô Textfield & ComboBox chi tiết
                         if(txtMaChuongTrinhKhuyenMai != null) txtMaChuongTrinhKhuyenMai.setText(ctkmFull.getMa());
                         if(txtTenChuongTrinhKhuyenMai != null) txtTenChuongTrinhKhuyenMai.setText(ctkmFull.getTen());
 
-                        // --- ĐỔ DỮ LIỆU MÔ TẢ ---
                         if(txtMoTa != null) txtMoTa.setText(ctkmFull.getMoTa());
 
                         jdNgayBatDau.setDate(ctkmFull.getNgayBatDau());
@@ -201,18 +180,14 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
 
                         String smartStatus = ctkmFull.getTrangThaiText();
 
-                        // Nếu chương trình hết hạn hoặc Admin đã tắt -> hiện Ngưng áp dụng
                         if (smartStatus.equals("Chưa diễn ra")) {
                             cmbTrangThai.setSelectedItem(ChuongTrinhKM_DTO.DANG_AP_DUNG);
                         } else {
                             cmbTrangThai.setSelectedItem(smartStatus);
                         }
 
-
-                        // 4. Load bảng con khuyến mãi chi tiết
                         loadDataToTable_KhuyenMai(maCT);
 
-                        // Khóa ô mã không cho sửa khi đang chọn một dòng có sẵn
                         if(txtMaChuongTrinhKhuyenMai != null) txtMaChuongTrinhKhuyenMai.setEditable(false);
                     }
                 }
@@ -233,7 +208,6 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
             clearForm();
         });
 
-        // 1. Ô nhập liệu (Gợi ý và lọc trực tiếp)
         txtNhapThongTin.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyReleased(java.awt.event.KeyEvent e) {
@@ -247,38 +221,34 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
             }
         });
 
-        // 2. Tự động lọc khi đổi ComboBox
         java.awt.event.ActionListener locAction = e -> loadDataToTable_CTKM(thucHienLoc());
         cmbLocTrangThai.addActionListener(locAction);
         cmbTimTheo.addActionListener(locAction);
 
-        // 3. Sự kiện thay đổi Ngày bắt đầu lọc
         jdLocNgayBatDau.addPropertyChangeListener("date", evt -> {
             java.util.Date bd = jdLocNgayBatDau.getDate();
             java.util.Date kt = jdLocNgayKetThuc.getDate();
 
             if (bd != null && kt != null && kt.before(bd)) {
                 JOptionPane.showMessageDialog(this, "Ngày bắt đầu không được sau ngày kết thúc!", "Lỗi chọn ngày", JOptionPane.WARNING_MESSAGE);
-                jdLocNgayBatDau.setDate(null); // Xóa ngày vừa chọn sai
+                jdLocNgayBatDau.setDate(null);
             } else {
                 loadDataToTable_CTKM(thucHienLoc());
             }
         });
 
-        // 4. Sự kiện thay đổi Ngày kết thúc lọc
         jdLocNgayKetThuc.addPropertyChangeListener("date", evt -> {
             java.util.Date bd = jdLocNgayBatDau.getDate();
             java.util.Date kt = jdLocNgayKetThuc.getDate();
 
             if (bd != null && kt != null && kt.before(bd)) {
                 JOptionPane.showMessageDialog(this, "Ngày kết thúc không được trước ngày bắt đầu!", "Lỗi chọn ngày", JOptionPane.WARNING_MESSAGE);
-                jdLocNgayKetThuc.setDate(null); // Xóa ngày vừa chọn sai
+                jdLocNgayKetThuc.setDate(null);
             } else {
                 loadDataToTable_CTKM(thucHienLoc());
             }
         });
 
-        // 5. Nút Thoát (Sửa thành Reset bộ lọc)
         btnThoat.addActionListener(e -> {
             cmbTimTheo.setSelectedIndex(0);
             cmbLocTrangThai.setSelectedIndex(0);
@@ -296,7 +266,6 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
         java.util.Date userDateBD = jdLocNgayBatDau.getDate();
         java.util.Date userDateKT = jdLocNgayKetThuc.getDate();
 
-        // Chặn logic ngay tại hàm lọc: Nếu ngày bị ngược, không trả về kết quả nào
         if (userDateBD != null && userDateKT != null && userDateKT.before(userDateBD)) {
             return new ArrayList<>();
         }
@@ -305,7 +274,6 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
         ArrayList<ChuongTrinhKM_DTO> dsLoc = new ArrayList<>();
 
         for (ChuongTrinhKM_DTO ct : dsFull) {
-            // 1. Lọc theo Từ khóa (Giữ nguyên)
             boolean matchKey = false;
             if (timTheo.equals("Tất cả")) {
                 matchKey = ct.getMa().toLowerCase().contains(keyword) || ct.getTen().toLowerCase().contains(keyword);
@@ -315,17 +283,14 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
                 matchKey = ct.getTen().toLowerCase().contains(keyword);
             }
 
-            // 2. Lọc theo Trạng thái (Giữ nguyên)
             boolean matchStatus = locTrangThai.equals("Tất cả") || ct.getTrangThaiText().equals(locTrangThai);
 
-            // 3. Lọc theo Thời gian (Overlap)
             boolean matchDate = true;
             java.sql.Date progStart = ct.getNgayBatDau();
             java.sql.Date progEnd = ct.getNgayKetThuc();
 
             if (userDateBD != null && userDateKT != null) {
-                // Logic: Chương trình phải KHÔNG kết thúc trước khi lọc bắt đầu
-                // VÀ KHÔNG bắt đầu sau khi lọc kết thúc
+
                 if (progEnd.before(userDateBD) || progStart.after(userDateKT)) {
                     matchDate = false;
                 }
@@ -351,14 +316,12 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
         for (ChuongTrinhKM_DTO ct : list) {
             if (count >= 5) break;
 
-            // Hiển thị nội dung gợi ý tùy theo "Tìm theo"
             String textHienThi = ct.getMa() + " - " + ct.getTen();
             JMenuItem item = new JMenuItem(textHienThi);
             item.setPreferredSize(new Dimension(txtNhapThongTin.getWidth(), 30));
 
             item.addActionListener(e -> {
-                // Nếu tìm theo Mã thì điền Mã, tìm theo Tên thì điền Tên
-                if (cmbTimTheo.getSelectedIndex() == 2) { // Tên chương trình
+                if (cmbTimTheo.getSelectedIndex() == 2) {
                     txtNhapThongTin.setText(ct.getTen());
                 } else {
                     txtNhapThongTin.setText(ct.getMa());
@@ -373,35 +336,29 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
         txtNhapThongTin.requestFocus();
     }
 
-    // ==========================================================
-    // HÀM TIỆN ÍCH: CHUYỂN STRING SANG SQL DATE
-    // (Dùng để lấy dữ liệu từ txtNgayBatDau khi bấm nút LƯU/THÊM)
-    // ==========================================================
     private java.sql.Date chuyenStringSangDate(String ngayStr) {
         try {
             if (ngayStr == null || ngayStr.trim().isEmpty()) return null;
-            sdf.setLenient(false); // Kiểm tra tính hợp lệ của ngày (ví dụ 32/01 sẽ lỗi)
+            sdf.setLenient(false);
             java.util.Date date = sdf.parse(ngayStr);
             return new java.sql.Date(date.getTime());
         } catch (ParseException e) {
             return null;
         }
     }
+
     private void createUIComponents() {
-        // Khởi tạo 4 bộ chọn ngày
         jdLocNgayBatDau = new JDateChooser();
         jdLocNgayKetThuc = new JDateChooser();
         jdNgayBatDau = new JDateChooser();
         jdNgayKetThuc = new JDateChooser();
 
-        // Định dạng chung
         String format = "dd/MM/yyyy";
         jdLocNgayBatDau.setDateFormatString(format);
         jdLocNgayKetThuc.setDateFormatString(format);
         jdNgayBatDau.setDateFormatString(format);
         jdNgayKetThuc.setDateFormatString(format);
 
-        // Gắn vào các Panel (Nhớ tích chọn "Custom Create" trong .form cho 4 JPanel này)
         LocNgayBatDau = new JPanel(new BorderLayout());
         LocNgayBatDau.add(jdLocNgayBatDau);
 
@@ -437,8 +394,6 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
             JOptionPane.showMessageDialog(this, "Lưu chương trình thành công!");
             loadDataToTable_CTKM(ctkmBUS.getAll());
 
-            // THÊM: Nếu đang cập nhật, load lại cả bảng khuyến mãi bên cạnh
-            // để thấy trạng thái con đã bị đổi (nếu có)
             if (!isAdding) {
                 loadDataToTable_KhuyenMai(ct.getMa());
             }
@@ -450,29 +405,23 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
         }
     }
 
-
     private boolean validateForm() {
-        // 1. Kiểm tra để trống tên chương trình
         if (txtTenChuongTrinhKhuyenMai.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Tên chương trình không được để trống!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
             txtTenChuongTrinhKhuyenMai.requestFocus();
             return false;
         }
 
-        // 2. Kiểm tra ngày bắt đầu (Trường hợp chưa chọn)
         if (jdNgayBatDau.getDate() == null) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày bắt đầu cho chương trình!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
             return false;
         }
 
-        // 3. Kiểm tra ngày kết thúc (Trường hợp chưa chọn)
         if (jdNgayKetThuc.getDate() == null) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày kết thúc cho chương trình!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
             return false;
         }
 
-        // 4. KIỂM TRA LOGIC THỜI GIAN: Ngày kết thúc không được trước ngày bắt đầu
-        // Tách riêng lỗi logic để người dùng dễ nhận biết
         if (jdNgayBatDau.getDate().after(jdNgayKetThuc.getDate())) {
             JOptionPane.showMessageDialog(this, "Lỗi: Ngày kết thúc không được trước ngày bắt đầu!", "Lỗi logic thời gian", JOptionPane.ERROR_MESSAGE);
             return false;
@@ -514,7 +463,7 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
         isUpdating = true;
         lockForm(false);
         txtMaChuongTrinhKhuyenMai.setEditable(false);
-        cmbTrangThai.setEnabled(true); // Cho phép Admin thay đổi (Bật/Tắt)
+        cmbTrangThai.setEnabled(true);
 
         btnThem.setEnabled(false);
         btnCapNhat.setEnabled(false);

@@ -1,6 +1,11 @@
 package dto;
 
 public class ThuocTinhDanhMuc_DTO {
+    public static final int TT_NGUNG_HOAT_DONG = 0;
+    public static final int TT_HOAT_DONG = 1;
+    public static final String NGUNG_HOAT_DONG = "Ngưng hoạt động";
+    public static final String HOAT_DONG = "Đang hoạt động";
+
     private String maThuocTinh;
     private String tenThuocTinh;
     private int trangThai;
@@ -47,5 +52,26 @@ public class ThuocTinhDanhMuc_DTO {
 
     public void setMaDM(String maDM) {
         this.maDM = maDM;
+    }
+
+    public String getTrangThaiText() {
+        return (this.trangThai == TT_HOAT_DONG) ? HOAT_DONG : NGUNG_HOAT_DONG;
+    }
+
+    public void setTrangThaiFromText(String text) {
+        if (HOAT_DONG.equals(text)) {
+            this.trangThai = TT_HOAT_DONG;
+        } else {
+            this.trangThai = TT_NGUNG_HOAT_DONG;
+        }
+    }
+
+    public static int parseTrangThaiFromText(String text) {
+        if (text == null) return -1;
+        return switch (text) {
+            case HOAT_DONG -> TT_HOAT_DONG;
+            case NGUNG_HOAT_DONG -> TT_NGUNG_HOAT_DONG;
+            default -> -1;
+        };
     }
 }

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 public class DanhMuc_DAO {
 
-    // 1. Lấy tất cả danh mục
     public ArrayList<DanhMuc_DTO> getAll() {
         ArrayList<DanhMuc_DTO> list = new ArrayList<>();
         String sql = "SELECT * FROM DANHMUC";
@@ -30,9 +29,7 @@ public class DanhMuc_DAO {
         return list;
     }
 
-    // 2. Tự động sinh mã tiếp theo (DM001 -> DM002...)
     public String getNextId() {
-        // Cắt chuỗi từ ký tự thứ 3, lấy 3 ký tự số
         String sql = "SELECT MAX(CAST(SUBSTRING(Ma_DM, 3, 3) AS INT)) FROM DANHMUC";
 
         try (Connection conn = DBConnection.getConnection();
@@ -41,7 +38,7 @@ public class DanhMuc_DAO {
 
             if (rs.next()) {
                 int number = rs.getInt(1);
-                if (rs.wasNull()) return "DM001"; // Nếu chưa có dữ liệu
+                if (rs.wasNull()) return "DM001";
 
                 number++;
                 return String.format("DM%03d", number);
@@ -52,7 +49,6 @@ public class DanhMuc_DAO {
         return "DM001";
     }
 
-    // 3. Thêm danh mục
     public boolean them(DanhMuc_DTO dm) {
         String sql = "INSERT INTO DANHMUC (Ma_DM, Ten_DM, TrangThai) VALUES (?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
@@ -69,7 +65,6 @@ public class DanhMuc_DAO {
         return false;
     }
 
-    // 4. Cập nhật danh mục
     public boolean capNhat(DanhMuc_DTO dm) {
         String sql = "UPDATE DANHMUC SET Ten_DM=?, TrangThai=? WHERE Ma_DM=?";
         try (Connection conn = DBConnection.getConnection();

@@ -1,20 +1,14 @@
 package gui;
 
-import bus.DanhMuc_BUS;
-import bus.GiaTriThuocTinh_BUS;
-import bus.ThuocTinhDanhMuc_BUS;
-import dto.DanhMuc_DTO;
-import dto.GiaTriThuocTinh_DTO;
-import dto.ThuocTinhDanhMuc_DTO;
-
+import bus.*;
+import dto.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 
-public class ThuocTinh_GUI extends JPanel{
+public class ThuocTinh_GUI extends JPanel {
     private JButton btnCapNhat;
     private JButton btnThem;
     private JPanel panelDanhSachThuocTinh;
@@ -42,35 +36,41 @@ public class ThuocTinh_GUI extends JPanel{
     private JComboBox cmbLocTrangThai;
     private JLabel labelMaGiaTri;
     private JLabel labelNoiDungGiaTri;
-    private JButton btnThemGiaTri;
     private JTextField txtMaGiaTri;
     private JTextField txtNDGiaTri;
     private JButton btnSuaGiaTri;
-    private JButton btnHuyGiaTri;
     private JButton btnThoat;
     private JButton btnTimKiem;
     private JTextField txtNhapThongTin;
     private JLabel labelNhapThongTin;
     private JTextField txtThuocTinhHienCo;
     private JLabel labelThuocTinhHienCo;
-    private JButton btnHuy;
-    private JButton btnLuu;
     private JLabel labelDanhMuc;
     private JComboBox cmbDanhMuc;
     private JTextField txtSanPham;
     private JLabel labelSanPham;
     private JLabel labelTrangThaiGiaTri;
     private JComboBox cmbTrangThaiGiaTri;
+    private JButton btnLuu;
+    private JButton btnHuy;
+    private JButton btnHuyGiaTri;
+    private JButton btnThemGiaTri;
     private JScrollPane tableDanhSachGiaTriThuocTinh;
 
-    private DefaultTableModel modelThuocTinh;
-    private DefaultTableModel modelGiaTriThuocTinh;
+    private DefaultTableModel modelThuocTinh, modelGiaTriThuocTinh;
+    private JPopupMenu popupGoiY = new JPopupMenu();
 
     private final DanhMuc_BUS dmBUS = DanhMuc_BUS.getInstance();
     private final ThuocTinhDanhMuc_BUS ttBUS = ThuocTinhDanhMuc_BUS.getInstance();
-    private GiaTriThuocTinh_BUS gtBUS = GiaTriThuocTinh_BUS.getInstance();
-    private final bus.GiaTriThuocTinh_SP_BUS gtSpBUS = bus.GiaTriThuocTinh_SP_BUS.getInstance();
-    private final bus.SanPham_BUS spBUS = bus.SanPham_BUS.getInstance();
+    private final GiaTriThuocTinh_BUS gtBUS = GiaTriThuocTinh_BUS.getInstance();
+    private final GiaTriThuocTinh_SP_BUS gtSpBUS = GiaTriThuocTinh_SP_BUS.getInstance();
+    private final SanPham_BUS spBUS = SanPham_BUS.getInstance();
+
+    private boolean isAdding = false;
+    private boolean isUpdating = false;
+
+    private boolean isAddingGiaTri = false;
+    private boolean isUpdatingGiaTri = false;
 
     public ThuocTinh_GUI() {
         this.setLayout(new BorderLayout());
@@ -78,164 +78,387 @@ public class ThuocTinh_GUI extends JPanel{
             this.add(panelQuanLyThuocTinh, BorderLayout.CENTER);
         }
 
-        // Khởi tạo giao diện
         initTable_ThuocTinh();
         initTable_GiaTriThuocTinh();
         initComboBox();
 
-        // Đổ dữ liệu lên bảng cha
-        loadDataToTable_ThuocTinh();
-
-        // Gắn các sự kiện (Click chuột)
+        loadDataToTable_ThuocTinh(ttBUS.getAll());
         addEvents();
+        setViewMode();
     }
 
     private void initTable_ThuocTinh() {
         String[] headers = {"STT", "Mã Thuộc Tính", "Tên Thuộc Tính", "Danh Mục", "Trạng Thái"};
-        modelThuocTinh = new DefaultTableModel(headers, 0);
+        modelThuocTinh = new DefaultTableModel(headers, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
         tableThuocTinh.setModel(modelThuocTinh);
     }
 
     private void initTable_GiaTriThuocTinh() {
         String[] headers = {"STT", "Mã Giá Trị", "Nội Dung Giá Trị", "Thuộc Tính", "Sản phẩm", "Trạng Thái"};
-        modelGiaTriThuocTinh = new DefaultTableModel(headers, 0);
+        modelGiaTriThuocTinh = new DefaultTableModel(headers, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
         tableGiaTriThuocTinh.setModel(modelGiaTriThuocTinh);
     }
 
     private void initComboBox() {
-        if(cmbTrangThai != null) {
-            cmbTrangThai.removeAllItems();
-            cmbTrangThai.addItem("Đang hoạt động");
-            cmbTrangThai.addItem("Ngưng hoạt động");
-        }
-        // Đổ danh mục từ DB vào ComboBox lọc và ComboBox nhập liệu
-        cmbDanhMuc.removeAllItems();
+        cmbTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{ThuocTinhDanhMuc_DTO.HOAT_DONG, ThuocTinhDanhMuc_DTO.NGUNG_HOAT_DONG}));
+        cmbTrangThaiGiaTri.setModel(new DefaultComboBoxModel<>(new String[]{GiaTriThuocTinh_SP_DTO.DANG_SU_DUNG, GiaTriThuocTinh_SP_DTO.NGUNG_SU_DUNG}));
+        cmbTimTheo.setModel(new DefaultComboBoxModel<>(new String[]{"Tất cả", "Mã Thuộc Tính", "Tên Thuộc Tính"}));
+        cmbLocTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{"Tất cả", ThuocTinhDanhMuc_DTO.HOAT_DONG, ThuocTinhDanhMuc_DTO.NGUNG_HOAT_DONG}));
+
         cmbLocDanhMuc.removeAllItems();
         cmbLocDanhMuc.addItem("Tất cả");
-
-        if(cmbTrangThaiGiaTri != null) {
-            cmbTrangThaiGiaTri.removeAllItems();
-            cmbTrangThaiGiaTri.addItem("Đang sử dụng");
-            cmbTrangThaiGiaTri.addItem("Ngưng sử dụng");
-        }
-
+        cmbDanhMuc.removeAllItems();
         for (DanhMuc_DTO dm : dmBUS.getAll()) {
             cmbDanhMuc.addItem(dm.getTenDM());
             cmbLocDanhMuc.addItem(dm.getTenDM());
         }
     }
 
-    private void loadDataToTable_ThuocTinh() {
-        modelThuocTinh.setRowCount(0); // Xóa trắng bảng
-        ArrayList<ThuocTinhDanhMuc_DTO> list = ttBUS.getAll();
-
+    private void loadDataToTable_ThuocTinh(ArrayList<ThuocTinhDanhMuc_DTO> list) {
+        modelThuocTinh.setRowCount(0);
         int stt = 1;
         for (ThuocTinhDanhMuc_DTO tt : list) {
-            String trangThai = (tt.getTrangThai() == 1) ? "Đang hoạt động" : "Ngưng hoạt động";
-
-            // Dịch mã Danh mục thành Tên danh mục
             DanhMuc_DTO dm = dmBUS.getById(tt.getMaDM());
-            String tenDM = (dm != null) ? dm.getTenDM() : tt.getMaDM();
-
             modelThuocTinh.addRow(new Object[]{
+                    stt++, tt.getMaThuocTinh(), tt.getTenThuocTinh(),
+                    (dm != null) ? dm.getTenDM() : tt.getMaDM(),
+                    tt.getTrangThaiText()
+            });
+        }
+        txtThuocTinhHienCo.setText(String.valueOf(list.size()));
+    }
+
+    private void loadDataToTable_GiaTriThuocTinh(String maThuocTinh) {
+        modelGiaTriThuocTinh.setRowCount(0);
+        ArrayList<GiaTriThuocTinh_SP_DTO> dsLienKet = gtSpBUS.getByMaTT(maThuocTinh);
+
+        int stt = 1;
+        for (GiaTriThuocTinh_SP_DTO lienKet : dsLienKet) {
+            GiaTriThuocTinh_DTO gtDef = gtBUS.getById(lienKet.getMaGiaTri());
+            SanPham_DTO sp = spBUS.getById(lienKet.getMaSP());
+
+            modelGiaTriThuocTinh.addRow(new Object[]{
                     stt++,
-                    tt.getMaThuocTinh(),
-                    tt.getTenThuocTinh(),
-                    tenDM,
-                    trangThai
+                    lienKet.getMaGiaTri(),
+                    (gtDef != null) ? gtDef.getNdGiaTri() : "N/A",
+                    lienKet.getMaThuocTinh(),
+                    (sp != null) ? sp.getTenSP() : lienKet.getMaSP(),
+                    lienKet.getTrangThaiText()
             });
         }
     }
 
-    private void loadDataToTable_GiaTriThuocTinh(String maThuocTinh) {
-        modelGiaTriThuocTinh.setRowCount(0); // Xóa trắng bảng dưới
-        ArrayList<GiaTriThuocTinh_DTO> list = gtBUS.getByMaThuocTinh(maThuocTinh);
-
-        int stt = 1;
-        for (GiaTriThuocTinh_DTO gt : list) {
-            String trangThai = (gt.getTrangThai() == 1) ? "Đang sử dụng" : "Ngưng sử dụng";
-
-            // --- BẮT ĐẦU ĐOẠN CODE LẤY TÊN SẢN PHẨM ---
-
-            // 1. Tìm trong bảng trung gian xem có những SP nào dùng Mã Giá Trị này
-            // (Hàm này bạn đã thêm vào BUS ở bước trước)
-            ArrayList<dto.GiaTriThuocTinh_SP_DTO> dsLienKet = gtSpBUS.getByMaGTTT(gt.getMaGiaTri());
-
-            for (dto.GiaTriThuocTinh_SP_DTO lienKet : dsLienKet) {
-                // Lấy tên sản phẩm
-                dto.SanPham_DTO sp = spBUS.getById(lienKet.getMaSP());
-                String tenSP = (sp != null) ? sp.getTenSP() : lienKet.getMaSP();
-
-                modelGiaTriThuocTinh.addRow(new Object[]{
-                        stt++,
-                        gt.getMaGiaTri(),
-                        gt.getNdGiaTri(),
-                        gt.getMaThuocTinh(),
-                        tenSP, // Hiển thị tên cụ thể của từng sản phẩm
-                        trangThai
-                });
-            }
-        }
-    }
-
-    // ==============================================================
-    // HÀM 3: BẮT SỰ KIỆN CLICK CHUỘT
-    // ==============================================================
     private void addEvents() {
-        // 1. Click vào bảng Thuộc Tính (Bảng Trên)
         tableThuocTinh.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                if (isAdding || isUpdating) return;
                 int row = tableThuocTinh.getSelectedRow();
-                if (row >= 0) {
-                    // Lấy dữ liệu từ dòng được click
-                    String maThuocTinh = modelThuocTinh.getValueAt(row, 1).toString();
-                    String tenThuocTinh = modelThuocTinh.getValueAt(row, 2).toString();
-                    String tenDM = modelThuocTinh.getValueAt(row, 3).toString();
-                    String trangThai = modelThuocTinh.getValueAt(row, 4).toString();
-
-
-
-                    // Đẩy dữ liệu lên các ô Textfield (Cập nhật thông tin chi tiết)
-                    if(txtMaDanhMuc != null) txtMaDanhMuc.setText(maThuocTinh);
-                    if(txtTenDanhMuc != null) txtTenDanhMuc.setText(tenThuocTinh);
-                    if(cmbDanhMuc != null) cmbDanhMuc.setSelectedItem(tenDM);
-                    if(cmbTrangThai != null) cmbTrangThai.setSelectedItem(trangThai);
-
-                    // Xóa trắng ô nhập của bảng con dưới
-                    if(txtMaGiaTri != null) txtMaGiaTri.setText("");
-                    if(txtNDGiaTri != null) txtNDGiaTri.setText("");
-                    if(txtSanPham != null) txtSanPham.setText("");
-                    if(cmbTrangThaiGiaTri != null) cmbTrangThaiGiaTri.setSelectedIndex(0);
-
-                    // TỰ ĐỘNG LOAD DỮ LIỆU XUỐNG BẢNG CON
-                    loadDataToTable_GiaTriThuocTinh(maThuocTinh);
-
-                    // Luôn luôn mở khóa nút Sửa để có thể chỉnh sửa nội dung/trạng thái
-                    if(btnSuaGiaTri != null) btnSuaGiaTri.setEnabled(true);
-                }
+                if (row >= 0) fillThuocTinhFromTable(row);
             }
         });
 
-        // 2. Click vào bảng Giá Trị Thuộc Tính (Bảng Dưới)
         tableGiaTriThuocTinh.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int row = tableGiaTriThuocTinh.getSelectedRow();
-                if (row >= 0) {
-                    // Lấy dữ liệu từ dòng được click
-                    String maGiaTri = modelGiaTriThuocTinh.getValueAt(row, 1).toString();
-                    String noiDung = modelGiaTriThuocTinh.getValueAt(row, 2).toString();
-                    String sanPham = modelGiaTriThuocTinh.getValueAt(row, 4).toString();
-                    String trangThaiGiaTri = modelGiaTriThuocTinh.getValueAt(row, 5).toString();
+                if (row >= 0) fillGiaTriFromTable(row);
+            }
+        });
 
-                    // Đẩy dữ liệu lên các ô text của phần "Danh sách Giá trị thuộc tính"
-                    if(txtMaGiaTri != null) txtMaGiaTri.setText(maGiaTri);
-                    if(txtNDGiaTri != null) txtNDGiaTri.setText(noiDung);
-                    if(txtSanPham != null) txtSanPham.setText(sanPham);
-                    if(cmbTrangThaiGiaTri != null) cmbTrangThaiGiaTri.setSelectedItem(trangThaiGiaTri);
+        btnThem.addActionListener(e -> setAddMode());
+        btnCapNhat.addActionListener(e -> {
+            if (tableThuocTinh.getSelectedRow() < 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn thuộc tính cần sửa!");
+                return;
+            }
+            setUpdateMode();
+        });
+
+        btnLuu.addActionListener(e -> xuLyLuu());
+        btnHuy.addActionListener(e -> { setViewMode(); resetFields(); });
+
+        txtNhapThongTin.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() != KeyEvent.VK_UP && e.getKeyCode() != KeyEvent.VK_DOWN) {
+                    thucHienLoc();
+                    hienThiGoiY();
                 }
             }
         });
+
+        ActionListener locAction = e -> thucHienLoc();
+        cmbTimTheo.addActionListener(locAction);
+        cmbLocTrangThai.addActionListener(locAction);
+        cmbLocDanhMuc.addActionListener(locAction);
+        btnTimKiem.addActionListener(locAction);
+        btnThoat.addActionListener(e -> {
+            txtNhapThongTin.setText("");
+            cmbTimTheo.setSelectedIndex(0);
+            cmbLocTrangThai.setSelectedIndex(0);
+            cmbLocDanhMuc.setSelectedIndex(0);
+            loadDataToTable_ThuocTinh(ttBUS.getAll());
+        });
+        btnThemGiaTri.addActionListener(e -> {
+            if (!isAddingGiaTri) {
+                if (txtMaDanhMuc.getText().isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Vui lòng chọn Thuộc tính ở bảng trên trước!");
+                    return;
+                }
+                setGiaTriAddMode();
+            } else {
+                xuLyLuuGiaTri(true);
+            }
+        });
+
+        btnSuaGiaTri.addActionListener(e -> {
+            if (!isUpdatingGiaTri) {
+                if (tableGiaTriThuocTinh.getSelectedRow() < 0) {
+                    JOptionPane.showMessageDialog(this, "Vui lòng chọn giá trị cần sửa ở bảng dưới!");
+                    return;
+                }
+                setGiaTriUpdateMode();
+            } else {
+                xuLyLuuGiaTri(false);
+            }
+        });
+
+        btnHuyGiaTri.addActionListener(e -> {
+            setGiaTriViewMode();
+            int row = tableGiaTriThuocTinh.getSelectedRow();
+            if (row >= 0) fillGiaTriFromTable(row);
+        });
+    }
+
+    private void fillThuocTinhFromTable(int row) {
+        String maTT = modelThuocTinh.getValueAt(row, 1).toString();
+        ThuocTinhDanhMuc_DTO tt = ttBUS.getById(maTT);
+        if (tt == null) return;
+
+        txtMaDanhMuc.setText(tt.getMaThuocTinh());
+        txtTenDanhMuc.setText(tt.getTenThuocTinh());
+        cmbTrangThai.setSelectedItem(tt.getTrangThaiText());
+
+        DanhMuc_DTO dm = dmBUS.getById(tt.getMaDM());
+        if (dm != null) cmbDanhMuc.setSelectedItem(dm.getTenDM());
+
+        loadDataToTable_GiaTriThuocTinh(maTT);
+    }
+
+    private void fillGiaTriFromTable(int row) {
+        txtMaGiaTri.setText(modelGiaTriThuocTinh.getValueAt(row, 1).toString());
+        txtNDGiaTri.setText(modelGiaTriThuocTinh.getValueAt(row, 2).toString());
+        txtSanPham.setText(modelGiaTriThuocTinh.getValueAt(row, 4).toString());
+        cmbTrangThaiGiaTri.setSelectedItem(modelGiaTriThuocTinh.getValueAt(row, 5).toString());
+    }
+
+    private void thucHienLoc() {
+        String keyword = txtNhapThongTin.getText().trim();
+        String timTheo = (String) cmbTimTheo.getSelectedItem();
+
+        String tenDM = (String) cmbLocDanhMuc.getSelectedItem();
+        String maDM = null;
+        if (!tenDM.equals("Tất cả")) {
+            for(DanhMuc_DTO d : dmBUS.getAll()) if(d.getTenDM().equals(tenDM)) maDM = d.getMaDM();
+        }
+
+        String ttStr = (String) cmbLocTrangThai.getSelectedItem();
+        Integer trangThai = ttStr.equals("Tất cả") ? null : ThuocTinhDanhMuc_DTO.parseTrangThaiFromText(ttStr);
+
+        ArrayList<ThuocTinhDanhMuc_DTO> dsLoc = ttBUS.timKiemNangCao(keyword, timTheo, maDM, trangThai);
+        loadDataToTable_ThuocTinh(dsLoc);
+    }
+
+    private void hienThiGoiY() {
+        popupGoiY.setVisible(false); popupGoiY.removeAll();
+        String text = txtNhapThongTin.getText().trim();
+        if (text.isEmpty()) return;
+
+        String timTheo = (String) cmbTimTheo.getSelectedItem();
+        ArrayList<ThuocTinhDanhMuc_DTO> ds = ttBUS.timKiemNangCao(text, timTheo, null, null);
+
+        if (ds.isEmpty()) return;
+        for (int i = 0; i < Math.min(ds.size(), 5); i++) {
+            ThuocTinhDanhMuc_DTO tt = ds.get(i);
+            JMenuItem item = new JMenuItem(tt.getMaThuocTinh() + " - " + tt.getTenThuocTinh());
+            item.addActionListener(e -> {
+                txtNhapThongTin.setText(timTheo.equals("Tên Thuộc Tính") ? tt.getTenThuocTinh() : tt.getMaThuocTinh());
+                thucHienLoc();
+                popupGoiY.setVisible(false);
+            });
+            popupGoiY.add(item);
+        }
+        popupGoiY.show(txtNhapThongTin, 0, txtNhapThongTin.getHeight());
+        txtNhapThongTin.requestFocus();
+    }
+
+    private void xuLyLuu() {
+        if (txtTenDanhMuc.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên thuộc tính không được để trống!");
+            return;
+        }
+
+        ThuocTinhDanhMuc_DTO tt = new ThuocTinhDanhMuc_DTO();
+        tt.setMaThuocTinh(txtMaDanhMuc.getText());
+        tt.setTenThuocTinh(txtTenDanhMuc.getText().trim());
+
+        String tenDM = (String) cmbDanhMuc.getSelectedItem();
+        for(DanhMuc_DTO dm : dmBUS.getAll()) {
+            if(dm.getTenDM().equals(tenDM)) { tt.setMaDM(dm.getMaDM()); break; }
+        }
+
+        tt.setTrangThai(ThuocTinhDanhMuc_DTO.parseTrangThaiFromText((String) cmbTrangThai.getSelectedItem()));
+
+        boolean success = isAdding ? ttBUS.them(tt) : ttBUS.capNhat(tt);
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Lưu thành công!");
+            loadDataToTable_ThuocTinh(ttBUS.getAll());
+            setViewMode();
+        }
+    }
+
+    private void setViewMode() {
+        isAdding = isUpdating = false;
+        txtTenDanhMuc.setEditable(false);
+        cmbDanhMuc.setEnabled(false); cmbTrangThai.setEnabled(false);
+        btnLuu.setVisible(false); btnHuy.setVisible(false);
+        btnThem.setEnabled(true); btnCapNhat.setEnabled(true);
+        tableThuocTinh.setEnabled(true);
+    }
+
+    private void setAddMode() {
+        isAdding = true; isUpdating = false;
+        resetFields();
+        txtMaDanhMuc.setText(ttBUS.getNextId());
+        txtTenDanhMuc.setEditable(true);
+        cmbDanhMuc.setEnabled(true); cmbTrangThai.setEnabled(false);
+        cmbTrangThai.setSelectedItem(ThuocTinhDanhMuc_DTO.HOAT_DONG);
+        btnLuu.setVisible(true); btnHuy.setVisible(true);
+        btnThem.setEnabled(false); btnCapNhat.setEnabled(false);
+        tableThuocTinh.setEnabled(false);
+    }
+
+    private void setUpdateMode() {
+        isAdding = false; isUpdating = true;
+        txtTenDanhMuc.setEditable(true);
+        cmbDanhMuc.setEnabled(true); cmbTrangThai.setEnabled(true);
+        btnLuu.setVisible(true); btnHuy.setVisible(true);
+        btnThem.setEnabled(false); btnCapNhat.setEnabled(false);
+        tableThuocTinh.setEnabled(false);
+    }
+
+    private void resetFields() {
+        txtMaDanhMuc.setText(""); txtTenDanhMuc.setText("");
+        txtMaGiaTri.setText(""); txtNDGiaTri.setText(""); txtSanPham.setText("");
+        modelGiaTriThuocTinh.setRowCount(0);
+    }
+
+    private void setGiaTriViewMode() {
+        isAddingGiaTri = false;
+        isUpdatingGiaTri = false;
+
+        lockGiaTriForm(true);
+
+        btnThemGiaTri.setVisible(true);
+        btnSuaGiaTri.setVisible(true);
+        btnHuyGiaTri.setVisible(false);
+
+        tableGiaTriThuocTinh.setEnabled(true);
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    private void setGiaTriAddMode() {
+        isAddingGiaTri = true;
+        isUpdatingGiaTri = false;
+
+        txtMaGiaTri.setText(gtBUS.getNextId());
+        txtNDGiaTri.setText("");
+        txtSanPham.setText("");
+        txtNDGiaTri.requestFocus();
+
+        lockGiaTriForm(false);
+
+        btnThemGiaTri.setVisible(true);
+        btnSuaGiaTri.setVisible(false);
+        btnHuyGiaTri.setVisible(true);
+
+        tableGiaTriThuocTinh.setEnabled(false);
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    private void setGiaTriUpdateMode() {
+        isAddingGiaTri = false;
+        isUpdatingGiaTri = true;
+
+        lockGiaTriForm(false);
+        txtMaGiaTri.setEditable(false);
+        txtNDGiaTri.setEditable(false);
+        txtSanPham.setEditable(false);
+
+        btnThemGiaTri.setVisible(false);
+        btnSuaGiaTri.setVisible(true);
+        btnHuyGiaTri.setVisible(true);
+
+        tableGiaTriThuocTinh.setEnabled(false);
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    private void lockGiaTriForm(boolean lock) {
+        txtMaGiaTri.setEditable(!lock);
+        txtNDGiaTri.setEditable(!lock);
+        txtSanPham.setEditable(!lock);
+        cmbTrangThaiGiaTri.setEnabled(!lock);
+    }
+
+    private void xuLyLuuGiaTri(boolean isNew) {
+        String maTT = txtMaDanhMuc.getText();
+        String ndGiaTri = txtNDGiaTri.getText().trim();
+        String tenSP = txtSanPham.getText().trim();
+        int trangThai = GiaTriThuocTinh_SP_DTO.parseTrangThaiFromText(cmbTrangThaiGiaTri.getSelectedItem().toString());
+
+        if (ndGiaTri.isEmpty() || tenSP.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ Nội dung và Tên sản phẩm!");
+            return;
+        }
+
+        SanPham_DTO sp = spBUS.getByTenSP(tenSP);
+        if (sp == null) {
+            JOptionPane.showMessageDialog(this, "Sản phẩm không tồn tại!");
+            return;
+        }
+
+        String maGT = gtBUS.getMaByNoiDung(maTT, ndGiaTri);
+        if (maGT == null) {
+            maGT = gtBUS.getNextId();
+            gtBUS.them(new GiaTriThuocTinh_DTO(maGT, ndGiaTri, maTT));
+        }
+
+        boolean res;
+        if (isNew) {
+            res = gtSpBUS.themLienKetSP(sp.getMaSP(), maTT, maGT, trangThai);
+        } else {
+            res = gtSpBUS.capNhat(new GiaTriThuocTinh_SP_DTO(sp.getMaSP(), maTT, maGT, trangThai));
+        }
+
+        if (res) {
+            JOptionPane.showMessageDialog(this, "Thao tác thành công!");
+            loadDataToTable_GiaTriThuocTinh(maTT);
+            setGiaTriViewMode();
+        } else {
+            JOptionPane.showMessageDialog(this, "Lỗi! Có thể sản phẩm này đã được gán giá trị này rồi.");
+        }
     }
 }

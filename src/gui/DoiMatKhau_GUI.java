@@ -18,7 +18,6 @@ public class DoiMatKhau_GUI extends JPanel {
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
 
-        // ===== HEADER =====
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 10, 40));
@@ -37,7 +36,6 @@ public class DoiMatKhau_GUI extends JPanel {
 
         add(headerPanel, BorderLayout.NORTH);
 
-        // ===== FORM =====
         JPanel panelForm = new JPanel();
         panelForm.setLayout(new BoxLayout(panelForm, BoxLayout.Y_AXIS));
         panelForm.setBorder(BorderFactory.createEmptyBorder(10,40,20,40));
@@ -52,7 +50,6 @@ public class DoiMatKhau_GUI extends JPanel {
         panelForm.add(createField("Xác nhận mật khẩu",
                 txtXacNhan = new JPasswordField()));
 
-        // checkbox show password
         chkShowPassword = new JCheckBox("Hiện mật khẩu");
         chkShowPassword.setBackground(Color.WHITE);
 
@@ -62,7 +59,6 @@ public class DoiMatKhau_GUI extends JPanel {
 
         add(panelForm, BorderLayout.CENTER);
 
-        // ===== BUTTON =====
         JPanel panelButton = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panelButton.setBorder(BorderFactory.createEmptyBorder(10,10,10,30));
         panelButton.setBackground(Color.WHITE);
@@ -77,12 +73,10 @@ public class DoiMatKhau_GUI extends JPanel {
 
         add(panelButton, BorderLayout.SOUTH);
 
-        // ===== ACTION =====
         btnDoiMatKhau.addActionListener(e -> setEditMode());
         btnLuu.addActionListener(e -> xuLyDoiMatKhau());
         btnHuy.addActionListener(e -> xuLyHuy());
 
-        // trạng thái ban đầu
         setViewMode();
     }
 
@@ -104,10 +98,6 @@ public class DoiMatKhau_GUI extends JPanel {
         return panel;
     }
 
-    // =========================
-    // TRẠNG THÁI VIEW
-    // =========================
-
     private void setViewMode() {
 
         isEditing = false;
@@ -121,10 +111,6 @@ public class DoiMatKhau_GUI extends JPanel {
         btnDoiMatKhau.setVisible(true);
     }
 
-    // =========================
-    // TRẠNG THÁI EDIT
-    // =========================
-
     private void setEditMode() {
 
         isEditing = true;
@@ -137,10 +123,6 @@ public class DoiMatKhau_GUI extends JPanel {
         btnHuy.setVisible(true);
         btnDoiMatKhau.setVisible(false);
     }
-
-    // =========================
-    // XỬ LÝ LƯU
-    // =========================
 
     private void xuLyDoiMatKhau() {
 
@@ -169,18 +151,10 @@ public class DoiMatKhau_GUI extends JPanel {
         }
     }
 
-    // =========================
-    // HỦY
-    // =========================
-
     private void xuLyHuy() {
         clearForm();
         setViewMode();
     }
-
-    // =========================
-    // SHOW PASSWORD
-    // =========================
 
     private void togglePassword() {
 
@@ -197,10 +171,6 @@ public class DoiMatKhau_GUI extends JPanel {
             txtXacNhan.setEchoChar('•');
         }
     }
-
-    // =========================
-    // CLEAR
-    // =========================
 
     private void clearForm(){
 

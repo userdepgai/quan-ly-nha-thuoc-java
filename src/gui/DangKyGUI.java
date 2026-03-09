@@ -180,6 +180,13 @@ public class DangKyGUI extends JFrame {
             JOptionPane.showMessageDialog(this,"Tạo tài khoản thất bại");
             return;
         }
+        GioHang_BUS ghBus = GioHang_BUS.getInstance();
+        GioHang_DTO gh = new GioHang_DTO();
+        gh.setMaGH(ghBus.getNextId());
+        gh.setMaKH(kh.getMa());
+        if(!ghBus.them(gh))
+            JOptionPane.showMessageDialog(this,"Tạo giỏ hàng không thành công");
+
         JOptionPane.showMessageDialog(this,"Đăng ký thành công");
         new DangNhapGUI().setVisible(true);
         dispose();
