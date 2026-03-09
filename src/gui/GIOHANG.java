@@ -8,6 +8,7 @@ import dto.Voucher_DTO;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -401,12 +402,27 @@ public class GIOHANG extends JPanel {
 
         pnlLeft.add(cbxItem);
 
-        JLabel lblAnh = new JLabel("ẢNH");
+        JLabel lblAnh = new JLabel();
         lblAnh.setPreferredSize(new Dimension(80, 80));
         lblAnh.setOpaque(true);
-        lblAnh.setBackground(Color.decode("#F5F5F5"));
+        lblAnh.setBackground(Color.WHITE);
         lblAnh.setHorizontalAlignment(SwingConstants.CENTER);
         lblAnh.setBorder(BorderFactory.createLineBorder(Color.decode("#EEEEEE")));
+
+        dto.SanPham_DTO spDTO = bus.SanPham_BUS.getInstance().getById(item.getMaSP());
+        if (spDTO != null) {
+            String realPath = getRealImagePath(spDTO.getHinhAnh());
+            if (realPath != null) {
+                ImageIcon icon = new ImageIcon(realPath);
+                Image image = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                lblAnh.setIcon(new ImageIcon(image));
+                lblAnh.setText("");
+            } else {
+                lblAnh.setText("No Image");
+            }
+        } else {
+            lblAnh.setText("Lỗi SP");
+        }
         pnlLeft.add(lblAnh);
 
         JPanel pnlInfo = new JPanel();
@@ -609,5 +625,21 @@ public class GIOHANG extends JPanel {
     }
     private double getGiaSanPham(String maSP) {
         return HoaDonBan_BUS.getInstance().getGiaBanSP(maSP, 1);
+    }
+    private String getRealImagePath(String path) {
+        if (path == null || path.trim().isEmpty()) return null;
+
+        String realPath = path;
+        if (path.startsWith("img/")) {
+            realPath = path.replace("img/", "images/");
+        }
+
+        File f = new File("src/" + realPath);
+        if (f.exists()) return "src/" + realPath;
+
+        f = new File(realPath);
+        if (f.exists()) return realPath;
+
+        return null;
     }
 }

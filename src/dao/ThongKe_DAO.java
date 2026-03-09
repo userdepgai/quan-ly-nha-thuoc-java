@@ -2,16 +2,16 @@ package dao;
 
 import DBConnection.DBConnection;
 import bus.HoaDonBan_BUS;
+import bus.LoHang_BUS;
+import dto.LoHang_DTO;
 import dto.ThongKeKhachHang_DTO;
 import dto.ThongKe_DTO;
-//import bus.HoaDon_BUS;
+import bus.ThongKe_BUS;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class ThongKe_DAO {
 
@@ -19,33 +19,31 @@ public class ThongKe_DAO {
 
     public List<ThongKe_DTO> thongKeDoanhThu(Date tuNgay, Date denNgay, String maDanhMuc) {
         List<ThongKe_DTO> list = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
 
-        try {
-            conn = dbConnection.getConnection();
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT sp.Ma_SP, ");
+        sql.append("SUM(ct.SoLuong) AS TongSLBan, ");
+        sql.append("AVG(ct.GiaBan) AS GiaBanTB, ");
 
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT sp.Ma_SP, sp.LoiNhuan, ");
-            sql.append("MAX(lh.GiaNhap) AS GiaNhapGoc, ");
-            sql.append("MAX(qc.SLSP_Thung) AS QuyCach, ");
-            sql.append("SUM(ct.SoLuong) AS TongSLBan, ");
-            sql.append("MAX(ct.GiaBan) AS GiaBanThucTe ");
+        sql.append("AVG(CAST(lh.GiaNhap AS FLOAT) / qc.SLSP_Thung) AS GiaNhapLe ");
 
-            sql.append("FROM HOADONBAN hd ");
-            sql.append("JOIN CHITIETHOADON ct ON hd.Ma_HDB = ct.Ma_HDB ");
-            sql.append("JOIN LOHANG lh ON ct.Ma_Lo = lh.Ma_Lo ");
-            sql.append("JOIN SANPHAM sp ON ct.Ma_SP = sp.Ma_SP ");
-            sql.append("JOIN QUYCACH qc ON sp.Ma_QC = qc.Ma_QC ");
-            sql.append("WHERE CAST(hd.NgayLap AS DATE) BETWEEN ? AND ? ");
+        sql.append("FROM HOADONBAN hd ");
+        sql.append("JOIN CHITIETHOADON ct ON hd.Ma_HDB = ct.Ma_HDB ");
+        sql.append("JOIN SANPHAM sp ON ct.Ma_SP = sp.Ma_SP ");
+        sql.append("JOIN QUYCACH qc ON sp.Ma_QC = qc.Ma_QC ");
+        sql.append("JOIN LOHANG lh ON ct.Ma_Lo = lh.Ma_Lo ");
 
-            if (maDanhMuc != null && !maDanhMuc.equalsIgnoreCase("ALL")) {
-                sql.append("AND sp.Ma_DM = ? ");
-            }
-            sql.append("GROUP BY sp.Ma_SP, sp.LoiNhuan");
+        sql.append("WHERE CAST(hd.NgayLap AS DATE) BETWEEN ? AND ? AND hd.TrangThai = 3 ");
 
-            ps = conn.prepareStatement(sql.toString());
+        if (maDanhMuc != null && !maDanhMuc.equalsIgnoreCase("ALL")) {
+            sql.append("AND sp.Ma_DM = ? ");
+        }
+
+        sql.append("GROUP BY sp.Ma_SP");
+
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
             ps.setDate(1, new java.sql.Date(tuNgay.getTime()));
             ps.setDate(2, new java.sql.Date(denNgay.getTime()));
 
@@ -53,37 +51,29 @@ public class ThongKe_DAO {
                 ps.setString(3, maDanhMuc);
             }
 
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                String maSP = rs.getString("Ma_SP");
-                double giaNhapDonVi = rs.getDouble("GiaNhapGoc") / rs.getInt("QuyCach");
-                int slBanLe = rs.getInt("TongSLBan");
-                double giaBanNiemYet = HoaDonBan_BUS.getInstance().getGiaBanSP(maSP,1);
-                double tienLoiNhuan = (giaBanNiemYet - giaNhapDonVi) * slBanLe;
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ThongKe_DTO dto = new ThongKe_DTO();
+                    String maSP = rs.getString("Ma_SP");
+                    int slBan = rs.getInt("TongSLBan");
+                    double giaBan = rs.getDouble("GiaBanTB");
+                    double giaNhapLe = rs.getDouble("GiaNhapLe");
 
-                ThongKe_DTO dto = new ThongKe_DTO();
-                dto.setMaSanPham(maSP);
-                dto.setGiaNhap(giaNhapDonVi);
-                dto.setGiaBan(giaBanNiemYet);
-                dto.setSoLuongBan(slBanLe);
-                dto.setLoiNhuan(tienLoiNhuan);
+                    dto.setMaSanPham(maSP);
+                    dto.setSoLuongBan(slBan);
+                    dto.setGiaBan(giaBan);
+                    dto.setGiaNhap(giaNhapLe);
 
-                list.add(dto);
+                    dto.setLoiNhuan((giaBan - giaNhapLe) * slBan);
+
+                    list.add(dto);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (conn != null) conn.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
         }
         return list;
     }
-
     public List<ThongKeKhachHang_DTO> thongKeKhachHangVIP(Date tuNgay, Date denNgay, String hangThanhVien) {
         List<ThongKeKhachHang_DTO> list = new ArrayList<>();
         Connection conn = null;
