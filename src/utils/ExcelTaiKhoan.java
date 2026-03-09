@@ -20,7 +20,6 @@ public class ExcelTaiKhoan {
             header.createCell(3).setCellValue("MaQuyen");
             header.createCell(4).setCellValue("NgayKichHoat");
             header.createCell(5).setCellValue("TrangThai");
-
             int rowNum = 1;
             for (TaiKhoan_DTO tk : list) {
                 Row row = sheet.createRow(rowNum++);
@@ -50,7 +49,6 @@ public class ExcelTaiKhoan {
              Workbook wb = new XSSFWorkbook(fis)) {
             Sheet sheet = wb.getSheetAt(0);
             for(int i=1;i<=sheet.getLastRowNum();i++){
-
                 Row row = sheet.getRow(i);
 
                 TaiKhoan_DTO tk = new TaiKhoan_DTO();
@@ -61,7 +59,6 @@ public class ExcelTaiKhoan {
                 tk.setMaQuyen(row.getCell(3).getStringCellValue());
                 tk.setNgayKichHoat(LocalDate.parse(row.getCell(4).getStringCellValue()));
                 tk.setTrangThai((int)row.getCell(5).getNumericCellValue());
-
                 list.add(tk);
             }
 

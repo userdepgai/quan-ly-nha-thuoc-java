@@ -2,6 +2,7 @@ package bus;
 
 import dao.*;
 import dto.*;
+import utils.ExcelTaiKhoan;
 import utils.Session;
 
 import javax.swing.*;
@@ -156,5 +157,22 @@ public class TaiKhoan_BUS {
     }
     public void refreshData() {
         listCache = dao.getAll();
+    }
+    public boolean exportExcel(String path){
+        return ExcelTaiKhoan.exportExcel(listCache,path);
+    }
+    public boolean importExcel(String path){
+        ArrayList<TaiKhoan_DTO> list = ExcelTaiKhoan.importExcel(path);
+        boolean ok = true;
+        for(TaiKhoan_DTO tk : list){
+            if(!dao.kiemTraMaTonTai(tk.getMaTK())) {
+                if(!dao.them(tk)){
+                    ok = false;
+                }
+            }
+        }
+        refreshData();
+
+        return ok;
     }
 }

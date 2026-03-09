@@ -72,4 +72,24 @@ public class GioHang_DAO {
 
         return null;
     }
+    public String getNextId() {
+        String prefix = "GH";
+        String sql = "SELECT MAX(Ma_GH) FROM GIOHANG";
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()) {
+            if(rs.next()) {
+                String lastId = rs.getString(1);
+                if(lastId != null) {
+                    int number = Integer.parseInt(lastId.substring(2));
+                    number++;
+                    return prefix + String.format("%06d", number);
+                }
+            }
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return "GH000001";
+    }
 }

@@ -122,4 +122,21 @@ public class TaiKhoan_DAO {
 
         return false;
     }
+    public boolean kiemTraMaTonTai(String maTK) {
+        boolean tonTai = false;
+        try {
+            String sql = "SELECT 1 FROM TAIKHOAN WHERE MaTK = ?";
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, maTK);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                tonTai = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return tonTai;
+    }
 }

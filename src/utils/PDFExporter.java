@@ -29,7 +29,6 @@ public class PDFExporter {
         PdfWriter.getInstance(doc, new FileOutputStream(path));
         doc.open();
 
-        // ===== FONT TIẾNG VIỆT =====
         BaseFont bf = BaseFont.createFont(
                 "C:/Windows/Fonts/arial.ttf",
                 BaseFont.IDENTITY_H,
@@ -41,7 +40,6 @@ public class PDFExporter {
         Font fontTitle = new Font(bf, 22, Font.BOLD);
         Font fontHeader = new Font(bf, 16, Font.BOLD);
 
-        // ===== TIÊU ĐỀ =====
         Paragraph store = new Paragraph("NHÀ THUỐC XÌ TRUM", fontTitle);
         store.setAlignment(Element.ALIGN_CENTER);
 
@@ -52,14 +50,12 @@ public class PDFExporter {
         doc.add(bill);
         doc.add(new Paragraph(" "));
 
-        // ===== NGÀY LẬP =====
         Paragraph date = new Paragraph("Ngày lập: " + ngayLap, font);
         date.setAlignment(Element.ALIGN_RIGHT);
         doc.add(date);
 
         doc.add(new Paragraph(" "));
 
-        // ===== THÔNG TIN HÓA ĐƠN =====
         doc.add(new Paragraph("Mã hóa đơn: " + maHD, font));
         doc.add(new Paragraph("Nhân viên: " + nhanVien, font));
         doc.add(new Paragraph("Khách hàng: " + tenKH, font));
@@ -71,7 +67,6 @@ public class PDFExporter {
 
         doc.add(new Paragraph(" "));
 
-        // ===== BẢNG SẢN PHẨM =====
         PdfPTable pdfTable = new PdfPTable(7);
         pdfTable.setWidthPercentage(100);
         pdfTable.setWidths(new float[]{1, 4, 2, 2, 2, 1, 2});
@@ -104,7 +99,6 @@ public class PDFExporter {
         doc.add(pdfTable);
         doc.add(new Paragraph(" "));
 
-        // ===== TỔNG TIỀN =====
         doc.add(new Paragraph("Tổng tiền: " + tongTien, font));
 
         if (tongKM != null && !tongKM.trim().isEmpty() && !tongKM.equals("0")) {
@@ -119,7 +113,6 @@ public class PDFExporter {
             doc.add(new Paragraph("Điểm thưởng đã dùng: " + diemThuong, font));
         }
 
-        // ===== VAT =====
         doc.add(new Paragraph("Thuế VAT: 5%", font));
 
         doc.add(new Paragraph("---------------------------------------", font));
@@ -127,7 +120,6 @@ public class PDFExporter {
 
         doc.add(new Paragraph(" "));
 
-        // ===== ĐIỂM THƯỞNG NHẬN =====
         try {
 
             String so = thanhTien
