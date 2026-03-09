@@ -1,7 +1,6 @@
 package dto;
 
 public class GiaTriThuocTinh_SP_DTO {
-    // --- HẰNG SỐ TRẠNG THÁI ---
     public static final int TT_NGUNG_SU_DUNG = 0;
     public static final int TT_DANG_SU_DUNG = 1;
     public static final String NGUNG_SU_DUNG = "Ngưng sử dụng";
@@ -22,7 +21,6 @@ public class GiaTriThuocTinh_SP_DTO {
         this.trangThai = trangThai;
     }
 
-    // --- GETTER & SETTER ---
     public String getMaSP() { return maSP; }
     public void setMaSP(String maSP) { this.maSP = maSP; }
 
@@ -35,7 +33,6 @@ public class GiaTriThuocTinh_SP_DTO {
     public int getTrangThai() { return trangThai; }
     public void setTrangThai(int trangThai) { this.trangThai = trangThai; }
 
-    // --- LOGIC TRẠNG THÁI CHO GUI ---
     public String getTrangThaiText() {
         return (this.trangThai == TT_DANG_SU_DUNG) ? DANG_SU_DUNG : NGUNG_SU_DUNG;
     }

@@ -25,7 +25,6 @@ public class DanhMuc_BUS {
         return instance;
     }
 
-    // 1. Lấy tất cả danh mục từ Cache
     public ArrayList<DanhMuc_DTO> getAll() {
         return listCache;
     }
@@ -45,7 +44,6 @@ public class DanhMuc_BUS {
         String key = (keyword == null) ? "" : keyword.toLowerCase().trim();
 
         for (DanhMuc_DTO dm : listCache) {
-            // 1. Lọc theo tiêu chí tìm kiếm
             boolean matchKey = false;
             if (timTheo.equals("Tất cả")) {
                 matchKey = dm.getMaDM().toLowerCase().contains(key) || dm.getTenDM().toLowerCase().contains(key);
@@ -55,7 +53,6 @@ public class DanhMuc_BUS {
                 matchKey = dm.getTenDM().toLowerCase().contains(key);
             }
 
-            // 2. Lọc theo trạng thái
             boolean matchTT = (trangThai == null || dm.getTrangThai() == trangThai);
 
             if (matchKey && matchTT) {
@@ -65,13 +62,10 @@ public class DanhMuc_BUS {
         return result;
     }
 
-    // 2. Lấy danh sách Thuộc tính thuộc về một Danh mục cụ thể
-    // Hàm này sẽ lọc từ Cache của ThuocTinhDanhMuc_BUS
     public ArrayList<ThuocTinhDanhMuc_DTO> getThuocTinhByMaDM(String maDM) {
         ArrayList<ThuocTinhDanhMuc_DTO> result = new ArrayList<>();
         if (maDM == null || maDM.isEmpty()) return result;
 
-        // Lọc trực tiếp từ listCache của ThuocTinhDanhMuc_BUS thông qua phương thức getAll()
         for (ThuocTinhDanhMuc_DTO tt : ttBus.getAll()) {
             if (tt.getMaDM().equals(maDM)) {
                 result.add(tt);
@@ -80,19 +74,16 @@ public class DanhMuc_BUS {
         return result;
     }
 
-    // 3. Lấy mã danh mục tiếp theo
     public String getNextId() {
         return dmDao.getNextId();
     }
 
-    // 4. Thêm danh mục
     public boolean them(DanhMuc_DTO dm) {
         boolean result = dmDao.them(dm);
         if (result) refreshData();
         return result;
     }
 
-    // 5. Cập nhật danh mục
     public boolean capNhat(DanhMuc_DTO dm) {
         boolean result = dmDao.capNhat(dm);
         if (result) refreshData();

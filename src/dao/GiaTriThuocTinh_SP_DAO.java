@@ -45,7 +45,6 @@ public class GiaTriThuocTinh_SP_DAO {
     }
 
     public boolean capNhat(GiaTriThuocTinh_SP_DTO dto) {
-        // Khóa chính phức hợp gồm 3 cột
         String sql = "UPDATE GIATRITHUOCTINHSP SET TrangThai=? WHERE Ma_GTTT=? AND Ma_SP=? AND MaThuocTinh=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

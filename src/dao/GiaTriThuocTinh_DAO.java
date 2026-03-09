@@ -21,8 +21,8 @@ public class GiaTriThuocTinh_DAO {
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(new GiaTriThuocTinh_DTO(
-                        rs.getString("Ma_GTTT"),       // Khớp SQL
-                        rs.getString("NoiDungGiaTri"), // Khớp SQL
+                        rs.getString("Ma_GTTT"),
+                        rs.getString("NoiDungGiaTri"),
                         rs.getString("MaThuocTinh")
                 ));
             }

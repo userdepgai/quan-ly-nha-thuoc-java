@@ -1,19 +1,16 @@
 package dto;
 
 public class KhuyenMai_DTO {
-    // --- HẰNG SỐ TRẠNG THÁI ---
     public static final int TT_NGUNG_AP_DUNG = 0;
     public static final int TT_DANG_AP_DUNG = 1;
     public static final String NGUNG_AP_DUNG = "Ngưng áp dụng";
     public static final String DANG_AP_DUNG = "Đang áp dụng";
 
-    // --- HẰNG SỐ LOẠI KM ---
     public static final int LOAI_PHAN_TRAM = 0;
     public static final int LOAI_TIEN_MAT = 1;
     public static final String PHAN_TRAM = "Phần trăm";
     public static final String TIEN_MAT = "Tiền mặt";
 
-    // --- HẰNG SỐ ĐỐI TƯỢNG ---
     public static final int DT_DANH_MUC = 0;
     public static final int DT_SAN_PHAM = 1;
     public static final String DANH_MUC = "Danh mục";
@@ -45,7 +42,6 @@ public class KhuyenMai_DTO {
         this.maDanhMuc = maDanhMuc;
     }
 
-    // --- GETTER & SETTER ---
     public String getMaKM() { return maKM; }
     public void setMaKM(String maKM) { this.maKM = maKM; }
 
@@ -73,8 +69,6 @@ public class KhuyenMai_DTO {
     public String getMaDanhMuc() { return maDanhMuc; }
     public void setMaDanhMuc(String maDanhMuc) { this.maDanhMuc = maDanhMuc; }
 
-    // --- CÁC HÀM HỖ TRỢ LOGIC HIỂN THỊ ---
-
     public String getTrangThaiText() {
         return (this.trangThai == TT_DANG_AP_DUNG) ? DANG_AP_DUNG : NGUNG_AP_DUNG;
     }
@@ -92,13 +86,10 @@ public class KhuyenMai_DTO {
         return TT_NGUNG_AP_DUNG;
     }
     public String getTrangThaiThucTe(ChuongTrinhKM_DTO ct) {
-        // 1. Kiểm tra chương trình cha trước (bao gồm cả logic ngày tháng của cha)
-        // getTrangThaiText() của cha trả về "Đang áp dụng" khi (TrangThai=1 AND còn hạn)
         if (ct == null || !ct.getTrangThaiText().equals(ChuongTrinhKM_DTO.DANG_AP_DUNG)) {
             return "Vô hiệu (Do CT)";
         }
 
-        // 2. Nếu cha đang OK, mới xét tới trạng thái của riêng nó
         return (this.getTrangThai() == TT_DANG_AP_DUNG) ? DANG_AP_DUNG : NGUNG_AP_DUNG;
     }
 }

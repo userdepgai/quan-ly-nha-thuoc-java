@@ -22,9 +22,9 @@ public class ThuocTinhDanhMuc_DAO {
             while (rs.next()) {
                 list.add(new ThuocTinhDanhMuc_DTO(
                         rs.getString("MaThuocTinh"),
-                        rs.getString("Ten_TT"), // Khớp SQL
+                        rs.getString("Ten_TT"),
                         rs.getInt("TrangThai"),
-                        rs.getString("Ma_DM")    // Khớp SQL
+                        rs.getString("Ma_DM")
                 ));
             }
         } catch (Exception e) { e.printStackTrace(); }

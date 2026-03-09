@@ -50,7 +50,6 @@ public class ThuocTinhDanhMuc_BUS {
         return false;
     }
 
-    // Hàm lọc nâng cao phục vụ bộ lọc trên GUI
     public ArrayList<ThuocTinhDanhMuc_DTO> timKiemNangCao(String keyword, String timTheo, String maDM, Integer trangThai) {
         ArrayList<ThuocTinhDanhMuc_DTO> result = new ArrayList<>();
         String key = (keyword == null) ? "" : keyword.toLowerCase().trim();
