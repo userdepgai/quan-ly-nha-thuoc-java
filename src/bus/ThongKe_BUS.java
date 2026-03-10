@@ -29,7 +29,23 @@ public class ThongKe_BUS {
 
         return thongKeDAO.thongKeDoanhThu(tuNgay, denNgay, maDanhMuc);
     }
+    public double tinhGiaNhapMotSP(String maSP, double giaNhapMax) {
 
+        SanPham_DTO sp = spBus.getById(maSP);
+        QuyCach_DTO qc = qcBus.getById(sp.getMaQC());
+
+        double giaNhapMotSP = giaNhapMax / qc.getSlspThung();
+
+        return giaNhapMotSP;
+    }
+    public double getGiaNhapSP(String maSP, int soLuong) {
+        Map<LoHang_DTO,Integer> dsLo = loBus.phanBoLoDeBan(maSP, soLuong);
+        if(dsLo.isEmpty()) {
+            return 0;
+        }
+        double giaNhapMax = loBus.getGiaNhapCaoNhatTrongLoChon(dsLo);
+        return tinhGiaNhapMotSP(maSP, giaNhapMax);
+    }
     public List<ThongKeKhachHang_DTO> thongKeKhachHangVIP(Date tuNgay, Date denNgay, String hangThanhVien) {
         if (tuNgay == null || denNgay == null) {
             return null;

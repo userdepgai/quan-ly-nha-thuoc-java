@@ -23,9 +23,9 @@ public class ThongKe_DAO {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT sp.Ma_SP, ");
         sql.append("SUM(ct.SoLuong) AS TongSLBan, ");
-        sql.append("AVG(ct.GiaBan) AS GiaBanTB, ");
 
-        sql.append("AVG(CAST(lh.GiaNhap AS FLOAT) / qc.SLSP_Thung) AS GiaNhapLe ");
+        sql.append("SUM(ct.SoLuong * ct.GiaBan) AS TongDoanhThu, ");
+        sql.append("SUM(ct.SoLuong * (CAST(lh.GiaNhap AS FLOAT) / qc.SLSP_Thung)) AS TongTienNhap ");
 
         sql.append("FROM HOADONBAN hd ");
         sql.append("JOIN CHITIETHOADON ct ON hd.Ma_HDB = ct.Ma_HDB ");
@@ -56,15 +56,16 @@ public class ThongKe_DAO {
                     ThongKe_DTO dto = new ThongKe_DTO();
                     String maSP = rs.getString("Ma_SP");
                     int slBan = rs.getInt("TongSLBan");
-                    double giaBan = rs.getDouble("GiaBanTB");
-                    double giaNhapLe = rs.getDouble("GiaNhapLe");
+                    double tongDoanhThu = rs.getDouble("TongDoanhThu");
+                    double tongTienNhap = rs.getDouble("TongTienNhap");
+                    double giaBanTB = (slBan > 0) ? (tongDoanhThu / slBan) : 0;
+                    double giaNhapLeTB = (slBan > 0) ? (tongTienNhap / slBan) : 0;
 
                     dto.setMaSanPham(maSP);
                     dto.setSoLuongBan(slBan);
-                    dto.setGiaBan(giaBan);
-                    dto.setGiaNhap(giaNhapLe);
-
-                    dto.setLoiNhuan((giaBan - giaNhapLe) * slBan);
+                    dto.setGiaBan(giaBanTB);
+                    dto.setGiaNhap(giaNhapLeTB);
+                    dto.setLoiNhuan(tongDoanhThu - tongTienNhap);
 
                     list.add(dto);
                 }
