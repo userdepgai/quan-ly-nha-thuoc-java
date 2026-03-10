@@ -37,7 +37,6 @@ public class GioHang_BUS {
         }
         return null;
     }
-
     public boolean them(GioHang_DTO gh){
         boolean result = ghDAO.them(gh);
         if(result)

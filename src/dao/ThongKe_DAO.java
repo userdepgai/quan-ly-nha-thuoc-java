@@ -14,19 +14,15 @@ import java.sql.ResultSet;
 import java.util.*;
 
 public class ThongKe_DAO {
-
     private DBConnection dbConnection = new DBConnection();
-
     public List<ThongKe_DTO> thongKeDoanhThu(Date tuNgay, Date denNgay, String maDanhMuc) {
         List<ThongKe_DTO> list = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT sp.Ma_SP, ");
         sql.append("SUM(ct.SoLuong) AS TongSLBan, ");
-
         sql.append("SUM(ct.SoLuong * ct.GiaBan) AS TongDoanhThu, ");
         sql.append("SUM(ct.SoLuong * (CAST(lh.GiaNhap AS FLOAT) / qc.SLSP_Thung)) AS TongTienNhap ");
-
         sql.append("FROM HOADONBAN hd ");
         sql.append("JOIN CHITIETHOADON ct ON hd.Ma_HDB = ct.Ma_HDB ");
         sql.append("JOIN SANPHAM sp ON ct.Ma_SP = sp.Ma_SP ");

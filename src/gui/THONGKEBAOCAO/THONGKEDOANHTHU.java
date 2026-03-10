@@ -149,12 +149,6 @@ public class THONGKEDOANHTHU extends JPanel {
 
     }
 
-
-
-
-
-
-
     private void loadDefaultData() {
         try {
             Date today = new Date();

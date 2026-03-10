@@ -32,7 +32,6 @@ public class ThanhToan_DAO {
                 String duong = rs.getString("Duong") != null ? rs.getString("Duong") + ", " : "";
                 String phuong = rs.getString("Phuong") != null ? rs.getString("Phuong") + ", " : "";
                 String tinh = rs.getString("Tinh") != null ? rs.getString("Tinh") : "";
-
                 String fullAddress = (soNha + duong + phuong + tinh).trim();
                 if (fullAddress.endsWith(",")) {
                     fullAddress = fullAddress.substring(0, fullAddress.length() - 1);

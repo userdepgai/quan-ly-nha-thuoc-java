@@ -628,12 +628,10 @@ public class GIOHANG extends JPanel {
     }
     private String getRealImagePath(String path) {
         if (path == null || path.trim().isEmpty()) return null;
-
         String realPath = path;
         if (path.startsWith("img/")) {
             realPath = path.replace("img/", "images/");
         }
-
         File f = new File("src/" + realPath);
         if (f.exists()) return "src/" + realPath;
 

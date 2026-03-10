@@ -88,7 +88,6 @@ public class ThanhToan_GUI extends JPanel {
         textTongThanhToan.setEditable(false);
         textTongThanhToan.setFont(new Font("Segoe UI", Font.BOLD, 14));
         textTongThanhToan.setForeground(Color.RED);
-
         if (comboBoxPthucTt != null) {
             comboBoxPthucTt.removeAllItems();
             comboBoxPthucTt.addItem("Thanh toán tiền mặt (COD)");
@@ -97,7 +96,6 @@ public class ThanhToan_GUI extends JPanel {
         }
         tuDongDienThongTin();
     }
-
     private JPanel taoDongSanPham(ChiTietGioHang_DTO item) {
         JPanel row = new JPanel(new BorderLayout(10, 0));
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));

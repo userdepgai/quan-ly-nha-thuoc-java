@@ -128,7 +128,6 @@ public class ThanhToan_BUS {
             String maHDB = HoaDonOnline_BUS
                     .getInstance()
                     .taoDonOnline(maKH, maDiaChi, dsCT);
-
             return maHDB;
 
         } catch (Exception e) {

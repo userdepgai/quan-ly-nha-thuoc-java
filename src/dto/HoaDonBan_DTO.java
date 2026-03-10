@@ -15,7 +15,6 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     private boolean keToa;
     private int loaiHDB;
 
-
     private String maKhachHang;
     private String maVoucher;
 

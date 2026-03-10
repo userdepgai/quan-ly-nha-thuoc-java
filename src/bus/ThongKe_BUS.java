@@ -12,11 +12,9 @@ public class ThongKe_BUS {
     private SanPham_BUS spBus = SanPham_BUS.getInstance();
     protected LoHang_BUS loBus = LoHang_BUS.getInstance();
     private QuyCach_BUS qcBus = QuyCach_BUS.getInstance();
-
     public ThongKe_BUS() {
         thongKeDAO = new ThongKe_DAO();
     }
-
     public List<ThongKe_DTO> thongKeDoanhThu(Date tuNgay, Date denNgay, String maDanhMuc) {
 
         if (tuNgay == null || denNgay == null) {
@@ -35,7 +33,6 @@ public class ThongKe_BUS {
         QuyCach_DTO qc = qcBus.getById(sp.getMaQC());
 
         double giaNhapMotSP = giaNhapMax / qc.getSlspThung();
-
         return giaNhapMotSP;
     }
     public double getGiaNhapSP(String maSP, int soLuong) {

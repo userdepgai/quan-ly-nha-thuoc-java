@@ -86,7 +86,6 @@ public class GioHang_DAO {
                     return prefix + String.format("%06d", number);
                 }
             }
-
         } catch(Exception e) {
             e.printStackTrace();
         }
