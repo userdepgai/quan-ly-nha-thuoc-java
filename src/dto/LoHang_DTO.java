@@ -28,6 +28,7 @@ public class LoHang_DTO {
 
     private int soLuongNhap;
     private int soLuongConLai;
+    private int soLuongSPCL;
 
     private double thanhTien;
 
@@ -42,7 +43,7 @@ public class LoHang_DTO {
     public LoHang_DTO() {}
 
     public LoHang_DTO(String maLo, double giaNhap, LocalDate hsd,
-                      int soLuongNhap, int soLuongConLai,
+                      int soLuongNhap, int soLuongConLai, int soLuongSPCL,
                       double thanhTien,
                       int trangThai, int trangThaiTonKho,
                       String maPnk, String maNcc,
@@ -53,6 +54,7 @@ public class LoHang_DTO {
         this.hsd = hsd;
         this.soLuongNhap = soLuongNhap;
         this.soLuongConLai = soLuongConLai;
+        this.soLuongSPCL = soLuongSPCL;
         this.thanhTien = thanhTien;
         this.trangThai = trangThai;
         this.trangThaiTonKho = trangThaiTonKho;
@@ -60,6 +62,14 @@ public class LoHang_DTO {
         this.maNcc = maNcc;
         this.maKvlt = maKvlt;
         this.maSp = maSp;
+    }
+
+    public int getSoLuongSPCL() {
+        return soLuongSPCL;
+    }
+
+    public void setSoLuongSPCL(int soLuongSPCL) {
+        this.soLuongSPCL = soLuongSPCL;
     }
 
     public String getMaLo() { return maLo; }

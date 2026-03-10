@@ -82,4 +82,5 @@ public class QuyCach_BUS {
     public void refreshData() {
         listCache = qcDao.getAll();
     }
+
 }

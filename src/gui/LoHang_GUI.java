@@ -4,12 +4,15 @@ import bus.LoHang_BUS;
 import dto.LoHang_DTO;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class LoHang_GUI extends JPanel{
     private JTable table_dsLo;
@@ -160,12 +163,12 @@ public class LoHang_GUI extends JPanel{
         String[] columns = {
                 "STT",
                 "Mã lô",
-                "Mã PNK",
                 "Tên sản phẩm",
                 "Giá nhập",
-                "Số lượng",
-                "Còn lại",
-                "Hạn sử dụng",
+                "Thùng nhập",
+                "Thùng còn",
+                "SP còn",
+                "HSD",
                 "Thành tiền",
                 "Tên NCC",
                 "Tên KVLT",
@@ -186,18 +189,18 @@ public class LoHang_GUI extends JPanel{
 
         table_dsLo.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        table_dsLo.getColumnModel().getColumn(0).setPreferredWidth(50);
+        table_dsLo.getColumnModel().getColumn(0).setPreferredWidth(45);
         table_dsLo.getColumnModel().getColumn(1).setPreferredWidth(75);
-        table_dsLo.getColumnModel().getColumn(2).setPreferredWidth(75);
-        table_dsLo.getColumnModel().getColumn(3).setPreferredWidth(150);
-        table_dsLo.getColumnModel().getColumn(4).setPreferredWidth(100);
-        table_dsLo.getColumnModel().getColumn(5).setPreferredWidth(70);
+        table_dsLo.getColumnModel().getColumn(2).setPreferredWidth(150);
+        table_dsLo.getColumnModel().getColumn(3).setPreferredWidth(100);
+        table_dsLo.getColumnModel().getColumn(4).setPreferredWidth(80);
+        table_dsLo.getColumnModel().getColumn(5).setPreferredWidth(80);
         table_dsLo.getColumnModel().getColumn(6).setPreferredWidth(70);
-        table_dsLo.getColumnModel().getColumn(7).setPreferredWidth(90);
+        table_dsLo.getColumnModel().getColumn(7).setPreferredWidth(85);
         table_dsLo.getColumnModel().getColumn(8).setPreferredWidth(100);
         table_dsLo.getColumnModel().getColumn(9).setPreferredWidth(150);
-        table_dsLo.getColumnModel().getColumn(10).setPreferredWidth(150);
-        table_dsLo.getColumnModel().getColumn(11).setPreferredWidth(80);
+        table_dsLo.getColumnModel().getColumn(10).setPreferredWidth(110);
+        table_dsLo.getColumnModel().getColumn(11).setPreferredWidth(100);
 
         src_dsLo.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -213,13 +216,13 @@ public class LoHang_GUI extends JPanel{
             model.addRow(new Object[]{
                     stt++,
                     lo.getMaLo(),
-                    lo.getMaPnk(),
                     bus.getNameSP(lo.getMaSp()),
-                    lo.getGiaNhap(),
+                    formatTien(lo.getGiaNhap()),
                     lo.getSoLuongNhap(),
                     lo.getSoLuongConLai(),
+                    lo.getSoLuongSPCL(),
                     lo.getHsd(),
-                    lo.getThanhTien(),
+                    formatTien(lo.getThanhTien()),
                     bus.getNameNCC(lo.getMaNcc()),
                     bus.getNameKVLT(lo.getMaKvlt()),
                     lo.getTrangThaiText()
@@ -323,9 +326,8 @@ public class LoHang_GUI extends JPanel{
             txtHSD.setEditable(true);
             txtMaSP_SL.setText(maSP + " - " + soLuong);
 
-            txtGiaNhap.setText(String.valueOf(gia));
-
-            txtThanhTien.setText(String.valueOf(gia * soLuong));
+            txtGiaNhap.setText(formatTien(gia));
+            txtThanhTien.setText(formatTien(gia * soLuong));
         }
     }
 
@@ -547,8 +549,8 @@ public class LoHang_GUI extends JPanel{
         txtKVLT.setText(table_dsLo.getValueAt(row,10).toString());
 
         txtMaLo.setText(lo.getMaLo());
-        txtGiaNhap.setText(String.valueOf(lo.getGiaNhap()));
-        txtThanhTien.setText(String.valueOf(lo.getThanhTien()));
+        txtGiaNhap.setText(formatTien(lo.getGiaNhap()));
+        txtThanhTien.setText(formatTien(lo.getThanhTien()));
         txtHSD.setText(lo.getHsd().toString());
 
         txtMaSP_SL.setText(lo.getMaSp() + " -  " + lo.getSoLuongNhap());
@@ -722,5 +724,10 @@ public class LoHang_GUI extends JPanel{
     private void unlockTable() {
         table_dsLo.setEnabled(true);
     }
-
+    private String formatTien(double tien){
+        NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("vi","VN"));
+        String kq = nf.format(tien);
+        kq = kq.replace("₫", "đ");
+        return kq;
+    }
 }
