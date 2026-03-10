@@ -36,7 +36,6 @@ public class SanPham_DAO {
     }
 
     public String getNextId() {
-        // Lấy số lớn nhất từ mã SP (SP000050 -> lấy 50)
         String sql = "SELECT MAX(CAST(SUBSTRING(Ma_SP, 3, 6) AS INT)) FROM SANPHAM";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);

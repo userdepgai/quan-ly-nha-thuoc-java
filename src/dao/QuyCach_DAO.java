@@ -6,8 +6,6 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class QuyCach_DAO {
-
-    // 1. Lấy toàn bộ danh sách quy cách
     public ArrayList<QuyCach_DTO> getAll() {
         ArrayList<QuyCach_DTO> list = new ArrayList<>();
         String sql = "SELECT * FROM QUYCACH";
@@ -32,9 +30,7 @@ public class QuyCach_DAO {
         return list;
     }
 
-    // 2. Tự động sinh mã tiếp theo (Dạng QC001, QC002...)
     public String getNextId() {
-        // Cắt chuỗi từ ký tự thứ 3, lấy số int. Ví dụ QC001 -> 1
         String sql = "SELECT MAX(CAST(SUBSTRING(Ma_QC, 3, 3) AS INT)) FROM QUYCACH";
 
         try (Connection conn = DBConnection.getConnection();
@@ -56,7 +52,6 @@ public class QuyCach_DAO {
         return "QC001";
     }
 
-    // 3. Thêm quy cách mới
     public boolean them(QuyCach_DTO qc) {
         String sql = "INSERT INTO QUYCACH (Ma_QC, SLTrongHop, SLHopTrongThung, SLSP_Thung) VALUES (?, ?, ?, ?)";
 
@@ -76,7 +71,6 @@ public class QuyCach_DAO {
         return false;
     }
 
-    // 4. Cập nhật quy cách
     public boolean capNhat(QuyCach_DTO qc) {
         String sql = "UPDATE QUYCACH SET SLTrongHop=?, SLHopTrongThung=?, SLSP_Thung=? WHERE Ma_QC=?";
 

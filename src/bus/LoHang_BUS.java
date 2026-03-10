@@ -53,6 +53,27 @@ public class LoHang_BUS {
         }
         return null;
     }
+    public void capNhatTrangThaiLo(){
+        LocalDate today = LocalDate.now();
+        for(LoHang_DTO lo : listCache){
+            int trangThai = LoHang_DTO.TK_BINH_THUONG;
+            if(lo.getSoLuongSPCL() <= 0){
+                trangThai = LoHang_DTO.TK_HET_HANG;
+            }
+            else if(lo.getHsd().isBefore(today)){
+                trangThai = LoHang_DTO.TK_HET_HAN;
+            }
+            else if(lo.getHsd().minusDays(30).isBefore(today)){
+                trangThai = LoHang_DTO.TK_SAP_HET_HAN;
+            }
+            if(lo.getTrangThaiTonKho() != trangThai){
+
+                lo.setTrangThaiTonKho(trangThai);
+
+                dao.capNhat(lo);
+            }
+        }
+    }
 
     public String getNameNCC(String maNCC) {
         NhaCungCap_DTO ncc = NhaCungCap_BUS.getInstance().getById(maNCC);
@@ -177,26 +198,18 @@ public class LoHang_BUS {
     }
 
     public ArrayList<LoHang_DTO> getLoConBanByMaSP(String maSp) {
-
         ArrayList<LoHang_DTO> result = new ArrayList<>();
-
         if (maSp == null || maSp.isEmpty()) return result;
-
         LocalDate today = LocalDate.now();
-
         for (LoHang_DTO lo : listCache) {
-
             if (lo.getMaSp().equals(maSp)
-                    && lo.getSoLuongConLai() > 0
+                    && lo.getSoLuongSPCL() > 0
                     && lo.getTrangThai() == 1
                     && !lo.getHsd().isBefore(today)) {
-
                 result.add(lo);
             }
         }
-
         result.sort(Comparator.comparing(LoHang_DTO::getHsd));
-
         return result;
     }
 
@@ -224,68 +237,96 @@ public class LoHang_BUS {
         KhuVucLuuTru_BUS.getInstance().update(kv);
     }
 
-    public boolean kiemTraDuTon(String maSp, int soLuongCanBan) {
-
-        if (soLuongCanBan <= 0) return false;
-
-        return getTongTonByMaSP(maSp) >= soLuongCanBan;
+    public boolean kiemTraDuTon(String maSp, int soLuongCanBan){
+        if(soLuongCanBan <= 0)
+            return false;
+        return getTongSPTonByMaSP(maSp) >= soLuongCanBan;
     }
 
     public Map<LoHang_DTO, Integer> phanBoLoDeBan(String maSp, int soLuongCanBan) {
 
         Map<LoHang_DTO, Integer> result = new LinkedHashMap<>();
-
         if (!kiemTraDuTon(maSp, soLuongCanBan))
             return result;
-
         int canBan = soLuongCanBan;
-
         for (LoHang_DTO lo : getLoConBanByMaSP(maSp)) {
-
             if (canBan <= 0) break;
-
-            int ton = lo.getSoLuongConLai();
-
+            int ton = lo.getSoLuongSPCL();
             int tru = Math.min(ton, canBan);
-
             result.put(lo, tru);
-
             canBan -= tru;
         }
-
         return result;
     }
-
+    public int getSLSPThungByMaSP(String maSP){
+        SanPham_DTO sp = SanPham_BUS.getInstance().getById(maSP);
+        String maQC = sp.getMaQC();
+        return QuyCach_BUS.getInstance().getById(maQC).getSlspThung();
+    }
+    
+    public boolean banSanPham(String maSp,int soLuongBan){
+        Map<LoHang_DTO,Integer> phanBo = phanBoLoDeBan(maSp,soLuongBan);
+        if(phanBo.isEmpty()) return false;
+        int slspThung = getSLSPThungByMaSP(maSp);
+        for(Map.Entry<LoHang_DTO,Integer> e : phanBo.entrySet()){
+            LoHang_DTO lo = e.getKey();
+            int tru = e.getValue();
+            int thungCu = lo.getSoLuongConLai();
+            int spMoi = lo.getSoLuongSPCL() - tru;
+            lo.setSoLuongSPCL(spMoi);
+            int thungMoi = (int)Math.ceil((double)spMoi / slspThung);
+            lo.setSoLuongConLai(thungMoi);
+            dao.capNhat(lo);
+            int chenhLech = thungMoi - thungCu;
+            if(chenhLech != 0){
+                KhuVucLuuTru_BUS kvbus = KhuVucLuuTru_BUS.getInstance();
+                kvbus.getInstance().capNhatSoThung(lo.getMaKvlt(), chenhLech);
+                kvbus.refreshData();
+            }
+        }
+        refreshData();
+        return true;
+    }
+    public void hoanTraSanPham(Map<LoHang_DTO,Integer> danhSachTra, String maSp){
+        int slspThung = getSLSPThungByMaSP(maSp);
+        for(Map.Entry<LoHang_DTO,Integer> e : danhSachTra.entrySet()){
+            LoHang_DTO lo = e.getKey();
+            int cong = e.getValue();
+            int thungCu = lo.getSoLuongConLai();
+            int spMoi = lo.getSoLuongSPCL() + cong;
+            lo.setSoLuongSPCL(spMoi);
+            int thungMoi = (int)Math.ceil((double)spMoi / slspThung);
+            lo.setSoLuongConLai(thungMoi);
+            dao.capNhat(lo);
+            int chenhLech = thungMoi - thungCu;
+            if(chenhLech != 0){
+                KhuVucLuuTru_BUS kvbus = KhuVucLuuTru_BUS.getInstance();
+                kvbus.getInstance().capNhatSoThung(lo.getMaKvlt(), chenhLech);
+                kvbus.refreshData();
+            }
+        }
+        refreshData();
+    }
     public double getGiaNhapCaoNhatTrongLoChon(Map<LoHang_DTO, Integer> dsLo) {
-
         if (dsLo == null || dsLo.isEmpty()) return -1;
-
         double maxGiaNhap = Double.MIN_VALUE;
-
         for (LoHang_DTO lo : dsLo.keySet()) {
             maxGiaNhap = Math.max(maxGiaNhap, lo.getGiaNhap());
         }
-
         return maxGiaNhap;
     }
 
     public void congTonKhiHuy(Map<LoHang_DTO, Integer> dsLo) {
-
         if (dsLo == null) return;
-
         for (Map.Entry<LoHang_DTO, Integer> e : dsLo.entrySet()) {
-
             LoHang_DTO lo = e.getKey();
             int sl = e.getValue();
-
             lo.congSoLuongConLai(sl);
         }
-
         refreshData();
     }
 
     public int getTongTonByMaSP(String maSp) {
-        // Tong theo thung
         ArrayList<LoHang_DTO> list = getByMaSP(maSp);
         int tong = 0;
         for (LoHang_DTO lo : list) {
@@ -294,14 +335,9 @@ public class LoHang_BUS {
         return tong;
     }
     public int getTongSPTonByMaSP(String maSp) {
-        // Tong theo sp
-        ArrayList<LoHang_DTO> list = getByMaSP(maSp);
         int tong = 0;
-        for (LoHang_DTO lo : list) {
-            tong += lo.getSoLuongConLai()
-                    * QuyCach_BUS.getInstance().getById(
-                            SanPham_BUS.getInstance().getById(maSp).getMaQC()
-                        ).getSlspThung();
+        for (LoHang_DTO lo : getByMaSP(maSp)) {
+            tong += lo.getSoLuongSPCL();
         }
         return tong;
     }

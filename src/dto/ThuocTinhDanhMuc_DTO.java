@@ -1,7 +1,6 @@
 package dto;
 
 public class ThuocTinhDanhMuc_DTO {
-    // --- HẰNG SỐ TRẠNG THÁI (Đồng bộ với GUI và các DTO khác) ---
     public static final int TT_NGUNG_HOAT_DONG = 0;
     public static final int TT_HOAT_DONG = 1;
     public static final String NGUNG_HOAT_DONG = "Ngưng hoạt động";
@@ -23,7 +22,6 @@ public class ThuocTinhDanhMuc_DTO {
         this.maDM = maDM;
     }
 
-    // --- GETTER & SETTER CƠ BẢN ---
     public String getMaThuocTinh() {
         return maThuocTinh;
     }
@@ -55,11 +53,6 @@ public class ThuocTinhDanhMuc_DTO {
     public void setMaDM(String maDM) {
         this.maDM = maDM;
     }
-
-    // =========================================================
-    // LOGIC XỬ LÝ TRẠNG THÁI CHO GUI
-    // =========================================================
-
 
     public String getTrangThaiText() {
         return (this.trangThai == TT_HOAT_DONG) ? HOAT_DONG : NGUNG_HOAT_DONG;

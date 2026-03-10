@@ -15,13 +15,11 @@ public class KhachHang_Voucher_BUS {
         return instance;
     }
 
-    // Nghiệp vụ: Phân phối Voucher cho toàn bộ khách hàng khi tạo mã mới trên GUI
     public boolean phanPhoiToanHeThong(String maVoucher, int soLuot) {
         if (maVoucher == null || maVoucher.isEmpty() || soLuot <= 0) return false;
         return khvDAO.phanPhoiVoucherToanHeThong(maVoucher, soLuot);
     }
 
-    // Nghiệp vụ: Kiểm tra khách hàng có còn lượt dùng mã này không
     public boolean conLuotSuDung(String maVoucher, String maKH) {
         ArrayList<KhachHang_Voucher_DTO> list = khvDAO.getByMaKH(maKH);
         for (KhachHang_Voucher_DTO item : list) {
@@ -32,7 +30,6 @@ public class KhachHang_Voucher_BUS {
         return false;
     }
 
-    // Nghiệp vụ: Trừ 1 lượt sử dụng sau khi khách hàng thanh toán hóa đơn thành công
     public boolean truLuotSuDung(String maVoucher, String maKH) {
         ArrayList<KhachHang_Voucher_DTO> list = khvDAO.getByMaKH(maKH);
         for (KhachHang_Voucher_DTO item : list) {
@@ -45,7 +42,6 @@ public class KhachHang_Voucher_BUS {
         return false;
     }
 
-    // Lấy số lượt còn lại để hiển thị lên form (nếu cần)
     public int getSoLuotConLai(String maVoucher, String maKH) {
         ArrayList<KhachHang_Voucher_DTO> list = khvDAO.getByMaKH(maKH);
         for (KhachHang_Voucher_DTO item : list) {
@@ -55,7 +51,7 @@ public class KhachHang_Voucher_BUS {
         }
         return 0;
     }
-    // Trong KhachHang_Voucher_BUS.java
+
     public int getSoLuotToiDa(String maVoucher, String maKH) {
         ArrayList<KhachHang_Voucher_DTO> list = khvDAO.getByMaKH(maKH);
         for (KhachHang_Voucher_DTO item : list) {

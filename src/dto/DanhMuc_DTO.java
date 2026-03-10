@@ -1,7 +1,6 @@
 package dto;
 
 public class DanhMuc_DTO {
-    // --- HẰNG SỐ CHO TRẠNG THÁI ---
     public static final int TT_NGUNG_HOAT_DONG = 0;
     public static final int TT_HOAT_DONG = 1;
     public static final String NGUNG_HOAT_DONG = "Ngưng hoạt động";
@@ -28,7 +27,6 @@ public class DanhMuc_DTO {
     public int getTrangThai() { return trangThai; }
     public void setTrangThai(int trangThai) { this.trangThai = trangThai; }
 
-    // --- LOGIC CHUYỂN ĐỔI TRẠNG THÁI ---
     public String getTrangThaiText() {
         return switch (trangThai) {
             case TT_HOAT_DONG -> HOAT_DONG;

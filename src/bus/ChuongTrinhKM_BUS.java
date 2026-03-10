@@ -36,7 +36,6 @@ public class ChuongTrinhKM_BUS {
         return dao.getNextId();
     }
 
-    // Lấy các CTKM đang có hiệu lực (Trạng thái = 1 và Trong khoảng thời gian)
     public ArrayList<ChuongTrinhKM_DTO> getDangDienRa() {
         ArrayList<ChuongTrinhKM_DTO> result = new ArrayList<>();
         long millis = System.currentTimeMillis();
@@ -44,15 +43,14 @@ public class ChuongTrinhKM_BUS {
 
         for (ChuongTrinhKM_DTO ct : listCache) {
             if (ct.getTrangThai() == 1 &&
-                    !ct.getNgayBatDau().after(today) && // Bắt đầu <= Hôm nay
-                    !ct.getNgayKetThuc().before(today)) { // Kết thúc >= Hôm nay
+                    !ct.getNgayBatDau().after(today) &&
+                    !ct.getNgayKetThuc().before(today)) {
                 result.add(ct);
             }
         }
         return result;
     }
 
-    // Thêm có kiểm tra hợp lệ
     public boolean them(ChuongTrinhKM_DTO ctkm) {
         if (!kiemTraHopLe(ctkm)) return false;
 
@@ -61,7 +59,6 @@ public class ChuongTrinhKM_BUS {
         return result;
     }
 
-    // Cập nhật có kiểm tra hợp lệ
     public boolean capNhat(ChuongTrinhKM_DTO ctkm) {
         if (!kiemTraHopLe(ctkm)) return false;
 
@@ -72,7 +69,6 @@ public class ChuongTrinhKM_BUS {
         return result;
     }
 
-    // Tìm kiếm (Mã hoặc Tên)
     public ArrayList<ChuongTrinhKM_DTO> timKiem(String keyword) {
         ArrayList<ChuongTrinhKM_DTO> result = new ArrayList<>();
         String key = keyword.toLowerCase();
@@ -86,13 +82,11 @@ public class ChuongTrinhKM_BUS {
         return result;
     }
 
-    // Hàm validate dữ liệu chung
     private boolean kiemTraHopLe(ChuongTrinhKM_DTO ctkm) {
         if (ctkm.getTen().trim().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Tên chương trình không được để trống!");
             return false;
         }
-        // Kiểm tra logic ngày: Ngày bắt đầu không được lớn hơn ngày kết thúc
         if (ctkm.getNgayBatDau().after(ctkm.getNgayKetThuc())) {
             JOptionPane.showMessageDialog(null, "Ngày bắt đầu không được lớn hơn ngày kết thúc!");
             return false;

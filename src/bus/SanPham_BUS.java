@@ -24,9 +24,6 @@ public class SanPham_BUS {
         return instance;
     }
 
-    /**
-     * Lấy danh sách sản phẩm (từ Cache)
-     */
     public ArrayList<SanPham_DTO> getAll() {
         if (listSanPham == null) {
             refreshData();
@@ -57,42 +54,29 @@ public class SanPham_BUS {
         return spDao.getNextId();
     }
 
-    /**
-     * HÀM LỌC TỔNG HỢP NÂNG CAO (Dùng cho cả Tìm kiếm và Gợi ý)
-     * @param keyword: Từ khóa nhập vào
-     * @param timTheo: "Tất cả", "Mã sản phẩm", "Tên sản phẩm"
-     * @param maDM: Mã danh mục hoặc "Tất cả"
-     * @param trangThai: 1 (Đang bán), 0 (Ngừng bán), null (Tất cả)
-     * @param sortLoiNhuan: "Không sắp xếp", "Tăng dần", "Giảm dần"
-     */
     public ArrayList<SanPham_DTO> timKiemNangCao(String keyword, String timTheo, String maDM, Integer trangThai, String sortLoiNhuan) {
         ArrayList<SanPham_DTO> result = new ArrayList<>();
         String key = (keyword == null) ? "" : keyword.toLowerCase().trim();
 
         for (SanPham_DTO sp : getAll()) {
-            // 1. Lọc theo Từ khóa & Tiêu chí tìm kiếm
             boolean matchKey = false;
             if (timTheo.equals("Tất cả")) {
                 matchKey = sp.getMaSP().toLowerCase().contains(key) || sp.getTenSP().toLowerCase().contains(key);
             } else if (timTheo.equals("Mã sản phẩm")) {
                 matchKey = sp.getMaSP().toLowerCase().contains(key);
-            } else { // Tên sản phẩm
+            } else {
                 matchKey = sp.getTenSP().toLowerCase().contains(key);
             }
 
-            // 2. Lọc theo Danh mục
             boolean matchDM = (maDM == null || maDM.equals("Tất cả") || (sp.getMaDM() != null && sp.getMaDM().equals(maDM)));
 
-            // 3. Lọc theo Trạng thái
             boolean matchTT = (trangThai == null || sp.getTrangThai() == trangThai);
 
-            // Kết hợp các điều kiện
             if (matchKey && matchDM && matchTT) {
                 result.add(sp);
             }
         }
 
-        // 4. Xử lý Sắp xếp theo Lợi nhuận (nếu có yêu cầu)
         if (sortLoiNhuan != null && !sortLoiNhuan.equals("Không sắp xếp")) {
             result.sort((sp1, sp2) -> {
                 if (sortLoiNhuan.equals("Tăng dần")) {

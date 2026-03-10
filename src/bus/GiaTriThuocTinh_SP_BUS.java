@@ -23,7 +23,6 @@ public class GiaTriThuocTinh_SP_BUS {
         return listCache;
     }
 
-    // Lấy danh sách liên kết theo mã thuộc tính (Để đổ bảng giá trị bên dưới khi click bảng trên)
     public ArrayList<GiaTriThuocTinh_SP_DTO> getByMaTT(String maTT) {
         ArrayList<GiaTriThuocTinh_SP_DTO> res = new ArrayList<>();
         if (maTT == null) return res;
@@ -33,7 +32,6 @@ public class GiaTriThuocTinh_SP_BUS {
         return res;
     }
 
-    // Lấy danh sách thuộc tính của 1 sản phẩm cụ thể (Dùng cho Hóa đơn/Chi tiết SP)
     public ArrayList<GiaTriThuocTinh_SP_DTO> getByMaSP(String maSP) {
         ArrayList<GiaTriThuocTinh_SP_DTO> res = new ArrayList<>();
         for (GiaTriThuocTinh_SP_DTO item : getAll()) {

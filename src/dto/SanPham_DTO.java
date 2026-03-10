@@ -1,13 +1,11 @@
 package dto;
 
 public class SanPham_DTO {
-    // --- HẰNG SỐ CHO TRẠNG THÁI ---
     public static final int TT_NGUNG_BAN = 0;
     public static final int TT_DANG_BAN = 1;
     public static final String NGUNG_BAN = "Ngừng bán";
     public static final String DANG_BAN = "Đang bán";
 
-    // --- HẰNG SỐ CHO KÊ ĐƠN ---
     public static final int KD_KHONG = 0;
     public static final int KD_CO = 1;
     public static final String KHONG_KE_DON = "Không";
@@ -21,8 +19,8 @@ public class SanPham_DTO {
     private int keDon;
     private int trangThai;
 
-    private String maDM;    // Khóa ngoại tham chiếu đến DanhMuc
-    private String maQC;    // Khóa ngoại tham chiếu đến QuyCach
+    private String maDM;
+    private String maQC;
 
     public SanPham_DTO() {
     }
@@ -41,7 +39,6 @@ public class SanPham_DTO {
         this.maQC = maQC;
     }
 
-    // --- GETTER & SETTER CƠ BẢN ---
     public String getMaSP() { return maSP; }
     public void setMaSP(String maSP) { this.maSP = maSP; }
 
@@ -94,8 +91,6 @@ public class SanPham_DTO {
             default -> -1;
         };
     }
-
-    // =========================================================
 
     public String getKeDonText() {
         return switch (keDon) {
