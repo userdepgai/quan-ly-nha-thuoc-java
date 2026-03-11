@@ -8,5 +8,4 @@ public class Main {
         SwingUtilities.invokeLater(() -> new DangNhapGUI().setVisible(true));
     }
 
-
 }
