@@ -12,7 +12,6 @@ public class GioHang_BUS {
     private ArrayList<GioHang_DTO> listCache;
 
     private List<ChiTietGioHang_DTO> danhSachGioHang = new ArrayList<>();
-
     private GioHang_BUS(){
         listCache = ghDAO.getAll();
     }

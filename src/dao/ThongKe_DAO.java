@@ -17,7 +17,6 @@ public class ThongKe_DAO {
     private DBConnection dbConnection = new DBConnection();
     public List<ThongKe_DTO> thongKeDoanhThu(Date tuNgay, Date denNgay, String maDanhMuc) {
         List<ThongKe_DTO> list = new ArrayList<>();
-
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT sp.Ma_SP, ");
         sql.append("SUM(ct.SoLuong) AS TongSLBan, ");

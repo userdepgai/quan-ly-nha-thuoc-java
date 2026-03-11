@@ -107,7 +107,6 @@ public class ThanhToan_BUS {
 
             khachHangDAO.them(khMoi);
         }
-
         for (ChiTietHoaDonBan_DTO ct : dsCT) {
 
             if (ct.getMaLo() == null || ct.getMaLo().trim().isEmpty()) {

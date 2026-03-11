@@ -47,7 +47,6 @@ public class GioHang_DAO {
         }
         return false;
     }
-
     public GioHang_DTO getByMaKH(String maKH) {
 
         String sql = "SELECT * FROM GIOHANG WHERE Ma_KH=?";

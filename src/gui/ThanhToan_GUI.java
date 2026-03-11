@@ -73,7 +73,6 @@ public class ThanhToan_GUI extends JPanel {
                 pnlDanhSachMua.setLayout(new BoxLayout(pnlDanhSachMua, BoxLayout.Y_AXIS));
                 pnlDanhSachMua.setBackground(Color.WHITE);
                 scrollDanhSachMua.setViewportView(pnlDanhSachMua);
-
                 scrollDanhSachMua.getVerticalScrollBar().setUnitIncrement(16);
                 scrollDanhSachMua.setBorder(BorderFactory.createEmptyBorder());
                 scrollDanhSachMua.getViewport().setBackground(Color.WHITE);

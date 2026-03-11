@@ -615,7 +615,6 @@ public class GIOHANG extends JPanel {
         return card;
     }
 
-
     private String getTenSanPham(String maSP) {
         dto.SanPham_DTO sp = bus.SanPham_BUS.getInstance().getById(maSP);
         if (sp != null) {

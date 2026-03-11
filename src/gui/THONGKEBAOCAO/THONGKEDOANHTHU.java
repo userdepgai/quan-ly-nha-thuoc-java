@@ -126,7 +126,6 @@ public class THONGKEDOANHTHU extends JPanel {
                     JOptionPane.showMessageDialog(this, "Vui lòng chọn đầy đủ Ngày bắt đầu và Ngày kết thúc!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-
                 if (tuNgay.after(denNgay)) {
                     JOptionPane.showMessageDialog(this, "Ngày bắt đầu không thể lớn hơn ngày kết thúc!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                     return;

@@ -20,7 +20,6 @@ public class ThongKe_BUS {
         if (tuNgay == null || denNgay == null) {
             return null;
         }
-
         if (tuNgay.after(denNgay)) {
             return null;
         }
