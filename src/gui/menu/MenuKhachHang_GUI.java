@@ -38,7 +38,7 @@ public class MenuKhachHang_GUI extends JFrame{
         menuModel.addElement(new MenuItem("Trang chủ","trangChu",icon("dashboard.png"),false));
         menuModel.addElement(new MenuItem("Giỏ hàng","gioHang",icon("gioHang.png"),false));
         menuModel.addElement(new MenuItem("Chờ giao hàng","choGiaoHang",icon("choGiaoHang.png"),false));
-        menuModel.addElement(new MenuItem("Lịch sử mua hàng","lichSuMuaHang",icon("lichSuMuaHang.png"),false));
+        menuModel.addElement(new MenuItem("Lịch sử đơn hàng","lichSuDonHang",icon("lichSuMuaHang.png"),false));
 
         menuModel.addElement(new MenuItem("HỒ SƠ", null, null,true));
         menuModel.addElement(new MenuItem("Thông tin cá nhân", "thongTinCaNhan", icon("nhanVien.png"),false));
@@ -64,7 +64,7 @@ public class MenuKhachHang_GUI extends JFrame{
         contentPanel.add(new TrangChu_GUI(),"trangChu");
         contentPanel.add(new GIOHANG(), "gioHang");
         contentPanel.add(createContent("Cho giao hang"),"choGiaoHang");
-        contentPanel.add(createContent("Lich su mua hang"),"lichSuMuaHang");
+        contentPanel.add(new LichSuDonHang_GUI(),"lichSuDonHang");
 
         contentPanel.add(new ThongTinCaNhanKhachHang_GUI(),"thongTinCaNhan");
         contentPanel.add(new DoiMatKhau_GUI(),"doiMatKhau");
