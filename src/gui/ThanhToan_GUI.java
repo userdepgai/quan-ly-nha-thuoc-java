@@ -453,13 +453,22 @@ public class ThanhToan_GUI extends JPanel {
 
             ArrayList<ChiTietHoaDonBan_DTO> dsCT =
                     new ArrayList<>(donHang.getDanhSachSanPham());
+            int phuongThuc = comboBoxPthucTt.getSelectedIndex();
 
+            int tinhTrangTT;
+
+            if(phuongThuc == 0){
+                tinhTrangTT = HoaDonBan_DTO.TT_CHUA_THANH_TOAN;
+            }else{
+                tinhTrangTT = HoaDonBan_DTO.TT_DA_THANH_TOAN;
+            }
             maHoaDonVuaTao = thanhToanBUS.taoDonOnline(
                     sdtTK,
                     donHang.getTenKH(),
                     donHang.getDiaChiChiTiet(),
                     this.maDiaChiGiaoHang,
-                    dsCT
+                    dsCT,
+                    tinhTrangTT
             );
 
             if (maHoaDonVuaTao == null) {
@@ -469,7 +478,7 @@ public class ThanhToan_GUI extends JPanel {
             }
 
 
-            int phuongThuc = comboBoxPthucTt.getSelectedIndex();
+            phuongThuc = comboBoxPthucTt.getSelectedIndex();
             if (phuongThuc == 0) {
 
                 xuLyDatHangThanhCong(donHang.getTenKH());
