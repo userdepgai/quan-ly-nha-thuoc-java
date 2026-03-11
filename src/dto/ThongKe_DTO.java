@@ -7,6 +7,8 @@ public class ThongKe_DTO {
     private int soLuongBan;
     private double loiNhuan;
 
+    private double tongDoanhThu;
+
     public ThongKe_DTO() {
     }
 
@@ -24,4 +26,6 @@ public class ThongKe_DTO {
 
     public double getLoiNhuan() { return loiNhuan; }
     public void setLoiNhuan(double loiNhuan) { this.loiNhuan = loiNhuan; }
+    public double getTongDoanhThu() { return tongDoanhThu; }
+    public void setTongDoanhThu(double tongDoanhThu) { this.tongDoanhThu = tongDoanhThu; }
 }

@@ -11,7 +11,6 @@ public class ThanhToan_DAO {
 
     public ThanhToan_DTO layThongTinKhachHang(String idTaiKhoan) {
         ThanhToan_DTO thongTin = null;
-
         String sql = "SELECT kh.Ten_KH, kh.SDT, dc.SoNha, dc.Duong, dc.Phuong, dc.Tinh " +
                 "FROM TAIKHOAN tk " +
                 "JOIN KHACHHANG kh ON tk.SDT = kh.SDT " +
@@ -32,7 +31,6 @@ public class ThanhToan_DAO {
                 String duong = rs.getString("Duong") != null ? rs.getString("Duong") + ", " : "";
                 String phuong = rs.getString("Phuong") != null ? rs.getString("Phuong") + ", " : "";
                 String tinh = rs.getString("Tinh") != null ? rs.getString("Tinh") : "";
-
                 String fullAddress = (soNha + duong + phuong + tinh).trim();
                 if (fullAddress.endsWith(",")) {
                     fullAddress = fullAddress.substring(0, fullAddress.length() - 1);
