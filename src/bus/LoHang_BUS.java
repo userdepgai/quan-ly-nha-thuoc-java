@@ -183,14 +183,14 @@ public class LoHang_BUS {
         return list;
     }
 
-    public ArrayList<String> getPNKTrangThaiChuanBi() {
+    public ArrayList<String> getPNKTrangThaiCho() {
 
         ArrayList<String> list = new ArrayList<>();
 
         for (PhieuNhapKho_DTO pnk :
                 PhieuNhapKho_BUS.getInstance().getAll()) {
 
-            if (pnk.getTrangThai() == PhieuNhapKho_DTO.TT_CHUAN_BI)
+            if (pnk.getTrangThai() == PhieuNhapKho_DTO.TT_CHO)
                 list.add(pnk.getMa());
         }
 
@@ -244,7 +244,6 @@ public class LoHang_BUS {
     }
 
     public Map<LoHang_DTO, Integer> phanBoLoDeBan(String maSp, int soLuongCanBan) {
-
         Map<LoHang_DTO, Integer> result = new LinkedHashMap<>();
         if (!kiemTraDuTon(maSp, soLuongCanBan))
             return result;
@@ -258,15 +257,16 @@ public class LoHang_BUS {
         }
         return result;
     }
+
     public int getSLSPThungByMaSP(String maSP){
         SanPham_DTO sp = SanPham_BUS.getInstance().getById(maSP);
         String maQC = sp.getMaQC();
         return QuyCach_BUS.getInstance().getById(maQC).getSlspThung();
     }
-    
-    public boolean banSanPham(String maSp,int soLuongBan){
-        Map<LoHang_DTO,Integer> phanBo = phanBoLoDeBan(maSp,soLuongBan);
-        if(phanBo.isEmpty()) return false;
+
+    public boolean banSanPham(Map<LoHang_DTO,Integer> phanBo, String maSp){
+        if(phanBo == null || phanBo.isEmpty())
+            return false;
         int slspThung = getSLSPThungByMaSP(maSp);
         for(Map.Entry<LoHang_DTO,Integer> e : phanBo.entrySet()){
             LoHang_DTO lo = e.getKey();
@@ -280,13 +280,13 @@ public class LoHang_BUS {
             int chenhLech = thungMoi - thungCu;
             if(chenhLech != 0){
                 KhuVucLuuTru_BUS kvbus = KhuVucLuuTru_BUS.getInstance();
-                kvbus.getInstance().capNhatSoThung(lo.getMaKvlt(), chenhLech);
-                kvbus.refreshData();
+                kvbus.capNhatSoThung(lo.getMaKvlt(), chenhLech);
             }
         }
         refreshData();
         return true;
     }
+
     public void hoanTraSanPham(Map<LoHang_DTO,Integer> danhSachTra, String maSp){
         int slspThung = getSLSPThungByMaSP(maSp);
         for(Map.Entry<LoHang_DTO,Integer> e : danhSachTra.entrySet()){
