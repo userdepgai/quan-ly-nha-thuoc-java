@@ -109,14 +109,6 @@
               <text value="Sửa"/>
             </properties>
           </component>
-          <component id="a7bf6" class="javax.swing.JButton" binding="btnThemDC">
-            <constraints>
-              <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Thêm Địa Chỉ Mới"/>
-            </properties>
-          </component>
         </children>
       </grid>
       <grid id="91c2e" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

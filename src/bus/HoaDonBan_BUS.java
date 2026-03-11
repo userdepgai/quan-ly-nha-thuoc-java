@@ -147,7 +147,6 @@ public class HoaDonBan_BUS {
     }
 
     public void themSanPham(String maSP, int soLuong,String tenKM,boolean coToa){
-        // ===== BUS tự tìm mã KM =====
         SanPham_DTO sp = spBus.getById(maSP);
 
         if(sp == null)
@@ -166,7 +165,6 @@ public class HoaDonBan_BUS {
 
                 maKM = km.getMaKM();
 
-                // ===== bắt buộc phải có khách hàng =====
                 if(hoaDon.getMaKhachHang() == null){
                     throw new RuntimeException(
                             "Vui lòng nhập số điện thoại khách hàng để kiểm tra lượt sử dụng"
@@ -189,7 +187,6 @@ public class HoaDonBan_BUS {
 
         if(daTonTai(maSP))
             throw new RuntimeException("Mỗi sản phẩm chỉ 1 dòng");
-        // ===== CHỌN LÔ FIFO =====
         if(!loBus.kiemTraDuTon(maSP, soLuong))
             throw new RuntimeException("Không đủ tồn");
 

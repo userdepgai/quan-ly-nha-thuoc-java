@@ -73,13 +73,10 @@ public class THONGKEKHACHHANG extends JPanel {
             tableThongKe.setModel(tableModel);
             tableThongKe.setFont(new Font("Arial", Font.PLAIN, 14));
 
-            // Cố định chiều cao dòng
             tableThongKe.setRowHeight(30);
 
             tableThongKe.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
             tableThongKe.getTableHeader().setBackground(new Color(220, 230, 241));
-
-            // Khóa không cho người dùng kéo thả kéo giãn các cột lung tung
             tableThongKe.getTableHeader().setReorderingAllowed(false);
             tableThongKe.getTableHeader().setResizingAllowed(false);
 

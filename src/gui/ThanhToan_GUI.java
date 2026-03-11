@@ -5,6 +5,7 @@ import dto.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +28,6 @@ public class ThanhToan_GUI extends JPanel {
     private JPanel pnlDanhSachMua;
     private String maHoaDonVuaTao;
     private JButton btnSua;
-    private JButton btnThemDC;
 
     private Runnable onDatHangThanhCongCallback;
     private List<ChiTietGioHang_DTO> danhSachMua;
@@ -73,7 +73,6 @@ public class ThanhToan_GUI extends JPanel {
                 pnlDanhSachMua.setLayout(new BoxLayout(pnlDanhSachMua, BoxLayout.Y_AXIS));
                 pnlDanhSachMua.setBackground(Color.WHITE);
                 scrollDanhSachMua.setViewportView(pnlDanhSachMua);
-
                 scrollDanhSachMua.getVerticalScrollBar().setUnitIncrement(16);
                 scrollDanhSachMua.setBorder(BorderFactory.createEmptyBorder());
                 scrollDanhSachMua.getViewport().setBackground(Color.WHITE);
@@ -88,7 +87,6 @@ public class ThanhToan_GUI extends JPanel {
         textTongThanhToan.setEditable(false);
         textTongThanhToan.setFont(new Font("Segoe UI", Font.BOLD, 14));
         textTongThanhToan.setForeground(Color.RED);
-
         if (comboBoxPthucTt != null) {
             comboBoxPthucTt.removeAllItems();
             comboBoxPthucTt.addItem("Thanh toán tiền mặt (COD)");
@@ -97,19 +95,36 @@ public class ThanhToan_GUI extends JPanel {
         }
         tuDongDienThongTin();
     }
-
     private JPanel taoDongSanPham(ChiTietGioHang_DTO item) {
         JPanel row = new JPanel(new BorderLayout(10, 0));
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
-        row.setPreferredSize(new Dimension(0, 60));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+        row.setPreferredSize(new Dimension(0, 70));
         row.setBackground(Color.WHITE);
         row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
 
+
+        JLabel lblAnh = new JLabel();
+        lblAnh.setPreferredSize(new Dimension(60, 60));
+        lblAnh.setHorizontalAlignment(SwingConstants.CENTER);
+        lblAnh.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+
+        dto.SanPham_DTO spDTO = bus.SanPham_BUS.getInstance().getById(item.getMaSP());
+        if (spDTO != null) {
+            String realPath = getRealImagePath(spDTO.getHinhAnh());
+            if (realPath != null) {
+                ImageIcon icon = new ImageIcon(realPath);
+                Image image = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+                lblAnh.setIcon(new ImageIcon(image));
+            } else {
+                lblAnh.setText("No Img");
+                lblAnh.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            }
+        }
         String tenSP = thanhToanBUS.getTenSanPham(item.getMaSP());
         double donGia = thanhToanBUS.getGiaSanPham(item.getMaSP());
 
         JLabel lblInfo = new JLabel("<html><b>" + tenSP + "</b><br><font color='gray'>Mã: " + item.getMaSP() + "</font></html>");
-        lblInfo.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        lblInfo.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0)); // Giảm padding trái vì đã có ảnh lo
 
         double thanhTienGoc = donGia * item.getSoLuong();
 
@@ -117,6 +132,7 @@ public class ThanhToan_GUI extends JPanel {
         lblPrice.setHorizontalAlignment(SwingConstants.RIGHT);
         lblPrice.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
 
+        row.add(lblAnh, BorderLayout.WEST);
         row.add(lblInfo, BorderLayout.CENTER);
         row.add(lblPrice, BorderLayout.EAST);
 
@@ -438,12 +454,13 @@ public class ThanhToan_GUI extends JPanel {
             ArrayList<ChiTietHoaDonBan_DTO> dsCT =
                     new ArrayList<>(donHang.getDanhSachSanPham());
 
-            maHoaDonVuaTao =
-                    thanhToanBUS.taoDonOnline(
-                            sdtTK,
-                            this.maDiaChiGiaoHang,
-                            dsCT
-                    );
+            maHoaDonVuaTao = thanhToanBUS.taoDonOnline(
+                    sdtTK,
+                    donHang.getTenKH(),
+                    donHang.getDiaChiChiTiet(),
+                    this.maDiaChiGiaoHang,
+                    dsCT
+            );
 
             if (maHoaDonVuaTao == null) {
                 JOptionPane.showMessageDialog(this,
@@ -453,8 +470,6 @@ public class ThanhToan_GUI extends JPanel {
 
 
             int phuongThuc = comboBoxPthucTt.getSelectedIndex();
-
-            // COD
             if (phuongThuc == 0) {
 
                 xuLyDatHangThanhCong(donHang.getTenKH());
@@ -479,5 +494,21 @@ public class ThanhToan_GUI extends JPanel {
                     JOptionPane.ERROR_MESSAGE
             );
         }
+    }
+    private String getRealImagePath(String path) {
+        if (path == null || path.trim().isEmpty()) return null;
+
+        String realPath = path;
+        if (path.startsWith("img/")) {
+            realPath = path.replace("img/", "images/");
+        }
+
+        File f = new File("src/" + realPath);
+        if (f.exists()) return "src/" + realPath;
+
+        f = new File(realPath);
+        if (f.exists()) return realPath;
+
+        return null;
     }
 }

@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class HoaDonBan_DTO extends HoaDon_DTO {
-
     private int tinhTrangThanhToan;
     private double tongTienGoc;
     private double tongGiaTriKhuyenMai;
@@ -15,7 +14,6 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     private double thueVAT;
     private boolean keToa;
     private int loaiHDB;
-
 
     private String maKhachHang;
     private String maVoucher;

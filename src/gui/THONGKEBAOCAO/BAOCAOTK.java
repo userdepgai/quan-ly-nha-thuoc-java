@@ -36,7 +36,6 @@ public class BAOCAOTK extends JPanel {
 
     private BaoCao_BUS baoCaoBUS;
     private HashMap<String, String> mapDanhMuc = new HashMap<>();
-
     public BAOCAOTK() {
         this.setLayout(new BorderLayout());
         this.add(panelMain);
