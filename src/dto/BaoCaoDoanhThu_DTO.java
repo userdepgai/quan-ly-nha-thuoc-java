@@ -1,7 +1,6 @@
 package dto;
 
 import java.util.Date;
-
 public class BaoCaoDoanhThu_DTO {
     private Date ngayBan;
     private int soLuongHoaDon;
