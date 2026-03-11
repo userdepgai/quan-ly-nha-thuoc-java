@@ -18,7 +18,6 @@ public class OrderItemPanel extends JPanel {
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public OrderItemPanel(HoaDonOnline_DTO hd) {
-        // Cố định kích thước Card để không bị dãn to
         this.setLayout(new BorderLayout());
         this.setBackground(Color.WHITE);
         this.setBorder(BorderFactory.createCompoundBorder(
@@ -26,11 +25,9 @@ public class OrderItemPanel extends JPanel {
                 new EmptyBorder(10, 15, 10, 15)
         ));
 
-        // Chiều cao tối đa khoảng 150-160 là đẹp
         this.setMaximumSize(new Dimension(800, 160));
         this.setPreferredSize(new Dimension(500, 160));
 
-        // --- 1. HEADER (Mã đơn + Trạng thái) ---
         JPanel pnlTop = new JPanel(new BorderLayout());
         pnlTop.setOpaque(false);
 
@@ -38,15 +35,13 @@ public class OrderItemPanel extends JPanel {
         lblMa.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblMa.setForeground(new Color(51, 51, 51));
 
-        JLabel lblStatus = new JLabel(hd.getTrangThaiText()); // Lấy trạng thái từ DTO
+        JLabel lblStatus = new JLabel(hd.getTrangThaiText());
         lblStatus.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblStatus.setForeground(getStatusColor(hd.getTrangThai()));
 
         pnlTop.add(lblMa, BorderLayout.WEST);
         pnlTop.add(lblStatus, BorderLayout.EAST);
 
-        // --- 2. BODY (Ngày đặt + Phí ship + Tổng tiền) ---
-        // Dùng Box để các dòng khít nhau hơn
         JPanel pnlMid = new JPanel();
         pnlMid.setLayout(new BoxLayout(pnlMid, BoxLayout.Y_AXIS));
         pnlMid.setOpaque(false);
@@ -64,12 +59,11 @@ public class OrderItemPanel extends JPanel {
         lblTotal.setForeground(new Color(220, 53, 69));
 
         pnlMid.add(lblNgay);
-        pnlMid.add(Box.createVerticalStrut(5)); // Khoảng cách nhỏ giữa các dòng
+        pnlMid.add(Box.createVerticalStrut(5));
         pnlMid.add(lblShip);
         pnlMid.add(Box.createVerticalStrut(10));
         pnlMid.add(lblTotal);
 
-        // --- 3. FOOTER (Nút xem chi tiết) ---
         JPanel pnlBottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         pnlBottom.setOpaque(false);
 
