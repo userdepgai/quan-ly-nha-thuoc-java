@@ -144,4 +144,11 @@ public class KhuVucLuuTru_BUS {
     public String getNextId() {
         return dao.getNextId();
     }
+
+    public void capNhatSoThung(String maKvlt, int thayDoi){
+        KhuVucLuuTru_DTO kv = getById(maKvlt);
+        int moi = kv.getHienCo() + thayDoi;
+        kv.setHienCo(moi);
+        dao.update(kv);
+    }
 }
