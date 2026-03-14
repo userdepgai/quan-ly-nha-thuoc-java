@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.time.LocalDate;
 
 public class NhanVien_DTO extends Nguoi_DTO {
-
     private String chucVu;
     private LocalDate ngayVaoLam;
     private double luongCoBan;

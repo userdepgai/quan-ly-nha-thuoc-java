@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 public class ChiTietHoaDonBan_DAO {
 
-    // ================= GET BY HÓA ĐƠN =================
     public ArrayList<ChiTietHoaDonBan_DTO> getByMaHD(String maHD) {
 
         ArrayList<ChiTietHoaDonBan_DTO> list = new ArrayList<>();
@@ -67,7 +66,6 @@ public class ChiTietHoaDonBan_DAO {
             ps.setDouble(6, ct.getGiaBan());
             ps.setDouble(7, ct.getGiaBanSauApKM());
             ps.setDouble(8, ct.getThanhTien());
-
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {

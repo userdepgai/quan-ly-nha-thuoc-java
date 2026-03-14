@@ -7,7 +7,6 @@ public class ThanhToan_DTO {
     private String tenKH;
     private String sdt;
     private String diaChiChiTiet;
-
     private List<ChiTietHoaDonBan_DTO> danhSachSanPham;
     private String maVoucher;
     private double tongThanhToan;

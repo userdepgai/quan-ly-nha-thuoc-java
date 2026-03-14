@@ -68,7 +68,6 @@ public class NCC extends JPanel {
             System.out.println("Lỗi: panelMain chưa được khởi tạo!");
         }
 
-        // Khởi tạo model cho ComboBox Trạng thái đồng bộ với DTO
         if (comboBoxTrangThai != null) {
             comboBoxTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{"Tất cả", NhaCungCap_DTO.DANG_GIAO_DICH, NhaCungCap_DTO.NGUNG_HOP_TAC}));
         }
@@ -563,7 +562,6 @@ public class NCC extends JPanel {
             trangThaiLoc = comboBoxTrangThai.getSelectedItem().toString();
         }
 
-        // Sửa Lọc: Loại trừ việc lọc theo chuỗi "Tất cả"
         if (trangThaiLoc.equals("Tất cả")) {
             trangThaiLoc = "";
         }

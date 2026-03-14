@@ -297,4 +297,3 @@ public class Menu extends JFrame {
         return popup;
     }
 }
-
