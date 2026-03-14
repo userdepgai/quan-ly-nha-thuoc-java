@@ -108,19 +108,9 @@ public class ThanhToan_BUS {
             khachHangDAO.them(khMoi);
         }
         for (ChiTietHoaDonBan_DTO ct : dsCT) {
-
-            if (ct.getMaLo() == null || ct.getMaLo().trim().isEmpty()) {
-
-                String maLo = timLoConHang(ct.getMaSP());
-
-                if(maLo == null){
-                    throw new RuntimeException("Sản phẩm " + ct.getMaSP() + " đã hết hàng");
-                }
-
-                ct.setMaLo(maLo);
+                ct.setMaLo(null);
             }
 
-        }
 
         try {
 

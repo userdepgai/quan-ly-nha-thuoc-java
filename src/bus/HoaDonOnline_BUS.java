@@ -100,21 +100,20 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         if (hd.getTrangThai() != HoaDonBan_DTO.TT_CHO_DUYET)
             throw new RuntimeException("Đơn không hợp lệ");
 
-        ArrayList<ChiTietHoaDonBan_DTO> ds =
-                ctDAO.getByMaHD(maHD);
+        ArrayList<ChiTietHoaDonBan_DTO> ds = ctDAO.getByMaHD(maHD);
 
         for (ChiTietHoaDonBan_DTO ct : ds) {
 
-            boolean duHang =
-                    loBus.kiemTraDuTon(ct.getMaSP(), ct.getSoLuong());
 
-            if (!duHang)
-                throw new RuntimeException(
-                        "Không đủ hàng: " + ct.getMaSP());
+            Map<LoHang_DTO, Integer> dsLo = loBus.phanBoLoDeBan(ct.getMaSP(), ct.getSoLuong());
+
+            if (dsLo.isEmpty()) {
+                throw new RuntimeException("Không đủ hàng: " + ct.getMaSP());
+            }
+            String maLoDuocChon = dsLo.keySet().iterator().next().getMaLo();
+            ctDAO.capNhatMaLo(maHD, ct.getMaSP(), maLoDuocChon);
         }
-
-        hoaDonDAO.capNhatTrangThai(maHD,
-                HoaDonBan_DTO.TT_DA_DUYET);
+        hoaDonDAO.capNhatTrangThai(maHD, HoaDonBan_DTO.TT_DA_DUYET);
     }
     public void khongDuyetDon(String maHD){
 
@@ -289,11 +288,20 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
        khBus.congDiemMuaHang(hd.getMaKhachHang(), diem);
     }
 
-    public HoaDonOnline_DTO getHoaDonOnline(String maHD){
+    public HoaDonOnline_DTO getHoaDonOnline(String maHD) {
+        ArrayList<HoaDonOnline_DTO> dsMoiNhat = hoaDonDAO.getDanhSachDuyetOnline();
 
+        if (dsMoiNhat != null) {
+            for (HoaDonOnline_DTO hd : dsMoiNhat) {
+                if (hd.getMa().equals(maHD)) {
+                    return hd;
+                }
+            }
+        }
+        refreshData();
         HoaDonBan_DTO hd = getById(maHD);
 
-        if(hd instanceof HoaDonOnline_DTO online){
+        if (hd instanceof HoaDonOnline_DTO online) {
             return online;
         }
 
