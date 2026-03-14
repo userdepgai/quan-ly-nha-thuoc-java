@@ -415,7 +415,6 @@ public class ThanhToan_GUI extends JPanel {
                 ChiTietHoaDonBan_DTO ct = new ChiTietHoaDonBan_DTO();
 
                 ct.setMaSP(item.getMaSP());
-                ct.setMaLo(item.getMaLo());
                 ct.setSoLuong(item.getSoLuong());
                 double gia = thanhToanBUS.getGiaSanPham(item.getMaSP());
                 ct.setGiaBan(gia);

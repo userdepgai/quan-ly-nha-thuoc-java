@@ -5,7 +5,7 @@ public class ChiTietGioHang_DTO {
     private String maGH;
     private String maSP;
     private int soLuong;
-    private String maLo;
+
     public ChiTietGioHang_DTO() {
     }
 
@@ -13,15 +13,8 @@ public class ChiTietGioHang_DTO {
         this.maGH = maGH;
         this.maSP = maSP;
         this.soLuong = soLuong;
-
-    }
-    public String getMaLo() {
-        return maLo;
     }
 
-    public void setMaLo(String maLo) {
-        this.maLo = maLo;
-    }
     public String getMaGH() {
         return maGH;
     }
