@@ -275,7 +275,7 @@ public class LoHang_GUI extends JPanel{
         txtKVLT.setText("");
 
         cmbPNK.removeAllItems();
-        ArrayList<String> dsPNK = bus.getPNKTrangThaiChuanBi();
+        ArrayList<String> dsPNK = bus.getPNKTrangThaiCho();
         cmbPNK.addItem("-- Chọn PNK --");
         for(String ma : dsPNK){
             cmbPNK.addItem(ma);

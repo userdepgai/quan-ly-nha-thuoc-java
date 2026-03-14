@@ -47,7 +47,6 @@ public class GioHang_DAO {
         }
         return false;
     }
-
     public GioHang_DTO getByMaKH(String maKH) {
 
         String sql = "SELECT * FROM GIOHANG WHERE Ma_KH=?";
@@ -86,7 +85,6 @@ public class GioHang_DAO {
                     return prefix + String.format("%06d", number);
                 }
             }
-
         } catch(Exception e) {
             e.printStackTrace();
         }

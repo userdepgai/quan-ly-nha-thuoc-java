@@ -183,14 +183,14 @@ public class LoHang_BUS {
         return list;
     }
 
-    public ArrayList<String> getPNKTrangThaiChuanBi() {
+    public ArrayList<String> getPNKTrangThaiCho() {
 
         ArrayList<String> list = new ArrayList<>();
 
         for (PhieuNhapKho_DTO pnk :
                 PhieuNhapKho_BUS.getInstance().getAll()) {
 
-            if (pnk.getTrangThai() == PhieuNhapKho_DTO.TT_CHUAN_BI)
+            if (pnk.getTrangThai() == PhieuNhapKho_DTO.TT_CHO)
                 list.add(pnk.getMa());
         }
 
@@ -244,7 +244,6 @@ public class LoHang_BUS {
     }
 
     public Map<LoHang_DTO, Integer> phanBoLoDeBan(String maSp, int soLuongCanBan) {
-
         Map<LoHang_DTO, Integer> result = new LinkedHashMap<>();
         if (!kiemTraDuTon(maSp, soLuongCanBan))
             return result;
@@ -258,6 +257,7 @@ public class LoHang_BUS {
         }
         return result;
     }
+
     public int getSLSPThungByMaSP(String maSP){
         SanPham_DTO sp = SanPham_BUS.getInstance().getById(maSP);
         String maQC = sp.getMaQC();
@@ -265,82 +265,46 @@ public class LoHang_BUS {
     }
 
     public boolean banSanPham(Map<LoHang_DTO,Integer> phanBo, String maSp){
-
         if(phanBo == null || phanBo.isEmpty())
             return false;
-
         int slspThung = getSLSPThungByMaSP(maSp);
-
         for(Map.Entry<LoHang_DTO,Integer> e : phanBo.entrySet()){
-
             LoHang_DTO lo = e.getKey();
             int tru = e.getValue();
-
             int thungCu = lo.getSoLuongConLai();
-
             int spMoi = lo.getSoLuongSPCL() - tru;
-
             lo.setSoLuongSPCL(spMoi);
-
-            int thungMoi =
-                    (int)Math.ceil((double)spMoi / slspThung);
-
+            int thungMoi = (int)Math.ceil((double)spMoi / slspThung);
             lo.setSoLuongConLai(thungMoi);
-
             dao.capNhat(lo);
-
             int chenhLech = thungMoi - thungCu;
-
             if(chenhLech != 0){
-
-                KhuVucLuuTru_BUS kvbus =
-                        KhuVucLuuTru_BUS.getInstance();
-
+                KhuVucLuuTru_BUS kvbus = KhuVucLuuTru_BUS.getInstance();
                 kvbus.capNhatSoThung(lo.getMaKvlt(), chenhLech);
             }
         }
-
         refreshData();
-
         return true;
     }
+
     public void hoanTraSanPham(Map<LoHang_DTO,Integer> danhSachTra, String maSp){
-
-        if(danhSachTra == null || danhSachTra.isEmpty())
-            return;
-
         int slspThung = getSLSPThungByMaSP(maSp);
-
-        KhuVucLuuTru_BUS kvbus = KhuVucLuuTru_BUS.getInstance();
-
         for(Map.Entry<LoHang_DTO,Integer> e : danhSachTra.entrySet()){
-
             LoHang_DTO lo = e.getKey();
             int cong = e.getValue();
-
-            if(cong <= 0)
-                continue;
-
             int thungCu = lo.getSoLuongConLai();
-
             int spMoi = lo.getSoLuongSPCL() + cong;
-
             lo.setSoLuongSPCL(spMoi);
-
             int thungMoi = (int)Math.ceil((double)spMoi / slspThung);
-
             lo.setSoLuongConLai(thungMoi);
-
             dao.capNhat(lo);
-
             int chenhLech = thungMoi - thungCu;
-
             if(chenhLech != 0){
-                kvbus.capNhatSoThung(lo.getMaKvlt(), chenhLech);
+                KhuVucLuuTru_BUS kvbus = KhuVucLuuTru_BUS.getInstance();
+                kvbus.getInstance().capNhatSoThung(lo.getMaKvlt(), chenhLech);
+                kvbus.refreshData();
             }
         }
-
-        kvbus.refreshData();
         refreshData();
     }
     public double getGiaNhapCaoNhatTrongLoChon(Map<LoHang_DTO, Integer> dsLo) {
@@ -357,7 +321,7 @@ public class LoHang_BUS {
         for (Map.Entry<LoHang_DTO, Integer> e : dsLo.entrySet()) {
             LoHang_DTO lo = e.getKey();
             int sl = e.getValue();
-            lo.congSoLuongSPCL(sl);
+            lo.congSoLuongConLai(sl);
         }
         refreshData();
     }

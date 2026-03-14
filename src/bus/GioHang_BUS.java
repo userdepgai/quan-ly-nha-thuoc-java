@@ -12,7 +12,6 @@ public class GioHang_BUS {
     private ArrayList<GioHang_DTO> listCache;
 
     private List<ChiTietGioHang_DTO> danhSachGioHang = new ArrayList<>();
-
     private GioHang_BUS(){
         listCache = ghDAO.getAll();
     }
@@ -37,7 +36,6 @@ public class GioHang_BUS {
         }
         return null;
     }
-
     public boolean them(GioHang_DTO gh){
         boolean result = ghDAO.them(gh);
         if(result)

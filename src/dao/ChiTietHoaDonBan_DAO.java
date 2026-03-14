@@ -66,7 +66,6 @@ public class ChiTietHoaDonBan_DAO {
             ps.setDouble(6, ct.getGiaBan());
             ps.setDouble(7, ct.getGiaBanSauApKM());
             ps.setDouble(8, ct.getThanhTien());
-
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
