@@ -150,7 +150,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 LoHang_DTO lo = entry.getKey();
                 int soLuongTru = entry.getValue();
 
-                lo.truSoLuongConLai(soLuongTru);
+//                lo.truSoLuongConLai(soLuongTru);
 
                 loBus.capNhat(lo);   // update DB
             }
