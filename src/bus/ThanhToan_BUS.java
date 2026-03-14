@@ -71,7 +71,8 @@ public class ThanhToan_BUS {
                                String tenKH,
                                String diaChiKH,
                                String maDiaChi,
-                               ArrayList<ChiTietHoaDonBan_DTO> dsCT) {
+                               ArrayList<ChiTietHoaDonBan_DTO> dsCT,
+                               int tinhTrangThanhToan) {
 
         if (dsCT == null || dsCT.isEmpty()) {
             return null;
@@ -126,7 +127,13 @@ public class ThanhToan_BUS {
 
             String maHDB = HoaDonOnline_BUS
                     .getInstance()
-                    .taoDonOnline(maKH, maDiaChi, dsCT);
+                    .taoDonOnline(
+                            maKH,
+                            diaChiKH,
+                            maDiaChi,
+                            dsCT,
+                            tinhTrangThanhToan
+                    );
             return maHDB;
 
         } catch (Exception e) {
