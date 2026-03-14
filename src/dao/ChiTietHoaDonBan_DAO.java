@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 public class ChiTietHoaDonBan_DAO {
 
-    // ================= GET BY HÓA ĐƠN =================
     public ArrayList<ChiTietHoaDonBan_DTO> getByMaHD(String maHD) {
 
         ArrayList<ChiTietHoaDonBan_DTO> list = new ArrayList<>();
@@ -71,6 +70,27 @@ public class ChiTietHoaDonBan_DAO {
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean deleteByMaHD(String maHD){
+
+        String sql =
+                "DELETE FROM CHITIETHOADON WHERE Ma_HDB=?";
+
+        try(
+                Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ){
+
+            ps.setString(1,maHD);
+
+            return ps.executeUpdate() > 0;
+
+        }catch(Exception e){
             e.printStackTrace();
         }
 

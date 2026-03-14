@@ -214,23 +214,52 @@ public class HoaDonBan_DAO {
 
         return false;
     }
-    public boolean capNhatTrangThai(String maHD, int trangThai) {
+    public boolean capNhatTrangThai(String maHD, int trangThai, String maNV) {
 
         String sql = """
-            UPDATE HOADONBAN
-            SET TrangThai=?,
-                NgayHoanThanh =
-                    CASE WHEN ?=3 THEN GETDATE()
-                         ELSE NgayHoanThanh END
-            WHERE Ma_HDB=?
-            """;
+        UPDATE HOADONBAN
+        SET TrangThai=?,
+            Ma_NV=?,
+            NgayHoanThanh =
+                CASE WHEN ?=3 THEN GETDATE()
+                     ELSE NgayHoanThanh END
+        WHERE Ma_HDB=?
+        """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, trangThai);
-            ps.setInt(2, trangThai);
-            ps.setString(3, maHD);
+
+            ps.setString(2, maNV);
+
+            ps.setInt(3, trangThai);
+
+            ps.setString(4, maHD);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+    public boolean capNhatThanhToan(String maHD, int tinhTrangThanhToan) {
+
+        String sql = """
+        UPDATE HOADONBAN
+        SET TinhTrangThanhToan = ?
+        WHERE Ma_HDB = ?
+        """;
+
+        try (
+                Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+
+            ps.setInt(1, tinhTrangThanhToan);
+            ps.setString(2, maHD);
 
             return ps.executeUpdate() > 0;
 

@@ -343,7 +343,6 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
     private void formEdit(){
 
         cbTrangThai.setModel(new DefaultComboBoxModel<>(new String[]{
-                "Tất cả",
                 HoaDonBan_DTO.CHO_DUYET,
                 HoaDonBan_DTO.DA_DUYET,
                 HoaDonBan_DTO.DANG_GIAO,
@@ -352,22 +351,25 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
                 HoaDonBan_DTO.YEU_CAU_HOAN
         }));
 
+        cbTrangThai.setSelectedIndex(-1);
+
         cbTTTT.setModel(new DefaultComboBoxModel<>(new String[]{
-                "Tất cả",
                 HoaDonBan_DTO.CHUA_THANH_TOAN,
                 HoaDonBan_DTO.DA_THANH_TOAN,
                 HoaDonBan_DTO.DA_HOAN_TIEN
         }));
 
+        cbTTTT.setSelectedIndex(-1);
+
         cbLoaiHD.setModel(new DefaultComboBoxModel<>(new String[]{
-                "Tất cả",
                 HoaDonBan_DTO.TAI_QUAY,
                 HoaDonBan_DTO.TRUC_TUYEN
         }));
+
+        cbLoaiHD.setSelectedIndex(-1);
+
         loadCBTimTheo();
         loadCBGia();
-
-
     }
     private void loadCBTimTheo(){
 
@@ -381,13 +383,13 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
     private void loadCBGia(){
 
         cbGia.setModel(new DefaultComboBoxModel<>(new String[]{
-                "Tất cả",
                 "Dưới 500.000",
                 "500.000 - 1.000.000",
                 "1.000.000 - 3.000.000",
                 "Trên 3.000.000"
         }));
 
+        cbGia.setSelectedIndex(-1);
     }
 
     private void suKienChonHoaDon() {
@@ -421,17 +423,29 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
         String kieuTim = cbTimTheo.getSelectedItem().toString();
         String keyword = txtNhapTT.getText().trim();
 
-        Integer trangThai = cbTrangThai.getSelectedIndex() == 0 ?
-                null : cbTrangThai.getSelectedIndex()-1;
+        Integer trangThai = null;
 
-        Integer thanhToan = cbTTTT.getSelectedIndex() == 0 ?
-                null : cbTTTT.getSelectedIndex()-1;
+        if(cbTrangThai.getSelectedIndex() >= 0){
+            trangThai = cbTrangThai.getSelectedIndex();
+        }
 
-        Integer loaiHD = cbLoaiHD.getSelectedIndex() == 0 ?
-                null : cbLoaiHD.getSelectedIndex()-1;
+        Integer thanhToan = null;
 
-        Integer mucGia = cbGia.getSelectedIndex() == 0 ?
-                null : cbGia.getSelectedIndex()-1;
+        if(cbTTTT.getSelectedIndex() >= 0){
+            thanhToan = cbTTTT.getSelectedIndex();
+        }
+
+        Integer loaiHD = null;
+
+        if(cbLoaiHD.getSelectedIndex() >= 0){
+            loaiHD = cbLoaiHD.getSelectedIndex();
+        }
+
+        Integer mucGia = null;
+
+        if(cbGia.getSelectedIndex() >= 0){
+            mucGia = cbGia.getSelectedIndex();
+        }
 
         java.time.LocalDateTime tuNgay = null;
         java.time.LocalDateTime denNgay = null;
@@ -487,10 +501,10 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
             txtNhapTT.setText("");
 
             cbTimTheo.setSelectedIndex(0);
-            cbTrangThai.setSelectedIndex(0);
-            cbTTTT.setSelectedIndex(0);
-            cbLoaiHD.setSelectedIndex(0);
-            cbGia.setSelectedIndex(0);
+            cbTrangThai.setSelectedIndex(-1);
+            cbTTTT.setSelectedIndex(-1);
+            cbLoaiHD.setSelectedIndex(-1);
+            cbGia.setSelectedIndex(-1);
 
             JDateChooser1.setDate(null);
             JDateChooser2.setDate(null);
@@ -507,6 +521,10 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
 
         popupGoiY.removeAll();
         popupGoiY.setLayout(new GridLayout(0,1));
+        popupGoiY.setFocusable(false);
+        popupGoiY.setRequestFocusEnabled(false);
+        popupGoiY.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+
 
         String kieuTim = cbTimTheo.getSelectedItem().toString();
 
@@ -545,8 +563,12 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
             popupGoiY.add(btn);
         }
 
-        if(list.size() > 0)
+        if(list.size() > 0){
+
             popupGoiY.show(txtNhapTT,0,txtNhapTT.getHeight());
+
+            txtNhapTT.requestFocus();
+        }
         else
             popupGoiY.setVisible(false);
     }
@@ -590,19 +612,31 @@ public class QuanLyHoaDonBan_GUI extends JPanel {
     }
     private void suKienGoiY(){
 
-        txtNhapTT.addKeyListener(new java.awt.event.KeyAdapter() {
+        txtNhapTT.getDocument().addDocumentListener(
+                new javax.swing.event.DocumentListener(){
 
-            @Override
-            public void keyReleased(java.awt.event.KeyEvent e) {
+                    private void update(){
 
-                if(!txtNhapTT.getText().trim().isEmpty())
-                    hienThiGoiY(timKiemGoiY());
-                else
-                    popupGoiY.setVisible(false);
+                        String text = txtNhapTT.getText().trim();
 
-            }
-        });
+                        if(!text.isEmpty())
+                            hienThiGoiY(timKiemGoiY());
+                        else
+                            popupGoiY.setVisible(false);
+                    }
 
+                    public void insertUpdate(javax.swing.event.DocumentEvent e){
+                        update();
+                    }
+
+                    public void removeUpdate(javax.swing.event.DocumentEvent e){
+                        update();
+                    }
+
+                    public void changedUpdate(javax.swing.event.DocumentEvent e){
+                        update();
+                    }
+                });
     }
     private String formatTien(double tien){
 

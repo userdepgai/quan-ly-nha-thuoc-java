@@ -164,11 +164,6 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
         this.ds_chiTietHDB = ds_chiTietHDB;
     }
 
-    // =============================
-// TRẠNG THÁI HÓA ĐƠN
-// =============================
-
-    // ===== VALUE (dùng cho DB + BUS) =====
     public static final int TT_CHO_DUYET = 0;
     public static final int TT_DA_DUYET = 1;
     public static final int TT_DANG_GIAO = 2;
@@ -177,7 +172,7 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     public static final int TT_YEU_CAU_HOAN = 5;
 
 
-    // ===== TEXT (dùng cho GUI) =====
+
     public static final String CHO_DUYET = "Chờ duyệt";
     public static final String DA_DUYET = "Đã duyệt";
     public static final String DANG_GIAO = "Đang giao";
@@ -186,9 +181,6 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     public static final String YEU_CAU_HOAN = "Yêu cầu hoàn hàng";
 
 
-    // =============================
-// INT -> TEXT (hiển thị GUI)
-// =============================
     public String getTrangThaiText() {
 
         switch (getTrangThai()) {
@@ -203,9 +195,6 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     }
 
 
-    // =============================
-// KÊ TOA
-// =============================
     public static final String KHONG_KE_TOA = "Không";
     public static final String CO_KE_TOA = "Có";
 
@@ -217,24 +206,16 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
 
 
 
-    // =============================
-// TÌNH TRẠNG THANH TOÁN
-// =============================
-
-    // ===== VALUE (dùng cho DB + BUS) =====
     public static final int TT_CHUA_THANH_TOAN = 0;
     public static final int TT_DA_THANH_TOAN = 1;
     public static final int TT_DA_HOAN_TIEN = 2;
 
-
-    // ===== TEXT (dùng cho GUI) =====
     public static final String CHUA_THANH_TOAN = "Chưa thanh toán";
     public static final String DA_THANH_TOAN = "Đã thanh toán";
     public static final String DA_HOAN_TIEN = "Đã hoàn tiền";
 
 
-    // =============================
-// INT -> TEXT (DTO -> GUI)
+
 // =============================
     public String getTinhTrangThanhToanText() {
 
@@ -254,12 +235,8 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
     }
 
 
-    // =============================
-// LOẠI HÓA ĐƠN BÁN
-// =============================
 
-    // ===== VALUE (dùng cho DB + BUS) =====
-    public static final int LOAI_TAI_QUAY = 0;
+     static final int LOAI_TAI_QUAY = 0;
     public static final int LOAI_TRUC_TUYEN = 1;
 
 
@@ -284,6 +261,4 @@ public class HoaDonBan_DTO extends HoaDon_DTO {
                 return "Không xác định";
         }
     }
-
-
 }

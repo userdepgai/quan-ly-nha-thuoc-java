@@ -10,9 +10,6 @@ import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * BUS Hóa Đơn Bán
- */
 public class HoaDonBan_BUS {
     private boolean dungDiemThuong = false;
     private static HoaDonBan_BUS instance;
@@ -36,6 +33,10 @@ public class HoaDonBan_BUS {
         return hoaDonDAO.getAll();
     }
     public ArrayList<ChiTietHoaDonBan_DTO> getDsTam(){
+
+        if(hoaDon == null)
+            return new ArrayList<>();
+
         return hoaDon.getDs_chiTietHDB();
     }
     public HoaDonBan_DTO getHoaDon(){
@@ -60,7 +61,7 @@ public class HoaDonBan_BUS {
 
         this.dungDiemThuong = dung;
 
-        tinhTongTien(); // tính lại tiền ngay
+        tinhTongTien();
     }
 
     public String getTenNV(String maNV){
@@ -88,12 +89,6 @@ public class HoaDonBan_BUS {
 
         return sp != null ? sp.getTenSP() : maSP;
     }
-    public String getDonViTinh(String maSP){
-
-        SanPham_DTO sp = spBus.getById(maSP);
-
-        return sp != null ? sp.getDonViTinh() : maSP;
-    }
     public String getTenKhuyenMai(String maKM){
 
         KhuyenMai_DTO km = kmBus.getById(maKM);
@@ -115,7 +110,22 @@ public class HoaDonBan_BUS {
 
         return dc.toString();
     }
+    protected String getMaNhanVienDangNhap(){
 
+        TaiKhoan_DTO tk = Session.getCurrentUser();
+
+        if(tk == null)
+            throw new RuntimeException("Chưa đăng nhập");
+
+        String sdt = tk.getSdt();
+
+        NhanVien_DTO nv = nvBus.getBysdt(sdt);
+
+        if(nv == null)
+            throw new RuntimeException("Không tìm thấy nhân viên");
+
+        return nv.getMa();
+    }
     public String getNextID(){
         return hoaDonDAO.getNextID();
     }
@@ -123,19 +133,7 @@ public class HoaDonBan_BUS {
    public void taoHoaDonMoi(){
 
         hoaDon = new HoaDonBan_DTO();
-        TaiKhoan_DTO tk = Session.getCurrentUser();
-
-        if(tk == null)
-            throw new RuntimeException("Chưa đăng nhập");
-
-       String sdt = tk.getSdt();
-
-       NhanVien_DTO nv = nvBus.getBysdt(sdt);
-
-       if(nv == null)
-           throw new RuntimeException("Không tìm thấy nhân viên");
-
-       String maNV = nv.getMa();
+       String maNV = getMaNhanVienDangNhap();
        hoaDon.setLoaiHDB(0);
        hoaDon.setMa(getNextID());
        hoaDon.setMaNhanVien(maNV);
@@ -147,7 +145,8 @@ public class HoaDonBan_BUS {
     }
 
     public void themSanPham(String maSP, int soLuong,String tenKM,boolean coToa){
-        // ===== BUS tự tìm mã KM =====
+
+
         SanPham_DTO sp = spBus.getById(maSP);
 
         if(sp == null)
@@ -166,7 +165,6 @@ public class HoaDonBan_BUS {
 
                 maKM = km.getMaKM();
 
-                // ===== bắt buộc phải có khách hàng =====
                 if(hoaDon.getMaKhachHang() == null){
                     throw new RuntimeException(
                             "Vui lòng nhập số điện thoại khách hàng để kiểm tra lượt sử dụng"
@@ -189,7 +187,7 @@ public class HoaDonBan_BUS {
 
         if(daTonTai(maSP))
             throw new RuntimeException("Mỗi sản phẩm chỉ 1 dòng");
-        // ===== CHỌN LÔ FIFO =====
+
         if(!loBus.kiemTraDuTon(maSP, soLuong))
             throw new RuntimeException("Không đủ tồn");
 
@@ -227,30 +225,23 @@ public class HoaDonBan_BUS {
         tinhTongTien();
     }
 
-    public ArrayList<KhuyenMai_DTO> goiYKhuyenMai(
-        String maSP,
-        String maDanhMuc,
-        double giaBan)
-{
-    return kmBus.getDSKMSapXepTotNhat(
-            maSP,
-            maDanhMuc,
-            giaBan
-    );
-}
+    public ArrayList<KhuyenMai_DTO> goiYKhuyenMai(String maSP, String maDanhMuc, double giaBan) {
+        return kmBus.getDSKMSapXepTotNhat(maSP, maDanhMuc, giaBan
+        );
+    }
 
 
     public ArrayList<Voucher_DTO> goiYVoucher(){
 
-    if(hoaDon == null) return new ArrayList<>();
-        if(hoaDon.getMaKhachHang() == null)
-            return new ArrayList<>();
-    double thanhTienTam =
-            hoaDon.getTongTienGoc()
-            - hoaDon.getTongGiaTriKhuyenMai();
+        if(hoaDon == null) return new ArrayList<>();
+            if(hoaDon.getMaKhachHang() == null)
+                return new ArrayList<>();
+        double thanhTienTam =
+                hoaDon.getTongTienGoc()
+                - hoaDon.getTongGiaTriKhuyenMai();
 
-    return vchBus.getDSVoucherSapXepTotNhat(thanhTienTam);
-}
+        return vchBus.getDSVoucherSapXepTotNhat(thanhTienTam);
+    }
 
 
     public void apDungVoucher(String tenVoucher){
@@ -291,10 +282,17 @@ public class HoaDonBan_BUS {
         return null;
     }
 
-     private boolean daTonTai(String maSP){
-         return hoaDon.getDs_chiTietHDB().stream()
-                 .anyMatch(x -> x.getMaSP().equals(maSP));
+    private boolean daTonTai(String maSP){
+
+        for(ChiTietHoaDonBan_DTO ct : hoaDon.getDs_chiTietHDB()){
+
+            if(ct.getMaSP().equals(maSP)){
+                return true;
+            }
         }
+
+        return false;
+    }
 
     public double tinhGiaBan(String maSP, double giaNhapMax){
 
@@ -327,10 +325,10 @@ public class HoaDonBan_BUS {
         KhuyenMai_DTO km = kmBus.getById(maKM);
         if(km == null) return giaBan;
 
-        if(km.getLoaiKhuyenMai() == 0) // %
+        if(km.getLoaiKhuyenMai() == KhuyenMai_DTO.LOAI_PHAN_TRAM)
             return giaBan * (1 - km.getGiaTriKhuyenMai());
 
-        if(km.getLoaiKhuyenMai() == 1) // tiền
+        if(km.getLoaiKhuyenMai() == KhuyenMai_DTO.LOAI_TIEN_MAT)
             return Math.max(0,
                     giaBan - km.getGiaTriKhuyenMai());
 
@@ -347,19 +345,28 @@ public class HoaDonBan_BUS {
     }
     private double tinhTongTienGoc(){
 
-        return hoaDon.getDs_chiTietHDB().stream()
-                .mapToDouble(ct ->
-                        ct.getGiaBan() * ct.getSoLuong())
-                .sum();
-    }
-    private double tinhTongGiaTriKhuyenMai(){
-
-        double tongGoc = 0;
-        double tongSauKM = 0;
+        double tongTien = 0;
 
         for(ChiTietHoaDonBan_DTO ct : hoaDon.getDs_chiTietHDB()){
 
-            tongGoc += ct.getGiaBan() * ct.getSoLuong();
+            double gia = ct.getGiaBan();
+
+            int soLuong = ct.getSoLuong();
+
+            double thanhTien = gia * soLuong;
+
+            tongTien += thanhTien;
+        }
+
+        return tongTien;
+    }
+    private double tinhTongGiaTriKhuyenMai(){
+
+        double tongGoc = tinhTongTienGoc();
+
+        double tongSauKM = 0;
+
+        for(ChiTietHoaDonBan_DTO ct : hoaDon.getDs_chiTietHDB()){
 
             tongSauKM += tinhThanhTienMotSP(
                     ct.getGiaBan(),
@@ -397,11 +404,11 @@ public class HoaDonBan_BUS {
         Voucher_DTO v = vchBus.getById(maVoucher);
         if(v == null) return 0;
 
-        if(v.getLoaiVoucher() == 0) // %
+        if(v.getLoaiVoucher() == Voucher_DTO.LOAI_PHAN_TRAM)
             return sauKM * v.getGiaTriVoucher();
 
-        if(v.getLoaiVoucher() == 1) // tiền
-            return v.getGiaTriVoucher();
+        if(v.getLoaiVoucher() == Voucher_DTO.LOAI_TIEN_MAT)
+            return Math.min(v.getGiaTriVoucher(), sauKM);
 
         return 0;
     }
@@ -501,7 +508,7 @@ public class HoaDonBan_BUS {
         try{
             hoaDon.setNgayHoanThanh(LocalDateTime.now());
             hoaDon.setTrangThai(HoaDonBan_DTO.TT_HOAN_THANH);
-            hoaDon.setTinhTrangThanhToan(1);
+            hoaDon.setTinhTrangThanhToan(HoaDonBan_DTO.TT_DA_THANH_TOAN);
 
             boolean ok = hoaDonDAO.insert(hoaDon);
 
@@ -513,14 +520,20 @@ public class HoaDonBan_BUS {
 
                 ct.setMaHDB(hoaDon.getMa());
 
-                ctDAO.insert(ct);
+                boolean okCT = ctDAO.insert(ct);
+
+                if(!okCT)
+                    throw new RuntimeException("Insert chi tiết hóa đơn thất bại");
                 LoHang_DTO lo = loBus.getById(ct.getMaLo());
 
-                lo.setSoLuongConLai(
-                        lo.getSoLuongConLai() - ct.getSoLuong()
-                );
+                if(lo == null)
+                    throw new RuntimeException("Không tìm thấy lô hàng");
 
-                loBus.capNhat(lo);
+                Map<LoHang_DTO,Integer> map = new HashMap<>();
+
+                map.put(lo, ct.getSoLuong());
+
+                loBus.banSanPham(map, ct.getMaSP());
                 if(ct.getMaKhuyenMai() != null
                         && hoaDon.getMaKhachHang() != null){
 
@@ -551,8 +564,9 @@ public class HoaDonBan_BUS {
                         diemSuDung
                 );
             }
-            congDiemKhach();
-
+            if(hoaDon.getMaKhachHang() != null){
+                congDiemKhach();
+            }
             refreshData();
 
             return true;
@@ -599,6 +613,120 @@ public class HoaDonBan_BUS {
         tinhTongTien();
     }
 
+    private boolean matchKeyword(
+            HoaDonBan_DTO hd,
+            String kieuTim,
+            String keyword)
+    {
+
+        if(keyword == null || keyword.isBlank())
+            return true;
+
+        switch (kieuTim){
+
+            case "Mã hóa đơn":
+                return hd.getMa().toLowerCase().contains(keyword);
+
+            case "SĐT":
+
+                String sdt =
+                        getSDT(hd.getMaKhachHang());
+
+                return sdt != null &&
+                        sdt.contains(keyword);
+
+            case "Tên khách hàng":
+
+                String ten =
+                        getTenKH(hd.getMaKhachHang());
+
+                return ten != null &&
+                        ten.toLowerCase().contains(keyword);
+        }
+
+        return true;
+    }
+
+    private boolean matchTrangThai(
+            HoaDonBan_DTO hd,
+            Integer trangThai)
+    {
+
+        if(trangThai == null)
+            return true;
+
+        return hd.getTrangThai() == trangThai;
+    }
+
+    private boolean matchThanhToan(
+            HoaDonBan_DTO hd,
+            Integer tinhTrangThanhToan)
+    {
+
+        if(tinhTrangThanhToan == null)
+            return true;
+
+        return hd.getTinhTrangThanhToan()
+                == tinhTrangThanhToan;
+    }
+
+    private boolean matchLoai(
+            HoaDonBan_DTO hd,
+            Integer loaiHD)
+    {
+
+        if(loaiHD == null)
+            return true;
+
+        return hd.getLoaiHDB() == loaiHD;
+    }
+
+    private boolean matchNgay(
+            HoaDonBan_DTO hd,
+            LocalDateTime tuNgay,
+            LocalDateTime denNgay)
+    {
+
+        if(tuNgay == null || denNgay == null)
+            return true;
+
+        LocalDateTime ngayLap =
+                hd.getNgayLap();
+
+        return !ngayLap.isBefore(tuNgay) &&
+                !ngayLap.isAfter(denNgay);
+    }
+
+    private boolean matchGia(
+            HoaDonBan_DTO hd,
+            Integer mucGia)
+    {
+
+        if(mucGia == null)
+            return true;
+
+        double gia = hd.getThanhTien();
+
+        switch (mucGia){
+
+            case 0:
+                return gia < 500000;
+
+            case 1:
+                return gia >= 500000 &&
+                        gia <= 1000000;
+
+            case 2:
+                return gia > 1000000 &&
+                        gia <= 3000000;
+
+            case 3:
+                return gia > 3000000;
+        }
+
+        return true;
+    }
+
     public ArrayList<HoaDonBan_DTO> timKiem(
             String kieuTim,
             String keyword,
@@ -616,88 +744,13 @@ public class HoaDonBan_BUS {
             keyword = keyword.toLowerCase();
 
         for(HoaDonBan_DTO hd : listCache){
-            boolean matchKeyword = true;
 
-            if(keyword != null && !keyword.isBlank()){
-
-                switch (kieuTim){
-
-                    case "Mã hóa đơn":
-
-                        matchKeyword =
-                                hd.getMa().toLowerCase().contains(keyword);
-                        break;
-
-                    case "SĐT":
-
-                        String sdt = getSDT(hd.getMaKhachHang());
-
-                        matchKeyword =
-                                sdt != null && sdt.contains(keyword);
-                        break;
-
-                    case "Tên khách hàng":
-
-                        String ten = getTenKH(hd.getMaKhachHang());
-
-                        matchKeyword =
-                                ten != null &&
-                                        ten.toLowerCase().contains(keyword);
-                        break;
-                }
-            }
-
-            boolean matchTrangThai =
-                    (trangThai == null ||
-                            hd.getTrangThai() == trangThai);
-            boolean matchThanhToan =
-                    (tinhTrangThanhToan == null ||
-                            hd.getTinhTrangThanhToan() == tinhTrangThanhToan);
-            boolean matchLoai =
-                    (loaiHD == null ||
-                            hd.getLoaiHDB() == loaiHD);
-            boolean matchNgay = true;
-
-            if(tuNgay != null && denNgay != null){
-
-                LocalDateTime ngayLap = hd.getNgayLap();
-
-                matchNgay =
-                        !ngayLap.isBefore(tuNgay) &&
-                                !ngayLap.isAfter(denNgay);
-            }
-            boolean matchGia = true;
-
-            if(mucGia != null){
-
-                double gia = hd.getThanhTien();
-
-                switch (mucGia){
-
-                    case 0:
-                        matchGia = gia < 500000;
-                        break;
-
-                    case 1:
-                        matchGia = gia >= 500000 && gia <= 1000000;
-                        break;
-
-                    case 2:
-                        matchGia = gia > 1000000 && gia <= 3000000;
-                        break;
-
-                    case 3:
-                        matchGia = gia > 3000000;
-                        break;
-                }
-            }
-
-            if(matchKeyword &&
-                    matchTrangThai &&
-                    matchThanhToan &&
-                    matchLoai &&
-                    matchNgay &&
-                    matchGia)
+            if(matchKeyword(hd,kieuTim,keyword) &&
+                    matchTrangThai(hd,trangThai) &&
+                    matchThanhToan(hd,tinhTrangThanhToan) &&
+                    matchLoai(hd,loaiHD) &&
+                    matchNgay(hd,tuNgay,denNgay) &&
+                    matchGia(hd,mucGia))
             {
                 result.add(hd);
             }

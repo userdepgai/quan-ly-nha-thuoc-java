@@ -113,8 +113,8 @@ public class LoHang_DTO {
         this.thanhTien = thanhTien;
     }
 
-    public void congSoLuongConLai(int num) {
-        this.soLuongConLai += num;
+    public void congSoLuongSPCL(int num){
+        this.soLuongSPCL += num;
     }
 
     public boolean truSoLuongConLai(int num) {
