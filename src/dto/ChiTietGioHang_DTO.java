@@ -14,7 +14,6 @@ public class ChiTietGioHang_DTO {
         this.maSP = maSP;
         this.soLuong = soLuong;
     }
-
     public String getMaGH() {
         return maGH;
     }
