@@ -82,7 +82,7 @@ public class QuanLySanPham_GUI extends JPanel {
     private final ThuocTinhDanhMuc_BUS ttBus = ThuocTinhDanhMuc_BUS.getInstance();
     private final GiaTriThuocTinh_BUS gtBus = GiaTriThuocTinh_BUS.getInstance();
     private final GiaTriThuocTinh_SP_BUS gtspBus = GiaTriThuocTinh_SP_BUS.getInstance();
-
+    private final LoHang_BUS lhBus = LoHang_BUS.getInstance();
 
     private boolean isAdding = false;
     private boolean isUpdating = false;
@@ -369,7 +369,8 @@ public class QuanLySanPham_GUI extends JPanel {
 
         cmbKeDon.setSelectedItem(sp.getKeDonText());
         cmbTrangThai.setSelectedItem(sp.getTrangThaiText());
-
+        int tongTon = lhBus.getTongSPTonByMaSP(sp.getMaSP());
+        txtSoLuongTonKho.setText(String.valueOf(tongTon));
         DanhMuc_DTO dm = dmBUS.getById(sp.getMaDM());
         if (dm != null) cmbDanhMuc.setSelectedItem(dm.getTenDM());
 
