@@ -282,6 +282,35 @@ public class QuanLySanPham_GUI extends JPanel {
                 }
             }
         });
+        btnXuatExcel.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Chọn nơi lưu file Excel");
+            if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                String path = chooser.getSelectedFile().getAbsolutePath();
+                if (!path.endsWith(".xlsx")) path += ".xlsx";
+
+                if (spBUS.exportExcel(path)) {
+                    JOptionPane.showMessageDialog(this, "Xuất Excel thành công!");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Xuất Excel thất bại!");
+                }
+            }
+        });
+
+        btnNhapExcel.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Chọn file Excel để nhập");
+            if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                String path = chooser.getSelectedFile().getAbsolutePath();
+
+                if (spBUS.importExcel(path)) {
+                    JOptionPane.showMessageDialog(this, "Nhập Excel thành công!");
+                    loadDataToTable(spBUS.getAll());
+                } else {
+                    JOptionPane.showMessageDialog(this, "Nhập Excel có lỗi xảy ra hoặc dữ liệu trùng!");
+                }
+            }
+        });
     }
 
 
