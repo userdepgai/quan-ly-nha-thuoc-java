@@ -121,15 +121,15 @@ public class KVLT extends JPanel {
                 default -> "Lỗi TT: " + kv.getTrangThai();
             };
 
-            int hienCoTinhToan = 0;
-
-            if (tatCaLoHang != null) {
-                for (dto.LoHang_DTO lo : tatCaLoHang) {
-                    if (lo.getMaKvlt() != null && lo.getMaKvlt().trim().equals(kv.getMaKVLT().trim())) {
-                        hienCoTinhToan += lo.getSoLuongConLai();
-                    }
-                }
-            }
+//            int hienCoTinhToan = 0;
+//
+//            if (tatCaLoHang != null) {
+//                for (dto.LoHang_DTO lo : tatCaLoHang) {
+//                    if (lo.getMaKvlt() != null && lo.getMaKvlt().trim().equals(kv.getMaKVLT().trim())) {
+//                        hienCoTinhToan += lo.getSoLuongConLai();
+//                    }
+//                }
+//            }
             String diaChiHienThi = "";
 
             if (kv.getDiaChi() != null && kv.getDiaChi().getMaDiaChi() != null) {
@@ -172,7 +172,7 @@ public class KVLT extends JPanel {
                     kv.getMaKVLT(),
                     kv.getTenKVLT(),
                     kv.getSucChua(),
-                    hienCoTinhToan,
+                    kv.getHienCo(),
                     kv.getNgayLapKho(),
                     diaChiHienThi,
                     trangThaiText
@@ -645,6 +645,5 @@ public class KVLT extends JPanel {
             popupGoiY.setVisible(false);
         }
     }
-
 
 }

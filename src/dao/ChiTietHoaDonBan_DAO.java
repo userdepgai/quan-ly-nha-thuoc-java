@@ -74,4 +74,25 @@ public class ChiTietHoaDonBan_DAO {
 
         return false;
     }
+
+    public boolean deleteByMaHD(String maHD){
+
+        String sql =
+                "DELETE FROM CHITIETHOADON WHERE Ma_HDB=?";
+
+        try(
+                Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ){
+
+            ps.setString(1,maHD);
+
+            return ps.executeUpdate() > 0;
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 }

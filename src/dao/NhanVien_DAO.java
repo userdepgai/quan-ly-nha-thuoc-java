@@ -37,7 +37,8 @@ public class NhanVien_DAO {
                         rs.getDate("NgayVaoLam").toLocalDate(),
                         rs.getDouble("LuongCoBan"),
                         rs.getInt("TrangThai"),
-                        rs.getString("Ma_DC")
+                        rs.getString("Ma_DC"),
+                        rs.getString("MaQuyen")
                 );
 
                 list.add(nv);
@@ -50,7 +51,6 @@ public class NhanVien_DAO {
         return list;
     }
 
-    // ===== TỰ SINH MÃ =====
     public String getNextId() {
 
         String sql = "SELECT MAX(CAST(SUBSTRING(Ma_NV,3,6) AS INT)) FROM NHANVIEN";
@@ -76,15 +76,14 @@ public class NhanVien_DAO {
         return "NV000001";
     }
 
-    // ===== THÊM =====
     public boolean them(NhanVien_DTO nv) {
 
         String sql = """
-    INSERT INTO NHANVIEN
-    (Ma_NV, Ten_NV, SDT, NgaySinh, GioiTinh,
-     ChucVu, NgayVaoLam, LuongCoBan, TrangThai, Ma_DC)
-    VALUES (?,?,?,?,?,?,?,?,?,?)
-""";
+                    INSERT INTO NHANVIEN
+                    (Ma_NV, Ten_NV, SDT, NgaySinh, GioiTinh,
+                    ChucVu, NgayVaoLam, LuongCoBan, TrangThai, Ma_DC, MaQuyen)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                    """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -99,6 +98,7 @@ public class NhanVien_DAO {
             ps.setDouble(8, nv.getLuongCoBan());
             ps.setInt(9, nv.getTrangThai());
             ps.setString(10, nv.getMaDiaChi());
+            ps.setString(11, nv.getMaQuyen());
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
@@ -108,22 +108,13 @@ public class NhanVien_DAO {
         return false;
     }
 
-    // ===== CẬP NHẬT =====
     public boolean capNhat(NhanVien_DTO nv) {
 
         String sql = """
-        UPDATE NHANVIEN
-        SET Ten_NV=?, 
-            SDT=?, 
-            NgaySinh=?, 
-            GioiTinh=?,
-            ChucVu=?, 
-            NgayVaoLam=?, 
-            LuongCoBan=?, 
-            TrangThai=?,
-            Ma_DC=?
-        WHERE Ma_NV=?
-    """;
+                    UPDATE NHANVIEN SET Ten_NV=?, SDT=?, NgaySinh=?, GioiTinh=?,ChucVu=?, 
+                        NgayVaoLam=?, LuongCoBan=?, TrangThai=?,Ma_DC=?, MaQuyen=?
+                    WHERE Ma_NV=?
+                    """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -137,7 +128,8 @@ public class NhanVien_DAO {
             ps.setDouble(7, nv.getLuongCoBan());
             ps.setInt(8, nv.getTrangThai());
             ps.setString(9, nv.getMaDiaChi());
-            ps.setString(10, nv.getMa());
+            ps.setString(10, nv.getMaQuyen());
+            ps.setString(11, nv.getMa());
 
             return ps.executeUpdate() > 0;
 
