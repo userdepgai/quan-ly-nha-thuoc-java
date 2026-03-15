@@ -1,6 +1,7 @@
 package gui;
 
 import bus.HoaDonBan_BUS;
+import bus.HoaDonOnline_BUS;
 import dto.ChiTietHoaDonBan_DTO;
 import dto.HoaDonOnline_DTO;
 import dto.HoaDonBan_DTO;
@@ -17,7 +18,11 @@ public class OrderItemPanel extends JPanel {
     private final DecimalFormat df = new DecimalFormat("#,### VNĐ");
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    public OrderItemPanel(HoaDonOnline_DTO hd) {
+    private LichSuDonHang_GUI parentGUI;
+
+    public OrderItemPanel(HoaDonOnline_DTO hd, LichSuDonHang_GUI parentGUI) {
+        this.parentGUI = parentGUI;
+
         this.setLayout(new BorderLayout());
         this.setBackground(Color.WHITE);
         this.setBorder(BorderFactory.createCompoundBorder(
@@ -64,34 +69,85 @@ public class OrderItemPanel extends JPanel {
         pnlMid.add(Box.createVerticalStrut(10));
         pnlMid.add(lblTotal);
 
-        JPanel pnlBottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        JPanel pnlBottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         pnlBottom.setOpaque(false);
 
-        JButton btnChiTiet = new JButton("Xem chi tiết sản phẩm");
-        styleDetailButton(btnChiTiet);
+        JButton btnChiTiet = new JButton("Xem chi tiết");
+        styleButton(btnChiTiet, Color.WHITE, Color.BLACK, new Color(200, 200, 200));
         btnChiTiet.addActionListener(e -> showOrderDetails(hd));
-
         pnlBottom.add(btnChiTiet);
+
+        int status = hd.getTrangThai();
+
+        if (status == HoaDonBan_DTO.TT_CHO_DUYET) {
+            JButton btnHuy = new JButton("Hủy đơn hàng");
+            styleButton(btnHuy, Color.WHITE, new Color(220, 53, 69), new Color(220, 53, 69));
+            btnHuy.addActionListener(e -> xuLyHuyDon(hd.getMa()));
+            pnlBottom.add(btnHuy);
+
+        } else if (status == HoaDonBan_DTO.TT_HOAN_THANH) {
+            JButton btnHoan = new JButton("Yêu cầu hoàn hàng");
+            styleButton(btnHoan, Color.WHITE, new Color(255, 140, 0), new Color(255, 140, 0));
+            btnHoan.addActionListener(e -> xuLyHoanHang(hd.getMa()));
+            pnlBottom.add(btnHoan);
+        }
 
         this.add(pnlTop, BorderLayout.NORTH);
         this.add(pnlMid, BorderLayout.CENTER);
         this.add(pnlBottom, BorderLayout.SOUTH);
     }
 
-    private void styleDetailButton(JButton btn) {
+    private void xuLyHuyDon(String maHD) {
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc chắn muốn hủy đơn hàng " + maHD + " không?",
+                "Xác nhận hủy", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                HoaDonOnline_BUS.getInstance().khachHuyDon(maHD);
+                JOptionPane.showMessageDialog(this, "Hủy đơn hàng thành công!");
+                parentGUI.loadData();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void xuLyHoanHang(String maHD) {
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Bạn muốn gửi yêu cầu hoàn hàng cho đơn " + maHD + "?",
+                "Xác nhận hoàn hàng", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                HoaDonOnline_BUS.getInstance().hoanHang(maHD);
+                JOptionPane.showMessageDialog(this, "Đã gửi yêu cầu hoàn hàng thành công!");
+                parentGUI.loadData();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void styleButton(JButton btn, Color bg, Color fg, Color border) {
         btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setBackground(Color.WHITE);
+        btn.setBackground(bg);
+        btn.setForeground(fg);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(border, 1, true),
+                new EmptyBorder(5, 12, 5, 12)
+        ));
     }
 
     private void showOrderDetails(HoaDonOnline_DTO hd) {
-        ArrayList<dto.ChiTietHoaDonBan_DTO> listCT = HoaDonBan_BUS.getInstance().getChiTietHoaDon(hd.getMa());
+        ArrayList<ChiTietHoaDonBan_DTO> listCT = HoaDonBan_BUS.getInstance().getChiTietHoaDon(hd.getMa());
 
         StringBuilder sb = new StringBuilder();
         sb.append("DANH SÁCH SẢN PHẨM TRONG ĐƠN ").append(hd.getMa()).append(":\n\n");
 
-        for (dto.ChiTietHoaDonBan_DTO ct : listCT) {
+        for (ChiTietHoaDonBan_DTO ct : listCT) {
             String tenSP = HoaDonBan_BUS.getInstance().getTenSP(ct.getMaSP());
             sb.append(String.format(" • %s\n", tenSP));
             sb.append(String.format("   Số lượng: %d  |  Đơn giá: %s\n",
@@ -114,6 +170,7 @@ public class OrderItemPanel extends JPanel {
             case HoaDonBan_DTO.TT_HOAN_THANH -> new Color(46, 125, 50);
             case HoaDonBan_DTO.TT_DA_HUY -> new Color(211, 47, 47);
             case HoaDonBan_DTO.TT_DANG_GIAO -> new Color(2, 136, 209);
+            case HoaDonBan_DTO.TT_YEU_CAU_HOAN -> new Color(156, 39, 176);
             default -> Color.BLACK;
         };
     }

@@ -86,7 +86,7 @@ public class LichSuDonHang_GUI extends JPanel {
         } else {
             for (HoaDonOnline_DTO hd : list) {
                 pnlDanhSachCard.add(Box.createVerticalStrut(10));
-                OrderItemPanel card = new OrderItemPanel(hd);
+                OrderItemPanel card = new OrderItemPanel(hd,this);
                 card.setAlignmentX(Component.CENTER_ALIGNMENT);
                 pnlDanhSachCard.add(card);
             }
