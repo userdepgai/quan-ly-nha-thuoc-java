@@ -80,7 +80,7 @@ public class THONGKEKHACHHANG extends JPanel {
             tableThongKe.getTableHeader().setReorderingAllowed(false);
             tableThongKe.getTableHeader().setResizingAllowed(false);
 
-            tableThongKe.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tableThongKe.getColumnModel().getColumn(0).setPreferredWidth(5);
             tableThongKe.getColumnModel().getColumn(1).setPreferredWidth(100);
             tableThongKe.getColumnModel().getColumn(2).setPreferredWidth(150);
             tableThongKe.getColumnModel().getColumn(5).setPreferredWidth(150);

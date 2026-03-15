@@ -1,7 +1,9 @@
 package bus;
 
 import dao.KhachHang_DAO;
+import dto.DIACHI_DTO;
 import dto.KhachHang_DTO;
+import dto.KhachHang_DiaChi_DTO;
 
 import javax.swing.*;
 import java.time.LocalDate;
@@ -41,13 +43,12 @@ public class KhachHang_BUS {
         return khDao.getNextId();
     }
 
-    public boolean them(KhachHang_DTO kh) {
-
-        kh.setDiemThuong(0);
-        kh.setDiemHang(0);
-
+    public boolean them(KhachHang_DTO kh){
         boolean result = khDao.them(kh);
-        if(result) refreshData();
+        if(result){
+            GioHang_BUS.getInstance().taoGioHangChoKhach(kh.getMa());
+            refreshData();
+        }
         return result;
     }
 
@@ -150,6 +151,16 @@ public class KhachHang_BUS {
                 return kh;
         }
         return null;
+    }
+    public String getDiaChiMacDinhText(String maKH){
+
+        KhachHang_DiaChi_DTO khdc =
+                KhachHang_DiaChi_BUS.getInstance().getMacDinh(maKH);
+        if(khdc == null) return "";
+
+        DIACHI_DTO dc = DiaChi_BUS.getInstance().getById(khdc.getMaDiaChi());
+
+        return dc != null ? dc.toString() : "";
     }
 
     public void refreshData() {

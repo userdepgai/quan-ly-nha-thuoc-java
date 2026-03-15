@@ -2,8 +2,14 @@ package bus;
 
 import dao.NhanVien_DAO;
 import dto.NhanVien_DTO;
+import dto.PhanQuyenChucNang_DTO;
+import dto.PhanQuyen_DTO;
+import dto.TaiKhoan_DTO;
+import utils.ExcelNhanVien;
+import utils.ExcelTaiKhoan;
 
 import javax.swing.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class NhanVien_BUS {
@@ -142,5 +148,58 @@ public class NhanVien_BUS {
         }
 
         return null;
+    }
+
+    public ArrayList<PhanQuyen_DTO> getQuyenKhongCoCuaHang(){
+        ArrayList<PhanQuyen_DTO> result = new ArrayList<>();
+        for(PhanQuyen_DTO q : PhanQuyen_BUS.getInstance().getAll()){
+            if(PhanQuyenChucNang_BUS.getInstance()
+                    .khongCoChucNang(q.getMaQuyen(),"CUAHANG")){
+
+                result.add(q);
+            }
+        }
+        return result;
+    }
+    public ArrayList<PhanQuyen_DTO> getQuyenNhanVienHoatDong(){
+        ArrayList<PhanQuyen_DTO> result = new ArrayList<>();
+        for(PhanQuyen_DTO q : getQuyenKhongCoCuaHang()){
+            if(q.getTrangThai() == PhanQuyen_DTO.TT_HOAT_DONG){
+                result.add(q);
+            }
+        }
+        return result;
+    }
+    public void taoTaiKhoanNhanVien(String sdt,String maQuyen){
+        TaiKhoan_BUS tkBus = TaiKhoan_BUS.getInstance();
+        TaiKhoan_DTO tk = new TaiKhoan_DTO();
+        tk.setMaTK(tkBus.getNextID());
+        tk.setSdt(sdt);
+        tk.setMatKhau("123");
+        tk.setMaQuyen(maQuyen);
+        tk.setNgayKichHoat(LocalDate.now());
+        tk.setTrangThai(TaiKhoan_DTO.TT_MO);
+
+        tkBus.them(tk);
+    }
+    public void capNhatQuyenTaiKhoan(String sdt,String maQuyenCu,String maQuyenMoi){
+        TaiKhoan_BUS tkBus = TaiKhoan_BUS.getInstance();
+        for(TaiKhoan_DTO tk : tkBus.getAll()){
+            if(tk.getSdt().equals(sdt) && tk.getMaQuyen().equals(maQuyenCu)){
+                tk.setMaQuyen(maQuyenMoi);
+                tkBus.capNhat(tk);
+                break;
+            }
+        }
+    }
+    public ArrayList<String> getTenQuyenKhongCoCuaHangVaHoatDong(){
+        ArrayList<String> result = new ArrayList<>();
+        for(PhanQuyen_DTO pq : getQuyenNhanVienHoatDong()){
+                result.add(pq.getTenQuyen());
+        }
+        return result;
+    }
+    public boolean exportExcel(String path){
+        return ExcelNhanVien.exportExcel(getAll(),path);
     }
 }

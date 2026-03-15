@@ -79,7 +79,7 @@ public class BAOCAODOANHTHU extends JPanel {
             tableBaoCao.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
             tableBaoCao.getTableHeader().setBackground(new Color(220, 230, 241));
             tableBaoCao.getTableHeader().setReorderingAllowed(false);
-
+            tableBaoCao.getTableHeader().setResizingAllowed(false);
             tableBaoCao.getColumnModel().getColumn(0).setPreferredWidth(40);
             tableBaoCao.getColumnModel().getColumn(0).setMaxWidth(40);
             tableBaoCao.getColumnModel().getColumn(1).setPreferredWidth(100);

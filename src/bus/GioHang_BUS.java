@@ -63,8 +63,17 @@ public class GioHang_BUS {
             danhSachGioHang.add(spMoi);
         }
     }
-
     public void xoaSachGioHang() {
         danhSachGioHang.clear();
+    }
+
+    public boolean taoGioHangChoKhach(String maKH){
+        GioHang_DTO gh = getByMaKH(maKH);
+        if(gh != null){
+            return true;
+        }
+        String maGH = getNextId();
+        GioHang_DTO gioHang = new GioHang_DTO(maGH, maKH);
+        return them(gioHang);
     }
 }
