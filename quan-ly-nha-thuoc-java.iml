@@ -8,7 +8,6 @@
     <orderEntry type="jdk" jdkName="24" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="commons-collections4-4.4" level="project" />
-    <orderEntry type="library" name="commons-compress-1.21" level="project" />
     <orderEntry type="library" exported="" name="commons-io-2.11.0" level="project" />
     <orderEntry type="library" exported="" name="curvesapi-1.07" level="project" />
     <orderEntry type="library" exported="" name="itextpdf-5.5.13.4" level="project" />
@@ -18,5 +17,8 @@
     <orderEntry type="library" exported="" name="poi-ooxml-5.2.3" level="project" />
     <orderEntry type="library" exported="" name="poi-ooxml-full-5.2.3" level="project" />
     <orderEntry type="library" exported="" name="xmlbeans-5.1.1" level="project" />
+    <orderEntry type="library" name="commons-compress-1.26.1" level="project" />
+    <orderEntry type="library" name="log4j-api-2.20.0" level="project" />
+    <orderEntry type="library" name="log4j-core-2.20.0" level="project" />
   </component>
 </module>
