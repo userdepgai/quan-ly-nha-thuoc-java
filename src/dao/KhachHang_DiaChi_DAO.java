@@ -121,4 +121,31 @@ public class KhachHang_DiaChi_DAO {
 
         return false;
     }
+    public boolean capNhat(KhachHang_DiaChi_DTO dto) {
+        String sqlUpdate =
+                "UPDATE KHACHHANGDIACHI SET TrangThai = ? WHERE Ma_KH = ? AND Ma_DC = ?";
+        try (Connection conn = DBConnection.getConnection()) {
+            if (dto.getTrangThai() == 1) {
+                String sqlReset =
+                        "UPDATE KHACHHANGDIACHI SET TrangThai = 0 WHERE Ma_KH = ?";
+                try (PreparedStatement psReset = conn.prepareStatement(sqlReset)) {
+                    psReset.setString(1, dto.getMaKhachHang());
+                    psReset.executeUpdate();
+                }
+            }
+            try (PreparedStatement ps = conn.prepareStatement(sqlUpdate)) {
+
+                ps.setInt(1, dto.getTrangThai());
+                ps.setString(2, dto.getMaKhachHang());
+                ps.setString(3, dto.getMaDiaChi());
+
+                return ps.executeUpdate() > 0;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 }

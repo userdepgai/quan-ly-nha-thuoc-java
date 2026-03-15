@@ -53,6 +53,9 @@ public class KhachHang_DiaChi_BUS {
         return result;
     }
 
+    public boolean capNhat(KhachHang_DiaChi_DTO dto) {
+        return khdcDao.capNhat(dto);
+    }
     public boolean xoa(String maKH, String maDC) {
 
         for (KhachHang_DiaChi_DTO dto : listCache) {
