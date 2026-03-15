@@ -8,7 +8,7 @@
     <orderEntry type="jdk" jdkName="24" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="commons-collections4-4.4" level="project" />
-    <orderEntry type="library" exported="" name="commons-compress-1.21" level="project" />
+    <orderEntry type="library" name="commons-compress-1.21" level="project" />
     <orderEntry type="library" exported="" name="commons-io-2.11.0" level="project" />
     <orderEntry type="library" exported="" name="curvesapi-1.07" level="project" />
     <orderEntry type="library" exported="" name="itextpdf-5.5.13.4" level="project" />

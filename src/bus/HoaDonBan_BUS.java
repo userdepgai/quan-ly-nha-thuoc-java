@@ -638,6 +638,7 @@ public class HoaDonBan_BUS {
             case "Tên khách hàng":
 
                 String ten =
+
                         getTenKH(hd.getMaKhachHang());
 
                 return ten != null &&
