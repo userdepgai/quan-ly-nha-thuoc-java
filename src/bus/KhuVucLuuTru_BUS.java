@@ -150,5 +150,6 @@ public class KhuVucLuuTru_BUS {
         int moi = kv.getHienCo() + thayDoi;
         kv.setHienCo(moi);
         dao.update(kv);
+        refreshData();
     }
 }

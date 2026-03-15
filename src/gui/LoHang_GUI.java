@@ -1,6 +1,9 @@
 package gui;
 
+import bus.ChiTietPhieuNhapKho_BUS;
 import bus.LoHang_BUS;
+import com.toedter.calendar.JDateChooser;
+import dto.ChiTietPhieuNhapKho_DTO;
 import dto.LoHang_DTO;
 
 import javax.swing.*;
@@ -55,7 +58,6 @@ public class LoHang_GUI extends JPanel{
     private JLabel labelPNK;
     private JLabel labelSanPham;
     private JComboBox cmbTrangThai;
-    private JTextField txtHSD;
     private JButton btnHuy;
     private JButton btnLuu;
     private JPanel labelKVLT;
@@ -67,6 +69,7 @@ public class LoHang_GUI extends JPanel{
     private JLabel labelHSD;
     private JLabel labelTTTK;
     private JComboBox cmbTrangThaiTon;
+    private JDateChooser JDateChooser1;
 
     private boolean isAddingLo = false;
     private boolean isUpdatingLo = false;
@@ -80,7 +83,7 @@ public class LoHang_GUI extends JPanel{
 
         formEdit();
         initTable();
-        loadTableFromList(bus.getAll());
+        loadTableFromList();
 
         xuLySuKien();
     }
@@ -209,6 +212,27 @@ public class LoHang_GUI extends JPanel{
         src_dsLo.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
     }
 
+    public void loadTableFromList() {
+        ArrayList<LoHang_DTO> list = bus.getAll();
+        model.setRowCount(0);
+        int stt = 1;
+        for (LoHang_DTO lo : list) {
+            model.addRow(new Object[]{
+                    stt++,
+                    lo.getMaLo(),
+                    bus.getNameSP(lo.getMaSp()),
+                    formatTien(lo.getGiaNhap()),
+                    lo.getSoLuongNhap(),
+                    lo.getSoLuongConLai(),
+                    lo.getSoLuongSPCL(),
+                    lo.getHsd(),
+                    formatTien(lo.getThanhTien()),
+                    bus.getNameNCC(lo.getMaNcc()),
+                    bus.getNameKVLT(lo.getMaKvlt()),
+                    lo.getTrangThaiText()
+            });
+        }
+    }
     private void loadTableFromList(ArrayList<LoHang_DTO> list) {
         model.setRowCount(0);
         int stt = 1;
@@ -269,7 +293,7 @@ public class LoHang_GUI extends JPanel{
 
         txtGiaNhap.setText("");
         txtThanhTien.setText("");
-        txtHSD.setText("");
+        JDateChooser1.setDate(null);
         txtMaSP_SL.setText("");
         txtNhaCungCap.setText("");
         txtKVLT.setText("");
@@ -323,7 +347,7 @@ public class LoHang_GUI extends JPanel{
 
         double gia = bus.getGiaNhap(maNCC,maSP);
         if(cmbSanPham.getSelectedIndex() != 0){
-            txtHSD.setEditable(true);
+            JDateChooser1.setEnabled(true);
             txtMaSP_SL.setText(maSP + " - " + soLuong);
 
             txtGiaNhap.setText(formatTien(gia));
@@ -338,14 +362,16 @@ public class LoHang_GUI extends JPanel{
 
         String tenSP = cmbSanPham.getSelectedItem().toString();
         String maSP = bus.getMaSPByName(tenSP);
+
         String maNCC = bus.getMaNCCByPNK(maPNK);
         String maKVLT = bus.getMaKVLTByName(txtKVLT.getText());
         int soLuong = bus.getSoLuongChiTiet(maPNK,maSP);
 
         double giaNhap = bus.getGiaNhap(maNCC,maSP);
 
-        String txthsd = txtHSD.getText();
-        LocalDate hsd = LocalDate.parse(txthsd);
+        Date date = JDateChooser1.getDate();
+
+        LocalDate hsd = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         LoHang_DTO lo = new LoHang_DTO();
 
@@ -356,6 +382,7 @@ public class LoHang_GUI extends JPanel{
         lo.setMaSp(maSP);
         lo.setSoLuongNhap(soLuong);
         lo.setSoLuongConLai(soLuong);
+        lo.setSoLuongSPCL(soLuong*bus.getSLSPThungByMaSP(maSP));
         lo.setGiaNhap(giaNhap);
         lo.setThanhTien(giaNhap*soLuong);
         lo.setHsd(hsd);
@@ -364,7 +391,16 @@ public class LoHang_GUI extends JPanel{
         boolean result = bus.them(lo);
         if(result){
             JOptionPane.showMessageDialog(this,"Thêm lô thành công");
-            loadTableFromList(bus.getAll());
+            loadTableFromList();
+
+            ArrayList<ChiTietPhieuNhapKho_DTO> lishCT = ChiTietPhieuNhapKho_BUS.getInstance().getByMaPNK(maPNK);
+            for(ChiTietPhieuNhapKho_DTO ct : lishCT) {
+                if(ct.getMaSP().equals(maSP)){
+                    ct.setMaLo(maLo);
+                    ChiTietPhieuNhapKho_BUS.getInstance().capNhat(ct);
+                }
+            }
+
             clearForm();
             setViewMode();
         }else{
@@ -382,7 +418,7 @@ public class LoHang_GUI extends JPanel{
         txtMaLo.setText("");
         txtGiaNhap.setText("");
         txtThanhTien.setText("");
-        txtHSD.setText("");
+        JDateChooser1.setDate(null);
         txtMaSP_SL.setText("");
         txtNhaCungCap.setText("");
         txtKVLT.setText("");
@@ -420,7 +456,7 @@ public class LoHang_GUI extends JPanel{
 
         if(lo.getTrangThai() == LoHang_DTO.TT_CHO){
             cmbTrangThai.addItem(LoHang_DTO.CHO);
-            txtHSD.setEditable(true);
+            JDateChooser1.setEnabled(true);
         } else if (lo.getTrangThai() == LoHang_DTO.TT_HOAN_THANH) {
             cmbTrangThai.addItem(LoHang_DTO.HOAN_THANH);
             cmbTrangThai.addItem(LoHang_DTO.HUY);
@@ -462,7 +498,9 @@ public class LoHang_GUI extends JPanel{
         int soLuong = bus.getSoLuongChiTiet(maPNK, maSP);
         double giaNhap = bus.getGiaNhap(maNCC, maSP);
 
-        LocalDate hsd = LocalDate.parse(txtHSD.getText().trim());
+        Date date = JDateChooser1.getDate();
+
+        LocalDate hsd = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         String ttText = cmbTrangThai.getSelectedItem().toString();
         int trangThaiMoi;
@@ -518,7 +556,7 @@ public class LoHang_GUI extends JPanel{
 
             JOptionPane.showMessageDialog(this, "Cập nhật lô thành công");
 
-            loadTableFromList(bus.getAll());
+            loadTableFromList();
             clearForm();
             setViewMode();
 
@@ -551,7 +589,12 @@ public class LoHang_GUI extends JPanel{
         txtMaLo.setText(lo.getMaLo());
         txtGiaNhap.setText(formatTien(lo.getGiaNhap()));
         txtThanhTien.setText(formatTien(lo.getThanhTien()));
-        txtHSD.setText(lo.getHsd().toString());
+
+        Date date = Date.from(
+                lo.getHsd().atStartOfDay(ZoneId.systemDefault()).toInstant()
+        );
+
+        JDateChooser1.setDate(date);
 
         txtMaSP_SL.setText(lo.getMaSp() + " -  " + lo.getSoLuongNhap());
 
@@ -631,7 +674,7 @@ public class LoHang_GUI extends JPanel{
         txtLocMaSP.setText("");
         txtHienCo.setText("");
 
-        loadTableFromList(bus.getAll());
+        loadTableFromList();
     }
 
     private boolean kiemTraFormLoHang(){
@@ -643,7 +686,7 @@ public class LoHang_GUI extends JPanel{
             JOptionPane.showMessageDialog(this,"Vui lòng chọn sản phẩm");
             return false;
         }
-        if(txtHSD.getText().trim().isEmpty()){
+        if(JDateChooser1.getDate() == null){
             JOptionPane.showMessageDialog(this,"Vui lòng nhập hạn sử dụng");
             return false;
         }
@@ -654,26 +697,23 @@ public class LoHang_GUI extends JPanel{
         return true;
     }
     private boolean kiemTraHSD() {
-        String hsdStr = txtHSD.getText().trim();
 
-        if (hsdStr.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập hạn sử dụng");
-            txtHSD.requestFocus();
+        Date date = JDateChooser1.getDate();
+
+        if (date == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn hạn sử dụng");
             return false;
         }
-        try {
-            LocalDate hsd = LocalDate.parse(hsdStr);
-            LocalDate minDate = LocalDate.now().plusDays(30);
-            if (!hsd.isAfter(minDate)) {
-                JOptionPane.showMessageDialog(this,
-                        "Hạn sử dụng phải sau ngày hiện tại ít nhất 30 ngày");
-                txtHSD.requestFocus();
-                return false;
-            }
-        } catch (Exception e) {
+
+        LocalDate hsd = date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDate minDate = LocalDate.now().plusDays(30);
+
+        if (!hsd.isAfter(minDate)) {
             JOptionPane.showMessageDialog(this,
-                    "Hạn sử dụng phải đúng định dạng yyyy-MM-dd");
-            txtHSD.requestFocus();
+                    "Hạn sử dụng phải sau ngày hiện tại ít nhất 30 ngày");
             return false;
         }
 
@@ -683,7 +723,7 @@ public class LoHang_GUI extends JPanel{
         txtMaLo.setText("");
         txtNhaCungCap.setText("");
         txtKVLT.setText("");
-        txtHSD.setText("");
+        JDateChooser1.setDate(null);
         txtGiaNhap.setText("");
         txtThanhTien.setText("");
         txtMaSP_SL.setText("");
@@ -699,7 +739,7 @@ public class LoHang_GUI extends JPanel{
         txtMaLo.setEditable(false);
         txtGiaNhap.setEditable(false);
         txtThanhTien.setEditable(false);
-        txtHSD.setEditable(false);
+        JDateChooser1.setEnabled(false);
         txtMaSP_SL.setEditable(false);
         txtNhaCungCap.setEditable(false);
         txtKVLT.setEditable(false);
@@ -729,5 +769,9 @@ public class LoHang_GUI extends JPanel{
         String kq = nf.format(tien);
         kq = kq.replace("₫", "đ");
         return kq;
+    }
+    private void createUIComponents() {
+        JDateChooser1 = new JDateChooser();
+        JDateChooser1.setDateFormatString("dd/MM/yyyy");
     }
 }

@@ -2,6 +2,7 @@ package bus;
 
 import dao.LoHang_DAO;
 import dto.*;
+import gui.NCCKVLT.KVLT;
 
 import javax.swing.*;
 import java.time.LocalDate;
@@ -210,18 +211,22 @@ public class LoHang_BUS {
     }
 
     public void truHienCoKho(String maKVLT, int soLuong) {
-        KhuVucLuuTru_DTO kv = KhuVucLuuTru_BUS.getInstance().getById(maKVLT);
+        KhuVucLuuTru_BUS kvbus = KhuVucLuuTru_BUS.getInstance();
+        KhuVucLuuTru_DTO kv = kvbus.getById(maKVLT);
         if (kv == null) return;
         int hienCoMoi = Math.max(0, kv.getHienCo() - soLuong);
         kv.setHienCo(hienCoMoi);
-        KhuVucLuuTru_BUS.getInstance().update(kv);
+        kvbus.update(kv);
+        kvbus.getInstance();
     }
 
     public void congHienCoKho(String maKVLT, int soLuong) {
-        KhuVucLuuTru_DTO kv = KhuVucLuuTru_BUS.getInstance().getById(maKVLT);
+        KhuVucLuuTru_BUS kvbus = KhuVucLuuTru_BUS.getInstance();
+        KhuVucLuuTru_DTO kv = kvbus.getById(maKVLT);
         if (kv == null) return;
         kv.setHienCo(kv.getHienCo() + soLuong);
-        KhuVucLuuTru_BUS.getInstance().update(kv);
+        kvbus.update(kv);
+        kvbus.getInstance();
     }
 
     public boolean kiemTraDuTon(String maSp, int soLuongCanBan){
