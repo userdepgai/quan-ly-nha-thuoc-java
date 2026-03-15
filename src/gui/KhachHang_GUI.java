@@ -44,6 +44,7 @@ public class KhachHang_GUI extends JPanel {
     private JComboBox cmb_timKiem;
     private JComboBox cmb_chonHang;
     private JTextField txt_ngaySin;
+    private JButton btn_capNhat;
     private DefaultTableModel model_dsKhachHang;
     private KhachHang_BUS khBus = KhachHang_BUS.getInstance();
     private DefaultTableModel model;
@@ -97,6 +98,7 @@ public class KhachHang_GUI extends JPanel {
                     "STT",
                     "Mã KH", "Tên KH", "SĐT",
                     "Ngày sinh", "Giới tính",
+                    "Địa chỉ",
                     "Điểm thưởng", "Điểm hạng",
                     "Hạng", "Ngày ĐK"
             };
@@ -119,9 +121,9 @@ public class KhachHang_GUI extends JPanel {
             table_dsKhachHang.getColumnModel().getColumn(3).setPreferredWidth(110);  // SĐT
             table_dsKhachHang.getColumnModel().getColumn(4).setPreferredWidth(110);  // Ngày sinh
             table_dsKhachHang.getColumnModel().getColumn(5).setPreferredWidth(80);   // Giới tính
-            table_dsKhachHang.getColumnModel().getColumn(6).setPreferredWidth(100);  // Điểm thưởng
-            table_dsKhachHang.getColumnModel().getColumn(7).setPreferredWidth(100);  // Điểm hạng
-            table_dsKhachHang.getColumnModel().getColumn(8).setPreferredWidth(100);  // Hạng
+            table_dsKhachHang.getColumnModel().getColumn(6).setPreferredWidth(200); // Địa chỉ
+            table_dsKhachHang.getColumnModel().getColumn(7).setPreferredWidth(100); // Điểm thưởng
+            table_dsKhachHang.getColumnModel().getColumn(8).setPreferredWidth(100); // Điểm hạng
             table_dsKhachHang.getColumnModel().getColumn(9).setPreferredWidth(110);  // Ngày ĐK
         }
 
@@ -134,6 +136,8 @@ public class KhachHang_GUI extends JPanel {
 
             for (KhachHang_DTO kh : list) {
 
+                String diaChi = khBus.getDiaChi(kh.getMa());
+
                 model.addRow(new Object[]{
                         stt++,
                         kh.getMa(),
@@ -141,6 +145,7 @@ public class KhachHang_GUI extends JPanel {
                         kh.getSdt(),
                         kh.getNgaySinh(),
                         kh.isGioiTinh() ? "Nam" : "Nữ",
+                        diaChi,
                         kh.getDiemThuong(),
                         kh.getDiemHang(),
                         kh.getHang(),
@@ -302,6 +307,9 @@ public class KhachHang_GUI extends JPanel {
                 if (isAdding) {
                     result = khBus.them(kh);
                 }
+                else if (isUpdating) {
+                    result = khBus.capNhat(kh);
+                }
 
                 if (result) {
                     JOptionPane.showMessageDialog(this, "Thêm thành công");
@@ -326,39 +334,45 @@ public class KhachHang_GUI extends JPanel {
                     txt_maKH.setText(model.getValueAt(row, 1).toString());
                     txt_tenKH.setText(model.getValueAt(row, 2).toString());
                     txt_sdt.setText(model.getValueAt(row, 3).toString());
+                    Object dc = model.getValueAt(row, 6);
+                    txt_diaChi.setText(dc == null ? "" : dc.toString());
 
                     // ===== NGÀY SINH =====
                     try {
                         Object ngaySinhObj = model.getValueAt(row, 4);
+
                         if (ngaySinhObj != null) {
-                            java.sql.Date sqlDate = java.sql.Date.valueOf(ngaySinhObj.toString());
-                            JDate_ngaySinh.setDate(sqlDate);
+                            LocalDate ld = LocalDate.parse(ngaySinhObj.toString());
+                            java.util.Date utilDate = java.sql.Date.valueOf(ld);
+                            txt_ngaySin.setText(ngaySinhObj.toString());
                         } else {
-                            JDate_ngaySinh.setDate(null);
+                            txt_ngaySin.setText("");
                         }
                     } catch (Exception ex) {
                         JDate_ngaySinh.setDate(null);
                     }
 
                     // ===== GIỚI TÍNH =====
-                    if (model.getValueAt(row, 4).toString().equals("Nam"))
+                    if (model.getValueAt(row, 5).toString().equals("Nam"))
                         rd_nam.setSelected(true);
                     else
                         rd_nu.setSelected(true);
 
                     // ===== ĐIỂM =====
-                    txt_diemThuong.setText(String.valueOf(model.getValueAt(row, 6)));
-                    txt_diemHang.setText(String.valueOf(model.getValueAt(row, 7)));
+                    txt_diemThuong.setText(String.valueOf(model.getValueAt(row, 7)));
+                    txt_diemHang.setText(String.valueOf(model.getValueAt(row, 8)));
 
                     // ===== HẠNG =====
                     cmb_hang.setSelectedItem(model.getValueAt(row, 8).toString());
 
                     // ===== NGÀY ĐĂNG KÝ =====
                     try {
-                        Object ngayDKObj = model.getValueAt(row, 9);
+                        Object ngayDKObj = model.getValueAt(row, 10);
+
                         if (ngayDKObj != null) {
-                            java.sql.Date sqlDateDK = java.sql.Date.valueOf(ngayDKObj.toString());
-                            JDate_ngayDKThanhVien.setDate(sqlDateDK);
+                            LocalDate ld = LocalDate.parse(ngayDKObj.toString());
+                            java.util.Date utilDate = java.sql.Date.valueOf(ld);
+                            JDate_ngayDKThanhVien.setDate(utilDate);
                         } else {
                             JDate_ngayDKThanhVien.setDate(null);
                         }
@@ -386,6 +400,23 @@ public class KhachHang_GUI extends JPanel {
                 khBus.refreshData();
                 loadTable(khBus.getAll());
                 clearForm();
+            });
+            btn_capNhat.addActionListener(e -> {
+
+                int row = table_dsKhachHang.getSelectedRow();
+
+                if (row < 0) {
+                    JOptionPane.showMessageDialog(this, "Chọn khách hàng cần cập nhật");
+                    return;
+                }
+
+                isUpdating = true;
+                isAdding = false;
+
+                txt_maKH.setEditable(false);
+
+                btn_luu.setVisible(true);
+                btn_huy.setVisible(true);
             });
 
         }

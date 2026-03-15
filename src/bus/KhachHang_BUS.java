@@ -6,13 +6,17 @@ import dto.KhachHang_DTO;
 import javax.swing.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-
+import dto.KhachHang_DiaChi_DTO;
+import dto.DIACHI_DTO;
+import dao.KhachHang_DiaChi_DAO;
+import dao.DiaChi_DAO;
 public class KhachHang_BUS {
 
     private static KhachHang_BUS instance;
     private KhachHang_DAO khDao = new KhachHang_DAO();
     private ArrayList<KhachHang_DTO> listCache;
-
+    private KhachHang_DiaChi_DAO khDiaChiDAO = new KhachHang_DiaChi_DAO();
+    private DiaChi_DAO diaChiDAO = new DiaChi_DAO();
     private KhachHang_BUS() {
         listCache = khDao.getAll();
     }
@@ -73,6 +77,12 @@ public class KhachHang_BUS {
         if (!kh.getSdt().matches("\\d{10}")) {
             JOptionPane.showMessageDialog(null, "Số điện thoại phải 10 số");
             return false;
+        }
+        for (KhachHang_DTO k : listCache) {
+            if (k.getSdt().equals(kh.getSdt()) && !k.getMa().equals(kh.getMa())) {
+                JOptionPane.showMessageDialog(null, "Số điện thoại đã tồn tại");
+                return false;
+            }
         }
 
         if (kh.getNgaySinh() == null) {
@@ -200,5 +210,29 @@ public class KhachHang_BUS {
 
     public double quyDoiTien(double diemThuong) {
         return (diemThuong / 500) * 10000;
+    }
+    public String getDiaChi(String maKH) {
+
+        ArrayList<KhachHang_DiaChi_DTO> listKHDC = khDiaChiDAO.getByMaKH(maKH);
+
+        if (listKHDC == null || listKHDC.isEmpty()) return "";
+
+        ArrayList<DIACHI_DTO> listDiaChi = diaChiDAO.getAll();
+
+        for (KhachHang_DiaChi_DTO khdc : listKHDC) {
+
+            for (DIACHI_DTO dc : listDiaChi) {
+
+                if (dc.getMaDiaChi().equals(khdc.getMaDiaChi())) {
+
+                    return dc.getSoNha() + " " +
+                            dc.getDuong() + ", " +
+                            dc.getPhuong() + ", " +
+                            dc.getTinh();
+                }
+            }
+        }
+
+        return "";
     }
 }
