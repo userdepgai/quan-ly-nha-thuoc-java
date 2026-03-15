@@ -103,8 +103,25 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
                 "STT", "Mã KM", "Tên KM", "Loại KM", "Giá Trị",
                 "Đối Tượng", "Chi Tiết Áp Dụng", "Chương Trình KM", "Trạng Thái"
         };
-        modelKhuyenMai = new DefaultTableModel(headers, 0);
+        modelKhuyenMai = new DefaultTableModel(headers, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         tableKhuyenMai.setModel(modelKhuyenMai);
+
+        tableKhuyenMai.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableKhuyenMai.getColumnModel().getColumn(1).setPreferredWidth(70);
+        tableKhuyenMai.getColumnModel().getColumn(2).setPreferredWidth(200);
+        tableKhuyenMai.getColumnModel().getColumn(3).setPreferredWidth(100);
+        tableKhuyenMai.getColumnModel().getColumn(4).setPreferredWidth(100);
+        tableKhuyenMai.getColumnModel().getColumn(5).setPreferredWidth(100);
+        tableKhuyenMai.getColumnModel().getColumn(6).setPreferredWidth(150);
+        tableKhuyenMai.getColumnModel().getColumn(7).setPreferredWidth(180);
+        tableKhuyenMai.getColumnModel().getColumn(8).setPreferredWidth(120);
+
+        tableKhuyenMai.getTableHeader().setReorderingAllowed(false);
     }
 
     private void initComboBoxData() {
@@ -476,13 +493,12 @@ public class QuanLyKhuyenMai_GUI extends JPanel {
 
         txtTenKhuyenMai.setEditable(true);
         txtGiaTriKhuyenMai.setEditable(true);
-
         txtSoLuotSuDung.setEditable(false);
 
         cmbLoaiKhuyenMai.setEnabled(true);
         cmbTrangThai.setEnabled(true);
         cmbDoiTuongApDung.setEnabled(true);
-        cmbChuongTrinhKhuyenMai.setEnabled(true);
+        cmbChuongTrinhKhuyenMai.setEnabled(false);
         boolean checkDM = cmbDoiTuongApDung.getSelectedIndex() == 0;
         cmbApDungDanhMuc.setEnabled(checkDM);
         cmbApDungSanPham.setEnabled(!checkDM);

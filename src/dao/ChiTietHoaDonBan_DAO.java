@@ -74,20 +74,25 @@ public class ChiTietHoaDonBan_DAO {
 
         return false;
     }
-    public boolean capNhatMaLo(String maHD, String maSP, String maLo) {
-        String sql = "UPDATE CHITIETHOADON SET Ma_Lo = ? WHERE Ma_HDB = ? AND Ma_SP = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    public boolean deleteByMaHD(String maHD){
 
-            ps.setString(1, maLo);
-            ps.setString(2, maHD);
-            ps.setString(3, maSP);
+        String sql =
+                "DELETE FROM CHITIETHOADON WHERE Ma_HDB=?";
+
+        try(
+                Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ){
+
+            ps.setString(1,maHD);
 
             return ps.executeUpdate() > 0;
-        } catch (Exception e) {
+
+        }catch(Exception e){
             e.printStackTrace();
         }
+
         return false;
     }
 }

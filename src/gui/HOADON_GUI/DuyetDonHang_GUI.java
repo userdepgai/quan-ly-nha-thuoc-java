@@ -14,6 +14,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
+
 public class DuyetDonHang_GUI extends JPanel{
     private JPanel panel_DuyetDonHang;
     private JTextField txtHienCo;
@@ -355,12 +356,13 @@ public class DuyetDonHang_GUI extends JPanel{
     private void loadCBGia(){
 
         cbGia.setModel(new DefaultComboBoxModel<>(new String[]{
-                "Tất cả",
                 "Dưới 500.000",
                 "500.000 - 1.000.000",
                 "1.000.000 - 3.000.000",
                 "Trên 3.000.000"
         }));
+
+        cbGia.setSelectedIndex(-1);
     }
 
     private void suKienBangHoaDon() {
@@ -394,12 +396,6 @@ public class DuyetDonHang_GUI extends JPanel{
 
             String maHD = modelHoaDon.getValueAt(row,1).toString();
 
-            HoaDonOnline_DTO hd = bus.getHoaDonOnline(maHD);
-
-            if (hd == null) {
-                JOptionPane.showMessageDialog(null,"Không tìm thấy hóa đơn!");
-                return;
-            }
 
             Object selected = cbTrangThaiCN.getSelectedItem();
 
@@ -428,13 +424,11 @@ public class DuyetDonHang_GUI extends JPanel{
 
                     case "Ngưng giao" ->
                             bus.huyDonHang(maHD);
-
                     case "Duyệt hoàn" ->
                             bus.duyetHoanHang(maHD);
 
                     case "Không duyệt hoàn" ->
                             bus.khongDuyetHoanHang(maHD);
-
                     default -> {
                         JOptionPane.showMessageDialog(null,"Trạng thái không hợp lệ");
                         return;
@@ -536,9 +530,11 @@ public class DuyetDonHang_GUI extends JPanel{
 
         }
 
-        Integer mucGia =
-                cbGia.getSelectedIndex()==0 ? null :
-                        cbGia.getSelectedIndex()-1;
+        Integer mucGia = null;
+
+        if(cbGia.getSelectedIndex() >= 0){
+            mucGia = cbGia.getSelectedIndex();
+        }
 
         java.time.LocalDateTime tuNgay = null;
         java.time.LocalDateTime denNgay = null;
@@ -594,7 +590,7 @@ public class DuyetDonHang_GUI extends JPanel{
             cbTimTheo.setSelectedIndex(0);
             cbTrangThai.setSelectedIndex(-1);
             cbTTTT.setSelectedIndex(-1);
-            cbGia.setSelectedIndex(0);
+            cbGia.setSelectedIndex(-1);
 
             JDateChooser1.setDate(null);
             JDateChooser2.setDate(null);
@@ -612,6 +608,8 @@ public class DuyetDonHang_GUI extends JPanel{
 
         popupGoiY.removeAll();
         popupGoiY.setLayout(new GridLayout(0,1));
+        popupGoiY.setFocusable(false);
+        popupGoiY.setRequestFocusEnabled(false);
 
         String kieuTim = cbTimTheo.getSelectedItem().toString();
 
@@ -650,8 +648,10 @@ public class DuyetDonHang_GUI extends JPanel{
             popupGoiY.add(btn);
         }
 
-        if(list.size() > 0)
+        if(list.size() > 0){
             popupGoiY.show(txtNhapTT,0,txtNhapTT.getHeight());
+            txtNhapTT.requestFocus();
+        }
         else
             popupGoiY.setVisible(false);
     }

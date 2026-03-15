@@ -52,6 +52,7 @@ public class ThanhToan_BUS {
             ChiTietHoaDonBan_DTO ct = new ChiTietHoaDonBan_DTO();
 
             ct.setMaSP(item.getMaSP());
+            ct.setMaLo(item.getMaLo());
             ct.setSoLuong(item.getSoLuong());
 
             double gia = getGiaSanPham(item.getMaSP());
@@ -108,8 +109,8 @@ public class ThanhToan_BUS {
             khachHangDAO.them(khMoi);
         }
         for (ChiTietHoaDonBan_DTO ct : dsCT) {
-                ct.setMaLo(null);
-            }
+            ct.setMaLo(null);
+        }
 
 
         try {

@@ -7,6 +7,34 @@ import dto.*;
 import DBConnection.DBConnection;
 
 public class PhanQuyenChucNang_DAO {
+
+    public ArrayList<PhanQuyenChucNang_DTO> getAll(){
+
+        ArrayList<PhanQuyenChucNang_DTO> list = new ArrayList<>();
+
+        String sql = "SELECT * FROM PhanQuyenChucNang";
+
+        try(Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()){
+
+            while(rs.next()){
+
+                PhanQuyenChucNang_DTO dto =
+                        new PhanQuyenChucNang_DTO(
+                                rs.getString("maQuyen"),
+                                rs.getString("maCN")
+                        );
+
+                list.add(dto);
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return list;
+    }
     public boolean hasPermission(String maQuyen, String maCN) {
         try {
             Connection con = DBConnection.getConnection();

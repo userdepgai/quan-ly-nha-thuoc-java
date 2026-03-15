@@ -1,11 +1,17 @@
 package bus;
 
 import dao.SanPham_DAO;
+import dto.DanhMuc_DTO;
 import dto.QuyCach_DTO;
 import dto.SanPham_DTO;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class SanPham_BUS {
     private static SanPham_BUS instance;
@@ -151,4 +157,32 @@ public class SanPham_BUS {
         return giaMotSP *  sp.getLoiNhuan();
     }
 
+    public boolean exportExcel(String path) {
+        return utils.ExcelSanPham.exportExcel(listSanPham, path);
+    }
+
+    public boolean importExcel(String path) {
+        ArrayList<java.util.Map<String, Object>> dataImport = utils.ExcelSanPham.importExcel(path);
+        if (dataImport == null || dataImport.isEmpty()) return false;
+        boolean allOk = true;
+        for (java.util.Map<String, Object> data : dataImport) {
+            String maMoi = getNextId();
+            SanPham_DTO sp = new SanPham_DTO();
+            sp.setMaSP(maMoi);
+            sp.setTenSP((String) data.get("tenSP"));
+            sp.setDonViTinh((String) data.get("dvt"));
+            sp.setLoiNhuan((Double) data.get("loiNhuan"));
+            sp.setHinhAnh((String) data.get("hinhAnh"));
+            sp.setKeDon((Integer) data.get("keDon"));
+            sp.setTrangThai((Integer) data.get("trangThai"));
+            sp.setMaDM((String) data.get("maDM"));
+            int slTrongHop = (Integer) data.get("slTrongHop");
+            int slHopTrongThung = (Integer) data.get("slHopTrongThung");
+            if (!them(sp, slTrongHop, slHopTrongThung)) {
+                allOk = false;
+            }
+        }
+        refreshData();
+        return allOk;
+    }
 }

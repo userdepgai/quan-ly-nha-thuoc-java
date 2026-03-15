@@ -93,8 +93,23 @@ public class QuanLyVoucher_GUI extends JPanel {
 
     private void initTable_Voucher() {
         String[] headers = {"STT", "Mã Voucher", "Tên Voucher", "Loại Voucher", "Ngày Bắt Đầu", "Ngày Kết Thúc", "Trạng Thái"};
-        modelVoucher = new DefaultTableModel(headers, 0);
+        modelVoucher = new DefaultTableModel(headers, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         tableVoucher.setModel(modelVoucher);
+
+        tableVoucher.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableVoucher.getColumnModel().getColumn(1).setPreferredWidth(100);
+        tableVoucher.getColumnModel().getColumn(2).setPreferredWidth(250);
+        tableVoucher.getColumnModel().getColumn(3).setPreferredWidth(120);
+        tableVoucher.getColumnModel().getColumn(4).setPreferredWidth(100);
+        tableVoucher.getColumnModel().getColumn(5).setPreferredWidth(100);
+        tableVoucher.getColumnModel().getColumn(6).setPreferredWidth(120);
+
+        tableVoucher.getTableHeader().setReorderingAllowed(false);
     }
 
     private void initComboBox_Voucher() {
@@ -376,6 +391,7 @@ public class QuanLyVoucher_GUI extends JPanel {
 
     private void setViewMode() {
         isAdding = isUpdating = false;
+        txtMaVoucher.setEditable(false);
         txtTenVoucher.setEditable(false);
         txtGiaTriVoucher.setEditable(false);
         txtDonToiThieu.setEditable(false);

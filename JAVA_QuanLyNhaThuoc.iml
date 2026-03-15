@@ -12,6 +12,10 @@
     <orderEntry type="library" exported="" name="itextpdf-5.5.13.4" level="project" />
     <orderEntry type="library" exported="" name="poi-5.2.3" level="project" />
     <orderEntry type="library" exported="" name="lib" level="project" />
-    <orderEntry type="library" exported="" name="commons-compress-1.21" level="project" />
+    <orderEntry type="library" exported="" name="commons-collections4-4.4" level="project" />
+    <orderEntry type="library" exported="" name="commons-io-2.11.0" level="project" />
+    <orderEntry type="library" exported="" name="commons-compress-1.26.1" level="project" />
+    <orderEntry type="library" exported="" name="log4j-api-2.20.0" level="project" />
+    <orderEntry type="library" exported="" name="log4j-core-2.20.0" level="project" />
   </component>
 </module>

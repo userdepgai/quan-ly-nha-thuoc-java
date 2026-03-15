@@ -113,16 +113,11 @@ public class LoHang_DTO {
         this.thanhTien = thanhTien;
     }
 
-    public void congSoLuongConLai(int num) {
-        this.soLuongConLai += num;
-    }
 
-    public boolean truSoLuongConLai(int num) {
-        if (num <= 0 || num > soLuongConLai) return false;
-        this.soLuongConLai -= num;
-        return true;
+    public void congSoLuongSPCL(int num){
+        this.soLuongSPCL += num;
     }
-
+    
     public double tinhThanhTien() {
         return giaNhap * soLuongNhap;
     }

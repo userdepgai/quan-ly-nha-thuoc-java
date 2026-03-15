@@ -33,5 +33,5 @@ public class ChiTietPhieuNhapKho_BUS {
     public boolean xoa(String maPNK, String maSP) {
         return ctDao.xoa(maPNK,maSP);
     }
-    public  boolean capNhat(ChiTietPhieuNhapKho_DTO ct){return ctDao.capNhat(ct);}
+    public boolean capNhat(ChiTietPhieuNhapKho_DTO ct){return ctDao.capNhat(ct);}
 }

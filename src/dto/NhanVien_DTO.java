@@ -1,19 +1,23 @@
 package dto;
 
-import java.sql.Date;
 import java.time.LocalDate;
 
 public class NhanVien_DTO extends Nguoi_DTO {
+
+    public static final int TT_NGHI = 0;
+    public static final int TT_DANG_LAM = 1;
+
+    public static final String NGHI = "Nghỉ";
+    public static final String DANG_LAM = "Đang làm";
+
     private String chucVu;
     private LocalDate ngayVaoLam;
     private double luongCoBan;
     private int trangThai;
     private String maDiaChi;
+    private String maQuyen;
 
-    public NhanVien_DTO(String maNV, String tenNV, Date ngaySinh, String diaChi, String gioiTinh, String soDienThoai, String chucVu, int trangThai, double luongCoBan, Date ngayVaoLam) {
-        super();
-    }
-    public NhanVien_DTO(){
+    public NhanVien_DTO() {
         super();
     }
 
@@ -21,7 +25,7 @@ public class NhanVien_DTO extends Nguoi_DTO {
                         LocalDate ngaySinh, boolean gioiTinh,
                         String chucVu, LocalDate ngayVaoLam,
                         double luongCoBan, int trangThai,
-                        String maDiaChi) {
+                        String maDiaChi, String maQuyen) {
 
         super(ma, ten, sdt, ngaySinh, gioiTinh);
         this.chucVu = chucVu;
@@ -29,7 +33,9 @@ public class NhanVien_DTO extends Nguoi_DTO {
         this.luongCoBan = luongCoBan;
         this.trangThai = trangThai;
         this.maDiaChi = maDiaChi;
+        this.maQuyen = maQuyen;
     }
+
 
     public String getChucVu() {
         return chucVu;
@@ -69,5 +75,37 @@ public class NhanVien_DTO extends Nguoi_DTO {
 
     public void setMaDiaChi(String maDiaChi) {
         this.maDiaChi = maDiaChi;
+    }
+    public String getMaQuyen() {
+        return maQuyen;
+    }
+
+    public void setMaQuyen(String maQuyen) {
+        this.maQuyen = maQuyen;
+    }
+
+    public String getTrangThaiText() {
+        return switch (trangThai) {
+            case TT_DANG_LAM -> DANG_LAM;
+            case TT_NGHI -> NGHI;
+            default -> "Không xác định";
+        };
+    }
+
+    public void setTrangThaiFromText(String text) {
+        if (text == null) return;
+        switch (text) {
+            case DANG_LAM -> this.trangThai = TT_DANG_LAM;
+            case NGHI -> this.trangThai = TT_NGHI;
+        }
+    }
+
+    public static int parseTrangThaiFromText(String text) {
+        if (text == null) return -1;
+        return switch (text) {
+            case DANG_LAM -> TT_DANG_LAM;
+            case NGHI -> TT_NGHI;
+            default -> -1;
+        };
     }
 }
