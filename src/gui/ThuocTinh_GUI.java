@@ -94,6 +94,14 @@ public class ThuocTinh_GUI extends JPanel {
             public boolean isCellEditable(int row, int column) { return false; }
         };
         tableThuocTinh.setModel(modelThuocTinh);
+
+        tableThuocTinh.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableThuocTinh.getColumnModel().getColumn(1).setPreferredWidth(120);
+        tableThuocTinh.getColumnModel().getColumn(2).setPreferredWidth(250);
+        tableThuocTinh.getColumnModel().getColumn(3).setPreferredWidth(150);
+        tableThuocTinh.getColumnModel().getColumn(4).setPreferredWidth(120);
+
+        tableThuocTinh.getTableHeader().setReorderingAllowed(false);
     }
 
     private void initTable_GiaTriThuocTinh() {
@@ -103,6 +111,15 @@ public class ThuocTinh_GUI extends JPanel {
             public boolean isCellEditable(int row, int column) { return false; }
         };
         tableGiaTriThuocTinh.setModel(modelGiaTriThuocTinh);
+
+        tableGiaTriThuocTinh.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableGiaTriThuocTinh.getColumnModel().getColumn(1).setPreferredWidth(100);
+        tableGiaTriThuocTinh.getColumnModel().getColumn(2).setPreferredWidth(200);
+        tableGiaTriThuocTinh.getColumnModel().getColumn(3).setPreferredWidth(120);
+        tableGiaTriThuocTinh.getColumnModel().getColumn(4).setPreferredWidth(200);
+        tableGiaTriThuocTinh.getColumnModel().getColumn(5).setPreferredWidth(120);
+
+        tableGiaTriThuocTinh.getTableHeader().setReorderingAllowed(false);
     }
 
     private void initComboBox() {
@@ -326,8 +343,11 @@ public class ThuocTinh_GUI extends JPanel {
 
     private void setViewMode() {
         isAdding = isUpdating = false;
+        txtMaDanhMuc.setEditable(false);
         txtTenDanhMuc.setEditable(false);
         cmbDanhMuc.setEnabled(false); cmbTrangThai.setEnabled(false);
+        lockGiaTriForm(true);
+        btnHuyGiaTri.setVisible(false);
         btnLuu.setVisible(false); btnHuy.setVisible(false);
         btnThem.setEnabled(true); btnCapNhat.setEnabled(true);
         tableThuocTinh.setEnabled(true);
@@ -338,7 +358,7 @@ public class ThuocTinh_GUI extends JPanel {
         resetFields();
         txtMaDanhMuc.setText(ttBUS.getNextId());
         txtTenDanhMuc.setEditable(true);
-        cmbDanhMuc.setEnabled(true); cmbTrangThai.setEnabled(false);
+        cmbDanhMuc.setEnabled(true); cmbTrangThai.setEnabled(true);
         cmbTrangThai.setSelectedItem(ThuocTinhDanhMuc_DTO.HOAT_DONG);
         btnLuu.setVisible(true); btnHuy.setVisible(true);
         btnThem.setEnabled(false); btnCapNhat.setEnabled(false);
@@ -348,7 +368,7 @@ public class ThuocTinh_GUI extends JPanel {
     private void setUpdateMode() {
         isAdding = false; isUpdating = true;
         txtTenDanhMuc.setEditable(true);
-        cmbDanhMuc.setEnabled(true); cmbTrangThai.setEnabled(true);
+        cmbDanhMuc.setEnabled(false); cmbTrangThai.setEnabled(true);
         btnLuu.setVisible(true); btnHuy.setVisible(true);
         btnThem.setEnabled(false); btnCapNhat.setEnabled(false);
         tableThuocTinh.setEnabled(false);
@@ -372,8 +392,6 @@ public class ThuocTinh_GUI extends JPanel {
 
         tableGiaTriThuocTinh.setEnabled(true);
 
-        this.revalidate();
-        this.repaint();
     }
 
     private void setGiaTriAddMode() {
@@ -393,31 +411,26 @@ public class ThuocTinh_GUI extends JPanel {
 
         tableGiaTriThuocTinh.setEnabled(false);
 
-        this.revalidate();
-        this.repaint();
     }
 
     private void setGiaTriUpdateMode() {
         isAddingGiaTri = false;
         isUpdatingGiaTri = true;
 
-        lockGiaTriForm(false);
         txtMaGiaTri.setEditable(false);
         txtNDGiaTri.setEditable(false);
         txtSanPham.setEditable(false);
+        cmbTrangThaiGiaTri.setEnabled(true);
 
         btnThemGiaTri.setVisible(false);
         btnSuaGiaTri.setVisible(true);
         btnHuyGiaTri.setVisible(true);
 
         tableGiaTriThuocTinh.setEnabled(false);
-
-        this.revalidate();
-        this.repaint();
     }
 
     private void lockGiaTriForm(boolean lock) {
-        txtMaGiaTri.setEditable(!lock);
+        txtMaGiaTri.setEditable(false);
         txtNDGiaTri.setEditable(!lock);
         txtSanPham.setEditable(!lock);
         cmbTrangThaiGiaTri.setEnabled(!lock);

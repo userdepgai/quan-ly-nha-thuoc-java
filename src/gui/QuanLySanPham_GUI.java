@@ -82,7 +82,7 @@ public class QuanLySanPham_GUI extends JPanel {
     private final ThuocTinhDanhMuc_BUS ttBus = ThuocTinhDanhMuc_BUS.getInstance();
     private final GiaTriThuocTinh_BUS gtBus = GiaTriThuocTinh_BUS.getInstance();
     private final GiaTriThuocTinh_SP_BUS gtspBus = GiaTriThuocTinh_SP_BUS.getInstance();
-
+    private final LoHang_BUS lhBus = LoHang_BUS.getInstance();
 
     private boolean isAdding = false;
     private boolean isUpdating = false;
@@ -109,6 +109,18 @@ public class QuanLySanPham_GUI extends JPanel {
             }
         };
         tableSanPham.setModel(modelSanPham);
+
+        tableSanPham.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableSanPham.getColumnModel().getColumn(1).setPreferredWidth(80);
+        tableSanPham.getColumnModel().getColumn(2).setPreferredWidth(250);
+        tableSanPham.getColumnModel().getColumn(3).setPreferredWidth(60);
+        tableSanPham.getColumnModel().getColumn(4).setPreferredWidth(80);
+        tableSanPham.getColumnModel().getColumn(5).setPreferredWidth(70);
+        tableSanPham.getColumnModel().getColumn(6).setPreferredWidth(150);
+        tableSanPham.getColumnModel().getColumn(7).setPreferredWidth(150);
+        tableSanPham.getColumnModel().getColumn(8).setPreferredWidth(100);
+
+        tableSanPham.getTableHeader().setReorderingAllowed(false);
     }
 
     private void initComboBoxData() {
@@ -270,6 +282,35 @@ public class QuanLySanPham_GUI extends JPanel {
                 }
             }
         });
+        btnXuatExcel.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Chọn nơi lưu file Excel");
+            if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                String path = chooser.getSelectedFile().getAbsolutePath();
+                if (!path.endsWith(".xlsx")) path += ".xlsx";
+
+                if (spBUS.exportExcel(path)) {
+                    JOptionPane.showMessageDialog(this, "Xuất Excel thành công!");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Xuất Excel thất bại!");
+                }
+            }
+        });
+
+        btnNhapExcel.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Chọn file Excel để nhập");
+            if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                String path = chooser.getSelectedFile().getAbsolutePath();
+
+                if (spBUS.importExcel(path)) {
+                    JOptionPane.showMessageDialog(this, "Nhập Excel thành công!");
+                    loadDataToTable(spBUS.getAll());
+                } else {
+                    JOptionPane.showMessageDialog(this, "Nhập Excel có lỗi xảy ra hoặc dữ liệu trùng!");
+                }
+            }
+        });
     }
 
 
@@ -357,7 +398,8 @@ public class QuanLySanPham_GUI extends JPanel {
 
         cmbKeDon.setSelectedItem(sp.getKeDonText());
         cmbTrangThai.setSelectedItem(sp.getTrangThaiText());
-
+        int tongTon = lhBus.getTongSPTonByMaSP(sp.getMaSP());
+        txtSoLuongTonKho.setText(String.valueOf(tongTon));
         DanhMuc_DTO dm = dmBUS.getById(sp.getMaDM());
         if (dm != null) cmbDanhMuc.setSelectedItem(dm.getTenDM());
 
