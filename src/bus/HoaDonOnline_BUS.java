@@ -36,11 +36,13 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
             String maDiaChi,
             ArrayList<ChiTietHoaDonBan_DTO> dsCT,
             int tinhTrangThanhToan
-    )
-    {
+    ) {
 
         if(dsCT == null || dsCT.isEmpty())
             throw new RuntimeException("Giỏ hàng trống");
+
+        if(diaChiKH == null || diaChiKH.isBlank())
+            throw new RuntimeException("Thiếu địa chỉ giao");
 
         String maHD = getNextID();
 
@@ -51,6 +53,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         hd.setLoaiHDB(1);
         hd.setTrangThai(HoaDonBan_DTO.TT_CHO_DUYET);
+
         hd.setTinhTrangThanhToan(tinhTrangThanhToan);
 
         hd.setNgayLap(LocalDateTime.now());
@@ -66,7 +69,9 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         hd.setMaVoucher(null);
 
         hd.setPhiVanChuyen(15000);
+
         hd.setMaDiaChiGiaoHang(maDiaChi);
+
         this.hoaDon = hd;
         this.hoaDon.setDs_chiTietHDB(dsCT);
 
@@ -84,10 +89,15 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
             throw new RuntimeException("Insert hóa đơn thất bại");
 
         for(ChiTietHoaDonBan_DTO ct : dsCT){
-            ct.setMaHDB(maHD);
-            ctDAO.insert(ct);
-        }
 
+            ct.setMaHDB(maHD);
+
+            boolean kq = ctDAO.insert(ct);
+
+            if(!kq)
+                throw new RuntimeException("Insert chi tiết thất bại");
+        }
+        refreshData();
         return maHD;
     }
     public void duyetDon(String maHD) {
@@ -288,20 +298,11 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
        khBus.congDiemMuaHang(hd.getMaKhachHang(), diem);
     }
 
-    public HoaDonOnline_DTO getHoaDonOnline(String maHD) {
-        ArrayList<HoaDonOnline_DTO> dsMoiNhat = hoaDonDAO.getDanhSachDuyetOnline();
+    public HoaDonOnline_DTO getHoaDonOnline(String maHD){
 
-        if (dsMoiNhat != null) {
-            for (HoaDonOnline_DTO hd : dsMoiNhat) {
-                if (hd.getMa().equals(maHD)) {
-                    return hd;
-                }
-            }
-        }
-        refreshData();
         HoaDonBan_DTO hd = getById(maHD);
 
-        if (hd instanceof HoaDonOnline_DTO online) {
+        if(hd instanceof HoaDonOnline_DTO online){
             return online;
         }
 
