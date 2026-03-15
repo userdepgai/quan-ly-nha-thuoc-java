@@ -128,6 +128,30 @@ public class TaiKhoan_GUI extends JPanel{
             });
         }
     }
+    public void loadTableFromList() {
+        ArrayList<TaiKhoan_DTO> list = bus.getAll();
+        model.setRowCount(0);
+        int stt = 1;
+        for(TaiKhoan_DTO tk : list) {
+            String tenNguoiDung;
+            String tenQuyen = bus.getTenQuyen(tk.getMaQuyen());
+            if(tenQuyen.equals("Khách hàng")) {
+                tenNguoiDung = bus.getNameKhachHang(tk.getSdt());
+            } else {
+                tenNguoiDung = bus.getNameNhanVien(tk.getSdt());
+            }
+            model.addRow(new Object[]{
+                    stt++,
+                    tk.getMaTK(),
+                    tenNguoiDung,
+                    tk.getSdt(),
+                    tk.getMatKhau(),
+                    tk.getNgayKichHoat(),
+                    tenQuyen,
+                    tk.getTrangThaiText()
+            });
+        }
+    }
 
     private void xuLyXuKien(){
         table_dsTaiKhoan.getSelectionModel().addListSelectionListener(e -> {

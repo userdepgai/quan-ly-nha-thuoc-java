@@ -14,7 +14,6 @@ import java.util.Date;
 public class BaoCao_DAO {
 
     private DBConnection dbConnection = new DBConnection();
-
     public List<BaoCaoTonKho_DTO> baoCaoTonKho(Date tuNgay, Date denNgay, String maDanhMuc) {
         List<BaoCaoTonKho_DTO> list = new ArrayList<>();
         Connection conn = null;

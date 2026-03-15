@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 
 import com.toedter.calendar.JDateChooser;
@@ -29,6 +30,11 @@ public class ThongTinCaNhanKhachHang_GUI extends JPanel {
     private JButton btnLuuDC, btnHuyDC;
     private ThongTinCaNhanKhachHang_BUS bus = new ThongTinCaNhanKhachHang_BUS();
     private KhachHang_DTO currentKhachHang;
+
+    private KhachHang_DiaChi_BUS khdcBus = KhachHang_DiaChi_BUS.getInstance();
+    private DiaChi_BUS diaChiBus = DiaChi_BUS.getInstance();
+
+    private ArrayList<KhachHang_DiaChi_DTO> listDiaChi;
 
     public ThongTinCaNhanKhachHang_GUI() {
 
@@ -178,6 +184,7 @@ public class ThongTinCaNhanKhachHang_GUI extends JPanel {
 
         return scroll;
     }
+
     private JPanel createDetailPanel() {
 
         JPanel panel = new JPanel();
@@ -239,6 +246,38 @@ public class ThongTinCaNhanKhachHang_GUI extends JPanel {
         btnLuuKH.addActionListener(e -> xuLyLuuKH());
 
         btnHuyKH.addActionListener(e -> xuLyHuyKH());
+
+        tblDiaChi.getSelectionModel().addListSelectionListener(e -> {
+            if(!e.getValueIsAdjusting()){
+                hienThiChiTietDiaChi();
+            }
+        });
+    }
+    private void loadTableDiaChi() {
+        modelDiaChi.setRowCount(0);
+        if (currentKhachHang == null) return;
+        int stt = 1;
+        listDiaChi = khdcBus.getByMaKH(currentKhachHang.getMa());
+        for (KhachHang_DiaChi_DTO khdc : listDiaChi) {
+            DIACHI_DTO dc = diaChiBus.getById(khdc.getMaDiaChi());
+            if (dc == null) continue;
+            modelDiaChi.addRow(new Object[]{
+                    stt++,
+                    dc.getTinh(),
+                    dc.getPhuong(),
+                    dc.getDuong(),
+                    dc.getSoNha(),
+                    khdc.getTrangThai() == 1 ? "Mặc định" : ""
+            });
+        }
+        clearDiaChiForm();
+    }
+    private void clearDiaChiForm(){
+        txtTinh.setText("");
+        txtPhuong.setText("");
+        txtDuong.setText("");
+        txtSoNha.setText("");
+        chkMacDinh.setSelected(false);
     }
 
     private void loadThongTin(){
@@ -266,6 +305,28 @@ public class ThongTinCaNhanKhachHang_GUI extends JPanel {
         txtHang.setText(currentKhachHang.getHang());
         txtDiemThuong.setText(String.valueOf(currentKhachHang.getDiemThuong()));
         txtDiemHang.setText(String.valueOf(currentKhachHang.getDiemHang()));
+
+        loadTableDiaChi();
+    }
+
+    private void hienThiChiTietDiaChi() {
+
+        int row = tblDiaChi.getSelectedRow();
+        if (row < 0) return;
+
+        KhachHang_DiaChi_DTO khdc =
+                khdcBus.getByMaKH(currentKhachHang.getMa()).get(row);
+
+        DIACHI_DTO dc = diaChiBus.getById(khdc.getMaDiaChi());
+
+        if (dc == null) return;
+
+        txtTinh.setText(dc.getTinh());
+        txtPhuong.setText(dc.getPhuong());
+        txtDuong.setText(dc.getDuong());
+        txtSoNha.setText(dc.getSoNha());
+
+        chkMacDinh.setSelected(khdc.getTrangThai() == 1);
     }
     private KhachHang_DTO getKhachHangFromForm(){
         KhachHang_DTO kh = new KhachHang_DTO();

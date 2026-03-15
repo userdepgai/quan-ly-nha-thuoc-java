@@ -62,6 +62,7 @@ public class PhieuNhapKho_BUS {
         kvlt.setHienCo(hienCoMoi);
 
         khuVucLuuTruBus.update(kvlt);
+        khuVucLuuTruBus.refreshData();
     }
     public String getNextId() {
         return pnkDao.getNextID();
@@ -88,6 +89,7 @@ public class PhieuNhapKho_BUS {
         }
         return result;
     }
+//
     public boolean capNhatChiTiet(ChiTietPhieuNhapKho_DTO ct) {
         boolean result = chiTietDao.capNhat(ct);
         if (result) {
@@ -236,6 +238,29 @@ public class PhieuNhapKho_BUS {
         for (KhuVucLuuTru_DTO kvlt : getKVLTConSuDung())
             list.add(kvlt.getTenKVLT());
         return list;
+    }
+    public boolean kiemTraDuSucChua(PhieuNhapKho_DTO pnk) {
+        KhuVucLuuTru_DTO kvlt = KhuVucLuuTru_BUS.getInstance().getById(pnk.getMaKVLT());
+        int hienCo= kvlt.getHienCo();
+        for(ChiTietPhieuNhapKho_DTO ct : pnk.getDs_chiTietPNK()) {
+            hienCo += ct.getSoLuong();
+            if(hienCo > kvlt.getSucChua())
+                return false;
+        }
+        return true;
+    }
+    public boolean kiemTraDuSucChua(PhieuNhapKho_DTO pnk, int soLuong) {
+        KhuVucLuuTru_DTO kvlt = KhuVucLuuTru_BUS.getInstance().getById(pnk.getMaKVLT());
+        int hienCo= kvlt.getHienCo();
+        for(ChiTietPhieuNhapKho_DTO ct : pnk.getDs_chiTietPNK()) {
+            hienCo += ct.getSoLuong();
+            if(hienCo > kvlt.getSucChua())
+                return false;
+        }
+        hienCo += soLuong;
+        if(hienCo > kvlt.getSucChua())
+            return false;
+        return true;
     }
     public ArrayList<PhieuNhapKho_DTO> timKiem(
             String maPNK,

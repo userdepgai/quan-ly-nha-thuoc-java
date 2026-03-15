@@ -25,6 +25,11 @@ public class Menu extends JFrame {
     private CardLayout cardLayout;
     private TaiKhoan_BUS taiKhoanBus = TaiKhoan_BUS.getInstance();
 
+    private KVLT kvltGUI;
+    private LoHang_GUI loHangGUI;
+    private PhieuNhap_GUI phieuNhapGUI;
+    private TaiKhoan_GUI taiKhoanGui;
+
     public Menu() {
         setTitle("Admin Dashboard");
         setSize(1400, 800);
@@ -183,15 +188,20 @@ public class Menu extends JFrame {
         contentPanel.add(new NhanVien_GUI(), "nhanvien");
         contentPanel.add(new NCC(), "nhacungcap");
 
-        contentPanel.add(new KVLT(), "luutru");
-        contentPanel.add(new LoHang_GUI(), "lohang");
-        contentPanel.add(new PhieuNhap_GUI(), "phieunhap");
+        kvltGUI = new KVLT();
+        loHangGUI = new LoHang_GUI();
+        phieuNhapGUI = new PhieuNhap_GUI();
+
+        contentPanel.add(kvltGUI, "luutru");
+        contentPanel.add(loHangGUI, "lohang");
+        contentPanel.add(phieuNhapGUI, "phieunhap");
 
         contentPanel.add(new QuanLyChuongTrinhKM_GUI(), "chuongTrinhKhuyenMai");
         contentPanel.add(new QuanLyKhuyenMai_GUI(), "khuyenMai");
         contentPanel.add(new QuanLyVoucher_GUI(), "voucher");
 
-        contentPanel.add(new TaiKhoan_GUI(), "taiKhoanDangNhap");
+        taiKhoanGui = new TaiKhoan_GUI();
+        contentPanel.add(taiKhoanGui, "taiKhoanDangNhap");
         contentPanel.add(new PhanQuyen_GUI(), "phanQuyen");
 
         menuList.addListSelectionListener(e -> {
@@ -216,6 +226,21 @@ public class Menu extends JFrame {
                         new MenuThongTinCaNhan_GUI().setVisible(true);
                         dispose();
                     } else {
+                        if ("luutru".equals(item.cardName)) {
+                            kvltGUI.loadDataToTableKVLT();
+                        }
+                        if ("lohang".equals(item.cardName)) {
+                            loHangGUI.loadTableFromList();
+                        }
+
+                        if ("phieunhap".equals(item.cardName)) {
+                            phieuNhapGUI.loadTableDSPNKFromList();
+                        }
+
+                        if ("taiKhoanDangNhap".equals(item.cardName)) {
+                            taiKhoanGui.loadTableFromList();
+                        }
+
                         cardLayout.show(contentPanel, item.cardName);
                     }
                 }

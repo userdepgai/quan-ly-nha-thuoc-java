@@ -79,7 +79,7 @@ public class THONGKEDOANHTHU extends JPanel {
             tableThongKe.getTableHeader().setReorderingAllowed(false);
             tableThongKe.getTableHeader().setResizingAllowed(false);
 
-            tableThongKe.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tableThongKe.getColumnModel().getColumn(0).setPreferredWidth(5);
             tableThongKe.getColumnModel().getColumn(1).setPreferredWidth(150);
             tableThongKe.getColumnModel().getColumn(2).setPreferredWidth(130);
             tableThongKe.getColumnModel().getColumn(3).setPreferredWidth(130);
@@ -97,11 +97,11 @@ public class THONGKEDOANHTHU extends JPanel {
             tableThongKe.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
             tableThongKe.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);
             tableThongKe.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
-
             tableThongKe.setSelectionBackground(new Color(173, 216, 230));
             tableThongKe.setSelectionForeground(Color.BLACK);
         }
-
+        textTBD.setFocusable(false);
+        textLN.setFocusable(false);
         if (textTBD != null) {
             textTBD.setEditable(false);
             textTBD.setFont(new Font("Arial", Font.BOLD, 14));

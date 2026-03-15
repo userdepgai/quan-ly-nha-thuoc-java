@@ -32,9 +32,12 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
     public String taoDonOnline(
             String maKH,
-            String diaChiGiao,
-            ArrayList<ChiTietHoaDonBan_DTO> dsCT
-    ){
+            String diaChiKH,
+            String maDiaChi,
+            ArrayList<ChiTietHoaDonBan_DTO> dsCT,
+            int tinhTrangThanhToan
+    )
+    {
 
         if(dsCT == null || dsCT.isEmpty())
             throw new RuntimeException("Giỏ hàng trống");
@@ -48,7 +51,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         hd.setLoaiHDB(1);
         hd.setTrangThai(HoaDonBan_DTO.TT_CHO_DUYET);
-        hd.setTinhTrangThanhToan(HoaDonBan_DTO.TT_CHUA_THANH_TOAN);
+        hd.setTinhTrangThanhToan(tinhTrangThanhToan);
 
         hd.setNgayLap(LocalDateTime.now());
 
@@ -63,7 +66,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         hd.setMaVoucher(null);
 
         hd.setPhiVanChuyen(15000);
-        hd.setMaDiaChiGiaoHang(diaChiGiao);
+        hd.setMaDiaChiGiaoHang(maDiaChi);
         this.hoaDon = hd;
         this.hoaDon.setDs_chiTietHDB(dsCT);
 
@@ -150,7 +153,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 LoHang_DTO lo = entry.getKey();
                 int soLuongTru = entry.getValue();
 
-                lo.truSoLuongConLai(soLuongTru);
+//                lo.truSoLuongConLai(soLuongTru);
 
                 loBus.capNhat(lo);   // update DB
             }
@@ -328,4 +331,5 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         return ketQua;
     }
+
 }

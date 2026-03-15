@@ -1,19 +1,24 @@
 package gui;
 
+import bus.KhuVucLuuTru_BUS;
 import bus.PhieuNhapKho_BUS;
 import com.toedter.calendar.JDateChooser;
 import dto.ChiTietPhieuNhapKho_DTO;
+import dto.KhuVucLuuTru_DTO;
 import dto.LoHang_DTO;
 import dto.PhieuNhapKho_DTO;
+import gui.NCCKVLT.KVLT;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class PhieuNhap_GUI extends JPanel {
     private JButton btnXuatPDF;
@@ -103,7 +108,7 @@ public class PhieuNhap_GUI extends JPanel {
     private void formEdit() {
         initTableDSPNK();
         initTableCTPNK();
-        loadTableDSPNKFromList(bus.getAll());
+        loadTableDSPNKFromList();
 
         taoCmbLocNhanVien();
         taoCmbLocNCC();
@@ -191,6 +196,38 @@ public class PhieuNhap_GUI extends JPanel {
         srcCT.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
     }
 
+    public void loadTableDSPNKFromList() {
+        ArrayList<PhieuNhapKho_DTO> list = bus.getAll();
+        modelDSPNK.setRowCount(0);
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+        int stt = 1;
+        for (PhieuNhapKho_DTO pnk : list) {
+            String tenNV = bus.getNameNV(pnk.getMaNhanVien());
+            String tenNCC = bus.getNameNCC(pnk.getMaNCC());
+            String tenKVLT = bus.getNameKVLT(pnk.getMaKVLT());
+            String ngayLap = "";
+            if (pnk.getNgayLap() != null) {
+                ngayLap = pnk.getNgayLap().toLocalDate().toString();
+            }
+            String ngayHoanThanh = "";
+            if (pnk.getNgayHoanThanh() != null) {
+                ngayHoanThanh = pnk.getNgayHoanThanh().toLocalDate().toString();
+            }
+            modelDSPNK.addRow(new Object[]{
+                    stt++,
+                    pnk.getMa(),
+                    tenNV,
+                    tenNCC,
+                    tenKVLT,
+                    ngayLap,
+                    ngayHoanThanh,
+                    formatTien(pnk.getThanhTien()),
+                    pnk.getTrangThaiText()
+            });
+        }
+    }
     private void loadTableDSPNKFromList(ArrayList<PhieuNhapKho_DTO> list) {
         modelDSPNK.setRowCount(0);
         if (list == null || list.isEmpty()) {
@@ -217,7 +254,7 @@ public class PhieuNhap_GUI extends JPanel {
                     tenKVLT,
                     ngayLap,
                     ngayHoanThanh,
-                    String.format("%,.0f", pnk.getThanhTien()),
+                    formatTien(pnk.getThanhTien()),
                     pnk.getTrangThaiText()
             });
         }
@@ -341,7 +378,7 @@ public class PhieuNhap_GUI extends JPanel {
         JDateChooser4.setDate(null);
 
         ArrayList<PhieuNhapKho_DTO> list = bus.getAll();
-        loadTableDSPNKFromList(list);
+        loadTableDSPNKFromList();
 
         txtHienCo.setText(String.valueOf(list.size()));
 
@@ -393,9 +430,12 @@ public class PhieuNhap_GUI extends JPanel {
         isUpdatingPNK = true;
         PhieuNhapKho_DTO pnk = bus.getById(tableDSPNK.getValueAt(row,1).toString());
 
-        cmbKVLT.removeAllItems();
-        cmbKVLT.setEnabled(true);
-        taoCmbKVLTConHoatDong();
+        if(pnk.getTrangThai() == PhieuNhapKho_DTO.TT_CHUAN_BI){
+            cmbKVLT.removeAllItems();
+            cmbKVLT.setEnabled(true);
+            taoCmbKVLTConHoatDong();
+        }
+
 
         String tenKho = bus.getNameKVLT(pnk.getMaKVLT());
         cmbKVLT.setSelectedItem(tenKho);
@@ -448,6 +488,15 @@ public class PhieuNhap_GUI extends JPanel {
                         "Không thể chuyển sang trạng thái CHỜ khi danh sách chi tiết rỗng");
                 return;
             }
+            if(!bus.kiemTraDuSucChua(pnk)) {
+                JOptionPane.showMessageDialog(this,
+                        "Kho không đủ sức chứa. Vui lòng chọn kho khác!");
+                return;
+            }
+            KhuVucLuuTru_BUS kvltBus = KhuVucLuuTru_BUS.getInstance();
+            for (ChiTietPhieuNhapKho_DTO ct : dsCT){
+                kvltBus.capNhatSoThung(pnk.getMaKVLT(),ct.getSoLuong());
+            }
         }
 
         if (trangThaiCu == PhieuNhapKho_DTO.TT_CHO &&
@@ -483,7 +532,7 @@ public class PhieuNhap_GUI extends JPanel {
                 }
             }
             JOptionPane.showMessageDialog(this, "Cập nhật phiếu thành công");
-            loadTableDSPNKFromList(bus.getAll());
+            loadTableDSPNKFromList();
             setViewMode();
 
         } else {
@@ -511,7 +560,7 @@ public class PhieuNhap_GUI extends JPanel {
             JOptionPane.showMessageDialog(this, "Lưu phiếu thành công");
             btnThemSP.setVisible(true);
             btnThemSP.setEnabled(true);
-            loadTableDSPNKFromList(bus.getAll());
+            loadTableDSPNKFromList();
         } else {
             JOptionPane.showMessageDialog(this, "Lưu thất bại");
         }
@@ -532,6 +581,7 @@ public class PhieuNhap_GUI extends JPanel {
         txtTongTien.setText("");
 
         modelCTPNK.setRowCount(0);
+        btnThemSP.setEnabled(true);
 
         setViewMode();
     }
@@ -547,6 +597,8 @@ public class PhieuNhap_GUI extends JPanel {
 
         cmbSanPham.setEnabled(true);
         txtSoLuong.setEditable(true);
+
+        btnThemSP.setEnabled(false);
     }
     private void xuKienKhiChonCmbSP() {
         cmbSanPham.addActionListener(e -> {
@@ -562,7 +614,7 @@ public class PhieuNhap_GUI extends JPanel {
             String maSP = bus.getMaSpByTen(tenSP);
             txtMaSP.setText(maSP);
             double giaNhap = bus.getGiaNhapTrongNCCSP(maNCC,maSP);
-            txtGiaNhap.setText(String.valueOf(giaNhap));
+            txtGiaNhap.setText(formatTien(giaNhap));
             txtGiaNhap.setEditable(false);
             tinhTongTien();
         });
@@ -570,10 +622,11 @@ public class PhieuNhap_GUI extends JPanel {
     private void xuLyLuuSP() {
         if (!kiemTraFormChiTiet()) return;
         String maPNK = txtMaPNK.getText().trim();
+        PhieuNhapKho_DTO pnk = PhieuNhapKho_BUS.getInstance().getById(maPNK);
         String maSP = txtMaSP.getText().trim();
 
         int soLuong = Integer.parseInt(txtSoLuong.getText().trim());
-        double giaNhap = Double.parseDouble(txtGiaNhap.getText().trim());
+        double giaNhap = parseTien(txtGiaNhap.getText());
         double tongTien = soLuong * giaNhap;
 
         int rowIndex = timDongSanPham(maSP);
@@ -587,15 +640,38 @@ public class PhieuNhap_GUI extends JPanel {
             );
 
             if (confirm == JOptionPane.YES_OPTION) {
+                int soLuongCu = 0;
+                for(ChiTietPhieuNhapKho_DTO ct : pnk.getDs_chiTietPNK()){
+                    if(ct.getMaSP().equals(maSP))
+                        soLuongCu = ct.getSoLuong();
+                }
+                if(soLuong > soLuongCu){
+                    if(!bus.kiemTraDuSucChua(pnk, soLuong-soLuongCu)){
+                        JOptionPane.showMessageDialog(this, "Kho không đủ sức chứa");
+                        return;
+                    }
+                }
+
                 modelCTPNK.setValueAt(soLuong, rowIndex, 3);
                 modelCTPNK.setValueAt(String.format("%,.0f", giaNhap), rowIndex, 4);
                 modelCTPNK.setValueAt(String.format("%,.0f", tongTien), rowIndex, 5);
+
+                ChiTietPhieuNhapKho_DTO ct = new ChiTietPhieuNhapKho_DTO();
+                ct.setMaPNK(maPNK);
+                ct.setMaSP(maSP);
+                ct.setSoLuong(soLuong);
+
+                boolean result = bus.capNhatChiTiet(ct);
 
                 capNhatTongTienPhieu();
 
                 JOptionPane.showMessageDialog(this, "Đã cập nhật sản phẩm");
             }
+            return;
+        }
 
+        if (!bus.kiemTraDuSucChua(pnk,soLuong)) {
+            JOptionPane.showMessageDialog(this, "Kho không đủ sức chứa");
             return;
         }
 
@@ -613,8 +689,8 @@ public class PhieuNhap_GUI extends JPanel {
                     maSP,
                     null,
                     soLuong,
-                    String.format("%,.0f", giaNhap),
-                    String.format("%,.0f", tongTien)
+                    formatTien(giaNhap),
+                    formatTien(tongTien)
             });
 
             capNhatTongTienPhieu();
@@ -703,8 +779,8 @@ public class PhieuNhap_GUI extends JPanel {
             String tongTien = "";
             if (lo != null) {
                 maLo = lo.getMaLo();
-                giaNhap = String.format("%,.0f", lo.getGiaNhap());
-                tongTien = String.format("%,.0f", lo.getThanhTien());
+                giaNhap = formatTien(lo.getGiaNhap());
+                tongTien = formatTien(lo.getThanhTien());
             }
             modelCTPNK.addRow(new Object[]{ stt++, ct.getMaSP(), maLo, ct.getSoLuong(),
                     giaNhap,
@@ -869,9 +945,9 @@ public class PhieuNhap_GUI extends JPanel {
     private void tinhTongTien() {
         try {
             int soLuong = Integer.parseInt(txtSoLuong.getText().trim());
-            double giaNhap = Double.parseDouble(txtGiaNhap.getText().trim());
+            double giaNhap = parseTien(txtGiaNhap.getText());
             double tongTien = soLuong * giaNhap;
-            txtTongTien.setText(String.valueOf(tongTien));
+            txtTongTien.setText(formatTien(tongTien));
         } catch (Exception e) {
             txtTongTien.setText("");
         }
@@ -888,9 +964,9 @@ public class PhieuNhap_GUI extends JPanel {
         double tongPhieu = 0;
         for (int i = 0; i < modelCTPNK.getRowCount(); i++) {
             String value = modelCTPNK.getValueAt(i, 5).toString().replace(",", "");
-            tongPhieu += Double.parseDouble(value);
+            tongPhieu += parseTien(value);
         }
-        txtThanhTien.setText(String.format("%,.0f", tongPhieu));
+        txtThanhTien.setText(formatTien(tongPhieu));
     }
     private boolean kiemTraSanPhamTonTai(String maSP) {
         DefaultTableModel model = (DefaultTableModel) tableCTPNK.getModel();
@@ -975,4 +1051,18 @@ public class PhieuNhap_GUI extends JPanel {
         JDateChooser4.setDateFormatString("dd/MM/yyyy");
     }
 
+    private String formatTien(double tien){
+        NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("vi","VN"));
+        String kq = nf.format(tien);
+        kq = kq.replace("₫", "đ");
+        return kq;
+    }
+    private double parseTien(String tien) {
+
+        if (tien == null || tien.isEmpty()) return 0;
+        tien = tien.replaceAll("[^0-9]", "");
+        if (tien.isEmpty()) return 0;
+
+        return Double.parseDouble(tien);
+    }
 }

@@ -552,8 +552,6 @@ public class NCC extends JPanel {
         isUpdating = false;
     }
 
-
-
     private void timKiemNCC() {
         String tuKhoa = textLoc.getText().trim().toLowerCase();
         String trangThaiLoc = "";
