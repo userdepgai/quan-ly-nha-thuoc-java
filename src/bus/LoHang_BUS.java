@@ -316,24 +316,7 @@ public class LoHang_BUS {
         return maxGiaNhap;
     }
 
-    public void congTonKhiHuy(Map<LoHang_DTO, Integer> dsLo) {
-        if (dsLo == null) return;
-        for (Map.Entry<LoHang_DTO, Integer> e : dsLo.entrySet()) {
-            LoHang_DTO lo = e.getKey();
-            int sl = e.getValue();
-            lo.congSoLuongConLai(sl);
-        }
-        refreshData();
-    }
 
-    public int getTongTonByMaSP(String maSp) {
-        ArrayList<LoHang_DTO> list = getByMaSP(maSp);
-        int tong = 0;
-        for (LoHang_DTO lo : list) {
-            tong += lo.getSoLuongConLai();
-        }
-        return tong;
-    }
     public int getTongSPTonByMaSP(String maSp) {
         int tong = 0;
         for (LoHang_DTO lo : getByMaSP(maSp)) {

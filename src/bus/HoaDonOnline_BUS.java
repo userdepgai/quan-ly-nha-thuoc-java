@@ -83,6 +83,8 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         if(!ok)
             throw new RuntimeException("Insert hóa đơn thất bại");
 
+        refreshData();
+
         for(ChiTietHoaDonBan_DTO ct : dsCT){
 
             ct.setMaHDB(maHD);
