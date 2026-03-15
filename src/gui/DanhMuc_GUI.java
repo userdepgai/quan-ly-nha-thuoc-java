@@ -84,6 +84,13 @@ public class DanhMuc_GUI extends JPanel {
         };
         tableDanhMuc.setModel(modelDanhMuc);
         tableDanhMuc.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        tableDanhMuc.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableDanhMuc.getColumnModel().getColumn(1).setPreferredWidth(120);
+        tableDanhMuc.getColumnModel().getColumn(2).setPreferredWidth(350);
+        tableDanhMuc.getColumnModel().getColumn(3).setPreferredWidth(150);
+
+        tableDanhMuc.getTableHeader().setReorderingAllowed(false);
     }
 
     private void initTable_ThuocTinh() {
@@ -95,6 +102,13 @@ public class DanhMuc_GUI extends JPanel {
             }
         };
         tableThuocTinh.setModel(modelThuocTinh);
+
+        tableThuocTinh.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableThuocTinh.getColumnModel().getColumn(1).setPreferredWidth(120);
+        tableThuocTinh.getColumnModel().getColumn(2).setPreferredWidth(250);
+        tableThuocTinh.getColumnModel().getColumn(3).setPreferredWidth(150);
+
+        tableThuocTinh.getTableHeader().setReorderingAllowed(false);
     }
 
     private void initComboBoxData() {
@@ -309,6 +323,7 @@ public class DanhMuc_GUI extends JPanel {
         txtTenDanhMuc.setEditable(!lock);
         cmbTrangThai.setEnabled(!lock);
         txtMaDanhMuc.setEditable(false);
+        txtDanhMucHienCo.setEditable(false);
 
         btnLuu.setVisible(!lock);
         btnHuy.setVisible(!lock);

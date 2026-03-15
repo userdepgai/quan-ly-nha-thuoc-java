@@ -47,7 +47,6 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
     private JLabel labelChuongTrinhKhuyenMaiHienCo;
     private JTextField txtChuongTrinhKhuyenMaiHienCo;
 
-    // --- SỬ DỤNG JTextField CHO NGÀY THÁNG ---
     private JTextField txtNgayBatDau;
     private JTextField txtNgayKetThuc;
     private JLabel labelMoTa;
@@ -94,14 +93,39 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
 
     private void initTable_ChuongTrinhKhuyenMai() {
         String[] headers = {"STT", "Mã Chương Trình", "Tên Chương Trình", "Ngày Bắt Đầu", "Ngày Kết Thúc", "Trạng Thái"};
-        modelChuongTrinhKhuyenMai = new DefaultTableModel(headers, 0);
+        modelChuongTrinhKhuyenMai = new DefaultTableModel(headers, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         tableChuongTrinhKhuyenMai.setModel(modelChuongTrinhKhuyenMai);
+
+        tableChuongTrinhKhuyenMai.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableChuongTrinhKhuyenMai.getColumnModel().getColumn(1).setPreferredWidth(120);
+        tableChuongTrinhKhuyenMai.getColumnModel().getColumn(2).setPreferredWidth(300);
+        tableChuongTrinhKhuyenMai.getColumnModel().getColumn(3).setPreferredWidth(100);
+        tableChuongTrinhKhuyenMai.getColumnModel().getColumn(4).setPreferredWidth(100);
+        tableChuongTrinhKhuyenMai.getColumnModel().getColumn(5).setPreferredWidth(120);
+        tableChuongTrinhKhuyenMai.getTableHeader().setReorderingAllowed(false);
     }
 
     private void initTable_KhuyenMai() {
         String[] headers = {"STT", "Mã Khuyến Mãi", "Tên Khuyến Mãi", "Loại Khuyến Mãi", "Trạng Thái"};
-        modelKhuyenMai = new DefaultTableModel(headers, 0);
+        modelKhuyenMai = new DefaultTableModel(headers, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         tableKhuyenMai.setModel(modelKhuyenMai);
+
+        tableKhuyenMai.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableKhuyenMai.getColumnModel().getColumn(1).setPreferredWidth(100);
+        tableKhuyenMai.getColumnModel().getColumn(2).setPreferredWidth(250);
+        tableKhuyenMai.getColumnModel().getColumn(3).setPreferredWidth(120);
+        tableKhuyenMai.getColumnModel().getColumn(4).setPreferredWidth(120);
+        tableKhuyenMai.getTableHeader().setReorderingAllowed(false);
     }
 
     private void initComboBox() {
@@ -473,6 +497,7 @@ public class QuanLyChuongTrinhKM_GUI extends JPanel {
     }
 
     private void lockForm(boolean lock) {
+        txtMaChuongTrinhKhuyenMai.setEditable(false);
         txtTenChuongTrinhKhuyenMai.setEditable(!lock);
         txtMoTa.setEditable(!lock);
         jdNgayBatDau.setEnabled(!lock);

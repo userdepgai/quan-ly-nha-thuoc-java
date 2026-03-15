@@ -109,6 +109,18 @@ public class QuanLySanPham_GUI extends JPanel {
             }
         };
         tableSanPham.setModel(modelSanPham);
+
+        tableSanPham.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableSanPham.getColumnModel().getColumn(1).setPreferredWidth(80);
+        tableSanPham.getColumnModel().getColumn(2).setPreferredWidth(250);
+        tableSanPham.getColumnModel().getColumn(3).setPreferredWidth(60);
+        tableSanPham.getColumnModel().getColumn(4).setPreferredWidth(80);
+        tableSanPham.getColumnModel().getColumn(5).setPreferredWidth(70);
+        tableSanPham.getColumnModel().getColumn(6).setPreferredWidth(150);
+        tableSanPham.getColumnModel().getColumn(7).setPreferredWidth(150);
+        tableSanPham.getColumnModel().getColumn(8).setPreferredWidth(100);
+
+        tableSanPham.getTableHeader().setReorderingAllowed(false);
     }
 
     private void initComboBoxData() {
