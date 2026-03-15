@@ -613,7 +613,7 @@ public class HoaDonBan_BUS {
         tinhTongTien();
     }
 
-    private boolean matchKeyword(
+    protected boolean matchKeyword(
             HoaDonBan_DTO hd,
             String kieuTim,
             String keyword)
@@ -647,7 +647,7 @@ public class HoaDonBan_BUS {
         return true;
     }
 
-    private boolean matchTrangThai(
+    protected boolean matchTrangThai(
             HoaDonBan_DTO hd,
             Integer trangThai)
     {
@@ -658,7 +658,7 @@ public class HoaDonBan_BUS {
         return hd.getTrangThai() == trangThai;
     }
 
-    private boolean matchThanhToan(
+    protected boolean matchThanhToan(
             HoaDonBan_DTO hd,
             Integer tinhTrangThanhToan)
     {
@@ -670,7 +670,7 @@ public class HoaDonBan_BUS {
                 == tinhTrangThanhToan;
     }
 
-    private boolean matchLoai(
+    protected boolean matchLoai(
             HoaDonBan_DTO hd,
             Integer loaiHD)
     {
@@ -681,7 +681,7 @@ public class HoaDonBan_BUS {
         return hd.getLoaiHDB() == loaiHD;
     }
 
-    private boolean matchNgay(
+    protected boolean matchNgay(
             HoaDonBan_DTO hd,
             LocalDateTime tuNgay,
             LocalDateTime denNgay)
@@ -697,7 +697,7 @@ public class HoaDonBan_BUS {
                 !ngayLap.isAfter(denNgay);
     }
 
-    private boolean matchGia(
+    protected boolean matchGia(
             HoaDonBan_DTO hd,
             Integer mucGia)
     {

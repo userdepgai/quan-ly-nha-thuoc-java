@@ -71,7 +71,8 @@ public class ThanhToan_BUS {
                                String tenKH,
                                String diaChiKH,
                                String maDiaChi,
-                               ArrayList<ChiTietHoaDonBan_DTO> dsCT) {
+                               ArrayList<ChiTietHoaDonBan_DTO> dsCT,
+                               int tinhTrangThanhToan) {
 
         if (dsCT == null || dsCT.isEmpty()) {
             return null;
@@ -108,25 +109,21 @@ public class ThanhToan_BUS {
             khachHangDAO.them(khMoi);
         }
         for (ChiTietHoaDonBan_DTO ct : dsCT) {
-
-            if (ct.getMaLo() == null || ct.getMaLo().trim().isEmpty()) {
-
-                String maLo = timLoConHang(ct.getMaSP());
-
-                if(maLo == null){
-                    throw new RuntimeException("Sản phẩm " + ct.getMaSP() + " đã hết hàng");
-                }
-
-                ct.setMaLo(maLo);
-            }
-
+            ct.setMaLo(null);
         }
+
 
         try {
 
             String maHDB = HoaDonOnline_BUS
                     .getInstance()
-                    .taoDonOnline(maKH, maDiaChi, dsCT);
+                    .taoDonOnline(
+                            maKH,
+                            diaChiKH,
+                            maDiaChi,
+                            dsCT,
+                            tinhTrangThanhToan
+                    );
             return maHDB;
 
         } catch (Exception e) {

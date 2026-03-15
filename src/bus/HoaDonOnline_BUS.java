@@ -32,14 +32,16 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
     public String taoDonOnline(
             String maKH,
-            String diaChiGiao,
-            ArrayList<ChiTietHoaDonBan_DTO> dsCT
-    ){
+            String diaChiKH,
+            String maDiaChi,
+            ArrayList<ChiTietHoaDonBan_DTO> dsCT,
+            int tinhTrangThanhToan
+    ) {
 
         if(dsCT == null || dsCT.isEmpty())
             throw new RuntimeException("Giỏ hàng trống");
 
-        if(diaChiGiao == null || diaChiGiao.isBlank())
+        if(diaChiKH == null || diaChiKH.isBlank())
             throw new RuntimeException("Thiếu địa chỉ giao");
 
         String maHD = getNextID();
@@ -51,7 +53,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
 
         hd.setLoaiHDB(1);
         hd.setTrangThai(HoaDonBan_DTO.TT_CHO_DUYET);
-        hd.setTinhTrangThanhToan(HoaDonBan_DTO.TT_CHUA_THANH_TOAN);
+        hd.setTinhTrangThanhToan(tinhTrangThanhToan);
 
         hd.setNgayLap(LocalDateTime.now());
 
@@ -66,7 +68,8 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         hd.setMaVoucher(null);
 
         hd.setPhiVanChuyen(15000);
-        hd.setMaDiaChiGiaoHang(diaChiGiao);
+        hd.setMaDiaChiGiaoHang(maDiaChi);
+
         this.hoaDon = hd;
         this.hoaDon.setDs_chiTietHDB(dsCT);
 
@@ -83,8 +86,6 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         if(!ok)
             throw new RuntimeException("Insert hóa đơn thất bại");
 
-        refreshData();
-
         for(ChiTietHoaDonBan_DTO ct : dsCT){
 
             ct.setMaHDB(maHD);
@@ -94,6 +95,8 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
             if(!kq)
                 throw new RuntimeException("Insert chi tiết thất bại");
         }
+
+        refreshData();
         return maHD;
     }
     public void duyetDon(String maHD) {
@@ -175,6 +178,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 HoaDonBan_DTO.TT_DA_DUYET,
                 maNV
         );
+        refreshData();
     }
     public void khongDuyetDon(String maHD){
 
@@ -203,6 +207,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 HoaDonBan_DTO.TT_DA_HUY,
                 maNV
         );
+        refreshData();
     }
     public void khachHuyDon(String maHD){
 
@@ -228,6 +233,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 HoaDonBan_DTO.TT_DA_HUY,
                 null
         );
+        refreshData();
     }
     public void giaoHang(String maHD ) {
 
@@ -247,6 +253,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 HoaDonBan_DTO.TT_DANG_GIAO,
                 maNV
         );
+        refreshData();
     }
 
     public void hoanThanh(String maHD ) {
@@ -278,6 +285,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
         );
 
         congDiem(hd);
+        refreshData();
     }
 
     public void huyDonHang(String maHD ) {
@@ -327,6 +335,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 HoaDonBan_DTO.TT_DA_HUY,
                 maNV
         );
+        refreshData();
     }
     public void hoanHang(String maHD) {
 
@@ -348,6 +357,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 HoaDonBan_DTO.TT_YEU_CAU_HOAN,
                 null
         );
+        refreshData();
     }
 
     public void duyetHoanHang(String maHD ){
@@ -408,6 +418,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 HoaDonBan_DTO.TT_DA_HUY,
                 maNV
         );
+        refreshData();
     }
     public void khongDuyetHoanHang(String maHD ){
 
@@ -428,6 +439,7 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
                 HoaDonBan_DTO.TT_HOAN_THANH,
                 maNV
         );
+        refreshData();
     }
     private void congDiem(HoaDonBan_DTO hd) {
 
@@ -456,23 +468,20 @@ public class HoaDonOnline_BUS extends HoaDonBan_BUS {
             LocalDateTime denNgay
     ){
 
-        ArrayList<HoaDonBan_DTO> ds =
-                super.timKiem(
-                        kieuTim,
-                        keyword,
-                        trangThai,
-                        thanhToan,
-                        1,
-                        mucGia,
-                        tuNgay,
-                        denNgay
-                );
-
         ArrayList<HoaDonOnline_DTO> ketQua = new ArrayList<>();
 
-        for(HoaDonBan_DTO hd : ds){
-            if(hd instanceof HoaDonOnline_DTO online){
-                ketQua.add(online);
+        if(keyword != null)
+            keyword = keyword.toLowerCase();
+
+        for(HoaDonOnline_DTO hd : getDanhSachDuyetOnline()){
+
+            if(matchKeyword(hd,kieuTim,keyword) &&
+                    matchTrangThai(hd,trangThai) &&
+                    matchThanhToan(hd,thanhToan) &&
+                    matchNgay(hd,tuNgay,denNgay) &&
+                    matchGia(hd,mucGia))
+            {
+                ketQua.add(hd);
             }
         }
 
