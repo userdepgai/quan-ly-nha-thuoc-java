@@ -44,22 +44,30 @@ public class ThanhToan_BUS {
     }
 
     public ArrayList<ChiTietHoaDonBan_DTO> taoDanhSachChiTiet(List<ChiTietGioHang_DTO> dsMua) {
-
         ArrayList<ChiTietHoaDonBan_DTO> list = new ArrayList<>();
 
-        for (ChiTietGioHang_DTO item : dsMua) {
+        HoaDonBan_BUS hdbBus = HoaDonBan_BUS.getInstance();
 
+        for (ChiTietGioHang_DTO item : dsMua) {
             ChiTietHoaDonBan_DTO ct = new ChiTietHoaDonBan_DTO();
 
             ct.setMaSP(item.getMaSP());
             ct.setMaLo(item.getMaLo());
             ct.setSoLuong(item.getSoLuong());
 
-            double gia = getGiaSanPham(item.getMaSP());
+            double giaGoc = getGiaSanPham(item.getMaSP());
+            ct.setGiaBan(giaGoc);
 
-            ct.setGiaBan(gia);
-            ct.setGiaBanSauApKM(gia);
-            ct.setThanhTien(gia * item.getSoLuong());
+            SanPham_DTO sp = SanPham_BUS.getInstance().getById(item.getMaSP());
+            String maDanhMuc = (sp != null) ? sp.getMaDM() : "";
+
+            ArrayList<KhuyenMai_DTO> dsGoiY = hdbBus.goiYKhuyenMai(item.getMaSP(), maDanhMuc, giaGoc);
+            String maKM = (dsGoiY != null && !dsGoiY.isEmpty()) ? dsGoiY.get(0).getMaKM() : null;
+            double giaSauKM = hdbBus.tinhGiaSauKhuyenMai(giaGoc, maKM);
+
+            ct.setMaKhuyenMai(maKM);
+            ct.setGiaBanSauApKM(giaSauKM);
+            ct.setThanhTien(giaSauKM * item.getSoLuong());
 
             list.add(ct);
         }
@@ -77,9 +85,7 @@ public class ThanhToan_BUS {
         if (dsCT == null || dsCT.isEmpty()) {
             return null;
         }
-
         String maKH = null;
-
         ArrayList<KhachHang_DTO> dsKhachHang = khachHangDAO.getAll();
 
         if (dsKhachHang != null) {
@@ -90,10 +96,9 @@ public class ThanhToan_BUS {
                 }
             }
         }
+
         if (maKH == null) {
-
             maKH = khachHangDAO.getNextId();
-
             KhachHang_DTO khMoi = new KhachHang_DTO(
                     maKH,
                     tenKH != null && !tenKH.isEmpty() ? tenKH : "Khách hàng " + sdtTK,
@@ -105,50 +110,47 @@ public class ThanhToan_BUS {
                     "Đồng",
                     LocalDate.now()
             );
-
             khachHangDAO.them(khMoi);
         }
+
+
         for (ChiTietHoaDonBan_DTO ct : dsCT) {
-            ct.setMaLo(null);
+            if (ct.getMaLo() == null || ct.getMaLo().trim().isEmpty()) {
+                String maLo = timLoConHang(ct.getMaSP(), ct.getSoLuong());
+                if (maLo == null) {
+                    throw new RuntimeException("Sản phẩm " + ct.getMaSP() + " không đủ hàng hoặc đã hết lô khả dụng!");
+                }
+                ct.setMaLo(maLo);
+            }
         }
 
-
         try {
-
-            String maHDB = HoaDonOnline_BUS
-                    .getInstance()
-                    .taoDonOnline(
-                            maKH,
-                            diaChiKH,
-                            maDiaChi,
-                            dsCT,
-                            tinhTrangThanhToan
-                    );
-            return maHDB;
-
+            return HoaDonOnline_BUS.getInstance().taoDonOnline(
+                    maKH,
+                    diaChiKH,
+                    maDiaChi,
+                    dsCT,
+                    tinhTrangThanhToan
+            );
         } catch (Exception e) {
-
             e.printStackTrace();
             return null;
         }
     }
 
-    public ArrayList<ChiTietHoaDonBan_DTO> getChiTietHoaDon(String maHDB) {
-        return chiTietHoaDonDAO.getByMaHD(maHDB);
-    }
-    private String timLoConHang(String maSP){
-
-        ArrayList<LoHang_DTO> list = loHangDAO.getAll();
-
-        if(list == null) return null;
-
-        for(LoHang_DTO lo : list){
-
-            if(lo.getMaSp().equals(maSP) && lo.getSoLuongConLai() > 0){
-                return lo.getMaLo();
-            }
+        public ArrayList<ChiTietHoaDonBan_DTO> getChiTietHoaDon(String maHDB) {
+            return chiTietHoaDonDAO.getByMaHD(maHDB);
         }
+        private String timLoConHang(String maSP, int soLuongCan) {
 
-        return null;
-    }
+            ArrayList<LoHang_DTO> list = loHangDAO.getAll();
+            if (list == null) return null;
+
+            for (LoHang_DTO lo : list) {
+                if (lo.getMaSp().equals(maSP) && lo.getSoLuongConLai() >= soLuongCan) {
+                    return lo.getMaLo();
+                }
+            }
+            return null;
+        }
 }
