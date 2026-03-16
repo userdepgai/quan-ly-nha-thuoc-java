@@ -252,6 +252,14 @@ public class ThongTinCaNhanKhachHang_GUI extends JPanel {
                 hienThiChiTietDiaChi();
             }
         });
+
+        btnThemDC.addActionListener(e -> xuLyThemDiaChi());
+
+        btnCapNhatDC.addActionListener(e -> xuLyCapNhatDiaChi());
+
+        btnLuuDC.addActionListener(e -> xuLyLuuDiaChi());
+
+        btnHuyDC.addActionListener(e -> xuLyHuyDiaChi());
     }
     private void loadTableDiaChi() {
         modelDiaChi.setRowCount(0);
@@ -314,8 +322,7 @@ public class ThongTinCaNhanKhachHang_GUI extends JPanel {
         int row = tblDiaChi.getSelectedRow();
         if (row < 0) return;
 
-        KhachHang_DiaChi_DTO khdc =
-                khdcBus.getByMaKH(currentKhachHang.getMa()).get(row);
+        KhachHang_DiaChi_DTO khdc = listDiaChi.get(row);
 
         DIACHI_DTO dc = diaChiBus.getById(khdc.getMaDiaChi());
 
@@ -400,6 +407,147 @@ public class ThongTinCaNhanKhachHang_GUI extends JPanel {
         btnThemDC.setEnabled(true);
         btnLuuKH.setVisible(false);
         btnHuyKH.setVisible(false);
+    }
+
+    private void xuLyThemDiaChi(){
+        clearDiaChiForm();
+        setEditableDiaChi(true);
+        tblDiaChi.clearSelection();
+        btnThemDC.setVisible(false);
+        btnCapNhatDC.setVisible(false);
+        btnLuuDC.setVisible(true);
+        btnHuyDC.setVisible(true);
+    }
+    private void xuLyCapNhatDiaChi(){
+        int row = tblDiaChi.getSelectedRow();
+        if(row < 0){
+            JOptionPane.showMessageDialog(this,"Vui lòng chọn địa chỉ cần cập nhật");
+            return;
+        }
+        setEditableDiaChi(true);
+        btnThemDC.setVisible(false);
+        btnCapNhatDC.setVisible(false);
+        btnLuuDC.setVisible(true);
+        btnHuyDC.setVisible(true);
+    }
+    private void xuLyHuyDiaChi(){
+        clearDiaChiForm();
+        setEditableDiaChi(false);
+        btnThemDC.setVisible(true);
+        btnCapNhatDC.setVisible(true);
+        btnLuuDC.setVisible(false);
+        btnHuyDC.setVisible(false);
+        tblDiaChi.clearSelection();
+    }
+    private void xuLyLuuDiaChi(){
+        int row = tblDiaChi.getSelectedRow();
+        if(row >= 0){
+            xuLyLuuCapNhatDiaChi();
+        }else{
+            xuLyLuuThemDiaChi();
+        }
+    }
+
+    private void xuLyLuuCapNhatDiaChi(){
+        int row = tblDiaChi.getSelectedRow();
+        if(row < 0){
+            JOptionPane.showMessageDialog(this,"Vui lòng chọn địa chỉ cần cập nhật");
+            return;
+        }
+        if(txtTinh.getText().trim().isEmpty()
+                || txtPhuong.getText().trim().isEmpty()
+                || txtDuong.getText().trim().isEmpty()
+                || txtSoNha.getText().trim().isEmpty()){
+
+            JOptionPane.showMessageDialog(this,"Vui lòng nhập đầy đủ thông tin địa chỉ");
+            return;
+        }
+        try{
+            KhachHang_DiaChi_DTO khdc = listDiaChi.get(row);
+            DIACHI_DTO dc = new DIACHI_DTO();
+            dc.setMaDiaChi(khdc.getMaDiaChi());
+            dc.setTinh(txtTinh.getText().trim());
+            dc.setPhuong(txtPhuong.getText().trim());
+            dc.setDuong(txtDuong.getText().trim());
+            dc.setSoNha(txtSoNha.getText().trim());
+
+            boolean kq1 = diaChiBus.capNhat(dc);
+
+            khdc.setTrangThai(chkMacDinh.isSelected() ? 1 : 0);
+            boolean kq2 = khdcBus.capNhat(khdc);
+
+            if(!kq1 || !kq2){
+                JOptionPane.showMessageDialog(this,"Cập nhật địa chỉ thất bại");
+                return;
+            }
+            JOptionPane.showMessageDialog(this,"Cập nhật địa chỉ thành công");
+            loadTableDiaChi();
+            setEditableDiaChi(false);
+            btnThemDC.setVisible(true);
+            btnCapNhatDC.setVisible(true);
+            btnLuuDC.setVisible(false);
+            btnHuyDC.setVisible(false);
+            tblDiaChi.clearSelection();
+            clearDiaChiForm();
+
+        }catch(Exception e){
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,"Lỗi dữ liệu");
+        }
+    }
+    private void xuLyLuuThemDiaChi(){
+        if(txtTinh.getText().trim().isEmpty()
+                || txtPhuong.getText().trim().isEmpty()
+                || txtDuong.getText().trim().isEmpty()
+                || txtSoNha.getText().trim().isEmpty()){
+
+            JOptionPane.showMessageDialog(this,"Vui lòng nhập đầy đủ thông tin địa chỉ");
+            return;
+        }
+        try{
+            DIACHI_DTO dc = new DIACHI_DTO();
+            dc.setTinh(txtTinh.getText().trim());
+            dc.setPhuong(txtPhuong.getText().trim());
+            dc.setDuong(txtDuong.getText().trim());
+            dc.setSoNha(txtSoNha.getText().trim());
+            dc.setMaDiaChi(diaChiBus.getNextId());
+            boolean result = diaChiBus.them(dc);
+
+            if(!result){
+                JOptionPane.showMessageDialog(this,"Thêm địa chỉ thất bại");
+                return;
+            }
+            KhachHang_DiaChi_DTO khdc = new KhachHang_DiaChi_DTO();
+
+            khdc.setMaKhachHang(currentKhachHang.getMa());
+            khdc.setMaDiaChi(dc.getMaDiaChi());
+            khdc.setTrangThai(chkMacDinh.isSelected()?1:0);
+
+            boolean result2 = khdcBus.them(khdc);
+
+            if(!result2){
+                JOptionPane.showMessageDialog(this,"Thêm địa chỉ thất bại");
+                return;
+            }
+
+            JOptionPane.showMessageDialog(this,"Thêm địa chỉ thành công");
+
+            loadTableDiaChi();
+
+            setEditableDiaChi(false);
+
+            btnThemDC.setVisible(true);
+            btnCapNhatDC.setVisible(true);
+
+            btnLuuDC.setVisible(false);
+            btnHuyDC.setVisible(false);
+
+            clearDiaChiForm();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,"Lỗi dữ liệu");
+        }
     }
     private void reloadForm(){
         txtHoTen.setText(currentKhachHang.getTen());

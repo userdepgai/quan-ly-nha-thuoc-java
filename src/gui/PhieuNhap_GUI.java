@@ -524,13 +524,13 @@ public class PhieuNhap_GUI extends JPanel {
         boolean result = bus.capNhat(pnk);
 
         if (result) {
-            if (trangThaiCu == PhieuNhapKho_DTO.TT_CHO &&
-                    trangThaiMoi == PhieuNhapKho_DTO.TT_HOAN_THANH) {
-                for (ChiTietPhieuNhapKho_DTO ct : dsCT) {
-                    bus.capNhatTrangThaiLoHang(ct.getMaLo(), LoHang_DTO.TT_HOAN_THANH);
-                    bus.congHienCoKho(pnk.getMaKVLT(),ct.getSoLuong());
-                }
-            }
+//            if (trangThaiCu == PhieuNhapKho_DTO.TT_CHO &&
+//                    trangThaiMoi == PhieuNhapKho_DTO.TT_HOAN_THANH) {
+//                for (ChiTietPhieuNhapKho_DTO ct : dsCT) {
+//                    bus.capNhatTrangThaiLoHang(ct.getMaLo(), LoHang_DTO.TT_HOAN_THANH);
+//                    bus.congHienCoKho(pnk.getMaKVLT(),ct.getSoLuong());
+//                }
+//            }
             JOptionPane.showMessageDialog(this, "Cập nhật phiếu thành công");
             loadTableDSPNKFromList();
             setViewMode();

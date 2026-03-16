@@ -1,4 +1,6 @@
 package gui;
+import bus.HoaDonBan_BUS;
+import bus.SanPham_BUS;
 import bus.ThanhToan_BUS;
 import bus.Voucher_BUS;
 import dto.*;
@@ -68,15 +70,15 @@ public class ThanhToan_GUI extends JPanel {
     }
 
     private void caiDatGiaoDienBanDau() {
-            if (scrollDanhSachMua != null) {
-                pnlDanhSachMua = new JPanel();
-                pnlDanhSachMua.setLayout(new BoxLayout(pnlDanhSachMua, BoxLayout.Y_AXIS));
-                pnlDanhSachMua.setBackground(Color.WHITE);
-                scrollDanhSachMua.setViewportView(pnlDanhSachMua);
-                scrollDanhSachMua.getVerticalScrollBar().setUnitIncrement(16);
-                scrollDanhSachMua.setBorder(BorderFactory.createEmptyBorder());
-                scrollDanhSachMua.getViewport().setBackground(Color.WHITE);
-            }
+        if (scrollDanhSachMua != null) {
+            pnlDanhSachMua = new JPanel();
+            pnlDanhSachMua.setLayout(new BoxLayout(pnlDanhSachMua, BoxLayout.Y_AXIS));
+            pnlDanhSachMua.setBackground(Color.WHITE);
+            scrollDanhSachMua.setViewportView(pnlDanhSachMua);
+            scrollDanhSachMua.getVerticalScrollBar().setUnitIncrement(16);
+            scrollDanhSachMua.setBorder(BorderFactory.createEmptyBorder());
+            scrollDanhSachMua.getViewport().setBackground(Color.WHITE);
+        }
 
         textTen.setEditable(false);
         textSDT.setEditable(false);
@@ -389,8 +391,8 @@ public class ThanhToan_GUI extends JPanel {
         this.onDatHangThanhCongCallback = callback;
     }
     public ThanhToan_DTO layDuLieuDonHang() {
-
         ThanhToan_DTO dto = new ThanhToan_DTO();
+        HoaDonBan_BUS hdbBus = HoaDonBan_BUS.getInstance();
 
         dto.setTenKH(textTen.getText().trim());
         dto.setSdt(textSDT.getText().trim());
@@ -401,33 +403,37 @@ public class ThanhToan_GUI extends JPanel {
             dto.setMaVoucher(voucherApDung.getMa());
         }
 
-        String tong = textTongThanhToan.getText().replaceAll("[^0-9]", "");
-        if (!tong.isEmpty()) {
-            dto.setTongThanhToan(Double.parseDouble(tong));
-        }
 
         List<ChiTietHoaDonBan_DTO> list = new ArrayList<>();
+        double tongTienHangSauKM = 0;
 
         if (danhSachMua != null && !danhSachMua.isEmpty()) {
-
             for (ChiTietGioHang_DTO item : danhSachMua) {
-
                 ChiTietHoaDonBan_DTO ct = new ChiTietHoaDonBan_DTO();
-
                 ct.setMaSP(item.getMaSP());
                 ct.setMaLo(item.getMaLo());
                 ct.setSoLuong(item.getSoLuong());
-                double gia = thanhToanBUS.getGiaSanPham(item.getMaSP());
-                ct.setGiaBan(gia);
-                ct.setGiaBanSauApKM(gia);
-                ct.setThanhTien(gia * item.getSoLuong());
+                double giaGoc = thanhToanBUS.getGiaSanPham(item.getMaSP());
+                ct.setGiaBan(giaGoc);
+                SanPham_DTO sp = SanPham_BUS.getInstance().getById(item.getMaSP());
+                String maDM = (sp != null) ? sp.getMaDM() : "";
+                var dsKM = hdbBus.goiYKhuyenMai(item.getMaSP(), maDM, giaGoc);
+                String maKM = (dsKM != null && !dsKM.isEmpty()) ? dsKM.get(0).getMaKM() : null;
+                double giaSauKM = hdbBus.tinhGiaSauKhuyenMai(giaGoc, maKM);
+                ct.setMaKhuyenMai(maKM);
+                ct.setGiaBanSauApKM(giaSauKM);
+                double thanhTienItem = giaSauKM * item.getSoLuong();
+                ct.setThanhTien(thanhTienItem);
+
+                tongTienHangSauKM += thanhTienItem;
 
                 list.add(ct);
             }
         }
-
         dto.setDanhSachSanPham(list);
-
+        double phiShip = 15000;
+        double tongCuoiCung = tongTienHangSauKM + phiShip;
+        dto.setTongThanhToan(tongCuoiCung);
         return dto;
     }
     private void xuLyDatHang() {

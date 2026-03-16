@@ -24,6 +24,7 @@ public class ChiTietGioHang_DAO {
                         rs.getString("Ma_GH"),
                         rs.getString("Ma_SP"),
                         rs.getInt("SoLuong")
+
                 );
 
                 list.add(ct);
